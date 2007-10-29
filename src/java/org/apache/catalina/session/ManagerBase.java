@@ -88,7 +88,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.14 $ $Date: 2006/11/17 23:06:37 $
+ * @version $Revision: 1.15 $ $Date: 2006/11/21 17:39:40 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -266,6 +266,24 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
 
     private String prefix_ = null;
     //END OF RIMOD# 5056989
+
+
+    /**
+     * Utility class used to call into services from
+     * com.sun.ejb.base.io.IOUtils, which provides object input and output
+     * streams for the serialization and deserialization of EJB references
+     * stored in HTTP sessions
+     */
+    private static final IOUtilsCaller webUtilsCaller;
+
+    /**
+     * Creates the utility class used to call into services from
+     * com.sun.ejb.base.io.IOUtils
+     */
+    static {
+        WebIOUtilsFactory factory = new WebIOUtilsFactory();
+        webUtilsCaller = factory.createWebIOUtil();            
+    }
 
 
     // ------------------------------------------------------------- Security classes
@@ -1086,6 +1104,15 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
 
 
     // ------------------------------------------------------ Protected Methods
+
+
+    /**
+     * Gets the utility class used to call into services from
+     * com.sun.ejb.base.io.IOUtils.
+     */
+    protected static IOUtilsCaller getWebUtilsCaller() {
+        return webUtilsCaller;
+    }
 
 
     /**

@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.11 $ $Date: 2006/10/12 23:51:11 $
+ * @version $Revision: 1.12 $ $Date: 2006/11/09 01:12:51 $
  */
 
 public class StandardManager
@@ -395,12 +395,23 @@ public class StandardManager
             if (loader != null)
                 classLoader = loader.getClassLoader();
             if (classLoader != null) {
-                if (log.isDebugEnabled())
-                    log.debug("Creating custom object input stream for class loader ");
-                ois = new CustomObjectInputStream(bis, classLoader);
-            } else {
-                if (log.isDebugEnabled())
+                IOUtilsCaller caller = getWebUtilsCaller();
+                if (caller != null) {
+                    try {
+                        ois = caller.createObjectInputStream(
+                                        bis, true, classLoader);
+                    } catch (Exception ex) {}
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Creating custom object input stream for class loader ");
+                    }
+                    ois = new CustomObjectInputStream(bis, classLoader);
+                }
+            }
+            if (ois == null) {
+                if (log.isDebugEnabled()) {
                     log.debug("Creating standard object input stream");
+                }
                 ois = new ObjectInputStream(bis);
             }
         } catch (FileNotFoundException e) {
@@ -547,7 +558,18 @@ public class StandardManager
         ObjectOutputStream oos = null;
         try {
             fos = new FileOutputStream(file.getAbsolutePath());
-            oos = new ObjectOutputStream(new BufferedOutputStream(fos));
+            IOUtilsCaller caller = getWebUtilsCaller();
+            if (caller != null) {
+                try {
+                    oos = caller.createObjectOutputStream(
+                                new BufferedOutputStream(fos), true);
+                } catch (Exception ex) {}
+            }
+            // Use normal ObjectOutputStream if there is a failure during
+            // stream creation
+            if (oos == null) {
+                oos = new ObjectOutputStream(new BufferedOutputStream(fos)); 
+            }
         } catch (IOException e) {
             log.error(sm.getString("standardManager.unloading.ioe", e), e);
             if (oos != null) {

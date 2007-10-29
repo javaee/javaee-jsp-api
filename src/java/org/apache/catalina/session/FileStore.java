@@ -61,7 +61,7 @@ import org.apache.catalina.util.CustomObjectInputStream;
  * saved are still subject to being expired based on inactivity.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:57 $
+ * @version $Revision: 1.3 $ $Date: 2006/11/09 01:12:50 $
  */
 
 public final class FileStore
@@ -92,14 +92,6 @@ public final class FileStore
      * A File representing the directory in which Sessions are stored.
      */
     private File directoryFile = null;
-    
-    
-    /**
-     * A utility class used to call into services from IOUtils
-     * HERCULES: addition
-     */
-    private IOUtilsCaller webUtilsCaller = null;     
-
 
     /**
      * The descriptive information about this implementation.
@@ -151,18 +143,6 @@ public final class FileStore
 
     }
     
-    /**
-     * get the utility class used to call into services from IOUtils
-     * HERCULES: addition
-     */
-    protected IOUtilsCaller getWebUtilsCaller() {
-        if(webUtilsCaller == null) {
-            WebIOUtilsFactory factory = new WebIOUtilsFactory();
-            webUtilsCaller = factory.createWebIOUtil();            
-        }
-        return webUtilsCaller;
-    }    
-
 
     /**
      * Return descriptive information about this Store implementation and
@@ -311,21 +291,12 @@ public final class FileStore
                 loader = container.getLoader();
             if (loader != null)
                 classLoader = loader.getClassLoader();
-            //HERCULES:mod begin
-            /* these 4 lines replaced
-            if (classLoader != null)
-                ois = new CustomObjectInputStream(bis, classLoader);
-            else
-                ois = new ObjectInputStream(bis);
-             */ 
-            //requires change to EJBUtils also
-            //this next line was Hercules 7.0EE code
-            //ois = EJBUtils.getInputStream(bis, classLoader, true, true);
             if (classLoader != null) {
-                IOUtilsCaller caller = this.getWebUtilsCaller();
-                if(webUtilsCaller != null) {
+                IOUtilsCaller caller =
+                    ((ManagerBase) manager).getWebUtilsCaller();
+                if (caller != null) {
                     try {
-                        ois = webUtilsCaller.createObjectInputStream(bis, true, classLoader);
+                        ois = caller.createObjectInputStream(bis, true, classLoader);
                     } catch (Exception ex) {}
                 } else {
                     ois = new CustomObjectInputStream(bis, classLoader); 
@@ -424,17 +395,15 @@ public final class FileStore
         ObjectOutputStream oos = null;
         try {
             fos = new FileOutputStream(file.getAbsolutePath());
-            //oos = new ObjectOutputStream(new BufferedOutputStream(fos));           
-            //Hercules: modification replaces previous line
-            //requires mod to EJBUtils also
-            //oos = EJBUtils.getOutputStream(new BufferedOutputStream(fos), true);
-            IOUtilsCaller caller = this.getWebUtilsCaller();
-            if(webUtilsCaller != null) {
+            IOUtilsCaller caller = ((ManagerBase) manager).getWebUtilsCaller();
+            if (caller != null) {
                 try {
-                    oos = webUtilsCaller.createObjectOutputStream(new BufferedOutputStream(fos), true);
+                    oos = caller.createObjectOutputStream(
+                            new BufferedOutputStream(fos), true);
                 } catch (Exception ex) {}
             }
-            //use normal ObjectOutputStream if there is a failure during stream creation
+            // Use normal ObjectOutputStream if there is a failure during
+            // stream creation
             if(oos == null) {
                 oos = new ObjectOutputStream(new BufferedOutputStream(fos)); 
             }
