@@ -72,7 +72,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:07 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:28:23 $
  */
 
 public class ErrorReportValve
@@ -315,7 +315,12 @@ public class ErrorReportValve
             sb.append("<p><b>");
             sb.append(sm.getString("errorReportValve.exception"));
             sb.append("</b> <pre>");
+            /* SJSAS 6387790
             sb.append(stackTrace);
+            */
+            // START SJSAS 6387790
+            sb.append(RequestUtil.filter(stackTrace));
+            // END SJSAS 6387790
             sb.append("</pre></p>");
 
             while (rootCause != null) {
