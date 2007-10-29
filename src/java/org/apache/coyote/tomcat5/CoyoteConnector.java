@@ -86,7 +86,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.19 $ $Date: 2007/02/24 03:50:55 $
+ * @version $Revision: 1.20 $ $Date: 2007/02/26 20:15:10 $
  */
 
 
@@ -1516,25 +1516,25 @@ public class CoyoteConnector
                           (sm.getString
                             ("coyoteConnector.illegalAdapter",adapter));
                     }
-                    protocolHandler.setAdapter(adapter);
-                    return;
+                // START SJSAS 6439313
+                } else {
+                    Constructor constructor = 
+                            clazz.getConstructor(new Class[]{Boolean.TYPE,
+                                                             Boolean.TYPE,
+                                                             String.class});
+
+                    protocolHandler = (ProtocolHandler) 
+                        constructor.newInstance(secure, blocking,
+                                                selectorThreadImpl);
+                // END SJSAS 6439313
                 }
-
-                // START SJSAS 6439313                
-                Constructor constructor = 
-                        clazz.getConstructor(new Class[]{Boolean.TYPE,
-                                                         Boolean.TYPE,
-                                                         String.class});
-
-                protocolHandler = (ProtocolHandler) 
-                    constructor.newInstance(secure,blocking,selectorThreadImpl);
-                // END SJSAS 6439313                                
             } catch (Exception e) {
                 throw new LifecycleException
                     (sm.getString
                      ("coyoteConnector.protocolHandlerInstantiationFailed", e));
             }
         }
+
         protocolHandler.setAdapter(adapter);
 
         IntrospectionUtils.setProperty(protocolHandler, "jkHome",
