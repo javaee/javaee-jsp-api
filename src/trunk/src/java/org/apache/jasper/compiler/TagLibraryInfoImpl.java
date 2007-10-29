@@ -312,12 +312,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	    } else if ("taglib-extension".equals(tname)) {
 		// Recognized but ignored
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.taglib", 
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.taglib", tname);
             }
-
         }
 
 	if (tlibversion == null) {
@@ -450,10 +446,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	    } else if ("tag-extension".equals(tname)) {
 		// Ignored
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.tag", 
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.tag", tname);
 	    }
 	}
 
@@ -539,11 +532,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             } else if ("tag-extension".equals(tname)) {
                 // Ignore <tag-extension> element: Bugzilla 33538
 	    } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage(
-                        "jsp.warning.unknown.element.in.tagfile", 
-                        tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.tagfile", tname);
             }
 	}
 
@@ -560,7 +549,9 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	return new TagFileInfo(name, path, tagInfo);
     }
 
-    TagAttributeInfo createAttribute(TreeNode elem, String jspVersion) {
+    TagAttributeInfo createAttribute(TreeNode elem, String jspVersion)
+            throws JasperException {
+
         String name = null;
         String type = null;
         boolean required = false, rtexprvalue = false, reqTime = false,
@@ -619,10 +610,10 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                         if (s != null) {
                             expectedType = s;
                         }
-                    } else if (log.isWarnEnabled()) {
-                        log.warn(Localizer.getMessage(
-                                "jsp.warning.unknown.element.in.attribute",
-                                tname));
+                    } else {
+                        err.jspError(
+                            "jsp.error.unknown.element.in.attribute",
+                            tname);
                     }
                 }
             } else if ("deferred-method".equals(tname)) {
@@ -636,17 +627,15 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                         if (s != null) {
                             methodSignature = s;
                         }
-                    } else if (log.isWarnEnabled()) {
-                        log.warn(Localizer.getMessage(
-                                "jsp.warning.unknown.element.in.attribute",
-                                tname));
+                    } else {
+                        err.jspError(
+                            "jsp.error.unknown.element.in.attribute",
+                            tname);
                     }
                 }
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.attribute",
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.attribute",
+                             tname);
             }
         }
         
@@ -675,7 +664,9 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                                     methodSignature);
     }
 
-    TagVariableInfo createVariable(TreeNode elem) {
+    TagVariableInfo createVariable(TreeNode elem)
+            throws JasperException {
+
         String nameGiven = null;
         String nameFromAttribute = null;
 	String className = "java.lang.String";
@@ -710,10 +701,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	    } else if ("description".equals(tname) ||    // Ignored elements
 		     false ) {
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.variable",
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.variable",
+                             tname);
 	    }
         }
         return new TagVariableInfo(nameGiven, nameFromAttribute,
@@ -738,10 +727,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             } else if ("description".equals(tname) ||    // Ignored elements
 		     false ) {
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.validator",
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.validator",
+                             tname);
 	    }
         }
 
@@ -762,7 +749,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	return tlv;
     }
 
-    String[] createInitParam(TreeNode elem) {
+    String[] createInitParam(TreeNode elem) throws JasperException {
+
         String[] initParam = new String[2];
         
         Iterator list = elem.findChildren();
@@ -776,16 +764,14 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             } else if ("description".equals(tname)) {
                 ; // Do nothing
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.initParam",
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.initParam",
+                             tname);
 	    }
         }
 	return initParam;
     }
 
-    FunctionInfo createFunctionInfo(TreeNode elem) {
+    FunctionInfo createFunctionInfo(TreeNode elem) throws JasperException {
 
         String name = null;
         String klass = null;
@@ -808,10 +794,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                      "description".equals(tname) || 
                      "example".equals(tname)) {
             } else {
-		if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.unknown.element.in.function",
-						  tname));
-		}
+                err.jspError("jsp.error.unknown.element.in.function",
+                             tname);
 	    }
         }
 
