@@ -74,7 +74,7 @@ public final class ApplicationFilterFactory {
     public static final String DISPATCHER_REQUEST_PATH_ATTR = 
         Globals.DISPATCHER_REQUEST_PATH_ATTR;
 
-    private static ApplicationFilterFactory factory = null;;
+    private static ApplicationFilterFactory factory = new ApplicationFilterFactory();
 
 
     // ----------------------------------------------------------- Constructors
@@ -93,10 +93,7 @@ public final class ApplicationFilterFactory {
     /**
      * Return the fqctory instance.
      */
-    public static synchronized ApplicationFilterFactory getInstance() {
-        if (factory == null) {
-            factory = new ApplicationFilterFactory();
-        }
+    public static ApplicationFilterFactory getInstance() {
         return factory;
     }
 
