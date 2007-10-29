@@ -351,7 +351,7 @@ public abstract class ContainerBase
      * no associated Loader, return the Loader associated with our parent
      * Container (if any); otherwise, return <code>null</code>.
      */
-    public Loader getLoader() {
+    public synchronized Loader getLoader() {
 
         if (loader != null)
             return (loader);
@@ -408,7 +408,7 @@ public abstract class ContainerBase
      * no associated Logger, return the Logger associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public Logger getLogger() {
+    public synchronized Logger getLogger() {
 
         if (logger != null)
             return (logger);
@@ -466,7 +466,7 @@ public abstract class ContainerBase
      * no associated Manager, return the Manager associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public Manager getManager() {
+    public synchronized Manager getManager() {
 
         if (manager != null)
             return (manager);
@@ -531,7 +531,7 @@ public abstract class ContainerBase
      * no associated Cluster, return the Cluster associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public Cluster getCluster() {
+    public synchronized Cluster getCluster() {
         if (cluster != null)
             return (cluster);
 
@@ -694,7 +694,7 @@ public abstract class ContainerBase
      * no associated Realm, return the Realm associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public Realm getRealm() {
+    public synchronized Realm getRealm() {
 
         if (realm != null)
             return (realm);
@@ -752,7 +752,7 @@ public abstract class ContainerBase
       * resources associated with our parent Container (if any); otherwise
       * return <code>null</code>.
      */
-    public DirContext getResources() {
+    public synchronized DirContext getResources() {
         if (resources != null)
             return (resources);
         if (parent != null)
