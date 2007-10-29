@@ -114,6 +114,11 @@ public class RequestInfo  {
     private long requestCompletionTime;
     // END S1AS
 
+    // START SJSAS 6338793
+    private String lastURI;
+    private String lastMethod;
+    private long lastCompletionTime;
+    // END SJSAS 6338793
 
     /**
      * Constructor
@@ -253,6 +258,11 @@ public class RequestInfo  {
             maxRequestUri=req.requestURI().toString();
         }
 
+        // START SJSAS 6338793
+        lastURI = req.requestURI().toString();
+        lastMethod = req.method().toString();
+        lastCompletionTime = t1;
+        // END SJAS 6338793
     }
 
     public int getStage() {
@@ -462,6 +472,36 @@ public class RequestInfo  {
     // END S1AS
 
 
+    // START SJSAS 6338793
+    /**
+     * Gets the URI of the last request serviced.
+     *
+     * @return The URI of the last request serviced
+     */
+    public String getLastRequestURI() {
+        return lastURI;
+    }
+
+    /**
+     * Gets the HTTP method of the last request serviced.
+     *
+     * @return The HTTP method of the last request serviced
+     */
+    public String getLastRequestMethod() {
+        return lastMethod;
+    }
+
+    /**
+     * Gets the time when the last request was completed.
+     *
+     * @return The time when the last request was completed.
+     */
+    public long getLastRequestCompletionTime() {
+        return lastCompletionTime;
+    }
+    // END SJSAS 6338793
+
+
     // START S1AS
     /**
      * Resets this <code>RequestInfo</code>.
@@ -489,6 +529,11 @@ public class RequestInfo  {
         setCount503(0);
         setWorkerThreadID(0);
         setRequestCompletionTime(0);
+        // START SJSAS 6338793
+        lastMethod = null;
+        lastURI = null;
+        lastCompletionTime = 0;
+        // END SJSAS 6338793
     }
     // END S1AS
 }

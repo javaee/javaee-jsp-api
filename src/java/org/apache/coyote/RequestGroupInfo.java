@@ -28,7 +28,7 @@ import java.util.ArrayList;
  *  collected from each RequestProcessor thread.
  */
 public class RequestGroupInfo {
-    ArrayList processors=new ArrayList();
+    ArrayList<RequestInfo> processors=new ArrayList<RequestInfo>();
     private long deadMaxTime = 0;
     private long deadProcessingTime = 0;
     private int deadRequestCount = 0;
@@ -53,6 +53,7 @@ public class RequestGroupInfo {
     private long countOpenConnections;
     private long maxOpenConnections;
     // END S1AS
+
 
     public synchronized void addRequestProcessor( RequestInfo rp ) {
         processors.add( rp );
@@ -91,7 +92,7 @@ public class RequestGroupInfo {
     public synchronized long getMaxTime() {
         long maxTime=deadMaxTime;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             if( maxTime < rp.getMaxTime() ) maxTime=rp.getMaxTime();
         }
         return maxTime;
@@ -101,7 +102,7 @@ public class RequestGroupInfo {
     public synchronized void setMaxTime(long maxTime) {
         deadMaxTime = maxTime;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setMaxTime(maxTime);
         }
     }
@@ -109,7 +110,7 @@ public class RequestGroupInfo {
     public synchronized long getProcessingTime() {
         long time=deadProcessingTime;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             time += rp.getProcessingTime();
         }
         return time;
@@ -118,7 +119,7 @@ public class RequestGroupInfo {
     public synchronized void setProcessingTime(long totalTime) {
         deadProcessingTime = totalTime;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setProcessingTime( totalTime );
         }
     }
@@ -126,7 +127,7 @@ public class RequestGroupInfo {
     public synchronized int getRequestCount() {
         int requestCount=deadRequestCount;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             requestCount += rp.getRequestCount();
         }
         return requestCount;
@@ -135,7 +136,7 @@ public class RequestGroupInfo {
     public synchronized void setRequestCount(int requestCount) {
         deadRequestCount = requestCount;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setRequestCount( requestCount );
         }
     }
@@ -143,7 +144,7 @@ public class RequestGroupInfo {
     public synchronized int getErrorCount() {
         int requestCount=deadErrorCount;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             requestCount += rp.getErrorCount();
         }
         return requestCount;
@@ -152,7 +153,7 @@ public class RequestGroupInfo {
     public synchronized void setErrorCount(int errorCount) {
         deadErrorCount = errorCount;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setErrorCount( errorCount);
         }
     }
@@ -160,7 +161,7 @@ public class RequestGroupInfo {
     public synchronized long getBytesReceived() {
         long bytes=deadBytesReceived;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             bytes += rp.getBytesReceived();
         }
         return bytes;
@@ -169,7 +170,7 @@ public class RequestGroupInfo {
     public synchronized void setBytesReceived(long bytesReceived) {
         deadBytesReceived = bytesReceived;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setBytesReceived( bytesReceived );
         }
     }
@@ -177,7 +178,7 @@ public class RequestGroupInfo {
     public synchronized long getBytesSent() {
         long bytes=deadBytesSent;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             bytes += rp.getBytesSent();
         }
         return bytes;
@@ -186,7 +187,7 @@ public class RequestGroupInfo {
     public synchronized void setBytesSent(long bytesSent) {
         deadBytesSent = bytesSent;
         for( int i=0; i<processors.size(); i++ ) {
-            RequestInfo rp=(RequestInfo)processors.get( i );
+            RequestInfo rp = processors.get( i );
             rp.setBytesSent( bytesSent );
         }
     }
@@ -195,7 +196,7 @@ public class RequestGroupInfo {
     public synchronized long getCount2xx() {
         long ret = deadCount2xx;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount2xx();
         }
         return ret;
@@ -204,7 +205,7 @@ public class RequestGroupInfo {
     public synchronized void setCount2xx(long count) {
         deadCount2xx = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount2xx(count);
         }
     }
@@ -212,7 +213,7 @@ public class RequestGroupInfo {
     public synchronized long getCount3xx() {
         long ret = deadCount3xx;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount3xx();
         }
         return ret;
@@ -221,7 +222,7 @@ public class RequestGroupInfo {
     public synchronized void setCount3xx(long count) {
         deadCount3xx = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount3xx(count);
         }
     }
@@ -229,7 +230,7 @@ public class RequestGroupInfo {
     public synchronized long getCount4xx() {
         long ret = deadCount4xx;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount4xx();
         }
         return ret;
@@ -238,7 +239,7 @@ public class RequestGroupInfo {
     public synchronized void setCount4xx(long count) {
         deadCount4xx = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount4xx(count);
         }
     }
@@ -246,7 +247,7 @@ public class RequestGroupInfo {
     public synchronized long getCount5xx() {
         long ret = deadCount5xx;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount5xx();
         }
         return ret;
@@ -255,7 +256,7 @@ public class RequestGroupInfo {
     public synchronized void setCount5xx(long count) {
         deadCount5xx = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount5xx(count);
         }
     }
@@ -263,7 +264,7 @@ public class RequestGroupInfo {
     public synchronized long getCountOther() {
         long ret = deadCountOther;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCountOther();
         }
         return ret;
@@ -272,7 +273,7 @@ public class RequestGroupInfo {
     public synchronized void setCountOther(long count) {
         deadCountOther = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCountOther(count);
         }
     }
@@ -280,7 +281,7 @@ public class RequestGroupInfo {
     public synchronized long getCount200() {
         long ret = deadCount200;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount200();
         }
         return ret;
@@ -289,7 +290,7 @@ public class RequestGroupInfo {
     public synchronized void setCount200(long count) {
         deadCount200 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount200(count);
         }
     }
@@ -297,7 +298,7 @@ public class RequestGroupInfo {
     public synchronized long getCount302() {
         long ret = deadCount302;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount302();
         }
         return ret;
@@ -306,7 +307,7 @@ public class RequestGroupInfo {
     public synchronized void setCount302(long count) {
         deadCount302 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount302(count);
         }
     }
@@ -314,7 +315,7 @@ public class RequestGroupInfo {
     public synchronized long getCount304() {
         long ret = deadCount304;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount304();
         }
         return ret;
@@ -323,7 +324,7 @@ public class RequestGroupInfo {
     public synchronized void setCount304(long count) {
         deadCount304 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount304(count);
         }
     }
@@ -331,7 +332,7 @@ public class RequestGroupInfo {
     public synchronized long getCount400() {
         long ret = deadCount400;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount400();
         }
         return ret;
@@ -340,7 +341,7 @@ public class RequestGroupInfo {
     public synchronized void setCount400(long count) {
         deadCount400 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount400(count);
         }
     }
@@ -348,7 +349,7 @@ public class RequestGroupInfo {
     public synchronized long getCount401() {
         long ret = deadCount401;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount401();
         }
         return ret;
@@ -357,7 +358,7 @@ public class RequestGroupInfo {
     public synchronized void setCount401(long count) {
         deadCount401 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount401(count);
         }
     }
@@ -365,7 +366,7 @@ public class RequestGroupInfo {
     public synchronized long getCount403() {
         long ret = deadCount403;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount403();
         }
         return ret;
@@ -374,7 +375,7 @@ public class RequestGroupInfo {
     public synchronized void setCount403(long count) {
         deadCount403 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount403(count);
         }
     }
@@ -382,7 +383,7 @@ public class RequestGroupInfo {
     public synchronized long getCount404() {
         long ret = deadCount404;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount404();
         }
         return ret;
@@ -391,7 +392,7 @@ public class RequestGroupInfo {
     public synchronized void setCount404(long count) {
         deadCount404 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount404(count);
         }
     }
@@ -399,7 +400,7 @@ public class RequestGroupInfo {
     public synchronized long getCount503() {
         long ret = deadCount503;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             ret += rp.getCount503();
         }
         return ret;
@@ -408,7 +409,7 @@ public class RequestGroupInfo {
     public synchronized void setCount503(long count) {
         deadCount503 = count;
         for (int i=0; i<processors.size(); i++) {
-            RequestInfo rp = (RequestInfo)processors.get(i);
+            RequestInfo rp = processors.get(i);
             rp.setCount503(count);
         }
     }
@@ -443,6 +444,70 @@ public class RequestGroupInfo {
         maxOpenConnections = count;
     }
     // END S1AS
+
+
+    // START SJSAS 6338793
+    /**
+     * Gets the URI of the last request serviced.
+     *
+     * @return The URI of the last request serviced
+     */
+    public String getLastRequestURI() {
+
+        long lastRequestCompletionTime = 0;
+        String lastRequestURI = null;
+
+        for (int i=0; i<processors.size(); i++) {
+            RequestInfo rp = processors.get(i);
+            if (rp.getLastRequestCompletionTime() > lastRequestCompletionTime) {
+                lastRequestCompletionTime = rp.getLastRequestCompletionTime();
+                lastRequestURI = rp.getLastRequestURI();
+            }
+        }
+
+        return lastRequestURI;
+    }
+
+    /**
+     * Gets the HTTP method of the last request serviced.
+     *
+     * @return The HTTP method of the last request serviced
+     */
+    public String getLastRequestMethod() {
+
+        long lastRequestCompletionTime = 0;
+        String lastRequestMethod = null;
+
+        for (int i=0; i<processors.size(); i++) {
+            RequestInfo rp = processors.get(i);
+            if (rp.getLastRequestCompletionTime() > lastRequestCompletionTime) {
+                lastRequestCompletionTime = rp.getLastRequestCompletionTime();
+                lastRequestMethod = rp.getLastRequestMethod();
+            }
+        }
+
+        return lastRequestMethod;
+    }
+
+    /**
+     * Gets the time when the last request was completed.
+     *
+     * @return The time when the last request was completed.
+     */
+    public long getLastRequestCompletionTime() {
+
+        long lastRequestCompletionTime = 0;
+
+        for (int i=0; i<processors.size(); i++) {
+            RequestInfo rp = processors.get(i);
+            if (rp.getLastRequestCompletionTime() > lastRequestCompletionTime) {
+                lastRequestCompletionTime = rp.getLastRequestCompletionTime();
+            }
+        }
+
+        return lastRequestCompletionTime;
+    }
+    // END SJSAS 6338793
 
 
     public void resetCounters() {
