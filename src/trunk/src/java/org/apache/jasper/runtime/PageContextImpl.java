@@ -978,7 +978,8 @@ public class PageContextImpl extends PageContext {
 		}
             }
         } else {
-            ELContextImpl elContext = (ELContextImpl)pageContext.getELContext();            elContext.setFunctionMapper(functionMap);
+            ELContextImpl elContext = (ELContextImpl)pageContext.getELContext();
+            elContext.setFunctionMapper(functionMap);
             ValueExpression expr = expFactory.createValueExpression(
                                            elContext,
                                            expression,
@@ -989,26 +990,29 @@ public class PageContextImpl extends PageContext {
     }
 
     public static ValueExpression getValueExpression(String expression,
+                                                     PageContext pageContext,
                                                      Class expectedType,
-                                                     FunctionMapper functionMap)    {
+                                                     FunctionMapper functionMap)
+    {
         // ELResolvers are not used in createValueExpression
-        ELContextImpl elContext = new ELContextImpl(null);
-        elContext.setFunctionMapper(functionMap);
-        return expFactory.createValueExpression(elContext,
+        ELContextImpl elctxt = (ELContextImpl)pageContext.getELContext();
+        elctxt.setFunctionMapper(functionMap);
+        return expFactory.createValueExpression(elctxt,
                                                 expression,
                                                 expectedType);
     }
                                                                                 
     public static MethodExpression getMethodExpression(
                                                String expression,
+                                               PageContext pageContext,
                                                FunctionMapper functionMap,
                                                Class expectedType,
                                                Class[] paramTypes) {
                                                                                 
-        ELContextImpl elContext = new ELContextImpl(null);
-        elContext.setFunctionMapper(functionMap);
+        ELContextImpl elctxt = (ELContextImpl)pageContext.getELContext();
+        elctxt.setFunctionMapper(functionMap);
         return expFactory.createMethodExpression(
-                                    elContext,
+                                    elctxt,
                                     expression,
                                     expectedType,
                                     paramTypes);
