@@ -59,14 +59,14 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.9 $ $Date: 2006/04/01 01:18:15 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 17:02:54 $
  */
 
 public abstract class PersistentManagerBase
     extends ManagerBase
     implements Lifecycle, PropertyChangeListener {
 
-    private static Log log = LogFactory.getLog(PersistentManagerBase.class);
+    private static final Log log = LogFactory.getLog(PersistentManagerBase.class);
 
     // ---------------------------------------------------- Security Classes
      private class PrivilegedStoreClear
@@ -159,7 +159,7 @@ public abstract class PersistentManagerBase
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static String name = "PersistentManagerBase";
+    protected static final String name = "PersistentManagerBase";
 
 
     /**
