@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.54 $ $Date: 2007/03/07 19:35:51 $
+ * @version $Revision: 1.55 $ $Date: 2007/03/12 21:41:53 $
  */
 
 public class CoyoteRequest
@@ -448,7 +448,13 @@ public class CoyoteRequest
     /**
      * has findSession been called and returned null already
      */
-    private boolean unsuccessfulSessionFind = false;    
+    private boolean unsuccessfulSessionFind = false;
+
+    /*
+     * Are we supposed to honor the unsuccessfulSessionFind flag?
+     * WS overrides this to false.
+     */
+    protected boolean checkUnsuccessfulSessionFind = true;
 
     // START S1AS 4703023
     /**
@@ -2615,8 +2621,8 @@ public class CoyoteRequest
             manager = context.getManager();
         if (manager == null)
             return (null);      // Sessions are not supported
-        if (requestedSessionId != null) {            
-            if (!unsuccessfulSessionFind) {
+        if (requestedSessionId != null) {
+            if (!checkUnsuccessfulSessionFind || !unsuccessfulSessionFind) {
                 try {
                     if (manager.isSessionVersioningSupported()) {
                         session = manager.findSession(requestedSessionId,
@@ -2632,7 +2638,7 @@ public class CoyoteRequest
                 } catch (IOException e) {
                     session = null;
                 }
-            }                        
+            }
             if ((session != null) && !session.isValid())
                 session = null;
             if (session != null) {
