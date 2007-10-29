@@ -241,11 +241,6 @@ public class Compiler {
             smapUtil.generateSmap(pageNodes);
         }
 
-        if (options.getSaveBytecode()) {
-            javaCompiler.saveClassFile(ctxt.getFullClassName(),
-                                       ctxt.getClassFileName());
-        }
-
         // If any proto type .java and .class files was generated,
         // the prototype .java may have been replaced by the current
         // compilation (if the tag file is self referencing), but the
@@ -341,6 +336,11 @@ public class Compiler {
                 javaCompiler.getClassLastModified());
         }
         // END CR 6373479
+
+        if (options.getSaveBytecode()) {
+            javaCompiler.saveClassFile(ctxt.getFullClassName(),
+                                       ctxt.getClassFileName());
+        }
 
         // On some systems, due to file caching, the time stamp for the updated
         // JSP file may actually be greater than that of the newly created byte

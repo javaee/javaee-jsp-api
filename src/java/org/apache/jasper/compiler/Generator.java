@@ -3411,7 +3411,8 @@ class Generator {
         err = compiler.getErrorDispatcher();
         ctxt = compiler.getCompilationContext();
         fragmentHelperClass =
-            new FragmentHelperClass(ctxt.getServletClassName() + "Helper");
+            new FragmentHelperClass(ctxt.getFullClassName(),
+                                    ctxt.getServletClassName() + "Helper");
         pageInfo = compiler.getPageInfo();
 
         /*
@@ -4061,11 +4062,13 @@ class Generator {
         private ArrayList fragments = new ArrayList();
 
         private String className;
+        private String fullClassName;
 
         // Buffer for entire helper class
         private GenBuffer classBuffer = new GenBuffer();
 
-        public FragmentHelperClass(String className) {
+        public FragmentHelperClass(String outterClassName, String className) {
+            this.fullClassName = outterClassName + '$' + className;
             this.className = className;
         }
 
@@ -4114,7 +4117,7 @@ class Generator {
             Fragment result = new Fragment(fragments.size(), parent);
             fragments.add(result);
             this.used = true;
-            parent.setInnerClassName(className);
+            parent.setInnerClassName(fullClassName);
 
             ServletWriter out = result.getGenBuffer().getOut();
             out.pushIndent();
