@@ -83,7 +83,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.18 $ $Date: 2007/02/16 18:10:32 $
+ * @version $Revision: 1.19 $ $Date: 2007/04/03 22:08:18 $
  */
 
 final class StandardHostValve
@@ -200,6 +200,10 @@ final class StandardHostValve
         throws IOException, ServletException
         // END SJSAS 6374691
     {
+        if (((ServletResponse) response).isCommitted()) {
+            return;
+        }
+
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
         // END OF IASRI 4665318
         // Error page processing
@@ -489,7 +493,7 @@ final class StandardHostValve
         */
         HttpServletResponse hres =
             (HttpServletResponse) response.getResponse();
-        
+
         ((HttpRequest) request).setPathInfo(errorPage.getLocation());
 
         try {
