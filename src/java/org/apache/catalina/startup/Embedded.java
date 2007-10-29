@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:28:07 $
+ * @version $Revision: 1.5 $ $Date: 2005/12/12 19:11:35 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -811,8 +811,12 @@ public class Embedded  extends StandardService implements Lifecycle {
      * the mappings in org/apache/catalina/startup/Authenticators.properties
      * to be overridden.
      *
+     * <p>If the specified authenticator is null, the given login method is
+     * removed from the mapping.
+     *
      * @param authenticator Authenticator to handle authentication for the
-     * specified login method
+     * specified login method, or <code>null</code> if the specified login
+     * method is to be removed from the mapping
      * @param loginMethod Login method that maps to the specified authenticator
      *
      * @throws IllegalArgumentException if the specified authenticator does not
@@ -820,18 +824,26 @@ public class Embedded  extends StandardService implements Lifecycle {
      */
     public void addAuthenticator(Authenticator authenticator,
                                  String loginMethod) {
-        if (!(authenticator instanceof Valve)) {
+        if ((authenticator != null) && !(authenticator instanceof Valve)) {
             throw new IllegalArgumentException(
                 sm.getString("embedded.authenticatorNotInstanceOfValve"));
         }
         if (authenticators == null) {
+            if (authenticator == null) {
+                return;
+            }
             synchronized (this) {
                 if (authenticators == null) {
                     authenticators = new HashMap();
                 }
             }
         }
-        authenticators.put(loginMethod, authenticator);
+
+        if (authenticator != null) {
+            authenticators.put(loginMethod, authenticator);
+        } else {
+            authenticators.remove(loginMethod);
+        }
     }
 
 
