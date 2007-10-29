@@ -87,7 +87,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2007/04/13 18:43:02 $
+ * @version $Revision: 1.13 $ $Date: 2007/05/05 05:31:53 $
  */
 
 public class ApplicationContext
@@ -688,10 +688,26 @@ public class ApplicationContext
         if (path == null)
             return (null);
 
-        DirContext resources = context.getResources();
+        DirContext resources = null;
+
+        if (alternateDocBases == null
+                || alternateDocBases.size() == 0) {
+            resources = context.getResources();
+        } else {
+            AlternateDocBase match = AlternateDocBase.findMatch(
+                                path, alternateDocBases);
+            if (match != null) {
+                resources = match.getResources();
+            } else {
+                // None of the url patterns for alternate doc bases matched
+                resources = context.getResources();
+            }
+        }
+
         if (resources != null) {
             return (getResourcePathsInternal(resources, path));
         }
+
         return (null);
 
     }
