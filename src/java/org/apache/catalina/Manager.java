@@ -58,7 +58,7 @@ import javax.servlet.ServletResponse;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:18 $
+ * @version $Revision: 1.4 $ $Date: 2006/01/27 19:34:19 $
  */
 
 public interface Manager {
@@ -453,6 +453,7 @@ public interface Manager {
     //START OF 6364900
     public boolean lockSession(ServletRequest request) throws ServletException;
     public void unlockSession(ServletRequest request);
+    public void preRequestDispatcherProcess(ServletRequest request, ServletResponse response);
     public void postRequestDispatcherProcess(ServletRequest request, ServletResponse response);
     //END OF 6364900
 }
