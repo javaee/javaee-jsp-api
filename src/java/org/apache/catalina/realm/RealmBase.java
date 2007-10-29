@@ -27,6 +27,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+//START SJSAS 6202703
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Date;
+//END SJSAS 6202703
 
 import javax.management.Attribute;
 import javax.management.MBeanRegistration;
@@ -34,6 +39,10 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
+//START SJSAS 6202703
+import org.apache.catalina.Authenticator;
+import org.apache.catalina.authenticator.AuthenticatorBase;
+//END SJSAS 6202703
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
@@ -52,6 +61,9 @@ import org.apache.catalina.util.HexUtils;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.MD5Encoder;
 import org.apache.catalina.util.StringManager;
+//START SJSAS 6202703
+import org.apache.catalina.util.DateTool;
+//END SJSAS 6202703
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.modeler.Registry;
@@ -69,6 +81,15 @@ public abstract class RealmBase
     implements Lifecycle, Realm, MBeanRegistration {
 
     private static Log log = LogFactory.getLog(RealmBase.class);
+    
+    //START SJSAS 6202703
+    /**
+     * "Expires" header always set to Date(1), so generate once only
+     */
+    private static final String DATE_ONE =
+            (new SimpleDateFormat(DateTool.HTTP_RESPONSE_DATE_HEADER,
+            Locale.US)).format(new Date(1));
+    //END SJSAS 6202703
 
     // ----------------------------------------------------- Instance Variables
 
@@ -806,7 +827,81 @@ public abstract class RealmBase
 
     }
     
+    //START SJSAS 6232464
+    /**
+     * Return <code>true</code> if the specified Principal has the specified
+     * security role, within the context of this Realm; otherwise return
+     * <code>false</code>.  This method can be overridden by Realm
+     * implementations. The default implementation is to forward to
+     * hasRole(Principal principal, String role).
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param principal Principal for whom the role is to be checked
+     * @param role Security role to be checked
+     */
+    public boolean hasRole(HttpRequest request, 
+                           HttpResponse response, 
+                           Principal principal, 
+                           String role) {
+        return hasRole(principal, role);
+    }
+    //END SJSAS 6232464
     
+    //START SJSAS 6202703
+    /**
+     * Checks whether or not authentication is needed.
+     * Returns an int, one of AUTHENTICATE_NOT_NEEDED, AUTHENTICATE_NEEDED,
+     * or AUTHENTICATED_NOT_AUTHORIZED.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param constraints Security constraint we are enforcing
+     * @param disableProxyCaching whether or not to disable proxy caching for
+     *        protected resources.
+     * @exception IOException if an input/output error occurs
+     */
+    public int preAuthenticateCheck(HttpRequest request,
+                                    HttpResponse response,
+                                    SecurityConstraint[] constraints,
+                                    boolean disableProxyCaching)
+                                    throws IOException {
+        for(int i=0; i < constraints.length; i++) {
+            if (constraints[i].getAuthConstraint()) {
+                if(disableProxyCaching) {
+                    disableProxyCaching(request, response);
+                }
+                return Realm.AUTHENTICATE_NEEDED;
+            }
+        }
+        return Realm.AUTHENTICATE_NOT_NEEDED;
+    }
+    
+    
+    /**
+     * Authenticates the user making this request, based on the specified
+     * login configuration.  Return <code>true</code> if any specified
+     * requirements have been satisfied, or <code>false</code> if we have
+     * created a response challenge already.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param context The Context to which client of this class is attached.
+     * @param authentication the current authenticator.
+     * @exception IOException if an input/output error occurs
+     */
+    public boolean invokeAuthenticateDelegate(HttpRequest request,
+                                              HttpResponse response,
+                                              Context context,
+                                              Authenticator authenticator)
+          throws IOException {
+        LoginConfig config = context.getLoginConfig();
+        return ((AuthenticatorBase) authenticator).authenticate(
+                        request, response, config);
+    }
+    
+    //END SJSAS 6202703
+
     /**
      * Return <code>true</code> if the specified Principal has the specified
      * security role, within the context of this Realm; otherwise return
@@ -1218,6 +1313,21 @@ public abstract class RealmBase
             throwable.printStackTrace(System.out);
         }
     }
+    
+    //START SJSAS 6202703
+    protected void disableProxyCaching(HttpRequest request,
+                                       HttpResponse response) {
+        HttpServletRequest hsrequest = (HttpServletRequest) request.getRequest();
+        if (!hsrequest.isSecure() &&
+            !"POST".equalsIgnoreCase(hsrequest.getMethod())) {
+            HttpServletResponse sresponse =
+                    (HttpServletResponse) response.getResponse();
+            sresponse.setHeader("Pragma", "No-cache");
+            sresponse.setHeader("Cache-Control", "no-cache");
+            sresponse.setHeader("Expires", DATE_ONE);
+        }
+    }
+    //END SJSAS 6202703
 
 
     // --------------------------------------------------------- Static Methods
