@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2005/12/12 19:11:35 $
+ * @version $Revision: 1.6 $ $Date: 2006/01/17 17:04:34 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -806,21 +806,22 @@ public class Embedded  extends StandardService implements Lifecycle {
     }
 
 
+    // START PWC 6392537
     /*
      * Maps the specified login method to the specified authenticator, allowing
      * the mappings in org/apache/catalina/startup/Authenticators.properties
      * to be overridden.
      *
-     * <p>If the specified authenticator is null, the given login method is
-     * removed from the mapping.
+     * <p>If <code>authenticator</code> is null, the associated login method
+     * will be disabled.
      *
      * @param authenticator Authenticator to handle authentication for the
      * specified login method, or <code>null</code> if the specified login
-     * method is to be removed from the mapping
+     * method is to be disabled
      * @param loginMethod Login method that maps to the specified authenticator
      *
-     * @throws IllegalArgumentException if the specified authenticator does not
-     * implement the org.apache.catalina.Valve interface
+     * @throws IllegalArgumentException if the specified authenticator is not
+     * null and does not implement the org.apache.catalina.Valve interface
      */
     public void addAuthenticator(Authenticator authenticator,
                                  String loginMethod) {
@@ -829,22 +830,15 @@ public class Embedded  extends StandardService implements Lifecycle {
                 sm.getString("embedded.authenticatorNotInstanceOfValve"));
         }
         if (authenticators == null) {
-            if (authenticator == null) {
-                return;
-            }
             synchronized (this) {
                 if (authenticators == null) {
                     authenticators = new HashMap();
                 }
             }
         }
-
-        if (authenticator != null) {
-            authenticators.put(loginMethod, authenticator);
-        } else {
-            authenticators.remove(loginMethod);
-        }
+        authenticators.put(loginMethod, authenticator);
     }
+    // END PWC 6392537
 
 
     // ------------------------------------------------------ Lifecycle Methods

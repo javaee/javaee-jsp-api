@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.7 $ $Date: 2006/02/27 23:44:36 $
+ * @version $Revision: 1.8 $ $Date: 2006/02/28 03:18:24 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -469,8 +469,22 @@ public class ContextConfig
          */
         Valve authenticator = null;
         if (customAuthenticators != null) {
+            /* PWC 6392537
             authenticator = (Valve)
                 customAuthenticators.get(loginConfig.getAuthMethod());
+            */
+            // START PWC 6392537
+            String loginMethod = loginConfig.getAuthMethod();
+            if (loginMethod != null
+                    && customAuthenticators.containsKey(loginMethod)) {
+                authenticator = (Valve) customAuthenticators.get(loginMethod);
+                if (authenticator == null) {
+                    log.error(
+                        sm.getString("contextConfig.authenticatorMissing",
+                                     loginMethod));
+                }
+            }
+            // END PWC 6392537
         }
         if (authenticator == null) {
             // Load our mapping properties if necessary
