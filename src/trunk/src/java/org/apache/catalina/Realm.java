@@ -37,12 +37,34 @@ import org.apache.catalina.deploy.SecurityConstraint;
  * Container.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:42 $
+ * @version $Revision: 1.9 $ $Date: 2005/02/10 00:49:01 $
  */
 
 public interface Realm {
 
+    // ------------------------------------------------------------- Constants
 
+    //START SJSAS 6202703
+    /**
+     * Flag indicating authentication is needed for current request.  Used by
+     * preAuthenticateCheck method.
+     */
+    public static final int AUTHENTICATE_NEEDED = 1;
+    
+    /**
+     * Flag indicating authentication is not needed for current request. Used
+     * by preAuthenticateCheck method.
+     */
+    public static final int AUTHENTICATE_NOT_NEEDED = 0;
+    
+    /**
+     * Flag indicating the user has been authenticated but been denied access
+     * to the requested resource.
+     */
+    public static final int AUTHENTICATED_NOT_AUTHORIZED = -1;
+
+    //END SJSAS 6202703
+    
     // ------------------------------------------------------------- Properties
 
 
@@ -165,6 +187,63 @@ public interface Realm {
      * @param role Security role to be checked
      */
     public boolean hasRole(Principal principal, String role);
+
+    //START SJSAS 6232464
+    /**
+     * Return <code>true</code> if the specified Principal has the specified
+     * security role, within the context of this Realm; otherwise return
+     * <code>false</code>.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param principal Principal for whom the role is to be checked
+     * @param role Security role to be checked
+     */
+    public boolean hasRole(HttpRequest request, 
+                           HttpResponse response, 
+                           Principal principal, 
+                           String role);
+    //END SJSAS 6232464
+    
+    //START SJSAS 6202703
+    /**
+     * Checks whether or not authentication is needed.
+     * Returns an int, one of AUTHENTICATE_NOT_NEEDED, AUTHENTICATE_NEEDED,
+     * or AUTHENTICATED_NOT_AUTHORIZED.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param constraints Security constraint we are enforcing
+     * @param disableProxyCaching whether or not to disable proxy caching for
+     *        protected resources.
+     * @exception IOException if an input/output error occurs
+     */
+    public int preAuthenticateCheck(HttpRequest request,
+                                    HttpResponse response,
+                                    SecurityConstraint[] constraints,
+                                    boolean disableProxyCaching)
+        throws IOException;    
+    
+    
+    /**
+     * Authenticates the user making this request, based on the specified
+     * login configuration.  Return <code>true</code> if any specified
+     * requirements have been satisfied, or <code>false</code> if we have
+     * created a response challenge already.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param context The Context to which client of this class is attached.
+     * @param authenticator the current authenticator.
+     * @exception IOException if an input/output error occurs
+     */
+    public boolean invokeAuthenticateDelegate(HttpRequest request,
+                                              HttpResponse response,
+                                              Context context,
+                                              Authenticator authenticator)
+          throws IOException;
+    
+    //END SJSAS 6202703
 
         /**
      * Enforce any user data constraint required by the security constraint
