@@ -75,7 +75,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2006/10/19 22:01:39 $
+ * @version $Revision: 1.8 $ $Date: 2006/10/26 18:17:41 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -1381,8 +1381,8 @@ public class StandardWrapper
             int nRetries = 0;
             while ((nRetries < 21) && (countAllocated > 0)) {
                 if ((nRetries % 10) == 0) {
-                    log.info(sm.getString("standardWrapper.waiting",
-                                          Integer.valueOf(countAllocated)));
+                    log.debug(sm.getString("standardWrapper.waiting",
+                                           Integer.valueOf(countAllocated)));
                 }
                 try {
                     Thread.sleep(100);
