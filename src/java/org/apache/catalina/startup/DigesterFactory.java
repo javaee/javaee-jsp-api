@@ -52,6 +52,16 @@ public class DigesterFactory{
      */
     private static SchemaResolver schemaResolver;
 
+    /**
+     * The path prefix for .xsd resources
+     */
+    private static String schemaResourcePrefix;
+
+    /**
+     * The path prefix for .dtd resources
+     */
+    private static String dtdResourcePrefix;
+
 
     /**
      * Create a <code>Digester</code> parser with no <code>Rule</code>
@@ -70,7 +80,21 @@ public class DigesterFactory{
         return newDigester(false,false,rule);
     }
 
-    
+
+    /**
+     * Sets the path prefix for .xsd resources
+     */
+    public static void setSchemaResourcePrefix(String prefix) {
+        schemaResourcePrefix = prefix;
+    }
+
+    /**
+     * Sets the path prefix for .dtd resources
+     */
+    public static void setDtdResourcePrefix(String prefix) {
+        dtdResourcePrefix = prefix;
+    }
+
     /**
      * Create a <code>Digester</code> parser.
      * @param xmlValidation turn on/off xml validation
@@ -142,45 +166,82 @@ public class DigesterFactory{
      * @return an instance ready to parse XML schema.
      */
     protected static void registerLocalSchema(){
-        // J2EE
-        register(Constants.J2eeSchemaResourcePath_14,
-                 Constants.J2eeSchemaPublicId_14);
-        // W3C
-        register(Constants.W3cSchemaResourcePath_10,
-                 Constants.W3cSchemaPublicId_10);
-        // JSP
-        register(Constants.JspSchemaResourcePath_20,
-                 Constants.JspSchemaPublicId_20);
-        register(Constants.JSP_SCHEMA_RESOURCE_PATH_21,
-                 Constants.JSP_SCHEMA_PUBLIC_ID_21);
 
-        // TLD
-        register(Constants.TldDtdResourcePath_11,  
-                 Constants.TldDtdPublicId_11);
-        register(Constants.TldDtdResourcePath_12,
-                 Constants.TldDtdPublicId_12);
-        register(Constants.TldSchemaResourcePath_20,
-                 Constants.TldSchemaPublicId_20);
-        register(Constants.TLD_SCHEMA_RESOURCE_PATH_21,
-                 Constants.TLD_SCHEMA_PUBLIC_ID_21);
+        if (schemaResourcePrefix != null) {
+            // J2EE
+            register(schemaResourcePrefix + Constants.J2eeSchemaPublicId_14,
+                     Constants.J2eeSchemaPublicId_14);
+            // W3C
+            register(schemaResourcePrefix + Constants.W3cSchemaPublicId_10,
+                     Constants.W3cSchemaPublicId_10);
+            // JSP
+            register(schemaResourcePrefix + Constants.JspSchemaPublicId_20,
+                     Constants.JspSchemaPublicId_20);
+            register(schemaResourcePrefix + Constants.JSP_SCHEMA_PUBLIC_ID_21,
+                     Constants.JSP_SCHEMA_PUBLIC_ID_21);
+            // TLD
+            register(schemaResourcePrefix + Constants.TldSchemaPublicId_20,
+                     Constants.TldSchemaPublicId_20);
+            register(schemaResourcePrefix + Constants.TLD_SCHEMA_PUBLIC_ID_21,
+                     Constants.TLD_SCHEMA_PUBLIC_ID_21);
+            // web.xml    
+            register(schemaResourcePrefix + Constants.WebSchemaPublicId_24,
+                     Constants.WebSchemaPublicId_24);
+            // Web Service
+            register(schemaResourcePrefix + Constants.J2eeWebServiceSchemaPublicId_11,
+                     Constants.J2eeWebServiceSchemaPublicId_11);
+            register(schemaResourcePrefix + Constants.J2eeWebServiceClientSchemaPublicId_11,
+                     Constants.J2eeWebServiceClientSchemaPublicId_11);
+	} else {
+            // J2EE
+            register(Constants.J2eeSchemaResourcePath_14,
+                     Constants.J2eeSchemaPublicId_14);
+            // W3C
+            register(Constants.W3cSchemaResourcePath_10,
+                     Constants.W3cSchemaPublicId_10);
+            // JSP
+            register(Constants.JspSchemaResourcePath_20,
+                     Constants.JspSchemaPublicId_20);
+            register(Constants.JSP_SCHEMA_RESOURCE_PATH_21,
+                     Constants.JSP_SCHEMA_PUBLIC_ID_21);
+            // TLD
+            register(Constants.TldSchemaResourcePath_20,
+                     Constants.TldSchemaPublicId_20);
+            register(Constants.TLD_SCHEMA_RESOURCE_PATH_21,
+                     Constants.TLD_SCHEMA_PUBLIC_ID_21);
+            // web.xml    
+            register(Constants.WebSchemaResourcePath_24,
+                     Constants.WebSchemaPublicId_24);
+            // Web Service
+            register(Constants.J2eeWebServiceSchemaResourcePath_11,
+                     Constants.J2eeWebServiceSchemaPublicId_11);
+            register(Constants.J2eeWebServiceClientSchemaResourcePath_11,
+                     Constants.J2eeWebServiceClientSchemaPublicId_11);
+        }
 
-        // web.xml    
-        register(Constants.WebDtdResourcePath_22,
-                 Constants.WebDtdPublicId_22);
-
-        register(Constants.WebDtdResourcePath_23,
-                 Constants.WebDtdPublicId_23);
-
-        register(Constants.WebSchemaResourcePath_24,
-                 Constants.WebSchemaPublicId_24);
-
-        // Web Service
-        register(Constants.J2eeWebServiceSchemaResourcePath_11,
-                 Constants.J2eeWebServiceSchemaPublicId_11);
-
-        register(Constants.J2eeWebServiceClientSchemaResourcePath_11,
-                 Constants.J2eeWebServiceClientSchemaPublicId_11);
-
+        if (dtdResourcePrefix != null) {
+            // TLD
+            register(dtdResourcePrefix + "web-jsptaglibrary_1_1.dtd",  
+                     Constants.TldDtdPublicId_11);
+            register(dtdResourcePrefix + "web-jsptaglibrary_1_2.dtd",
+                     Constants.TldDtdPublicId_12);
+            // web.xml    
+            register(dtdResourcePrefix + "web-app_2_2.dtd",
+                     Constants.WebDtdPublicId_22);
+            register(dtdResourcePrefix + "web-app_2_3.dtd",
+                     Constants.WebDtdPublicId_23);
+	} else {
+            // TLD
+            register(Constants.TldDtdResourcePath_11,  
+                     Constants.TldDtdPublicId_11);
+            register(Constants.TldDtdResourcePath_12,
+                     Constants.TldDtdPublicId_12);
+            // web.xml    
+            register(Constants.WebDtdResourcePath_22,
+                     Constants.WebDtdPublicId_22);
+            register(Constants.WebDtdResourcePath_23,
+                     Constants.WebDtdPublicId_23);
+        }
     }
 
 
