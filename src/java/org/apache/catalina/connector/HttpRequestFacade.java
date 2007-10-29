@@ -42,6 +42,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.session.StandardSessionFacade;
+import org.apache.catalina.util.StringManager;
 
 
 /**
@@ -49,12 +50,22 @@ import org.apache.catalina.session.StandardSessionFacade;
  * object.  All methods are delegated to the wrapped request.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:29 $
  */
 
 public final class HttpRequestFacade
     extends RequestFacade
     implements HttpServletRequest {
+
+
+    // ----------------------------------------------------- Constants
+
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------------- Constructors
@@ -74,101 +85,201 @@ public final class HttpRequestFacade
 
 
     public String getAuthType() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getAuthType();
     }
 
 
     public Cookie[] getCookies() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getCookies();
     }
 
 
     public long getDateHeader(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getDateHeader(name);
     }
 
 
     public String getHeader(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getHeader(name);
     }
 
 
     public Enumeration getHeaders(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getHeaders(name);
     }
 
 
     public Enumeration getHeaderNames() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getHeaderNames();
     }
 
 
     public int getIntHeader(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getIntHeader(name);
     }
 
 
     public String getMethod() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getMethod();
     }
 
 
     public String getPathInfo() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getPathInfo();
     }
 
 
     public String getPathTranslated() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getPathTranslated();
     }
 
 
     public String getContextPath() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getContextPath();
     }
 
 
     public String getQueryString() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getQueryString();
     }
 
 
     public String getRemoteUser() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getRemoteUser();
     }
 
 
     public boolean isUserInRole(String role) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).isUserInRole(role);
     }
 
 
     public java.security.Principal getUserPrincipal() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getUserPrincipal();
     }
 
 
     public String getRequestedSessionId() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getRequestedSessionId();
     }
 
 
     public String getRequestURI() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getRequestURI();
     }
 
 
     public StringBuffer getRequestURL() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getRequestURL();
     }
 
 
     public String getServletPath() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).getServletPath();
     }
 
 
     public HttpSession getSession(boolean create) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         HttpSession session =
             ((HttpServletRequest) request).getSession(create);
         if (session == null)
@@ -184,21 +295,41 @@ public final class HttpRequestFacade
 
 
     public boolean isRequestedSessionIdValid() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).isRequestedSessionIdValid();
     }
 
 
     public boolean isRequestedSessionIdFromCookie() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).isRequestedSessionIdFromCookie();
     }
 
 
     public boolean isRequestedSessionIdFromURL() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).isRequestedSessionIdFromURL();
     }
 
 
     public boolean isRequestedSessionIdFromUrl() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ((HttpServletRequest) request).isRequestedSessionIdFromURL();
     }
 

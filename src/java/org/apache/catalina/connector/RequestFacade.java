@@ -41,6 +41,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.RequestDispatcher;
 import org.apache.catalina.Request;
+import org.apache.catalina.util.StringManager;
 
 
 /**
@@ -50,10 +51,20 @@ import org.apache.catalina.Request;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:29 $
  */
 
 public class RequestFacade implements ServletRequest {
+
+
+    // ----------------------------------------------------------- Constants
+
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------------- Constructors
@@ -79,7 +90,7 @@ public class RequestFacade implements ServletRequest {
      * The wrapped request.
      */
     protected ServletRequest request = null;
-
+    
 
     // --------------------------------------------------------- Public Methods
 
@@ -96,130 +107,255 @@ public class RequestFacade implements ServletRequest {
 
 
     public Object getAttribute(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getAttribute(name);
     }
 
 
     public Enumeration getAttributeNames() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getAttributeNames();
     }
 
 
     public String getCharacterEncoding() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getCharacterEncoding();
     }
 
 
     public void setCharacterEncoding(String env)
         throws java.io.UnsupportedEncodingException {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         request.setCharacterEncoding(env);
     }
 
 
     public int getContentLength() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getContentLength();
     }
 
 
     public String getContentType() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getContentType();
     }
 
 
     public ServletInputStream getInputStream()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getInputStream();
     }
 
 
     public String getParameter(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getParameter(name);
     }
 
 
     public Enumeration getParameterNames() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getParameterNames();
     }
 
 
     public String[] getParameterValues(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getParameterValues(name);
     }
 
 
     public Map getParameterMap() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getParameterMap();
     }
 
 
     public String getProtocol() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getProtocol();
     }
 
 
     public String getScheme() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getScheme();
     }
 
 
     public String getServerName() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getServerName();
     }
 
 
     public int getServerPort() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getServerPort();
     }
 
 
     public BufferedReader getReader()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getReader();
     }
 
 
     public String getRemoteAddr() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getRemoteAddr();
     }
 
 
     public String getRemoteHost() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getRemoteHost();
     }
 
 
     public void setAttribute(String name, Object o) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         request.setAttribute(name, o);
     }
 
 
     public void removeAttribute(String name) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         request.removeAttribute(name);
     }
 
 
     public Locale getLocale() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getLocale();
     }
 
 
     public Enumeration getLocales() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getLocales();
     }
 
 
     public boolean isSecure() {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.isSecure();
     }
 
 
     public RequestDispatcher getRequestDispatcher(String path) {
         // TODO : Facade !!
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getRequestDispatcher(path);
     }
 
 
     public String getRealPath(String path) {
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getRealPath(path);
     }
 
@@ -228,6 +364,11 @@ public class RequestFacade implements ServletRequest {
      * or last proxy that sent the request.
      */    
     public int getRemotePort(){
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getRemotePort();
     }
 
@@ -237,6 +378,11 @@ public class RequestFacade implements ServletRequest {
      * which the request was received.
      */
     public String getLocalName(){
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getLocalName();
     }
 
@@ -245,6 +391,11 @@ public class RequestFacade implements ServletRequest {
      * which the request  was received.
      */       
     public String getLocalAddr(){
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getLocalAddr();
     }
 
@@ -254,6 +405,11 @@ public class RequestFacade implements ServletRequest {
      * on which the request was received.
      */
     public int getLocalPort(){
+        // Disallow operation if the object has gone out of scope
+        if (request == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return request.getLocalPort();
     }
 }

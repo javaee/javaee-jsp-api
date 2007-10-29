@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
+import org.apache.catalina.util.StringManager;
 
 /**
  * Coyote implementation of the servlet writer.
@@ -46,6 +47,12 @@ public class CoyoteWriter
 
 
     private static final char[] LINE_SEP = { '\r', '\n' };
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------- Instance Variables
@@ -99,6 +106,12 @@ public class CoyoteWriter
 
     public void flush() {
 
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (error)
             return;
 
@@ -113,6 +126,12 @@ public class CoyoteWriter
 
     public void close() {
 
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         // We don't close the PrintWriter - super() is not called,
         // so the stream can be reused. We close ob.
         try {
@@ -126,12 +145,23 @@ public class CoyoteWriter
 
 
     public boolean checkError() {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         flush();
         return error;
     }
 
 
     public void write(int c) {
+
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (error)
             return;
@@ -146,6 +176,12 @@ public class CoyoteWriter
 
 
     public void write(char buf[], int off, int len) {
+
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (error)
             return;
@@ -165,6 +201,12 @@ public class CoyoteWriter
 
 
     public void write(String s, int off, int len) {
+
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (error)
             return;

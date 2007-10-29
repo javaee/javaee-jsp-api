@@ -33,6 +33,7 @@ import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 
 import org.apache.coyote.Response;
+import org.apache.catalina.util.StringManager;
 
 /**
  * Coyote implementation of the servlet output stream.
@@ -42,6 +43,13 @@ import org.apache.coyote.Response;
  */
 public class CoyoteOutputStream 
     extends ServletOutputStream {
+
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------- Instance Variables
@@ -91,18 +99,36 @@ public class CoyoteOutputStream
 
     public void write(int i)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         ob.writeByte(i);
     }
 
 
     public void write(byte[] b)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         write(b, 0, b.length);
     }
 
 
     public void write(byte[] b, int off, int len)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         ob.write(b, off, len);
     }
 
@@ -112,12 +138,24 @@ public class CoyoteOutputStream
      */
     public void flush()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         ob.flush();
     }
 
 
     public void close()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         ob.close();
     }
 
@@ -127,6 +165,12 @@ public class CoyoteOutputStream
 
     public void print(String s)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         ob.write(s);
     }
 

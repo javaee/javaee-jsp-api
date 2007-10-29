@@ -77,11 +77,17 @@ import org.apache.catalina.Globals;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2005/12/08 01:28:35 $
+ * @version $Revision: 1.7 $ $Date: 2006/08/10 21:35:20 $
  */
 
 public class CoyoteResponse
     implements HttpResponse, HttpServletResponse {
+
+
+    /**
+     * Whether or not to enforce scope checking of this object.
+     */
+    private static boolean enforceScope = false;
 
 
     // ----------------------------------------------------------- Constructors
@@ -134,6 +140,16 @@ public class CoyoteResponse
 
 
     // ------------------------------------------------------------- Properties
+
+
+    /**
+     * Set whether or not to enforce scope checking of this object.
+     */
+    public static void setEnforceScope(boolean enforce) {
+
+        enforceScope = enforce;
+
+    }
 
 
     /**
@@ -307,7 +323,7 @@ public class CoyoteResponse
 
         cookies.clear();
 
-        if (Constants.SECURITY) {
+        if (enforceScope) {
             if (facade != null) {
                 facade.clear();
                 facade = null;

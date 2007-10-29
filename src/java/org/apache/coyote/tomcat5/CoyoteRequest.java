@@ -119,11 +119,17 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.25 $ $Date: 2006/08/02 17:39:53 $
+ * @version $Revision: 1.27 $ $Date: 2006/08/10 21:35:20 $
  */
 
 public class CoyoteRequest
     implements HttpRequest, HttpServletRequest {
+
+
+    /**
+     * Whether or not to enforce scope checking of this object.
+     */
+    private static boolean enforceScope = false;
 
 
     // ----------------------------------------------------------- Constructors
@@ -166,6 +172,16 @@ public class CoyoteRequest
      */
     public Request getCoyoteRequest() {
         return (this.coyoteRequest);
+    }
+
+
+    /**
+     * Set whether or not to enforce scope checking of this object.
+     */
+    public static void setEnforceScope(boolean enforce) {
+
+        enforceScope = enforce;
+
     }
 
 
@@ -543,7 +559,7 @@ public class CoyoteRequest
 
         mappingData.recycle();
 
-        if (Constants.SECURITY) {
+        if (enforceScope) {
             if (facade != null) {
                 facade.clear();
                 facade = null;

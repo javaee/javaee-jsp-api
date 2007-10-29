@@ -28,6 +28,7 @@ package org.apache.coyote.tomcat5;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import org.apache.catalina.util.StringManager;
 
 
 /**
@@ -44,6 +45,12 @@ public class CoyoteReader
 
     private static final char[] LINE_SEP = { '\r', '\n' };
     private static final int MAX_LINE_LENGTH = 4096;
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------- Instance Variables
@@ -90,59 +97,110 @@ public class CoyoteReader
 
     public void close()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         ib.close();
     }
 
 
     public int read()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ib.read();
     }
 
 
     public int read(char[] cbuf)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ib.read(cbuf, 0, cbuf.length);
     }
 
 
     public int read(char[] cbuf, int off, int len)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ib.read(cbuf, off, len);
     }
 
 
     public long skip(long n)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ib.skip(n);
     }
 
 
     public boolean ready()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return ib.ready();
     }
 
 
     public boolean markSupported() {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return true;
     }
 
 
     public void mark(int readAheadLimit)
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         ib.mark(readAheadLimit);
     }
 
 
     public void reset()
         throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         ib.reset();
     }
 
 
     public String readLine()
         throws IOException {
+
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (lineBuffer == null) {
             lineBuffer = new char[MAX_LINE_LENGTH];

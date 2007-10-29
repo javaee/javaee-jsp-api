@@ -36,6 +36,7 @@ import java.security.PrivilegedActionException;
 import javax.servlet.ServletInputStream;
 
 import org.apache.catalina.security.SecurityUtil;
+import org.apache.catalina.util.StringManager;
 
 /**
  * This class handles reading bytes.
@@ -45,6 +46,13 @@ import org.apache.catalina.security.SecurityUtil;
  */
 public class CoyoteInputStream
     extends ServletInputStream {
+
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------- Instance Variables
@@ -89,7 +97,13 @@ public class CoyoteInputStream
 
     public int read()
         throws IOException {      
-            
+
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+    
         if (SecurityUtil.isPackageProtectionEnabled()){
             
             try{
@@ -118,6 +132,12 @@ public class CoyoteInputStream
     }
 
     public int available() throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
                 Integer result = 
@@ -145,6 +165,12 @@ public class CoyoteInputStream
     }
 
     public int read(final byte[] b) throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
                 Integer result = 
@@ -175,6 +201,12 @@ public class CoyoteInputStream
 
     public int read(final byte[] b, final int off, final int len)
         throws IOException {
+
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
@@ -205,6 +237,12 @@ public class CoyoteInputStream
 
 
     public int readLine(byte[] b, int off, int len) throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         return super.readLine(b, off, len);
     }
 
@@ -215,6 +253,12 @@ public class CoyoteInputStream
      * which would permantely disable us.
      */
     public void close() throws IOException {
+        // Disallow operation if the object has gone out of scope
+        if (ib == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
                 AccessController.doPrivileged(

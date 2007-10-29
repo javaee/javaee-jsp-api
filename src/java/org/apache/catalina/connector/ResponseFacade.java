@@ -37,6 +37,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
 import org.apache.catalina.Response;
+import org.apache.catalina.util.StringManager;
 
 
 /**
@@ -44,10 +45,20 @@ import org.apache.catalina.Response;
  * object.  All methods are delegated to the wrapped response.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:29 $
  */
 
 public class ResponseFacade implements ServletResponse {
+
+
+    // ----------------------------------------------------------- Constants
+
+
+    /**
+     * The string manager for this package.
+     */
+    private static final StringManager sm =
+        StringManager.getManager(Constants.Package);
 
 
     // ----------------------------------------------------------- Constructors
@@ -109,6 +120,11 @@ public class ResponseFacade implements ServletResponse {
 
 
     public String getCharacterEncoding() {
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
         return response.getCharacterEncoding();
     }
 
@@ -119,6 +135,12 @@ public class ResponseFacade implements ServletResponse {
         //        if (isFinished())
         //            throw new IllegalStateException
         //                (/*sm.getString("responseFacade.finished")*/);
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         ServletOutputStream sos = response.getOutputStream();
         if (isFinished())
@@ -135,6 +157,12 @@ public class ResponseFacade implements ServletResponse {
         //            throw new IllegalStateException
         //                (/*sm.getString("responseFacade.finished")*/);
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         PrintWriter writer = response.getWriter();
         if (isFinished())
             resp.setSuspended(true);
@@ -145,6 +173,12 @@ public class ResponseFacade implements ServletResponse {
 
     public void setContentLength(int len) {
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (isCommitted())
             return;
 
@@ -153,6 +187,12 @@ public class ResponseFacade implements ServletResponse {
     }
 
     public void setCharacterEncoding(String charset) {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (isCommitted())
             return;
@@ -164,6 +204,12 @@ public class ResponseFacade implements ServletResponse {
 
     public void setContentType(String type) {
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (isCommitted())
             return;
 
@@ -173,11 +219,23 @@ public class ResponseFacade implements ServletResponse {
 
     public String getContentType() {
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         return response.getContentType();
 
     }
 
     public void setBufferSize(int size) {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (isCommitted())
             throw new IllegalStateException
@@ -189,12 +247,25 @@ public class ResponseFacade implements ServletResponse {
 
 
     public int getBufferSize() {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         return response.getBufferSize();
     }
 
 
     public void flushBuffer()
         throws IOException {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (isFinished())
             //            throw new IllegalStateException
@@ -216,6 +287,12 @@ public class ResponseFacade implements ServletResponse {
 
     public void resetBuffer() {
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (isCommitted())
             throw new IllegalStateException
                 (/*sm.getString("responseBase.reset.ise")*/);
@@ -226,11 +303,24 @@ public class ResponseFacade implements ServletResponse {
 
 
     public boolean isCommitted() {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         return (resp.isAppCommitted());
     }
 
 
     public void reset() {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
 
         if (isCommitted())
             throw new IllegalStateException
@@ -243,6 +333,12 @@ public class ResponseFacade implements ServletResponse {
 
     public void setLocale(Locale loc) {
 
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         if (isCommitted())
             return;
 
@@ -251,6 +347,13 @@ public class ResponseFacade implements ServletResponse {
 
 
     public Locale getLocale() {
+
+        // Disallow operation if the object has gone out of scope
+        if (response == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
         return response.getLocale();
     }
 
