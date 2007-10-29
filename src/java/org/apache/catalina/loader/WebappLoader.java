@@ -85,7 +85,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/25 16:04:03 $
  */
 
 public class WebappLoader
@@ -451,8 +451,8 @@ public class WebappLoader
      */
     public void addRepository(String repository) {
 
-        if (log.isDebugEnabled())
-            log.debug(sm.getString("webappLoader.addRepository", repository));
+        if (log.isTraceEnabled())
+            log.trace(sm.getString("webappLoader.addRepository", repository));
 
         for (int i = 0; i < repositories.length; i++) {
             if (repository.equals(repositories[i]))
@@ -665,8 +665,8 @@ public class WebappLoader
         if (started)
             throw new LifecycleException
                 (sm.getString("webappLoader.alreadyStarted"));
-        if (log.isDebugEnabled())
-            log.debug(sm.getString("webappLoader.starting"));
+        if (log.isTraceEnabled())
+            log.trace(sm.getString("webappLoader.starting"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -745,8 +745,8 @@ public class WebappLoader
         if (!started)
             throw new LifecycleException
                 (sm.getString("webappLoader.notStarted"));
-        if (log.isDebugEnabled())
-            log.debug(sm.getString("webappLoader.stopping"));
+        if (log.isTraceEnabled())
+            log.trace(sm.getString("webappLoader.stopping"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 
@@ -985,8 +985,8 @@ public class WebappLoader
             log.info("No work dir for " + servletContext);
         }
 
-        if( log.isDebugEnabled()) 
-            log.debug(sm.getString("webappLoader.deploy", workDir.getAbsolutePath()));
+        if( log.isTraceEnabled()) 
+            log.trace(sm.getString("webappLoader.deploy", workDir.getAbsolutePath()));
 
         classLoader.setWorkDir(workDir);
 
@@ -1026,8 +1026,8 @@ public class WebappLoader
 
             }
 
-            if(log.isDebugEnabled())
-                log.debug(sm.getString("webappLoader.classDeploy", classesPath,
+            if(log.isTraceEnabled())
+                log.trace(sm.getString("webappLoader.classDeploy", classesPath,
                              classRepository.getAbsolutePath()));
 
 
@@ -1095,9 +1095,10 @@ public class WebappLoader
                     // impossible to update it or remove it at runtime)
                     File destFile = new File(destDir, binding.getName());
 
-                    if( log.isDebugEnabled())
-                    log.debug(sm.getString("webappLoader.jarDeploy", filename,
-                                     destFile.getAbsolutePath()));
+                    if( log.isTraceEnabled()) {
+                        log.trace(sm.getString("webappLoader.jarDeploy", filename,
+                                  destFile.getAbsolutePath()));
+                    }
 
                     Resource jarResource = (Resource) binding.getObject();
                     if (copyJars) {
@@ -1222,14 +1223,14 @@ public class WebappLoader
                 log.trace("getClasspath " + m );
             if( m==null ) return null;
             Object o=m.invoke( loader, new Object[] {} );
-            if( log.isDebugEnabled() )
-                log.debug("gotClasspath " + o);
+            if( log.isTraceEnabled() )
+                log.trace("gotClasspath " + o);
             if( o instanceof String )
                 return (String)o;
             return null;
         } catch( Exception ex ) {
-            if (log.isDebugEnabled())
-                log.debug("getClasspath ", ex);
+            if (log.isTraceEnabled())
+                log.trace("getClasspath ", ex);
         }
         return null;
     }
