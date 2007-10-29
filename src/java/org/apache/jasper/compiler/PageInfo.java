@@ -38,6 +38,16 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
 
 public class PageInfo {
 
+    /**
+     * These classes/packages are automatically imported by the
+     * generated code. 
+     */
+    private static final String[] STANDARD_IMPORTS = { 
+	"javax.servlet.*", 
+	"javax.servlet.http.*", 
+	"javax.servlet.jsp.*"
+    };
+
     private Vector imports;
     private Vector dependants;
 
@@ -109,8 +119,8 @@ public class PageInfo {
 	this.prefixes = new HashSet();
 
 	// Enter standard imports
-	for(int i = 0; i < Constants.STANDARD_IMPORTS.length; i++)
-	    imports.add(Constants.STANDARD_IMPORTS[i]);
+	for(int i = 0; i < STANDARD_IMPORTS.length; i++)
+	    imports.add(STANDARD_IMPORTS[i]);
     }
 
     /**

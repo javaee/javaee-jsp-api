@@ -58,16 +58,6 @@ public class Constants {
     public static final String SERVLET_CONTENT_TYPE = "text/html";
 
     /**
-     * These classes/packages are automatically imported by the
-     * generated code. 
-     */
-    public static final String[] STANDARD_IMPORTS = { 
-	"javax.servlet.*", 
-	"javax.servlet.http.*", 
-	"javax.servlet.jsp.*"
-    };
-
-    /**
      * FIXME
      * ServletContext attribute for classpath. This is tomcat specific. 
      * Other servlet engines may choose to support this attribute if they 
