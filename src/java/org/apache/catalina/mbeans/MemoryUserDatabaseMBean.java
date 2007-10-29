@@ -62,7 +62,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * <code>org.apache.catalina.users.MemoryUserDatabase</code> component.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
+ * @version $Revision: 1.4 $ $Date: 2007/05/05 05:32:09 $
  */
 
 public class MemoryUserDatabaseMBean extends BaseModelMBean {
@@ -85,16 +85,15 @@ public class MemoryUserDatabaseMBean extends BaseModelMBean {
 
         super();
 
+        registry = MBeanUtils.createRegistry();
+        managed = registry.findManagedBean("MemoryUserDatabase");
+        managedGroup = registry.findManagedBean("Group");
+        managedRole = registry.findManagedBean("Role");
+        managedUser = registry.findManagedBean("User");
     }
 
 
     // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The configuration information registry for our managed beans.
-     */
-    protected Registry registry = MBeanUtils.createRegistry();
 
 
     /**
@@ -106,29 +105,23 @@ public class MemoryUserDatabaseMBean extends BaseModelMBean {
     /**
      * The <code>ManagedBean</code> information describing this MBean.
      */
-    protected ManagedBean managed =
-        registry.findManagedBean("MemoryUserDatabase");
+    protected ManagedBean managed;
 
 
     /**
      * The <code>ManagedBean</code> information describing Group MBeans.
      */
-    protected ManagedBean managedGroup =
-        registry.findManagedBean("Group");
-
+    protected ManagedBean managedGroup;
 
     /**
      * The <code>ManagedBean</code> information describing Group MBeans.
      */
-    protected ManagedBean managedRole =
-        registry.findManagedBean("Role");
-
+    protected ManagedBean managedRole;
 
     /**
      * The <code>ManagedBean</code> information describing User MBeans.
      */
-    protected ManagedBean managedUser =
-        registry.findManagedBean("User");
+    protected ManagedBean managedUser;
 
 
     // ------------------------------------------------------------- Attributes
