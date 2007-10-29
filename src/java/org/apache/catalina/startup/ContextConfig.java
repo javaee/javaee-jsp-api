@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.10 $ $Date: 2006/03/09 22:09:57 $
+ * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:06 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -483,6 +483,8 @@ public class ContextConfig
                     log.error(
                         sm.getString("contextConfig.authenticatorMissing",
                                      loginMethod));
+                    ok = false;
+                    return;
                 }
             }
             // END PWC 6392537
