@@ -28,41 +28,37 @@
 
 package org.apache.catalina.servlets;
 
-import java.lang.Process;
-import java.io.File;
-import java.io.Writer;
-import java.io.Reader;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
-import java.util.Locale;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletConfig;
 import javax.servlet.UnavailableException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Cookie;
-import org.apache.catalina.Context;
+
 import org.apache.catalina.Globals;
-import org.apache.catalina.Wrapper;
-// import org.apache.catalina.util.StringManager;
+import org.apache.catalina.util.IOTools;
 
 
 /**
@@ -249,7 +245,7 @@ import org.apache.catalina.Wrapper;
  *
  * @author Martin T Dengler [root@martindengler.com]
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 383693 $, $Date: 2006-03-06 17:16:24 -0500 (Mon, 06 Mar 2006) $
  * @since Tomcat 4.0
  *
  */
@@ -257,23 +253,10 @@ import org.apache.catalina.Wrapper;
 
 public final class CGIServlet extends HttpServlet {
 
-
     /* some vars below copied from Craig R. McClanahan's InvokerServlet */
-
-    /** the string manager for this package. */
-    /* YAGNI
-    private static StringManager sm =
-        StringManager.getManager(Constants.Package);
-    */
-
-    /** the Context container associated with our web application. */
-    private ServletContext context = null;
 
     /** the debugging detail level for this servlet. */
     private int debug = 0;
-
-    /** the time in ms to wait for the client to send us CGI input data */
-    private int iClientInputTimeout = 100;
 
     /**
      *  The CGI search path will start at
@@ -283,6 +266,18 @@ public final class CGIServlet extends HttpServlet {
      */
     private String cgiPathPrefix = null;
 
+    /** the executable to use with the script */
+    private String cgiExecutable = "perl";
+    
+    /** the encoding to use for parameters */
+    private String parameterEncoding = System.getProperty("file.encoding",
+                                                          "UTF-8");
+
+    /** object used to ensure multiple threads don't try to expand same file */
+    static Object expandFileLock = new Object();
+
+    /** the shell environment variables to be passed to the CGI script */
+    static Hashtable shellEnv = new Hashtable();
 
     /**
      * Sets instance variables.
@@ -311,6 +306,8 @@ public final class CGIServlet extends HttpServlet {
             throw new UnavailableException
                 ("Cannot invoke CGIServlet through the invoker");
 
+        boolean passShellEnvironment = false;
+        
         // Set our properties from the initialization parameters
         String value = null;
         try {
@@ -318,21 +315,31 @@ public final class CGIServlet extends HttpServlet {
             debug = Integer.parseInt(value);
             cgiPathPrefix =
                 getServletConfig().getInitParameter("cgiPathPrefix");
-            value =
-                getServletConfig().getInitParameter("iClientInputTimeout");
-            iClientInputTimeout = Integer.parseInt(value);
+            value = getServletConfig().getInitParameter("passShellEnvironment");
+            passShellEnvironment = Boolean.valueOf(value).booleanValue();
         } catch (Throwable t) {
             //NOOP
         }
         log("init: loglevel set to " + debug);
 
-        // Identify the internal container resources we need
-        //Wrapper wrapper = (Wrapper) getServletConfig();
-        //context = (Context) wrapper.getParent();
+        if (passShellEnvironment) {
+            try {
+                shellEnv.putAll(getShellEnvironment());
+            } catch (IOException ioe) {
+                ServletException e = new ServletException(
+                        "Unable to read shell environment variables", ioe);
+                throw e;
+            }
+        }
 
-    context = config.getServletContext();
-        if (debug >= 1) {
-            //log("init: Associated with Context '" + context.getPath() + "'");
+        value = getServletConfig().getInitParameter("executable");
+        if (value != null) {
+            cgiExecutable = value;
+        }
+
+        value = getServletConfig().getInitParameter("parameterEncoding");
+        if (value != null) {
+            parameterEncoding = value;
         }
 
     }
@@ -402,10 +409,10 @@ public final class CGIServlet extends HttpServlet {
         out.println("<li><b>contextPath</b> = " +
                        req.getContextPath());
         Cookie cookies[] = req.getCookies();
-    if (cookies!=null) {
-        for (int i = 0; i < cookies.length; i++)
+        if (cookies!=null) {
+            for (int i = 0; i < cookies.length; i++)
                 out.println("<li><b>cookie</b> " + cookies[i].getName() +" = " +cookies[i].getValue());
-    }
+        }
         Enumeration headers = req.getHeaderNames();
         while (headers.hasMoreElements()) {
             String header = (String) headers.nextElement();
@@ -601,19 +608,19 @@ public final class CGIServlet extends HttpServlet {
             cgi.run();
         }
 
-
-        //REMIND: change to debug method or something
-        if ((req.getParameter("X_TOMCAT_CGI_DEBUG") != null)
-            || (!cgiEnv.isValid())) {
+        if (!cgiEnv.isValid()) {
+            res.setStatus(404);
+        }
+ 
+        if (debug >= 10) {
             try {
                 ServletOutputStream out = res.getOutputStream();
-                out.println("<HTML><HEAD><TITLE>$Name:  $</TITLE></HEAD>");
-                out.println("<BODY>$Header: /cvs/glassfish/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.1.1.1 2005/05/27 22:55:07 dpatil Exp $<p>");
+                out.println("<HTML><HEAD><TITLE>$Name$</TITLE></HEAD>");
+                out.println("<BODY>$Header$<p>");
 
                 if (cgiEnv.isValid()) {
                     out.println(cgiEnv.toString());
                 } else {
-                    res.setStatus(404);
                     out.println("<H3>");
                     out.println("CGI script not found or not specified.");
                     out.println("</H3>");
@@ -651,8 +658,53 @@ public final class CGIServlet extends HttpServlet {
 
     /** For future testing use only; does nothing right now */
     public static void main(String[] args) {
-        System.out.println("$Header: /cvs/glassfish/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.1.1.1 2005/05/27 22:55:07 dpatil Exp $");
+        System.out.println("$Header$");
     }
+
+    /**
+     * Get all shell environment variables. Have to do it this rather ugly way
+     * as the API to obtain is not available in 1.4 and earlier APIs.
+     *
+     * See <a href="http://www.rgagnon.com/javadetails/java-0150.html">Read environment
+     * variables from an application</a> for original source and article.
+     */
+    private Hashtable getShellEnvironment() throws IOException {
+        Hashtable envVars = new Hashtable();
+        Process p = null;
+        Runtime r = Runtime.getRuntime();
+        String OS = System.getProperty("os.name").toLowerCase();
+        boolean ignoreCase;
+
+        if (OS.indexOf("windows 9") > -1) {
+            p = r.exec( "command.com /c set" );
+            ignoreCase = true;
+        } else if ( (OS.indexOf("nt") > -1)
+                || (OS.indexOf("windows 20") > -1)
+                || (OS.indexOf("windows xp") > -1) ) {
+            // thanks to JuanFran for the xp fix!
+            p = r.exec( "cmd.exe /c set" );
+            ignoreCase = true;
+        } else {
+            // our last hope, we assume Unix (thanks to H. Ware for the fix)
+            p = r.exec( "env" );
+            ignoreCase = false;
+        }
+
+        BufferedReader br = new BufferedReader
+            ( new InputStreamReader( p.getInputStream() ) );
+        String line;
+        while( (line = br.readLine()) != null ) {
+            int idx = line.indexOf( '=' );
+            String key = line.substring( 0, idx );
+            String value = line.substring( idx+1 );
+            if (ignoreCase) {
+                key = key.toUpperCase();
+            }
+            envVars.put(key, value);
+        }
+        return envVars;
+    }
+
 
 
 
@@ -666,8 +718,7 @@ public final class CGIServlet extends HttpServlet {
      * <p>
      * </p>
      *
-     * @author   Martin Dengler [root@martindengler.com]
-     * @version  $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
+     * @version  $Revision: 383693 $, $Date: 2006-03-06 17:16:24 -0500 (Mon, 06 Mar 2006) $
      * @since    Tomcat 4.0
      *
      */
@@ -689,6 +740,9 @@ public final class CGIServlet extends HttpServlet {
         /** real file system directory of the enclosing servlet's web app */
         private String webAppRootDir = null;
 
+        /** tempdir for context - used to expand scripts in unexpanded wars */
+        private File tmpDir = null;
+
         /** derived cgi environment */
         private Hashtable env = null;
 
@@ -699,7 +753,7 @@ public final class CGIServlet extends HttpServlet {
         private File workingDirectory = null;
 
         /** cgi command's query parameters */
-        private Hashtable queryParameters = null;
+        private ArrayList queryParameters = new ArrayList();
 
         /** whether or not this object is valid or not */
         private boolean valid = false;
@@ -716,17 +770,21 @@ public final class CGIServlet extends HttpServlet {
          *
          */
         protected CGIEnvironment(HttpServletRequest req,
-                                 ServletContext context) {
+                                 ServletContext context) throws IOException {
             setupFromContext(context);
             setupFromRequest(req);
 
-            queryParameters = new Hashtable();
             Enumeration paramNames = req.getParameterNames();
             while (paramNames != null && paramNames.hasMoreElements()) {
                 String param = paramNames.nextElement().toString();
                 if (param != null) {
-                    queryParameters.put(
-                        param, URLEncoder.encode(req.getParameter(param)));
+                    String values[] = req.getParameterValues(param);
+                    for (int i=0; i < values.length; i++) {
+                        String value = URLEncoder.encode(values[i],
+                                                         parameterEncoding);
+                        NameValuePair nvp = new NameValuePair(param, value);
+                        queryParameters.add(nvp);
+                    }
                 }
             }
 
@@ -750,6 +808,7 @@ public final class CGIServlet extends HttpServlet {
         protected void setupFromContext(ServletContext context) {
             this.context = context;
             this.webAppRootDir = context.getRealPath("/");
+            this.tmpDir = (File) context.getAttribute(Globals.WORK_DIR_ATTR);
         }
 
 
@@ -762,8 +821,13 @@ public final class CGIServlet extends HttpServlet {
          */
         protected void setupFromRequest(HttpServletRequest req) {
             this.contextPath = req.getContextPath();
-            this.pathInfo = req.getPathInfo();
             this.servletPath = req.getServletPath();
+            this.pathInfo = req.getPathInfo();
+            // If getPathInfo() returns null, must be using extension mapping
+            // In this case, pathInfo should be same as servletPath
+            if (this.pathInfo == null) {
+                this.pathInfo = this.servletPath;
+            }
         }
 
 
@@ -831,7 +895,6 @@ public final class CGIServlet extends HttpServlet {
          *                        cgi script, or null if no cgi was found
          * </ul>
          *
-         * @author Martin Dengler [root@martindengler.com]
          * @since Tomcat 4.0
          */
         protected String[] findCGI(String pathInfo, String webAppRootDir,
@@ -861,7 +924,7 @@ public final class CGIServlet extends HttpServlet {
 
             File currentLocation = new File(webAppRootDir);
             StringTokenizer dirWalker =
-            new StringTokenizer(pathInfo, File.separator);
+            new StringTokenizer(pathInfo, "/");
             if (debug >= 3) {
                 log("findCGI: currentLoc=" + currentLocation);
             }
@@ -897,22 +960,19 @@ public final class CGIServlet extends HttpServlet {
                     + ", scriptname=" + scriptname + ", cginame=" + cginame);
             }
             return new String[] { path, scriptname, cginame, name };
-
         }
-
-
 
         /**
          * Constructs the CGI environment to be supplied to the invoked CGI
          * script; relies heavliy on Servlet API methods and findCGI
          *
-         * @param    HttpServletRequest request associated with the CGI
+         * @param    req request associated with the CGI
          *           invokation
          *
          * @return   true if environment was set OK, false if there
          *           was a problem and no environment was set
          */
-        protected boolean setCGIEnvironment(HttpServletRequest req) {
+        protected boolean setCGIEnvironment(HttpServletRequest req) throws IOException {
 
             /*
              * This method is slightly ugly; c'est la vie.
@@ -922,6 +982,10 @@ public final class CGIServlet extends HttpServlet {
 
             Hashtable envp = new Hashtable();
 
+            // Add the shell environment variables (if any)
+            envp.putAll(shellEnv);
+
+            // Add the CGI environment variables
             String sPathInfoOrig = null;
             String sPathTranslatedOrig = null;
             String sPathInfoCGI = null;
@@ -940,6 +1004,12 @@ public final class CGIServlet extends HttpServlet {
             sPathTranslatedOrig =
                 sPathTranslatedOrig == null ? "" : sPathTranslatedOrig;
 
+            if (webAppRootDir == null ) {
+                // The app has not been deployed in exploded form
+                webAppRootDir = tmpDir.toString();
+                expandCGIScript();
+            } 
+            
             sCGINames = findCGI(sPathInfoOrig,
                                 webAppRootDir,
                                 contextPath,
@@ -972,6 +1042,7 @@ public final class CGIServlet extends HttpServlet {
 
             envp.put("REQUEST_METHOD", nullsToBlanks(req.getMethod()));
 
+            envp.put("REQUEST_URI", nullsToBlanks(req.getRequestURI()));
 
 
             /*-
@@ -1063,19 +1134,15 @@ public final class CGIServlet extends HttpServlet {
                 if ("AUTHORIZATION".equalsIgnoreCase(header) ||
                     "PROXY_AUTHORIZATION".equalsIgnoreCase(header)) {
                     //NOOP per CGI specification section 11.2
-                } else if("HOST".equalsIgnoreCase(header)) {
-                    String host = req.getHeader(header);
-        int idx =  host.indexOf(":");
-        if(idx < 0) idx = host.length();
-                    envp.put("HTTP_" + header.replace('-', '_'),
-                             host.substring(0, idx));
                 } else {
                     envp.put("HTTP_" + header.replace('-', '_'),
                              req.getHeader(header));
                 }
             }
 
-            command = sCGIFullPath;
+            File fCGIFullPath = new File(sCGIFullPath);
+            command = fCGIFullPath.getCanonicalPath();
+
             envp.put("X_TOMCAT_SCRIPT_PATH", command);  //for kicks
 
             this.env = envp;
@@ -1084,6 +1151,85 @@ public final class CGIServlet extends HttpServlet {
 
         }
 
+        /**
+         * Extracts requested resource from web app archive to context work 
+         * directory to enable CGI script to be executed.
+         */
+        protected void expandCGIScript() {
+            StringBuffer srcPath = new StringBuffer();
+            StringBuffer destPath = new StringBuffer();
+            InputStream is = null;
+
+            // paths depend on mapping
+            if (cgiPathPrefix == null ) {
+                srcPath.append(pathInfo);
+                is = context.getResourceAsStream(srcPath.toString());
+                destPath.append(tmpDir);
+                destPath.append(pathInfo);
+            } else {
+                // essentially same search algorithm as findCGI()
+                srcPath.append(cgiPathPrefix);
+                StringTokenizer pathWalker =
+                        new StringTokenizer (pathInfo, "/");
+                // start with first element
+                while (pathWalker.hasMoreElements() && (is == null)) {
+                    srcPath.append("/");
+                    srcPath.append(pathWalker.nextElement());
+                    is = context.getResourceAsStream(srcPath.toString());
+                }
+                destPath.append(tmpDir);
+                destPath.append("/");
+                destPath.append(srcPath);
+            }
+
+            if (is == null) {
+                // didn't find anything, give up now
+                if (debug >= 2) {
+                    log("expandCGIScript: source '" + srcPath + "' not found");
+                }
+                 return;
+            }
+
+            File f = new File(destPath.toString());
+            if (f.exists()) {
+                // Don't need to expand if it already exists
+                return;
+            } 
+
+            // create directories
+            String dirPath = new String (destPath.toString().substring(
+                    0,destPath.toString().lastIndexOf("/")));
+            File dir = new File(dirPath);
+            dir.mkdirs();
+
+            try {
+                synchronized (expandFileLock) {
+                    // make sure file doesn't exist
+                    if (f.exists()) {
+                        return;
+                    }
+
+                    // create file
+                    if (!f.createNewFile()) {
+                        return;
+                    }
+                    FileOutputStream fos = new FileOutputStream(f);
+
+                    // copy data
+                    IOTools.flow(is, fos);
+                    is.close();
+                    fos.close();
+                    if (debug >= 2) {
+                        log("expandCGIScript: expanded '" + srcPath + "' to '" + destPath + "'");
+                    }
+                }
+            } catch (IOException ioe) {
+                // delete in case file is corrupted 
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+        }
 
 
         /**
@@ -1136,13 +1282,12 @@ public final class CGIServlet extends HttpServlet {
             sb.append("</td></tr>");
 
             sb.append("<tr><td colspan=2>Query Params</td></tr>");
-            Enumeration paramk = queryParameters.keys();
-            while (paramk.hasMoreElements()) {
-                String s = paramk.nextElement().toString();
+            for (int i=0; i < queryParameters.size(); i++) {
+                NameValuePair nvp = (NameValuePair) queryParameters.get(i);
                 sb.append("<tr><td>");
-                sb.append(s);
+                sb.append(nvp.getName());
                 sb.append("</td><td>");
-                sb.append(queryParameters.get(s).toString());
+                sb.append(nvp.getValue());
                 sb.append("</td></tr>");
             }
 
@@ -1195,7 +1340,7 @@ public final class CGIServlet extends HttpServlet {
          * @return   CGI query parameters
          *
          */
-        protected Hashtable getParameters() {
+        protected ArrayList getParameters() {
             return queryParameters;
         }
 
@@ -1217,7 +1362,7 @@ public final class CGIServlet extends HttpServlet {
         /**
          * Converts null strings to blank strings ("")
          *
-         * @param    string to be converted if necessary
+         * @param    s string to be converted if necessary
          * @return   a non-null string, either the original or the empty string
          *           ("") if the original was <code>null</code>
          */
@@ -1230,8 +1375,8 @@ public final class CGIServlet extends HttpServlet {
         /**
          * Converts null strings to another string
          *
-         * @param    string to be converted if necessary
-         * @param    string to return instead of a null string
+         * @param    couldBeNull string to be converted if necessary
+         * @param    subForNulls string to return instead of a null string
          * @return   a non-null string, either the original or the substitute
          *           string if the original was <code>null</code>
          */
@@ -1245,8 +1390,8 @@ public final class CGIServlet extends HttpServlet {
         /**
          * Converts blank strings to another string
          *
-         * @param    string to be converted if necessary
-         * @param    string to return instead of a blank string
+         * @param    couldBeBlank string to be converted if necessary
+         * @param    subForBlanks string to return instead of a blank string
          * @return   a non-null string, either the original or the substitute
          *           string if the original was <code>null</code> or empty ("")
          */
@@ -1288,8 +1433,7 @@ public final class CGIServlet extends HttpServlet {
      * and <code>setResponse</code> methods, respectively.
      * </p>
      *
-     * @author    Martin Dengler [root@martindengler.com]
-     * @version   $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
+     * @version   $Revision: 383693 $, $Date: 2006-03-06 17:16:24 -0500 (Mon, 06 Mar 2006) $
      */
 
     protected class CGIRunner {
@@ -1304,7 +1448,7 @@ public final class CGIServlet extends HttpServlet {
         private File wd = null;
 
         /** query parameters to be passed to the invoked script */
-        private Hashtable params = null;
+        private ArrayList params = null;
 
         /** stdin to be passed to cgi script */
         private InputStream stdin = null;
@@ -1329,14 +1473,11 @@ public final class CGIServlet extends HttpServlet {
          * @param  command  string full path to command to be executed
          * @param  env      Hashtable with the desired script environment
          * @param  wd       File with the script's desired working directory
-         * @param  params   Hashtable with the script's query parameters
-         *
-         * @param  res       HttpServletResponse object for setting headers
-         *                   based on CGI script output
-         *
+         * @param  params   ArrayList with the script's query parameters as
+         *                  NameValuePairs
          */
         protected CGIRunner(String command, Hashtable env, File wd,
-                            Hashtable params) {
+                            ArrayList params) {
             this.command = command;
             this.env = env;
             this.wd = wd;
@@ -1508,142 +1649,93 @@ public final class CGIServlet extends HttpServlet {
              * with major modifications by Martin Dengler
              */
             Runtime rt = null;
-            BufferedReader commandsStdOut = null;
+            InputStream cgiOutput = null;
             BufferedReader commandsStdErr = null;
             BufferedOutputStream commandsStdIn = null;
             Process proc = null;
             int bufRead = -1;
 
             //create query arguments
-            Enumeration paramNames = params.keys();
-            StringBuffer cmdAndArgs = new StringBuffer(command);
-            if (paramNames != null && paramNames.hasMoreElements()) {
+            StringBuffer cmdAndArgs = new StringBuffer();
+            if (command.indexOf(" ") < 0) {
+                cmdAndArgs.append(command);
+            } else {
+                // Spaces used as delimiter, so need to use quotes
+                cmdAndArgs.append("\"");
+                cmdAndArgs.append(command);
+                cmdAndArgs.append("\"");
+            }
+
+            for (int i=0; i < params.size(); i++) {
                 cmdAndArgs.append(" ");
-                while (paramNames.hasMoreElements()) {
-                    String k = (String) paramNames.nextElement();
-                    String v = params.get(k).toString();
-                    if ((k.indexOf("=") < 0) && (v.indexOf("=") < 0)) {
-                        cmdAndArgs.append(k);
-                        cmdAndArgs.append("=");
-                        v = java.net.URLEncoder.encode(v);
-                        cmdAndArgs.append(v);
-                        cmdAndArgs.append(" ");
+                NameValuePair nvp = (NameValuePair) params.get(i); 
+                String k = nvp.getName();
+                String v = nvp.getValue();
+                if ((k.indexOf("=") < 0) && (v.indexOf("=") < 0)) {
+                    StringBuffer arg = new StringBuffer(k);
+                    arg.append("=");
+                    arg.append(v);
+                    if (arg.toString().indexOf(" ") < 0) {
+                        cmdAndArgs.append(arg);
+                    } else {
+                        // Spaces used as delimiter, so need to use quotes
+                        cmdAndArgs.append("\"");
+                        cmdAndArgs.append(arg);
+                        cmdAndArgs.append("\"");
                     }
                 }
             }
 
-            /*String postIn = getPostInput(params);
-            int contentLength = (postIn.length()
-                    + System.getProperty("line.separator").length());
-            if ("POST".equals(env.get("REQUEST_METHOD"))) {
-                env.put("CONTENT_LENGTH", new Integer(contentLength));
-            }*/
+            StringBuffer command = new StringBuffer(cgiExecutable);
+            command.append(" ");
+            command.append(cmdAndArgs.toString());
+            cmdAndArgs = command;
 
-        if (command.endsWith(".pl") || command.endsWith(".cgi")) {
-            StringBuffer perlCommand = new StringBuffer("perl ");
-            perlCommand.append(cmdAndArgs.toString());
-            cmdAndArgs = perlCommand;
-        }
+            String sContentLength = (String) env.get("CONTENT_LENGTH");
+            ByteArrayOutputStream contentStream = null;
+            if(!"".equals(sContentLength)) {
+                byte[] content = new byte[Integer.parseInt(sContentLength)];
+
+                // Bugzilla 32023
+                int lenRead = 0;
+                do {
+                    int partRead = stdin.read(content,lenRead,content.length-lenRead);
+                    lenRead += partRead;
+                } while (lenRead > 0 && lenRead < content.length);
+
+                contentStream = new ByteArrayOutputStream(
+                        Integer.parseInt(sContentLength));
+                if ("POST".equals(env.get("REQUEST_METHOD"))) {
+                    String paramStr = getPostInput(params);
+                    if (paramStr != null) {
+                        byte[] paramBytes = paramStr.getBytes();
+                        contentStream.write(paramBytes);
+
+                        int contentLength = paramBytes.length;
+                        if (lenRead > 0) {
+                            String lineSep = System.getProperty("line.separator");
+                            contentStream.write(lineSep.getBytes());
+                            contentLength = lineSep.length() + lenRead;
+                        }
+                        env.put("CONTENT_LENGTH", Integer.toString(contentLength));
+                    }
+                }
+
+                if (lenRead > 0) {
+                    contentStream.write(content, 0, lenRead);
+                }
+                contentStream.close();
+            }
 
             rt = Runtime.getRuntime();
             proc = rt.exec(cmdAndArgs.toString(), hashToStringArray(env), wd);
 
-            /*
-             * provide input to cgi
-             * First  -- parameters
-             * Second -- any remaining input
-             */
-            /*commandsStdIn = new BufferedOutputStream(proc.getOutputStream());
-            if (debug >= 2 ) {
-                log("runCGI stdin=[" + stdin + "], qs="
-                    + env.get("QUERY_STRING"));
+            if(contentStream != null) {
+                commandsStdIn = new BufferedOutputStream(proc.getOutputStream());
+                commandsStdIn.write(contentStream.toByteArray());
+                commandsStdIn.flush();
+                commandsStdIn.close();
             }
-            if ("POST".equals(env.get("REQUEST_METHOD"))) {
-                if (debug >= 2) {
-                    log("runCGI: writing ---------------\n");
-                    log(postIn);
-                    log("runCGI: new content_length=" + contentLength
-                        + "---------------\n");
-                }
-                commandsStdIn.write(postIn.getBytes());
-            }
-            if (stdin != null) {
-                //REMIND: document this
-                /* assume if nothing is available after a time, that nothing is
-                 * coming...
-                 */
-                /*if (stdin.available() <= 0) {
-                    if (debug >= 2 ) {
-                        log("runCGI stdin is NOT available ["
-                            + stdin.available() + "]");
-                    }
-                    try {
-                        Thread.currentThread().sleep(iClientInputTimeout);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                if (stdin.available() > 0) {
-                    if (debug >= 2 ) {
-                        log("runCGI stdin IS available ["
-                            + stdin.available() + "]");
-                    }
-                    byte[] bBuf = new byte[1024];
-                    bufRead = -1;
-                    try {
-                        while ((bufRead = stdin.read(bBuf)) != -1) {
-                            if (debug >= 2 ) {
-                                log("runCGI: read [" + bufRead
-                                    + "] bytes from stdin");
-                            }
-                            commandsStdIn.write(bBuf, 0, bufRead);
-                        }
-                        if (debug >= 2 ) {
-                            log("runCGI: DONE READING from stdin");
-                        }
-                    } catch (IOException ioe) {
-                        //REMIND: replace with logging
-                        //REMIND: should I throw this exception?
-                        log("runCGI: couldn't write all bytes.");
-                        ioe.printStackTrace();
-                    }
-                }
-            }
-            commandsStdIn.flush();
-            commandsStdIn.close();*/
-      String sContentLength = (String) env.get("CONTENT_LENGTH");
-      if(!"".equals(sContentLength)) {
-          commandsStdIn = new BufferedOutputStream(proc.getOutputStream());
-          byte[] content = new byte[Integer.parseInt(sContentLength)];
-
-          int lenRead = stdin.read(content);
-
-          if ("POST".equals(env.get("REQUEST_METHOD"))) {
-              String paramStr = getPostInput(params);
-              if (paramStr != null) {
-                  byte[] paramBytes = paramStr.getBytes();
-                  commandsStdIn.write(paramBytes);
-
-                  int contentLength = paramBytes.length;
-                  if (lenRead > 0) {
-                      String lineSep = System.getProperty("line.separator");
-
-                      commandsStdIn.write(lineSep.getBytes());
-
-                      contentLength = lineSep.length() + lenRead;
-                  }
-
-                  env.put("CONTENT_LENGTH", new Integer(contentLength));
-              }
-          }
-
-          if (lenRead > 0) {
-              commandsStdIn.write(content, 0, lenRead);
-          }
-
-
-          commandsStdIn.flush();
-          commandsStdIn.close();
-      }
 
             /* we want to wait for the process to exit,  Process.waitFor()
              * is useless in our situation; see
@@ -1652,21 +1744,8 @@ public final class CGIServlet extends HttpServlet {
              */
 
             boolean isRunning = true;
-            commandsStdOut = new BufferedReader
-                (new InputStreamReader(proc.getInputStream()));
             commandsStdErr = new BufferedReader
                 (new InputStreamReader(proc.getErrorStream()));
-            BufferedWriter servletContainerStdout = null;
-
-            try {
-                if (response.getOutputStream() != null) {
-                    servletContainerStdout =
-                        new BufferedWriter(new OutputStreamWriter
-                            (response.getOutputStream()));
-                }
-            } catch (IOException ignored) {
-                //NOOP: no output will be written
-            }
             final BufferedReader stdErrRdr = commandsStdErr ;
 
             new Thread() {
@@ -1675,69 +1754,143 @@ public final class CGIServlet extends HttpServlet {
                 } ;
             }.start() ;
 
-
+            InputStream cgiHeaderStream =
+                new HTTPHeaderInputStream(proc.getInputStream());
+            BufferedReader cgiHeaderReader =
+                new BufferedReader(new InputStreamReader(cgiHeaderStream));
+            
             while (isRunning) {
-
                 try {
-
                     //set headers
                     String line = null;
-                    while (((line = commandsStdOut.readLine()) != null)
+                    while (((line = cgiHeaderReader.readLine()) != null)
                            && !("".equals(line))) {
                         if (debug >= 2) {
                             log("runCGI: addHeader(\"" + line + "\")");
                         }
                         if (line.startsWith("HTTP")) {
-                            //TODO: should set status codes (NPH support)
-                            /*
-                             * response.setStatus(getStatusCode(line));
-                             */
+                            response.setStatus(getSCFromHttpStatusLine(line));
                         } else if (line.indexOf(":") >= 0) {
-                            response.addHeader
-                                (line.substring(0, line.indexOf(":")).trim(),
-                                line.substring(line.indexOf(":") + 1).trim());
+                            String header =
+                                line.substring(0, line.indexOf(":")).trim();
+                            String value =
+                                line.substring(line.indexOf(":") + 1).trim(); 
+                            if (header.equalsIgnoreCase("status")) {
+                                response.setStatus(getSCFromCGIStatusHeader(value));
+                            } else {
+                                response.addHeader(header , value);
+                            }
                         } else {
                             log("runCGI: bad header line \"" + line + "\"");
                         }
                     }
 
                     //write output
-                    char[] cBuf = new char[1024];
-                    while ((bufRead = commandsStdOut.read(cBuf)) != -1) {
-                        if (servletContainerStdout != null) {
+                    byte[] bBuf = new byte[2048];
+
+                    OutputStream out = response.getOutputStream();
+                    cgiOutput = proc.getInputStream();
+
+                    try {
+                        while ((bufRead = cgiOutput.read(bBuf)) != -1) {
                             if (debug >= 4) {
-                                log("runCGI: write(\"" + new String(cBuf, 0, bufRead) + "\")");
+                                log("runCGI: output " + bufRead +
+                                    " bytes of data");
                             }
-                            servletContainerStdout.write(cBuf, 0, bufRead);
+                            out.write(bBuf, 0, bufRead);
+                        }
+                    } finally {
+                        // Attempt to consume any leftover byte if something bad happens,
+                        // such as a socket disconnect on the servlet side; otherwise, the
+                        // external process could hang
+                        if (bufRead != -1) {
+                            while ((bufRead = cgiOutput.read(bBuf)) != -1) {}
                         }
                     }
-
-                    if (servletContainerStdout != null) {
-                        servletContainerStdout.flush();
-                    }
-
+    
                     proc.exitValue(); // Throws exception if alive
 
                     isRunning = false;
 
                 } catch (IllegalThreadStateException e) {
                     try {
-                        Thread.currentThread().sleep(500);
+                        Thread.sleep(500);
                     } catch (InterruptedException ignored) {
                     }
                 }
             } //replacement for Process.waitFor()
-            commandsStdOut.close()  ;
+
+            // Close the output stream used
+            cgiOutput.close();
         }
 
+        /**
+         * Parses the Status-Line and extracts the status code.
+         * 
+         * @param line The HTTP Status-Line (RFC2616, section 6.1)
+         * @return The extracted status code or the code representing an
+         * internal error if a valid status code cannot be extracted. 
+         */
+        private int getSCFromHttpStatusLine(String line) {
+            int statusStart = line.indexOf(' ') + 1;
+            
+            if (statusStart < 1 || line.length() < statusStart + 3) {
+                // Not a valid HTTP Status-Line
+                log ("runCGI: invalid HTTP Status-Line:" + line);
+                return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            }
+            
+            String status = line.substring(statusStart, statusStart + 3);
+            
+            int statusCode;
+            try {
+                statusCode = Integer.parseInt(status);
+            } catch (NumberFormatException nfe) {
+                // Not a valid status code
+                log ("runCGI: invalid status code:" + status);
+                return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            }
+            
+            return statusCode;
+        }
+
+        /**
+         * Parses the CGI Status Header value and extracts the status code.
+         * 
+         * @param value The CGI Status value of the form <code>
+         *             digit digit digit SP reason-phrase</code>
+         * @return The extracted status code or the code representing an
+         * internal error if a valid status code cannot be extracted. 
+         */
+        private int getSCFromCGIStatusHeader(String value) {
+            if (value.length() < 3) {
+                // Not a valid status value
+                log ("runCGI: invalid status value:" + value);
+                return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            }
+            
+            String status = value.substring(0, 3);
+            
+            int statusCode;
+            try {
+                statusCode = Integer.parseInt(status);
+            } catch (NumberFormatException nfe) {
+                // Not a valid status code
+                log ("runCGI: invalid status code:" + status);
+                return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            }
+            
+            return statusCode;
+        }
+        
         private void sendToLog(BufferedReader rdr) {
             String line = null;
             int lineCount = 0 ;
             try {
                 while ((line = rdr.readLine()) != null) {
                     log("runCGI (stderr):" +  line) ;
+                    lineCount++ ;
                 }
-                lineCount++ ;
             } catch (IOException e) {
                 log("sendToLog error", e) ;
             } finally {
@@ -1756,41 +1909,139 @@ public final class CGIServlet extends HttpServlet {
         /**
          * Gets a string for input to a POST cgi script
          *
-         * @param  params   Hashtable of query parameters to be passed to
+         * @param  params   ArrayList of query parameters to be passed to
          *                  the CGI script
          * @return          for use as input to the CGI script
          */
 
-        protected String getPostInput(Hashtable params) {
-            String lineSeparator = System.getProperty("line.separator");
-            Enumeration paramNames = params.keys();
-            StringBuffer postInput = new StringBuffer("");
+        protected String getPostInput(ArrayList params) {
             StringBuffer qs = new StringBuffer("");
-            if (paramNames != null && paramNames.hasMoreElements()) {
-                while (paramNames.hasMoreElements()) {
-                    String k = (String) paramNames.nextElement();
-                    String v = params.get(k).toString();
-                    if ((k.indexOf("=") < 0) && (v.indexOf("=") < 0)) {
-                        postInput.append(k);
-                        qs.append(k);
-                        postInput.append("=");
-                        qs.append("=");
-                        postInput.append(v);
-                        qs.append(v);
-                        postInput.append(lineSeparator);
-                        qs.append("&");
-                    }
+            for (int i=0; i < params.size(); i++) {
+                NameValuePair nvp = (NameValuePair) this.params.get(i); 
+                String k = nvp.getName();
+                String v = nvp.getValue();
+                if ((k.indexOf("=") < 0) && (v.indexOf("=") < 0)) {
+                    qs.append(k);
+                    qs.append("=");
+                    qs.append(v);
+                    qs.append("&");
                 }
             }
-            qs.append(lineSeparator);
-            return qs.append(postInput.toString()).toString();
+            if (qs.length() > 0) {
+                // Remove last "&"
+                qs.setLength(qs.length() - 1);
+                return qs.toString();
+            } else {
+                return null;
+            }
         }
-
-
-
     } //class CGIRunner
 
+    /**
+     * This is a simple class for storing name-value pairs.
+     * 
+     * TODO: It might be worth moving this to the utils package there is a
+     * wider requirement for this functionality.
+     */
+    protected class NameValuePair {
+        private String name;
+        private String value;
+        
+        NameValuePair(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+        
+        protected String getName() {
+            return name;
+        }
+        
+        protected String getValue() {
+            return value;
+        }
+    }
 
+    /**
+     * This is an input stream specifically for reading HTTP headers. It reads
+     * upto and including the two blank lines terminating the headers. It
+     * allows the content to be read using bytes or characters as appropriate.
+     */
+    protected class HTTPHeaderInputStream extends InputStream {
+        private static final int STATE_CHARACTER = 0;
+        private static final int STATE_FIRST_CR = 1;
+        private static final int STATE_FIRST_LF = 2;
+        private static final int STATE_SECOND_CR = 3;
+        private static final int STATE_HEADER_END = 4;
+        
+        private InputStream input;
+        private int state;
+        
+        HTTPHeaderInputStream(InputStream theInput) {
+            input = theInput;
+            state = STATE_CHARACTER;
+        }
 
+        /**
+         * @see java.io.InputStream#read()
+         */
+        public int read() throws IOException {
+            if (state == STATE_HEADER_END) {
+                return -1;
+            }
+
+            int i = input.read();
+
+            // Update the state
+            // State machine looks like this
+            //
+            //    -------->--------
+            //   |      (CR)       |
+            //   |                 |
+            //  CR1--->---         |
+            //   |        |        |
+            //   ^(CR)    |(LF)    |
+            //   |        |        |
+            // CHAR--->--LF1--->--EOH
+            //      (LF)  |  (LF)  |
+            //            |(CR)    ^(LF)
+            //            |        |
+            //          (CR2)-->---
+            
+            if (i == 10) {
+                // LF
+                switch(state) {
+                    case STATE_CHARACTER:
+                        state = STATE_FIRST_LF;
+                        break;
+                    case STATE_FIRST_CR:
+                        state = STATE_FIRST_LF;
+                        break;
+                    case STATE_FIRST_LF:
+                    case STATE_SECOND_CR:
+                        state = STATE_HEADER_END;
+                        break;
+                }
+
+            } else if (i == 13) {
+                // CR
+                switch(state) {
+                    case STATE_CHARACTER:
+                        state = STATE_FIRST_CR;
+                        break;
+                    case STATE_FIRST_CR:
+                        state = STATE_HEADER_END;
+                        break;
+                    case STATE_FIRST_LF:
+                        state = STATE_SECOND_CR;
+                        break;
+                }
+
+            } else {
+                state = STATE_CHARACTER;
+            }
+            
+            return i;            
+        }
+    }  // class HTTPHeaderInputStream
 
 } //class CGIServlet
