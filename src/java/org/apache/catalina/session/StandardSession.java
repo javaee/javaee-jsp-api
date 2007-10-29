@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.25 $ $Date: 2006/11/15 19:04:03 $
+ * @version $Revision: 1.26 $ $Date: 2006/11/21 23:45:35 $
  */
 
 public class StandardSession
@@ -1587,29 +1587,12 @@ public class StandardSession
             throw new IllegalStateException
                 (sm.getString("standardSession.setAttribute.ise"));
         
-        //HERCULES: mod
-        /* these 4 lines were the PE code        
-        if ((manager != null) && manager.getDistributable() &&
-          !(value instanceof Serializable))
-            throw new IllegalArgumentException
-                (sm.getString("standardSession.setAttribute.iae"));
-         */
-        
-        if ((manager != null) && manager.getDistributable() &&
-          !(value instanceof Serializable)) {
-	    // Certain special types of non-serializable objects may be allowed.
-	    // The stream object used to save session data could optionally
-	    // replace these objects with equivalent serializable objects.
-            /* following line was original Hercules code; now replaced by following line
-	    if ( !((value instanceof javax.ejb.EJBLocalHome) || (value instanceof javax.ejb.EJBLocalObject) || (value instanceof javax.naming.Context)) ) 
-            FIXME: note: IndirectlySerializable will include more than the above 3 classes
-             *so we need to examine the implications of that for this code.
-             */
-            if (!(value instanceof BaseIndirectlySerializable))
+        if ((manager != null)
+                    && manager.getDistributable()
+                    && !isSerializable(value)) {
             	throw new IllegalArgumentException
                 	(sm.getString("standardSession.setAttribute.iae")); 
 	}
-        //end HERCULES: mod         
 
         // Construct an event with the new value
         HttpSessionBindingEvent event = null;
@@ -1880,7 +1863,7 @@ public class StandardSession
             //FIXME: IndirectlySerializable includes more than 3 classes in Hercules code
             //need to explore implications of this
 
-            } else if (value instanceof Serializable || value instanceof BaseIndirectlySerializable || value instanceof javax.naming.Context) {    
+            } else if (isSerializable(value)) {    
                 saveNames.add(keys[i]);
                 saveValues.add(value);
             //end HERCULES:mod             
@@ -2079,6 +2062,29 @@ public class StandardSession
     }
 
 
+    /**
+     * Returns true if the given value may be serialized, false otherwise.
+     *
+     * A given value is considered serializable if it is an instance of
+     * java.io.Serializable or
+     * com.sun.enterprise.spi.io.BaseIndirectlySerializable, or if special
+     * serialization logic for it exists. For example, in the case of
+     * GlassFish, instances of javax.naming.Context are replaced with
+     * corresponding instances of SerializableJNDIContext during serialization
+     * (this is done by the specialized object outputstream returned by
+     * the IOUtilsCaller factory mechanism).
+     * 
+     * @return true if the given value may be serialized, false otherwise
+     */
+    private boolean isSerializable(Object value) {
+        if ((value instanceof Serializable)
+                || (value instanceof BaseIndirectlySerializable)
+                || (value instanceof javax.naming.Context)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 
