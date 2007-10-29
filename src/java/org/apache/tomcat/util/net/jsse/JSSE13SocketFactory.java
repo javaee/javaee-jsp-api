@@ -96,17 +96,13 @@ public class JSSE13SocketFactory extends JSSESocketFactory
             // Set up KeyManager, which will extract server key
             com.sun.net.ssl.KeyManagerFactory kmf = 
                 com.sun.net.ssl.KeyManagerFactory.getInstance(algorithm);
-            String keystoreType = (String)attributes.get("keystoreType");
-            if (keystoreType == null) {
-                keystoreType = defaultKeystoreType;
-            }
             String keystorePass = getKeystorePassword();
-            kmf.init(getKeystore(keystoreType, keystorePass),
+            kmf.init(getKeystore(keystorePass),
                      keystorePass.toCharArray());
 
             // Set up TrustManager
             com.sun.net.ssl.TrustManager[] tm = null;
-            KeyStore trustStore = getTrustStore(keystoreType);
+            KeyStore trustStore = getTrustStore();
             if (trustStore != null) {
                 com.sun.net.ssl.TrustManagerFactory tmf =
                     com.sun.net.ssl.TrustManagerFactory.getInstance("SunX509");

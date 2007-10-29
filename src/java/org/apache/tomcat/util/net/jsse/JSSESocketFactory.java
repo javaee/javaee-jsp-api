@@ -40,6 +40,9 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.HandshakeCompletedEvent;
 
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+
 /*
   1. Make the JSSE's jars available, either as an installed
      extension (copy them into jre/lib/ext) or by adding
@@ -64,10 +67,8 @@ public abstract class JSSESocketFactory
     static String defaultProtocol = "TLS";
     static String defaultAlgorithm = "SunX509";
     static boolean defaultClientAuth = false;
-    static String defaultKeystoreType = "JKS";
-    private static final String defaultKeystoreFile
-        = System.getProperty("user.home") + "/.keystore";
     private static final String defaultKeyPass = "changeit";
+    private static Log log = LogFactory.getLog(JSSESocketFactory.class);
 
     protected boolean initialized;
     protected boolean clientAuth = false;
@@ -215,31 +216,44 @@ public abstract class JSSESocketFactory
     /*
      * Gets the SSL server's keystore.
      */
-    protected KeyStore getKeystore(String type, String pass)
+    protected KeyStore getKeystore(String pass)
             throws IOException {
 
         String keystoreFile = (String)attributes.get("keystore");
-        if (keystoreFile == null)
-            keystoreFile = defaultKeystoreFile;
+        if (log.isDebugEnabled()) {
+            log.debug("Keystore file= " + keystoreFile);
+        }
 
-        return getStore(type, keystoreFile, pass);
+        String keystoreType = (String)attributes.get("keystoreType");
+        if (log.isDebugEnabled()) {
+            log.debug("Keystore type= " + keystoreType);
+        }
+
+        return getStore(keystoreType, keystoreFile, pass);
     }
 
     /*
      * Gets the SSL server's truststore.
      */
-    protected KeyStore getTrustStore(String keystoreType) throws IOException {
-        KeyStore trustStore = null;
+    protected KeyStore getTrustStore() throws IOException {
 
-        String trustStoreFile = System.getProperty("javax.net.ssl.trustStore");
-        String trustStorePassword =
-            System.getProperty("javax.net.ssl.trustStorePassword");
-        if (trustStoreFile != null && trustStorePassword != null){
-            trustStore = getStore(keystoreType, trustStoreFile,
-                                  trustStorePassword);
+        String truststore = (String)attributes.get("truststore");
+        if (log.isDebugEnabled()) {
+            log.debug("Truststore file= " + truststore);
         }
 
-        return trustStore;
+        String truststoreType = (String)attributes.get("truststoreType");
+        if (log.isDebugEnabled()) {
+            log.debug("Truststore type= " + truststoreType);
+        }
+
+        String truststorePassword = System.getProperty(
+                                    "javax.net.ssl.trustStorePassword");
+        if (truststorePassword == null) {
+            truststorePassword = getKeystorePassword();
+        }
+
+        return getStore(truststoreType, truststore, truststorePassword);
     }
 
     /*

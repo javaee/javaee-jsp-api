@@ -411,6 +411,16 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
         setAttribute("keystoreType", k);
     }
 
+    // START GlassFish Issue 657
+    public void setTruststore(String truststore) {
+        setAttribute("truststore", truststore);
+    }
+
+    public void setTruststoreType(String truststoreType) {
+        setAttribute("truststoreType", truststoreType);
+    }    
+    // END GlassFish Issue 657
+
     public String getClientauth() {
         return getProperty("clientauth");
     }

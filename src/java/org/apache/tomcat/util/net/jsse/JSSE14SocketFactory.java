@@ -93,20 +93,15 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
                 algorithm = defaultAlgorithm;
             }
 
-            String keystoreType = (String) attributes.get("keystoreType");
-            if (keystoreType == null) {
-                keystoreType = defaultKeystoreType;
-            }
-
             // Create and init SSLContext
             SSLContext context = SSLContext.getInstance(protocol);
  
             // Configure SSL session timeout and cache size
             configureSSLSessionContext(context.getServerSessionContext());
                 
-            context.init(getKeyManagers(keystoreType, algorithm,
+            context.init(getKeyManagers(algorithm,
                                         (String) attributes.get("keyAlias")),
-                         getTrustManagers(keystoreType),
+                         getTrustManagers(),
                          new SecureRandom());
 
             // create proxy
@@ -129,8 +124,7 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
     /**
      * Gets the initialized key managers.
      */
-    protected KeyManager[] getKeyManagers(String keystoreType,
-                                          String algorithm,
+    protected KeyManager[] getKeyManagers(String algorithm,
                                           String keyAlias)
                 throws Exception {
 
@@ -138,7 +132,7 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
 
         String keystorePass = getKeystorePassword();
 
-        KeyStore ks = getKeystore(keystoreType, keystorePass);
+        KeyStore ks = getKeystore(keystorePass);
         if (keyAlias != null && !ks.isKeyEntry(keyAlias)) {
             throw new IOException(sm.getString("jsse.alias_no_key_entry", keyAlias));
         }
@@ -167,12 +161,12 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
     /**
      * Gets the intialized trust managers.
      */
-    protected TrustManager[] getTrustManagers(String keystoreType)
+    protected TrustManager[] getTrustManagers()
                 throws Exception {
 
         TrustManager[] tms = null;
 
-        KeyStore trustStore = getTrustStore(keystoreType);
+        KeyStore trustStore = getTrustStore();
         if (trustStore != null) {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
             tmf.init(trustStore);
