@@ -85,7 +85,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:28 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
  */
 
 public class WebappLoader
@@ -236,6 +236,12 @@ public class WebappLoader
      */
     private static ArrayList overridablePackages;
     // END PE 4985680
+
+
+    // START PWC 1.1 6314481
+    private boolean ignoreHiddenJarFiles;
+    // END PWC 1.1 6314481
+
 
     // ------------------------------------------------------------- Properties
 
@@ -1070,11 +1076,19 @@ public class WebappLoader
 
                     Binding binding = (Binding) enumeration.nextElement();
                     String filename = libPath + "/" + binding.getName();
-// START OF IASRI 4657979
+                    // START OF IASRI 4657979
                     if (!filename.endsWith(".jar") &&
                         !filename.endsWith(".zip"))
-// END OF IASRI 4657979
+                    // END OF IASRI 4657979
                         continue;
+
+                    // START PWC 1.1 6314481
+                    if (binding.getName() != null
+                            && binding.getName().startsWith(".")
+                            && ignoreHiddenJarFiles) {
+                        continue;
+                    }
+                    // END PWC 1.1 6314481
 
                     // Copy JAR in the work directory, always (the JAR file
                     // would get locked otherwise, which would make it
@@ -1332,5 +1346,12 @@ public class WebappLoader
        overridablePackages.add( packageName ); 
     }
     // END OF PE 4985680
+
+
+    // START PWC 1.1 6314481
+    public void setIgnoreHiddenJarFiles(boolean ignoreHiddenJarFiles) {
+        this.ignoreHiddenJarFiles = ignoreHiddenJarFiles;
+    }
+    // END PWC 1.1 6314481
 
 }
