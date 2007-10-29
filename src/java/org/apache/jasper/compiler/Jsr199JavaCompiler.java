@@ -27,7 +27,6 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.ToolProvider;
-import javax.tools.JavaCompilerTool;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
@@ -129,12 +128,12 @@ public class Jsr199JavaCompiler implements JavaCompiler {
 
         final String source = charArrayWriter.toString();
 
-        JavaCompilerTool javac = ToolProvider.getSystemJavaCompilerTool();
+        javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
 
         DiagnosticCollector<JavaFileObject> diagnostics =
             new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager stdFileManager =
-                                    javac.getStandardFileManager(diagnostics);
+                    javac.getStandardFileManager(diagnostics, null, null);
 
         String name = className.substring(className.lastIndexOf('.')+1);
 
@@ -149,9 +148,12 @@ public class Jsr199JavaCompiler implements JavaCompiler {
             }
         };
 
-        stdFileManager.setLocation(StandardLocation.CLASS_PATH, this.cpath);
+        try {
+            stdFileManager.setLocation(StandardLocation.CLASS_PATH, this.cpath);
+        } catch (IOException e) {
+        }
 
-        JavaCompilerTool.CompilationTask ct =
+        javax.tools.JavaCompiler.CompilationTask ct =
             javac.getTask(null,
                           getJavaFileManager(stdFileManager),
                           diagnostics,
@@ -159,8 +161,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
                           null, 
                           Arrays.asList(sourceFiles));
 
-        ct.run();
-        if (ct.getResult()) {
+        if (ct.call()) {
             rtctxt.setBytecode(className, classFile.getBytecode());
             return null;
         }
