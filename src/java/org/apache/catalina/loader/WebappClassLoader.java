@@ -46,6 +46,8 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.PrivilegedAction;
+import java.security.Provider;
+import java.security.Security;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -127,7 +129,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.30 $ $Date: 2007/03/15 21:40:38 $
+ * @version $Revision: 1.31 $ $Date: 2007/03/23 19:08:45 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1684,6 +1686,17 @@ public class WebappClassLoader
         // START SJSAS 6258619
         ClassLoaderUtil.releaseLoader(this);
         // END SJSAS 6258619
+
+        // START GlassFish 2840
+        Provider[] providers = Security.getProviders();
+        if (providers != null) {
+            for (Provider provider : providers) {
+                if (provider.getClass().getClassLoader() == this) {
+                    Security.removeProvider(provider.getName());
+                }
+            }
+        }
+        // END GlassFish 2840
 
         started = false;
 
