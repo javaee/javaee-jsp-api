@@ -129,7 +129,7 @@ public final class Request {
     /**
      * Notes.
      */
-    private Object notes[] = new Object[Constants.MAX_NOTES];
+    private NotesManagerImpl notesManager = new NotesManagerImpl();
 
 
     /**
@@ -475,15 +475,24 @@ public final class Request {
 
 
     public final void setNote(int pos, Object value) {
-	notes[pos] = value;
+	notesManager.setNote(pos,value);
     }
 
 
     public final Object getNote(int pos) {
-	return notes[pos];
+	return notesManager.getNote(pos);
+    }
+    
+
+    public NotesManagerImpl getNotesManager() {
+        return notesManager;
     }
 
-
+    
+    public void setNotesManager(NotesManagerImpl notesManager) {
+        this.notesManager = notesManager;
+    }   
+    
     // -------------------- Recycling -------------------- 
 
 

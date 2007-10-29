@@ -92,7 +92,7 @@ public final class Response {
     /**
      * Notes.
      */
-    protected Object notes[] = new Object[Constants.MAX_NOTES];
+    private NotesManagerImpl notesManager = new NotesManagerImpl();
 
 
     /**
@@ -177,16 +177,27 @@ public final class Response {
     // -------------------- Per-Response "notes" --------------------
 
 
+
     public final void setNote(int pos, Object value) {
-        notes[pos] = value;
+	notesManager.setNote(pos,value);
     }
 
 
     public final Object getNote(int pos) {
-        return notes[pos];
+	return notesManager.getNote(pos);
     }
 
 
+    public NotesManagerImpl getNotesManager() {
+        return notesManager;
+    }
+
+    
+    public void setNotesManager(NotesManagerImpl notesManager) {
+        this.notesManager = notesManager;
+    }
+    
+    
     // -------------------- Actions --------------------
 
 
@@ -619,5 +630,6 @@ public final class Response {
         headers.removeHeader("Set-Cookie", Globals.SESSION_COOKIE_NAME);
     }
     // END GlassFish 896
+
 
 }
