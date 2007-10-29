@@ -415,6 +415,37 @@ public class Compiler {
         }
 
         long jspRealLastModified = 0;
+        // START PWC 6468930
+        File targetFile;
+        
+        if (checkClass) {
+            targetFile = new File(ctxt.getClassFileName());
+        } else {
+            targetFile = new File(ctxt.getServletJavaFileName());
+        }
+        
+        // Get the target file's last modified time. File.lastModified()
+        // returns 0 if the file does not exist.
+        long targetLastModified = targetFile.lastModified();
+        if (targetLastModified == 0L)
+            return true;
+
+        // Check if the jsp exists in the filesystem (instead of a jar
+        // or a remote location). If yes, then do a File.lastModified()
+        // to determine its last modified time. This is more performant 
+        // (fewer stat calls) than the ctxt.getResource() followed by 
+        // openConnection(). However, it only works for file system jsps.
+        // If the file has indeed changed, then need to call URL.OpenConnection() 
+        // so that the cache loads the latest jsp file
+        if (jsw != null) {
+            File jspFile = jsw.getJspFile();
+            if (jspFile != null) {
+                jspRealLastModified = jspFile.lastModified();
+            }
+        }
+        if (jspRealLastModified == 0 ||
+            targetLastModified < jspRealLastModified) {
+        // END PWC 6468930
         try {
             URL jspUrl = ctxt.getResource(jsp);
             if (jspUrl == null) {
@@ -428,7 +459,10 @@ public class Compiler {
             e.printStackTrace();
             return true;
         }
-
+        // START PWC 6468930
+        }
+        // END PWC 6468930
+        /* PWC 6468930
         long targetLastModified = 0;
         File targetFile;
         
@@ -443,6 +477,7 @@ public class Compiler {
         }
 
         targetLastModified = targetFile.lastModified();
+        */
         if (checkClass && jsw != null) {
             jsw.setServletClassLastModifiedTime(targetLastModified);
         }

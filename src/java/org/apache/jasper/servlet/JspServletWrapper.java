@@ -27,6 +27,9 @@
 
 package org.apache.jasper.servlet;
 
+// START PWC 6468930
+import java.io.File;
+// END PWC 6468930
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -85,7 +88,13 @@ public class JspServletWrapper {
     private boolean isTagFile;
     private int tripCount;
     private JasperException compileException;
+    /* PWC 6468930
     private long servletClassLastModifiedTime;
+    */
+    // START PWC 6468930
+    private long servletClassLastModifiedTime = 0L;
+    private File jspFile = null;
+    // END PWC 6468930
     private long lastModificationTest = 0L;
 
     /*
@@ -102,6 +111,12 @@ public class JspServletWrapper {
         ctxt = new JspCompilationContext(jspUri, isErrorPage, options,
 					 config.getServletContext(),
 					 this, rctxt);
+        // START PWC 6468930
+        String jspFilePath = ctxt.getRealPath(jspUri);
+        if (jspFilePath != null) {
+            jspFile = new File(jspFilePath);
+        }
+        // END PWC 6468930
     }
 
     /*
@@ -400,6 +415,7 @@ public class JspServletWrapper {
     public long getLastModificationTest() {
         return lastModificationTest;
     }
+
     /**
      * @param lastModificationTest The lastModificationTest to set.
      */
@@ -407,6 +423,11 @@ public class JspServletWrapper {
         this.lastModificationTest = lastModificationTest;
     }
 
+    // START PWC 6468930
+    public File getJspFile() {
+        return jspFile;
+    }
+    // END PWC 6468930
 
     /*
      * Handles the case where a requested JSP file no longer exists.
