@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.26 $ $Date: 2007/02/13 20:55:32 $
+ * @version $Revision: 1.27 $ $Date: 2007/02/26 20:15:10 $
  */
 
 public class CoyoteAdapter
@@ -409,6 +409,7 @@ public class CoyoteAdapter
         CharChunk uriCC = decodedURI.getCharChunk();
         int semicolon = uriCC.indexOf(';');
         if (semicolon > 0) {
+            request.parseSessionVersion();
             decodedURI.setChars
                 (uriCC.getBuffer(), uriCC.getStart(), semicolon);
         }
@@ -499,6 +500,10 @@ public class CoyoteAdapter
         // START SJSAS 6346226
         request.parseJrouteCookie();
         // END SJSAS 6346226
+
+        request.parseSessionVersionCookie();
+
+        request.determineSessionVersionPerContext();
 
         return true;
     }

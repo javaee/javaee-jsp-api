@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.55 $ $Date: 2007/03/12 21:41:53 $
+ * @version $Revision: 1.56 $ $Date: 2007/03/26 17:17:07 $
  */
 
 public class CoyoteRequest
@@ -496,6 +496,8 @@ public class CoyoteRequest
 
     private String requestURI = null;
 
+    private String requestedSessionVersionString = null;
+
 
     // --------------------------------------------------------- Public Methods
 
@@ -544,6 +546,7 @@ public class CoyoteRequest
         requestedSessionCookie = false;
         requestedSessionId = null;
         requestedSessionVersion = null;
+        requestedSessionVersionString = null;
         requestedSessionURL = false;
 
         // START GlassFish 896
@@ -3179,12 +3182,6 @@ public class CoyoteRequest
             }
             // END SJSWS 6376484
 
-            if (context != null
-                    && context.getManager() != null
-                    && context.getManager().isSessionVersioningSupported()) {
-                parseSessionVersion();
-            }
-
         } else {
             setRequestedSessionId(null);
             setRequestedSessionURL(false);
@@ -3211,28 +3208,16 @@ public class CoyoteRequest
             int sessionVersionStart = start + semicolon
                 + Globals.SESSION_VERSION_PARAMETER.length();
             int semicolon2 = uriCC.indexOf(';', sessionVersionStart);
-            String sessionVersionString = null;
             if (semicolon2 >= 0) {
-                sessionVersionString = new String(
+                requestedSessionVersionString = new String(
                     uriCC.getBuffer(),
                     sessionVersionStart, 
                     semicolon2 - semicolon - Globals.SESSION_VERSION_PARAMETER.length());
             } else {
-                sessionVersionString = new String(
+                requestedSessionVersionString = new String(
                     uriCC.getBuffer(),
                     sessionVersionStart, 
                     end - sessionVersionStart);
-            }
-
-            if (sessionVersionString != null) {
-                HashMap<String, String> sessionVersions =
-                    RequestUtil.parseSessionVersions(sessionVersionString);
-                if (sessionVersions != null) {
-                    attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
-                                   sessionVersions);
-                    this.requestedSessionVersion =
-                        sessionVersions.get(context.getPath());
-                }
             }
 
             if (!coyoteRequest.requestURI().getByteChunk().isNull()) {
@@ -3300,6 +3285,26 @@ public class CoyoteRequest
                 }
                 uriBC.setBytes(buf, start, semicolon 
                                + (end - start - semicolon2));
+            }
+        }
+    }
+
+
+    /*
+     * Determines the requested session version for each context
+     * (including the context associated with this request) as specified
+     * in the session version string parsed from the request URI or cookie.
+     */
+    void determineSessionVersionPerContext() {
+        if (isSessionVersionSupported()
+                && requestedSessionVersionString != null) {
+            HashMap<String, String> sessionVersions =
+                RequestUtil.parseSessionVersions(requestedSessionVersionString);
+            if (sessionVersions != null) {
+                attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                               sessionVersions);
+                this.requestedSessionVersion =
+                    sessionVersions.get(context.getPath());
             }
         }
     }
@@ -3385,35 +3390,36 @@ public class CoyoteRequest
                 }
             }
         }
+    }
+    // END CR 6309511
 
-        // Search for JSESSIONIDVERSION with the least specific path
-        // (this is important for cross-context request dispatches)
-        if (context != null) {
-            Manager manager = context.getManager();
-            if (manager != null && manager.isSessionVersioningSupported()) {
-                String sessionVersionString = null;
-                for (int i = 0; i < count; i++) {
-                    ServerCookie scookie = serverCookies.getCookie(i);
-                    if (scookie.getName().equals(
-                                        Globals.SESSION_VERSION_COOKIE_NAME)) {
-                        sessionVersionString = scookie.getValue().toString();
-                    }
-                }
 
-                if (sessionVersionString != null) {
-                    HashMap<String, String> sessionVersions =
-                        RequestUtil.parseSessionVersions(sessionVersionString);
-                    if (sessionVersions != null) {
-                        attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
-                                   sessionVersions);
-                        this.requestedSessionVersion =
-                            sessionVersions.get(context.getPath());
-                    }
-                }
+    /*
+     * Searches for the JSESSIONIDVERSION cookie (if any) with the least
+     * specific path (this is important for cross-context request dispatches),
+     * and reads the session version string from it
+     */
+    void parseSessionVersionCookie() {
+
+        if (!isSessionVersionSupported()) {
+            return;
+        }
+
+        Cookies serverCookies = coyoteRequest.getCookies();
+        int count = serverCookies.getCookieCount();
+        if (count <= 0) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            ServerCookie scookie = serverCookies.getCookie(i);
+            if (scookie.getName().equals(
+                                    Globals.SESSION_VERSION_COOKIE_NAME)) {
+                requestedSessionVersionString = scookie.getValue().toString();
             }
         }
     }
-    // END CR 6309511
+
 
     // START CR 6309511
     /**
@@ -3555,4 +3561,13 @@ public class CoyoteRequest
         }
         sessionVersions.put(context.getPath(), versionString);
     }
+
+
+    private boolean isSessionVersionSupported() {
+
+        return (context != null
+            && context.getManager() != null
+            && context.getManager().isSessionVersioningSupported());
+    }
+
 }
