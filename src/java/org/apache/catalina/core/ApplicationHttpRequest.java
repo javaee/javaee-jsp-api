@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2007/01/22 19:41:07 $
+ * @version $Revision: 1.14 $ $Date: 2007/01/29 22:19:19 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -1036,7 +1036,11 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             setAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
                          sessionVersions);
         }
-        sessionVersions.put(context.getPath(), versionString);
+        String path = context.getPath();
+        if ("".equals(path)) {
+            path = "/";
+        }
+        sessionVersions.put(path, versionString);
     }
 
 }

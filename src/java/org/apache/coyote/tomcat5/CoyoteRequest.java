@@ -122,7 +122,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.59 $ $Date: 2007/04/17 21:33:22 $
+ * @version $Revision: 1.60 $ $Date: 2007/05/03 18:54:02 $
  */
 
 public class CoyoteRequest
@@ -3320,6 +3320,7 @@ public class CoyoteRequest
      * which this request has been associated.
      */
     private void parseSessionVersionString(String sessionVersionString) {
+
         if (sessionVersionString == null || !isSessionVersionSupported()) {
             return;
         }
@@ -3329,8 +3330,13 @@ public class CoyoteRequest
         if (sessionVersions != null) {
             attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
                            sessionVersions);
-            this.requestedSessionVersion =
-                sessionVersions.get(context.getPath());
+            if (context != null) {
+                String path = context.getPath();
+                if ("".equals(path)) {
+                    path = "/";
+                }
+                this.requestedSessionVersion = sessionVersions.get(path);
+            }
         }
     }
 
@@ -3599,7 +3605,11 @@ public class CoyoteRequest
             setAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
                          sessionVersions);
         }
-        sessionVersions.put(context.getPath(), versionString);
+        String path = context.getPath();
+        if ("".equals(path)) {
+            path = "/";
+        }
+        sessionVersions.put(path, versionString);
     }
 
 
