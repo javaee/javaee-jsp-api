@@ -448,15 +448,8 @@ public class JspCompilationContext {
         if (servletJavaFileName == null) {
             servletJavaFileName =
 		getOutputDir() + getServletClassName() + ".java";
-        } else {
-            // Make sure output dir exists
-            makeOutputDir();
         }
         return servletJavaFileName;
-    }
-
-    public void setServletJavaFileName(String servletJavaFileName) {
-        this.servletJavaFileName = servletJavaFileName;
     }
 
     /**
@@ -501,9 +494,6 @@ public class JspCompilationContext {
 
         if (classFileName == null) {
             classFileName = getOutputDir() + getServletClassName() + ".class";
-        } else {
-            // Make sure output dir exists
-            makeOutputDir();
         }
         return classFileName;
     }
@@ -631,16 +621,16 @@ public class JspCompilationContext {
                                 rctxt.getBytecodes());
     }
 
-    // ==================== Private methods ==================== 
-
-    static Object outputDirLock = new Object();
-
-    private void makeOutputDir() {
+    public void makeOutputDir() {
         synchronized(outputDirLock) {
             File outDirFile = new File(outputDir);
             outDirFile.mkdirs();
         }
     }
+
+    // ==================== Private methods ==================== 
+
+    static Object outputDirLock = new Object();
 
     private void createOutputDir() {
         String path = null;

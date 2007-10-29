@@ -365,6 +365,11 @@ public class Compiler {
         }
 
         try {
+            // Create the output directory for the generated files
+            // Always try and create the directory tree, in case the generated
+            // directories were deleted after the server was started.
+            ctxt.getOutputDir();
+            ctxt.makeOutputDir();
             generateJava();
             if (compileClass) {
                 generateClass();
