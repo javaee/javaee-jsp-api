@@ -115,7 +115,6 @@ public class PageContextImpl extends PageContext {
     // per-request state
     private transient ServletRequest request;
     private transient ServletResponse response;
-    private transient Object page;
     private transient HttpSession session;
     private boolean isIncluded;
 

@@ -77,7 +77,6 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
     // Logger
     private static Log log = LogFactory.getLog(TagLibraryInfoImpl.class);
 
-    private Hashtable jarEntries;
     private JspCompilationContext ctxt;
     private ErrorDispatcher err;
     private ParserController parserController;

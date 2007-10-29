@@ -81,7 +81,6 @@ public class JspCompilationContext {
     private String classPath;
 
     private String baseURI;
-    private String baseOutputDir;
     private String outputDir;
     private ServletContext context;
     private URLClassLoader loader;

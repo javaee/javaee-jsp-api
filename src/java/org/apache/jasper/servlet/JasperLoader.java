@@ -63,7 +63,6 @@ public class JasperLoader extends URLClassLoader {
 
     private PermissionCollection permissionCollection;
     private CodeSource codeSource;
-    private String className;
     private ClassLoader parent;
     private SecurityManager securityManager;
     private Map<String, byte[]> bytecodes;
