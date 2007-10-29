@@ -88,10 +88,10 @@ public final class TldConfig  {
 
     // START CR 6402120   
     /**
-     * The variable that indicates whether a single or multiple JVMs 
-     * are running 
+     * The variable that indicates whether or not to create/use a serialized
+     * cache of TLD listeners.
      */
-    private static boolean isSingleProcess = true;
+    private static boolean cacheListeners = true;
     // END CR 6402120   
 
     // Names of system TLD URIs
@@ -263,23 +263,31 @@ public final class TldConfig  {
     
     // START CR 6402120
     /**
-     * Sets the flag that indicates whether a single 
-     * or multiple JVMs are running.
+     * Sets the flag that indicates whether to create/use a serialized cache of
+     * listeners
      *
-     * @param isSingleProcess true for a single JVM process, false otherwise 
+     * @param cache true to create/use a listener cache, false otherwise
      */
-    public static void setSingleProcess(boolean isSingleProcess) {
-        TldConfig.isSingleProcess = isSingleProcess;
+    public static void setCacheListeners(boolean cache) {
+        cacheListeners = cache;
     } 
  
     /**
-     * Check if multiple JVMs are running 
+     * Indicates if a serialized cache of listeners is to be created and used
      *
-     * @return true if a single JVM is running, false otherwise
+     * @return true if the listener cache file is to be used, false otherwise.
      */
-    public static boolean isSingleProcess() {
-        return isSingleProcess;
-    } 
+    public static boolean isCacheListeners() {
+        return cacheListeners;
+    }
+
+    /**
+     * @deprecated Provided for backwards compatibility only. Use
+     * setCacheListeners instead.
+     */
+    public static void setSingleProcess(boolean isSingleProcess) {
+        cacheListeners = isSingleProcess;
+    }
     // END CR 6402120    
  
     /**
@@ -396,13 +404,14 @@ public final class TldConfig  {
         */
         // START CR 6402120
         if (log.isDebugEnabled()) { 
-            log.debug("Are multiple JVMs running ? " + (!isSingleProcess));
+            log.debug("Create/use TLD listener cache? "
+                      + (isCacheListeners()));
         }
 
         // If multiple JVMs are running, then do not create tldCache.ser 
         // file as it will cause exceptions on the server side 
         // because of unsynchronized access of tldCache.ser file.
-        if ((context instanceof StandardContext) && TldConfig.isSingleProcess()) {
+        if ((context instanceof StandardContext) && isCacheListeners()) {
         // END CR 6402120   
             File workDir= (File)
                 ((StandardContext)context).getServletContext().getAttribute(Globals.WORK_DIR_ATTR);
