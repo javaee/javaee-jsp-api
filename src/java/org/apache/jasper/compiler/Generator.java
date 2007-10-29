@@ -607,7 +607,7 @@ class Generator {
         out.println(");");
 
         if (ctxt.getOptions().isXpoweredBy()) {
-            out.printil("response.addHeader(\"X-Powered-By\", \"JSP/2.1\");");
+            out.printil("response.setHeader(\"X-Powered-By\", \"JSP/2.1\");");
         }
 
         out.printil(
