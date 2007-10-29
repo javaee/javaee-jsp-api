@@ -100,7 +100,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2005/08/31 01:08:59 $
+ * @version $Revision: 1.11 $ $Date: 2005/10/17 18:15:59 $
  */
 
 public class CoyoteRequest
@@ -1594,13 +1594,11 @@ public class CoyoteRequest
         throws UnsupportedEncodingException {
 
         // START SJSAS 4936855
-        /*
         if (requestParametersParsed || usingReader) {
             log.warn(sm.getString("coyoteRequest.setCharacterEncoding.ise",
                                   enc));
             return;
         }
-        */
         // END SJSAS 4936855
 
         // Ensure that the specified encoding is valid
