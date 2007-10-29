@@ -36,10 +36,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+// END GlassFish 750
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+
+// START GlassFish 750
+import javax.servlet.jsp.tagext.TagLibraryInfo;
+// END GlassFish 750
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
@@ -260,6 +267,10 @@ public class JspC implements Options {
     private boolean ignoreJspFragmentErrors = false;
     private Set<String> dependents = new HashSet<String>();
     // END SJSAS 6393940
+
+    // START GlassFish 750
+    private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    // END GlassFish 750
 
     // START SJSAS 6403017
     static {
@@ -1307,6 +1318,12 @@ public class JspC implements Options {
                 rctxt.destroy();
             }
             // END SJSAS 6356052
+
+            // START GlassFish 750
+            if (taglibs != null) {
+                taglibs.clear();
+            }
+            // END GlassFish 750
         }
     }
 
@@ -1386,6 +1403,11 @@ public class JspC implements Options {
                 // START SJSAS 6384538
                 TldLocationsCache(context, this, true);
                 // END SJSAS 6384538
+
+            // START GlassFish 750
+            taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
+            context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
+            // END GlassFish 750
         } catch (MalformedURLException me) {
             System.out.println("**" + me);
         }

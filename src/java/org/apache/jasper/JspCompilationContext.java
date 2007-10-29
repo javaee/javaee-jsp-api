@@ -32,11 +32,17 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+// END GlassFish 750
 import java.util.Hashtable;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.TagInfo;
+// START GlassFish 750
+import javax.servlet.jsp.tagext.TagLibraryInfo;
+// END GlassFish 750
 
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspRuntimeContext;
@@ -99,6 +105,10 @@ public class JspCompilationContext {
     private TagInfo tagInfo;
     private URL tagFileJarUrl;
 
+    // START GlassFish 750
+    private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    // END GlassFish 750
+
     // jspURI _must_ be relative to the context
     public JspCompilationContext(String jspUri,
                                  boolean isErrPage,
@@ -130,6 +140,11 @@ public class JspCompilationContext {
         this.rctxt = rctxt;
         this.tagFileJarUrls = new Hashtable();
         this.basePackageName = Constants.JSP_PACKAGE_NAME;
+
+        // START GlassFish 750
+        taglibs = (ConcurrentHashMap<String, TagLibraryInfo>)
+            context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE);
+        // END GlassFish 750
     }
 
     public JspCompilationContext(String tagfile,
@@ -150,7 +165,38 @@ public class JspCompilationContext {
     }
 
     /* ==================== Methods to override ==================== */
-    
+
+
+    // START GlassFish 750
+    /**
+     * Adds the given tag library with the given URI to the context-wide
+     * tag library cache.
+     *
+     * @param uri The tag library URI
+     * @param taglib The tag library to add
+     */
+    public void addTaglib(String uri, TagLibraryInfo taglib) {
+        taglibs.put(uri, taglib);
+    }
+
+    /**
+     * Gets the context-wide tag library cache.
+     *
+     * @return The context-wide tag library cache
+     */
+    public ConcurrentHashMap<String, TagLibraryInfo> getTaglibs() {
+        return taglibs;
+    }
+
+    /**
+     * Clears the context-wide tag library cache.
+     */
+    public void clearTaglibs() {
+        taglibs.clear();
+    }
+    // END GlassFish 750
+
+
     /** ---------- Class path and loader ---------- */
 
     /**

@@ -33,7 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+// END GlassFish 750
 // START SJSWS 6232180
 import java.util.HashSet;
 import java.util.StringTokenizer;
@@ -44,6 +46,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+// START GlassFish 750
+import javax.servlet.jsp.tagext.TagLibraryInfo;
+// END GlassFish 750
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
@@ -92,6 +97,10 @@ public class JspServlet extends HttpServlet {
     private HashSet httpMethodsSet = null;
     // END SJSWS 6232180
 
+    // START GlassFish 750
+    private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    // END GlassFish 750
+
     /*
      * Initializes this JspServlet.
      */
@@ -118,6 +127,11 @@ public class JspServlet extends HttpServlet {
             }
         }
         // END SJSWS 6232180
+
+        // START GlassFish 750
+        taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
+        context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
+        // END GlassFish 750
 
         if (log.isTraceEnabled()) {
             log.trace(Localizer.getMessage("jsp.message.scratch.dir.is",
@@ -348,6 +362,9 @@ public class JspServlet extends HttpServlet {
         rctxt.destroy();
         JspApplicationContextImpl.removeJspApplicationContext(context);
 
+        // START GlassFish 750
+        taglibs.clear();
+        // END GlassFish 750
     }
 
 

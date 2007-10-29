@@ -235,5 +235,9 @@ public class Constants {
      */
     public static final int DEFAULT_INITIAL_CAPACITY = 32;
     // END SJSWS
+
+    // START GlassFish 750
+    public static final String JSP_TAGLIBRARY_CACHE = "com.sun.jsp.taglibraryCache";
+    // END GlassFish 750
 }
 

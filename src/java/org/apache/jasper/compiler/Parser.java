@@ -29,6 +29,9 @@ package org.apache.jasper.compiler;
 import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.net.URL;
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+// START GlassFish 750
 import java.util.Iterator;
 import java.util.List;
 
@@ -438,6 +441,7 @@ class Parser implements TagConstants {
 		    err.jspError(reader.mark(), "jsp.error.prefix.refined",
 			prefix, uri, uriPrev);
 		}
+                /* GlassFish 750
 		if (pageInfo.getTaglib(uri) == null) {
 		    String[] location = ctxt.getTldLocation(uri);
                     TagLibraryInfoImpl taglib = null;
@@ -453,6 +457,35 @@ class Parser implements TagConstants {
                     }
 		    pageInfo.addTaglib(uri, taglib);
 		}
+                */
+                // START GlassFish 750
+                ConcurrentHashMap<String, TagLibraryInfo> taglibs =
+                    ctxt.getTaglibs();
+                TagLibraryInfo taglib = taglibs.get(uri);
+                if (taglib == null) {
+                    synchronized (taglibs) {
+                        taglib = taglibs.get(uri);
+                        if (taglib == null) {
+                            String[] location = ctxt.getTldLocation(uri);
+                            try {
+                                taglib = new TagLibraryInfoImpl(
+                                                        ctxt,
+                                                        parserController,
+                                                        prefix,
+                                                        uri,
+                                                        location,
+                                                        err);
+                            } catch (JasperException je) {
+                                err.throwException(reader.mark(), je);
+                            }
+                            ctxt.addTaglib(uri, taglib);
+                        }
+                    }
+                }
+                if (pageInfo.getTaglib(uri) == null) {
+                    pageInfo.addTaglib(uri, taglib);
+                }
+                // END GlassFish 750  
 		pageInfo.addPrefixMapping(prefix, uri);
 	    } else {
 		String tagdir = attrs.getValue("tagdir");

@@ -656,6 +656,11 @@ public class Compiler {
                 includeUconn.getInputStream().close();
 
                 if (includeLastModified > targetLastModified) {
+                    // START GlassFish 750
+                    if (include.endsWith(".tld")) {
+                        ctxt.clearTaglibs();
+                    }
+                    // END GlassFish 750
                     return true;
                 }
             } catch (Exception e) {

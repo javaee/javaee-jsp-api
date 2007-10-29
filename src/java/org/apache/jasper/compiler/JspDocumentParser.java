@@ -31,6 +31,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+// START GlassFish 750
+import java.util.concurrent.ConcurrentHashMap;
+// START GlassFish 750
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -1263,23 +1266,42 @@ class JspDocumentParser
                 isPlainUri = true;
             }
 
-            String[] location = ctxt.getTldLocation(uri);
-            if (location != null || !isPlainUri) {
-                /*
-                 * If the uri value is a plain uri, a translation error must
-                 * not be generated if the uri is not found in the taglib map.
-                 * Instead, any actions in the namespace defined by the uri
-                 * value must be treated as uninterpreted.
-                 */
-                result =
-                    new TagLibraryInfoImpl(
-                        ctxt,
-                        parserController,
-                        prefix,
-                        uri,
-                        location,
-                        err);
+            // START GlassFish 750
+            ConcurrentHashMap<String, TagLibraryInfo> taglibs =
+                ctxt.getTaglibs();
+            result = taglibs.get(uri);
+            if (result == null) {
+                synchronized (taglibs) {
+                    result = taglibs.get(uri);
+                    if (result == null) {
+            // END GlassFish 750            
+                        String[] location = ctxt.getTldLocation(uri);
+                        if (location != null || !isPlainUri) {
+                            /*
+                             * If the uri value is a plain uri, a translation
+                             * error must not be generated if the uri is not
+                             * found in the taglib map.
+                             * Instead, any actions in the namespace defined
+                             * by the uri value must be treated as
+                             * uninterpreted.
+                             */
+                            result =
+                                new TagLibraryInfoImpl(
+                                    ctxt,
+                                    parserController,
+                                    prefix,
+                                    uri,
+                                    location,
+                                    err);
+                            // START GlassFish 750
+                            ctxt.addTaglib(uri, result);
+                            // END GlassFish 750
+                        }
+            // START GlassFish 750
+                    }
+                }
             }
+            // END GlassFish 750
         }
 
         return result;
