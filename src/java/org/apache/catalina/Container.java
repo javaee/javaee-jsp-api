@@ -84,7 +84,7 @@ import javax.naming.directory.DirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:14 $
+ * @version $Revision: 1.3 $ $Date: 2006/12/13 18:07:17 $
  */
 
 public interface Container {
@@ -458,4 +458,25 @@ public interface Container {
     public void removePropertyChangeListener(PropertyChangeListener listener);
 
 
+    /**
+     * Indicates whether the request will be checked to see if it is secure
+     * before adding Pragma and Cache-control headers when proxy caching has
+     * been disabled.
+     *
+     * @return true if the check is required; false otherwise.
+     */
+    public boolean isCheckIfRequestIsSecure();
+
+
+    /**
+     * Sets the checkIfRequestIsSecure property of this Container.
+     *
+     * Setting this property to true will check if the request is secure
+     * before adding Pragma and Cache-Control headers when proxy caching has
+     * been disabled.
+     *
+     * @param checkIfRequestIsSecure true if check is required, false
+     * otherwise
+     */
+    public void setCheckIfRequestIsSecure(boolean checkIfRequestIsSecure);
 }

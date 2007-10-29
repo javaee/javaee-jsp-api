@@ -183,6 +183,14 @@ public abstract class ContainerBase
 
 
     /**
+     * Flag indicating whether a check to see if the request is secure is
+     * required before adding Pragma and Cache-Control headers when proxy 
+     * caching has been disabled
+     */
+    protected boolean checkIfRequestIsSecure = false;
+
+
+    /**
      * The lifecycle event support for this component.
      */
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
@@ -752,6 +760,33 @@ public abstract class ContainerBase
     public Pipeline getPipeline() {
 
         return (this.pipeline);
+    }
+
+
+    /**
+     * Indicates whether the request will be checked to see if it is secure
+     * before adding Pragma and Cache-control headers when proxy caching has
+     * been disabled.
+     *
+     * @return true if the check is required; false otherwise.
+     */
+    public boolean isCheckIfRequestIsSecure() {
+        return checkIfRequestIsSecure;
+    }
+
+
+    /**
+     * Sets the checkIfRequestIsSecure property of this Container.
+     *
+     * Setting this property to true will check if the request is secure
+     * before adding Pragma and Cache-Control headers when proxy caching has
+     * been disabled.
+     *
+     * @param checkIfRequestIsSecure true if check is required, false
+     * otherwise
+     */
+    public void setCheckIfRequestIsSecure(boolean checkIfRequestIsSecure) {
+        this.checkIfRequestIsSecure = checkIfRequestIsSecure;
     }
 
 

@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/03/12 01:27:04 $
+ * @version $Revision: 1.11 $ $Date: 2006/10/10 22:43:24 $
  */
 
 public abstract class RealmBase
@@ -114,6 +114,14 @@ public abstract class RealmBase
      * The Container with which this Realm is associated.
      */
     protected Container container = null;
+
+
+    /**
+     * Flag indicating whether a check to see if the request is secure is
+     * required before adding Pragma and Cache-Control headers when proxy 
+     * caching has been disabled
+     */
+    protected boolean checkIfRequestIsSecure = false;
 
 
     /**
@@ -228,6 +236,7 @@ public abstract class RealmBase
 
         Container oldContainer = this.container;
         this.container = container;
+        this.checkIfRequestIsSecure = container.isCheckIfRequestIsSecure();
         support.firePropertyChange("container", oldContainer, this.container);
 
     }
@@ -1461,11 +1470,9 @@ public abstract class RealmBase
         HttpServletRequest hsrequest = (HttpServletRequest) request.getRequest();
         // Make sure that constrained resources are not cached by web proxies
         // or browsers as caching can provide a security hole
-        if (disableProxyCaching &&
-            // FIXME: Disabled for Mozilla FORM support over SSL
-            // (improper caching issue)
-            //!request.isSecure() &&
-            !"POST".equalsIgnoreCase(hsrequest.getMethod())) {
+        if (disableProxyCaching
+                && !"POST".equalsIgnoreCase(hsrequest.getMethod())
+                && (!checkIfRequestIsSecure || !hsrequest.isSecure())) {
             HttpServletResponse sresponse =
                     (HttpServletResponse) response.getResponse();
             if (securePagesWithPragma) {
