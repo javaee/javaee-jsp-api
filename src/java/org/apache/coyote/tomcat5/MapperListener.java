@@ -310,7 +310,10 @@ public class MapperListener
                 return;
             }
 
-            log.debug( "Handle " + objectName );    
+            if (log.isDebugEnabled()) {
+                log.debug( "Handle " + objectName );
+            }
+
             if (notification.getType().equals
                 (MBeanServerNotification.REGISTRATION_NOTIFICATION)) {
                 String type=objectName.getKeyProperty("type");
@@ -534,8 +537,10 @@ public class MapperListener
             contextName = "";
         }
 
-        log.debug(sm.getString
-                  ("mapperListener.registerContext", contextName));
+        if (log.isDebugEnabled()) {
+            log.debug(sm.getString("mapperListener.registerContext",
+                                   contextName));
+        }
 
         Object context = 
             mBeanServer.invoke(objectName, "findMappingObject", null, null);
@@ -593,8 +598,10 @@ public class MapperListener
             contextName = "";
         }
 
-        log.debug(sm.getString
-                  ("mapperListener.unregisterContext", contextName));
+        if (log.isDebugEnabled()) {
+            log.debug(sm.getString("mapperListener.unregisterContext",
+                                   contextName));
+        }
 
         mapper.removeContext(hostName, contextName);
 
@@ -643,9 +650,10 @@ public class MapperListener
             contextName = "";
         }
 
-        log.debug(sm.getString
-                  ("mapperListener.registerWrapper", 
-                   wrapperName, contextName));
+        if (log.isDebugEnabled()) {
+            log.debug(sm.getString("mapperListener.registerWrapper", 
+                                   wrapperName, contextName));
+        }
 
         String[] mappings = (String[])
             mBeanServer.invoke(objectName, "findMappings", null, null);

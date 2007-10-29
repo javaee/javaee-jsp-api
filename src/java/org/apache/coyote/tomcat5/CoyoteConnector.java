@@ -86,7 +86,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.16 $ $Date: 2007/02/15 17:52:26 $
+ * @version $Revision: 1.17 $ $Date: 2007/02/16 01:48:34 $
  */
 
 
@@ -1474,7 +1474,9 @@ public class CoyoteConnector
             } catch (Exception e) {
                 log.error( "Error registering connector ", e);
             }
-            log.debug("Creating name for connector " + oname);
+            if (log.isDebugEnabled()) {
+                log.debug("Creating name for connector " + oname);
+            }
         }
         
 
@@ -2028,7 +2030,9 @@ public class CoyoteConnector
             ObjectName parentName=new ObjectName( domain + ":" +
                     "type=Service");
             
-            log.debug("Adding to " + parentName );
+            if (log.isDebugEnabled()) {
+                log.debug("Adding to " + parentName );
+            }
             if( mserver.isRegistered(parentName )) {
                 mserver.invoke(parentName, "addConnector", new Object[] { this },
                         new String[] {"org.apache.catalina.Connector"});
@@ -2041,13 +2045,17 @@ public class CoyoteConnector
             ObjectName engName=new ObjectName( domain + ":" + "type=Engine");
             if( mserver.isRegistered(engName )) {
                 Object obj=mserver.getAttribute(engName, "managedResource");
-                log.debug("Found engine " + obj + " " + obj.getClass());
+                if (log.isDebugEnabled()) {
+                    log.debug("Found engine " + obj + " " + obj.getClass());
+                }
                 container=(Container)obj;
                 
                 // Internal initialize - we now have the Engine
                 initialize();
                 
-                log.debug("Initialized");
+                if (log.isDebugEnabled()) {
+                    log.debug("Initialized");
+                }
                 // As a side effect we'll get the container field set
                 // Also initialize will be called
                 return;
@@ -2060,7 +2068,9 @@ public class CoyoteConnector
     public void init() throws Exception {
 
         if( this.getService() != null ) {
-            log.debug( "Already configured" );
+            if (log.isDebugEnabled()) {
+                log.debug( "Already configured" );
+            }
             return;
         }
         if( container==null ) {
@@ -2070,7 +2080,9 @@ public class CoyoteConnector
 
     public void destroy() throws Exception {
         if( oname!=null && controller==oname ) {
-            log.debug("Unregister itself " + oname );
+            if (log.isDebugEnabled()) {
+                log.debug("Unregister itself " + oname );
+            }
             Registry.getRegistry().unregisterComponent(oname);
         }
         if( getService() == null)
