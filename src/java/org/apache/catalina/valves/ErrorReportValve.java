@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.14 $ $Date: 2006/07/13 23:59:56 $
+ * @version $Revision: 1.15 $ $Date: 2006/07/14 17:40:14 $
  */
 
 public class ErrorReportValve
@@ -180,8 +180,17 @@ public class ErrorReportValve
             }
 
             // START PWC 6254469
-            // Restore the previously saved encoding
-            sresp.setCharacterEncoding(responseCharEnc);
+            /*
+             * Restore the previously saved response encoding only if it is
+             * different from the default (ISO-8859-1). This is important so
+             * that a subsequent call to ServletResponse.setLocale() has an
+             * opportunity to set it so it corresponds to the resource bundle
+             * locale (see 6412710)
+             */
+            if (responseCharEnc != null && !responseCharEnc.equals(
+                    org.apache.coyote.Constants.DEFAULT_CHARACTER_ENCODING)) {
+                sresp.setCharacterEncoding(responseCharEnc);
+            }
             // END PWC 6254469
 
             ServletResponse sresponse = (ServletResponse) response;
@@ -297,15 +306,16 @@ public class ErrorReportValve
                                          report, hres);
 
         // START SJSAS 6412710
-        if (throwable == null) {
-            // If throwable is not null, we've preserved the response char
-            // encoding in postInvoke(), so that the throwable's exception
-            // message can be delivered to the client without any loss of
-            // information. 
-            // If throwable is null, set the response charset to match that
-            // of the resource bundle locale
-            hres.setLocale(sm.getResourceBundleLocale(hres.getLocale()));
-        }
+        /*
+         * If throwable is not null, we've already preserved any non-null
+         * response encoding in postInvoke(), so that the throwable's exception
+         * message can be delivered to the client without any loss of
+         * information. The following call to ServletResponse.setLocale()
+         * will not override the response encoding in this case.
+         * For all other cases, the response encoding will be set according to
+         * the resource bundle locale.
+         */
+        hres.setLocale(sm.getResourceBundleLocale(hres.getLocale()));
         // END SJSAS 6412710
 
         /* PWC 6254469
