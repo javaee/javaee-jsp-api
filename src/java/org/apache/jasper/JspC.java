@@ -39,12 +39,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
@@ -53,6 +48,7 @@ import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.Localizer;
+import org.apache.jasper.compiler.PageInfo;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.servlet.JspCServletContext;
@@ -152,6 +148,10 @@ public class JspC implements Options {
     // START PWC 6385018
     private static final String SWITCH_VALIDATE = "-validate";
     // END PWC 6385018
+    // START SJSAS 6393940
+    private static final String SWITCH_IGNORE_JSP_FRAGMENTS
+        = "-ignoreJspFragmentErrors";
+    // END SJSAS 6393940
 
     private static final String SHOW_SUCCESS ="-s";
     private static final String LIST_ERRORS = "-l";
@@ -248,12 +248,18 @@ public class JspC implements Options {
     // END SJSAS 6384538
 
     // START SJSAS 6329723
-    private List<JasperException> jspErrors = new ArrayList<JasperException>();
+    private HashMap<String,JasperException> jspErrors
+        = new HashMap<String,JasperException>();
     // END SJSAS 6329723
 
     // START SJSAS 6403017
     private static String myJavaVersion;
     // END SJSAS 6403017
+
+    // START SJSAS 6393940
+    private boolean ignoreJspFragmentErrors = false;
+    private Set<String> dependents = new HashSet<String>();
+    // END SJSAS 6393940
 
     // START SJSAS 6403017
     static {
@@ -381,6 +387,10 @@ public class JspC implements Options {
             } else if (tok.equals(SWITCH_VALIDATE)) {
                 setValidateXml(true);
             // END PWC 6385018
+            // START SJSAS 6393940
+            } else if (tok.equals(SWITCH_IGNORE_JSP_FRAGMENTS)) {
+                setIgnoreJspFragmentErrors(true);
+            // END SJSAS 6393940
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -855,6 +865,12 @@ public class JspC implements Options {
         return failOnError;
     }
 
+    // START SJSAS 6393940
+    public void setIgnoreJspFragmentErrors(boolean ignore) {
+        ignoreJspFragmentErrors = ignore;
+    }
+    // END SJSAS 6393940
+
     /**
      * Obtain JSP configuration informantion specified in web.xml.
      */
@@ -912,7 +928,19 @@ public class JspC implements Options {
      * property was set to TRUE
      */
     public List<JasperException> getJSPCompilationErrors() {
-        return jspErrors;
+
+        ArrayList<JasperException> ret = null;
+
+        Collection c = jspErrors.values();
+        if (c != null) {
+            ret = new ArrayList<JasperException>();
+            Iterator<JasperException> it = c.iterator();
+            while (it.hasNext()) {
+                ret.add(it.next());
+            }
+        }
+
+        return ret;
     }
     // END SJSAS 6329723
 
@@ -1025,6 +1053,7 @@ public class JspC implements Options {
         throws JasperException
     {
         ClassLoader originalClassLoader = null;
+        String jspUri=file.replace('\\','/');
 
         try {
             // set up a scratch/output dir if none is provided
@@ -1036,7 +1065,6 @@ public class JspC implements Options {
                 scratchDir = new File(new File(temp).getAbsolutePath());
             }
 
-            String jspUri=file.replace('\\','/');
             JspCompilationContext clctxt = new JspCompilationContext
                 ( jspUri, false,  this, context, null, rctxt );
 
@@ -1068,6 +1096,24 @@ public class JspC implements Options {
                 clc.compile(compile, true);
             }
 
+            // START SJSAS 6393940
+            if (ignoreJspFragmentErrors) {
+                PageInfo pi = clc.getPageInfo();
+                if (pi != null) {
+                    List<String> deps = pi.getDependants();
+                    if (deps != null) {
+                        Iterator<String> it = deps.iterator();
+                        if (it != null) {
+                            while (it.hasNext()) {
+                                dependents.add(it.next());
+                            }
+                        }
+                    }
+                    clc.setPageInfo(null);
+                }
+	    }
+            // END SJSAS 6393940
+
             // Generate mapping
             generateWebMapping( file, clctxt );
             if ( showSuccess ) {
@@ -1087,12 +1133,14 @@ public class JspC implements Options {
             }
 
             // Bugzilla 35114.
-            if(getFailOnError()) {
+            if (getFailOnError() && !ignoreJspFragmentErrors) {
                 throw je;
             } else {
-                log.error(je.getMessage());
+                if (!ignoreJspFragmentErrors) {
+                    log.error(je.getMessage());
+                }
                 // START SJAS 6329723
-                jspErrors.add(je);
+                jspErrors.put(jspUri, je);
                 // END SJSAS 6329723
             }
 
@@ -1151,6 +1199,9 @@ public class JspC implements Options {
         // START SJSAS 6329723
         jspErrors.clear();
         // END SJSAS 6329723
+        // START SJSAS 6393940
+        dependents.clear();
+        // END SJSAS 6393940
 
         try {
 	    if (uriRoot == null) {
@@ -1213,6 +1264,15 @@ public class JspC implements Options {
                 }
 		processFile(nextjsp);
 	    }
+
+            // START SJSAS 6393940
+            if (ignoreJspFragmentErrors) {
+                purgeJspFragmentErrors();
+            }
+            if (getFailOnError() && !jspErrors.isEmpty()) {
+                throw (JasperException) jspErrors.values().iterator().next();
+            }
+            // END SJJAS 6393940
 
 	    completeWebXml();
 	    
@@ -1509,4 +1569,19 @@ public class JspC implements Options {
         return new URLClassLoader(urlsArray, this.getClass().getClassLoader());
     }
     // END SJAS 6327357
+
+
+    // START SJSAS 6393940
+    /*
+     * Purges all compilation errors related to JSP fragments.
+     */
+    private void purgeJspFragmentErrors() {
+        Iterator<String> it = dependents.iterator();
+        if (it != null) {
+            while (it.hasNext()) {
+                jspErrors.remove(it.next());
+            }
+        }
+    }
+    // END SJSAS 6393940
 }

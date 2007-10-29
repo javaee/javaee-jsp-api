@@ -318,7 +318,7 @@ public class Compiler {
     /** 
      * Compile the servlet from .java file to .class file
      */
-    private void generateClass(String[] smap)
+    private void generateClass(String[] smap, boolean jspcMode)
         throws FileNotFoundException, JasperException, Exception {
 
         long t1 = 0;
@@ -431,8 +431,10 @@ public class Compiler {
             }
         } catch (BuildException e) {
             be = e;
-            log.error( "Javac exception ", e);
-            log.error( "Env: " + info.toString());
+            if (!jspcMode) {
+                log.error( "Javac exception ", e);
+                log.error( "Env: " + info.toString());
+            }
         }
 
         errorReport.append(logger.getReport());
@@ -451,8 +453,10 @@ public class Compiler {
 
         if (be != null) {
             String errorReportString = errorReport.toString();
-            log.error("Error compiling file: " + javaFileName + " "
-                      + errorReportString);
+            if (!jspcMode) {
+                log.error("Error compiling file: " + javaFileName + " "
+                          + errorReportString);
+            }
             JavacErrorDetail[] javacErrors = ErrorDispatcher.parseJavacErrors(
                         errorReportString, javaFileName, pageNodes);
             if (javacErrors != null) {
@@ -523,7 +527,7 @@ public class Compiler {
         try {
             String[] smap = generateJava();
             if (compileClass) {
-                generateClass(smap);
+                generateClass(smap, jspcMode);
             }
         } finally {
             if (tfp != null) {
@@ -537,7 +541,14 @@ public class Compiler {
             errDispatcher = null;
             logger = null;
             project = null;
+            /* SJSAS 6393940
             pageInfo = null;
+            */
+            // START SJSAS 6393940
+            if (!jspcMode) {
+                pageInfo = null;
+            }
+            // END SJSAS 6393940
             pageNodes = null;
             if (ctxt.getWriter() != null) {
                 ctxt.getWriter().close();
@@ -671,6 +682,14 @@ public class Compiler {
      */
     public PageInfo getPageInfo() {
 	return pageInfo;
+    }
+
+
+    /**
+     * Sets the info about the page under compilation
+     */
+    public void setPageInfo(PageInfo pageInfo) {
+	this.pageInfo = pageInfo;
     }
 
 
