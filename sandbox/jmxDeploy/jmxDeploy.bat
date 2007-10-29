@@ -1,24 +1,6 @@
 @rem
-@rem The contents of this file are subject to the terms 
-@rem of the Common Development and Distribution License 
-@rem (the License).  You may not use this file except in
-@rem compliance with the License.
-@rem 
-@rem You can obtain a copy of the license at 
-@rem https://glassfish.dev.java.net/public/CDDLv1.0.html or
-@rem glassfish/bootstrap/legal/CDDLv1.0.txt.
-@rem See the License for the specific language governing 
-@rem permissions and limitations under the License.
-@rem 
-@rem When distributing Covered Code, include this CDDL 
-@rem Header Notice in each file and include the License file 
-@rem at glassfish/bootstrap/legal/CDDLv1.0.txt.  
-@rem If applicable, add the following below the CDDL Header, 
-@rem with the fields enclosed by brackets [] replaced by
-@rem you own identifying information: 
-@rem "Portions Copyrighted [year] [name of copyright owner]"
-@rem 
-@rem Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+@rem Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+@rem Use is subject to license terms.
 @rem
 
 @set AS_HOST=localhost
