@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
  * with each context and server.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
+ * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:01 $
  */
 
 public class NamingContextListener
@@ -83,8 +83,8 @@ public class NamingContextListener
      * Create a new naming context listener.
      */
     public NamingContextListener() {
-        if( log.isDebugEnabled() )
-            log.debug( "new NamingContextListener");
+        if( log.isTraceEnabled() )
+            log.trace( "new NamingContextListener");
     }
 
 

@@ -814,8 +814,8 @@ public abstract class ContainerBase
 
     private void addChildInternal(Container child) {
 
-        if( log.isDebugEnabled() )
-            log.debug("Add child " + child + " " + this);
+        if( log.isTraceEnabled() )
+            log.trace("Add child " + child + " " + this);
         synchronized(children) {
             if (children.get(child.getName()) != null)
                 throw new IllegalArgumentException("addChild:  Child name '" +

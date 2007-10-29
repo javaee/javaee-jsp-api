@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2005/11/02 23:51:34 $
+ * @version $Revision: 1.10 $ $Date: 2005/11/10 20:05:21 $
  */
 
 public class StandardContext
@@ -1468,8 +1468,8 @@ public class StandardContext
      */
     public void setPublicId(String publicId) {
 
-        if (log.isDebugEnabled())
-            log.debug("Setting deployment descriptor public ID to '" +
+        if (log.isTraceEnabled())
+            log.trace("Setting deployment descriptor public ID to '" +
                 publicId + "'");
 
         String oldPublicId = this.publicId;
@@ -4570,8 +4570,8 @@ public class StandardContext
         // END OF SJSAS 8.1 6174179
 
         // Standard container startup
-        if (log.isDebugEnabled())
-            log.debug("Processing standard container startup");
+        if (log.isTraceEnabled())
+            log.trace("Processing standard container startup");
 
         if (ok) {
 
@@ -4723,8 +4723,8 @@ public class StandardContext
 
         // Set available status depending upon startup success
         if (ok) {
-            if (log.isDebugEnabled())
-                log.debug("Starting completed");
+            if (log.isTraceEnabled())
+                log.trace("Starting completed");
             setAvailable(true);
         } else {
             log.error(sm.getString("standardContext.startFailed"));

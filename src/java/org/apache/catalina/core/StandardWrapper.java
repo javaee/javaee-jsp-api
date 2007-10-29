@@ -66,7 +66,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -775,8 +775,8 @@ public class StandardWrapper
                 synchronized (this) {
                     if (instance == null) {
                         try {
-                            if (log.isDebugEnabled())
-                                log.debug("Allocating non-STM instance");
+                            if (log.isTraceEnabled())
+                                log.trace("Allocating non-STM instance");
 
                             instance = loadServlet();
                         } catch (ServletException e) {
