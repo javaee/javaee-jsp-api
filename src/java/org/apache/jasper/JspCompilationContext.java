@@ -653,9 +653,8 @@ public class JspCompilationContext {
         try {
             // Append servlet or tag handler path to scratch dir
             baseUrl = options.getScratchDir().toURL();
-            String outUrlString = baseUrl.toString() + '/' + path;
-            URL outUrl = new URL(outUrlString);
-            outputDir = outUrl.getFile() + File.separator;
+            File f = new File( options.getScratchDir(), path );
+            outputDir = f.getPath() + File.separator;
             makeOutputDir();
         } catch (Exception e) {
             throw new IllegalStateException("No output directory: " +
