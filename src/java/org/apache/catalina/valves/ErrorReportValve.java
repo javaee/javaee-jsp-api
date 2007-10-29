@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.11 $ $Date: 2006/04/18 21:11:30 $
+ * @version $Revision: 1.12 $ $Date: 2006/04/26 17:38:34 $
  */
 
 public class ErrorReportValve
@@ -279,7 +279,7 @@ public class ErrorReportValve
         // Do nothing if there is no report for the specified status code
         String report = null;
         try {
-            /* SJSAS
+            /* SJSAS 6412710
             report = sm.getString("http." + statusCode, message);
             */
             // START SJSAS 6412710

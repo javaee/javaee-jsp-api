@@ -205,7 +205,7 @@ public class StringManager {
     public String getString(String key, Object[] args, Locale locale) {
         // END SJSAS 6412710
         String iString = null;
-        /*
+        /* 6412710
         String value = getStringInternal(key);
         */
         // START SJSAS 6412710
