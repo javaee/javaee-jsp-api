@@ -53,15 +53,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
-// START GlassFish Issue 587
-import java.util.concurrent.ConcurrentHashMap;
-// END GlassFish Issue 587
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -128,7 +126,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.22 $ $Date: 2006/10/24 23:18:07 $
+ * @version $Revision: 1.23 $ $Date: 2006/11/10 01:18:41 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -2537,8 +2535,6 @@ public class WebappClassLoader
             Field fld = fieldlist[i];
             if (fld.getName().equals("properties")) {
                 purgeELBeanClasses(fld);
-            } else if (fld.getName().equals("properties2")) {
-                purgeELBeanClasses(fld);
             }
         }
     }
@@ -2564,9 +2560,9 @@ public class WebappClassLoader
             fld.setAccessible(true);
         }
 
-        ConcurrentHashMap m = null;
+        Map m = null;
         try {
-            m = (ConcurrentHashMap) fld.get(null);
+            m = (Map) fld.get(null);
         } catch (IllegalAccessException iae) {
             log.warn("Unable to purge bean classes from BeanELResolver", iae);
             return;
