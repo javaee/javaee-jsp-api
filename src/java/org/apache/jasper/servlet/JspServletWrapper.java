@@ -128,7 +128,7 @@ public class JspServletWrapper {
     }
 
     public Servlet getServlet()
-        throws ServletException, IOException, FileNotFoundException
+        throws ServletException, IOException
     {
         if (reload) {
             synchronized (this) {
@@ -273,11 +273,13 @@ public class JspServletWrapper {
     public void service(HttpServletRequest request, 
                         HttpServletResponse response,
                         boolean precompile)
-	    throws ServletException, IOException, FileNotFoundException {
+	    throws ServletException, IOException {
+
         try {
 
             if (ctxt.isRemoved()) {
-                throw new FileNotFoundException(jspUri);
+                jspFileNotFound(request, response);
+                return;
             }
 
             if ((available > 0L) && (available < Long.MAX_VALUE)) {
@@ -352,25 +354,6 @@ public class JspServletWrapper {
                     (HttpServletResponse.SC_SERVICE_UNAVAILABLE, 
                      ex.getMessage());
             }
-        } catch (FileNotFoundException ex) {
-            ctxt.incrementRemoved();
-            String includeRequestUri = (String)
-                request.getAttribute("javax.servlet.include.request_uri");
-            if (includeRequestUri != null) {
-                // This file was included. Throw an exception as
-                // a response.sendError() will be ignored by the
-                // servlet engine.
-                throw new ServletException(ex);
-            } else {
-                try {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, 
-                                      ex.getMessage());
-                } catch (IllegalStateException ise) {
-                    log.error(Localizer.getMessage("jsp.error.file.not.found",
-						   ex.getMessage()),
-			      ex);
-                }
-            }
         } catch (ServletException ex) {
 	    throw ex;
         } catch (IOException ex) {
@@ -400,4 +383,35 @@ public class JspServletWrapper {
     public void setLastModificationTest(long lastModificationTest) {
         this.lastModificationTest = lastModificationTest;
     }
+
+
+    /*
+     * Handles the case where a requested JSP file no longer exists.
+     */
+    private void jspFileNotFound(HttpServletRequest request,
+                                 HttpServletResponse response)
+            throws ServletException, IOException {
+
+        FileNotFoundException fnfe = new FileNotFoundException(jspUri);
+
+        ctxt.incrementRemoved();
+        String includeRequestUri = (String)
+            request.getAttribute("javax.servlet.include.request_uri");
+        if (includeRequestUri != null) {
+            // This file was included. Throw an exception as
+            // a response.sendError() will be ignored by the
+            // servlet engine.
+            throw new ServletException(fnfe);
+        } else {
+            try {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, 
+                                   fnfe.getMessage());
+            } catch (IllegalStateException ise) {
+                log.error(Localizer.getMessage("jsp.error.file.not.found",
+                                               fnfe.getMessage()),
+                          fnfe);
+            }
+        }
+    }
+
 }
