@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.15 $ $Date: 2005/12/14 23:29:11 $
+ * @version $Revision: 1.16 $ $Date: 2006/01/11 18:10:15 $
  */
 
 public class StandardContext
@@ -4323,7 +4323,15 @@ public class StandardContext
             }
             this.resources = proxyDirContext;
         } catch (Throwable t) {
-            log.error(sm.getString("standardContext.resourcesStart"), t);
+            if(log.isDebugEnabled()) {
+                log.error(
+                    sm.getString("standardContext.resourcesStart", getName()), 
+                    t);
+            } else {
+                log.error(sm.getString("standardContext.resourcesStart", 
+                                       getName()));
+                log.error(t.getMessage());
+            }
             ok = false;
         }
 
@@ -4720,7 +4728,6 @@ public class StandardContext
 
         }
         if (!getConfigured()) {
-            log.error( "Error getConfigured");
             ok = false;
         }
 
