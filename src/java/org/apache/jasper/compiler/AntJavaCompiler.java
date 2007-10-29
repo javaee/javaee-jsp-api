@@ -129,6 +129,10 @@ public class AntJavaCompiler implements JavaCompiler {
         this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;
         options = ctxt.getOptions();
+        log = suppressLogging?
+            new com.sun.org.apache.commons.logging.impl.NoOpLog():
+            com.sun.org.apache.commons.logging.LogFactory.getLog(
+                AntJavaCompiler.class);
         getProject();
         javac = (Javac) project.createTask("javac");
         javac.setFork(options.getFork());
@@ -136,10 +140,6 @@ public class AntJavaCompiler implements JavaCompiler {
         if (options.getCompiler() != null) {
             javac.setCompiler(options.getCompiler());
         }
-        log = suppressLogging?
-            new com.sun.org.apache.commons.logging.impl.NoOpLog():
-            com.sun.org.apache.commons.logging.LogFactory.getLog(
-                AntJavaCompiler.class);
         startThreadPool();
     }
 
