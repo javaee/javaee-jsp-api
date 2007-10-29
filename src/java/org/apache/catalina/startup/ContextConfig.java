@@ -68,7 +68,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/11 03:38:36 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -290,7 +290,15 @@ public class ContextConfig
             }
         }
         if (stream == null) {
+            /* PWC 6296257
             log.info(sm.getString("contextConfig.applicationMissing") + " " + context);
+            */
+            // START PWC 6296257
+            if (log.isDebugEnabled()) {
+                log.debug(sm.getString("contextConfig.applicationMissing")
+                          + " " + context);
+            }
+            // END PWC 6296257
             return;
         }
         
