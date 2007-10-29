@@ -68,7 +68,7 @@ class BeanRepository {
 	} else if (scope.equals("application")) {
 	    appBeans.addElement(s);
 	} else {
-	    errDispatcher.jspError(n, "jsp.error.useBean.badScope");
+	    errDispatcher.jspError(n, "jsp.error.invalid.scope", scope);
 	}
 	
 	putBeanType(s, type);
