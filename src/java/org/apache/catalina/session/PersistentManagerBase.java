@@ -58,11 +58,10 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * <b>IMPLEMENTATION NOTE</b>:  Correct behavior of session storing and
  * reloading depends upon external calls to the <code>start()</code> and
  * <code>stop()</code> methods of this class at the correct times.
- * HERCULES:mod implements SessionPurgeCapable
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.13 $ $Date: 2007/03/05 22:18:02 $
+ * @version $Revision: 1.14 $ $Date: 2007/03/12 21:41:52 $
  */
 
 public abstract class PersistentManagerBase
@@ -558,6 +557,15 @@ public abstract class PersistentManagerBase
 
 
     // --------------------------------------------------------- Public Methods
+
+
+    /*
+     * Releases any resources held by this session manager.
+     */
+    public void release() {
+        super.release();
+        clearStore();
+    }
 
 
     /**
