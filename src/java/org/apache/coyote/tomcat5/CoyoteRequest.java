@@ -95,12 +95,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 // END CR 6309511
 
+// START S1AS 6170450
+import com.sun.appserv.ProxyHandler;
+// END S1AS 6170450
+
 /**
  * Wrapper object for the Coyote request.
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2005/10/17 18:15:59 $
+ * @version $Revision: 1.12 $ $Date: 2005/10/17 19:44:13 $
  */
 
 public class CoyoteRequest
@@ -1416,6 +1420,17 @@ public class CoyoteRequest
      * Return the scheme used to make this Request.
      */
     public String getScheme() {
+        // START S1AS 6170450
+        if (getConnector() != null
+                && getConnector().getAuthPassthroughEnabled()) {
+            ProxyHandler proxyHandler = getConnector().getProxyHandler();
+            if (proxyHandler != null
+                    && proxyHandler.getSSLKeysize(getRequest()) > 0) {
+                return "https";
+            }
+        }
+        // END S1AS 6170450
+
         return (coyoteRequest.scheme().toString());
     }
 
