@@ -62,7 +62,6 @@ class Parser implements TagConstants {
     private ParserController parserController;
     private JspCompilationContext ctxt;
     private JspReader reader;
-    private String currentFile;
     private Mark start;
     private ErrorDispatcher err;
     private int scriptlessCount;
@@ -90,7 +89,6 @@ class Parser implements TagConstants {
 	this.pageInfo = pc.getCompiler().getPageInfo();
 	this.err = pc.getCompiler().getErrorDispatcher();
 	this.reader = reader;
-	this.currentFile = reader.mark().getFile();
         this.scriptlessCount = 0;
 	this.isTagFile = isTagFile;
 	this.directivesOnly = directivesOnly;
