@@ -48,7 +48,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * <code>org.apache.catalina.core.StandardDefaultContext</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:47 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
  */
 
 public class DefaultContextMBean extends BaseModelMBean {
@@ -70,18 +70,13 @@ public class DefaultContextMBean extends BaseModelMBean {
         throws MBeanException, RuntimeOperationsException {
 
         super();
-
+        registry = MBeanUtils.createRegistry();
     }
     
 
     // ----------------------------------------------------- Instance Variables
     
     
-    /**
-     * The configuration information registry for our managed beans.
-     */
-    protected Registry registry = MBeanUtils.createRegistry();
-
     /**
      * The <code>ManagedBean</code> information describing this MBean.
      */
