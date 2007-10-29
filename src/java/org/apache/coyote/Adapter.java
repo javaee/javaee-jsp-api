@@ -22,7 +22,8 @@ package org.apache.coyote;
 
 
 /**
- * Adapter.
+ * Adapter. This represents the entry point to a coyote-based servlet
+ * container.
  *
  * @author Remy Maucherat
  */

@@ -26,6 +26,12 @@ package org.apache.coyote;
  * Processor is single threaded and specific to stream-based protocols,
  * will not fit Jk protocols like JNI.
  *
+ * This is the main interface to be implemented by a coyote connector.
+ * (In contrast, Adapter is the main interface to be implemented by a
+ * coyote servlet container.)
+ *
+ * @see Adapter
+ *
  * @author Remy Maucherat
  * @author Costin Manolache
  */
