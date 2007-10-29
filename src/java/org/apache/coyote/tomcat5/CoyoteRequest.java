@@ -135,7 +135,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.62 $ $Date: 2007/05/05 05:32:42 $
+ * @version $Revision: 1.63 $ $Date: 2007/06/05 21:47:31 $
  */
 
 public class CoyoteRequest
@@ -1118,7 +1118,10 @@ public class CoyoteRequest
             return (requestDispatcherPath == null) 
                 ? getRequestPathMB().toString()
                 : requestDispatcherPath.toString();
-        }
+        } else if (name.equals(Globals.CONSTRAINT_URI)) {
+            return (getRequestPathMB() != null)
+                ? getRequestPathMB().toString() : null;
+        }        
 
         Object attr=attributes.get(name);
 

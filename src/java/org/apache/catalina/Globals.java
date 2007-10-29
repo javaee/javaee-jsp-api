@@ -49,7 +49,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2007/02/13 19:16:54 $
+ * @version $Revision: 1.11 $ $Date: 2007/05/05 05:31:51 $
  */
 
 public final class Globals {
@@ -406,5 +406,11 @@ public final class Globals {
      */
      public static final String SSI_FLAG_ATTR =
          "org.apache.catalina.ssi.SSIServlet";
+
+    /**
+     * Request path.
+     */
+    public static final String CONSTRAINT_URI =
+        "org.apache.catalina.CONSTRAINT_URI";
 
 }
