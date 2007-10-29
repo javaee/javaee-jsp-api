@@ -33,8 +33,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.servlet.Servlet;
@@ -109,7 +110,8 @@ public class PageContextImpl extends PageContext {
     private ELContext elContext;
 
     // page-scope attributes
-    private Hashtable attributes;
+    private HashMap attributes;
+    private boolean isNametableInitialized;
 
     // per-request state
     private ServletRequest request;
@@ -126,7 +128,7 @@ public class PageContextImpl extends PageContext {
     PageContextImpl(JspFactory factory) {
         this.factory = factory;
 	this.outs = new BodyContentImpl[0];
-	this.attributes = new Hashtable(16);
+	this.attributes = new HashMap(16);
 	this.depth = -1;
     }
 
@@ -176,20 +178,25 @@ public class PageContextImpl extends PageContext {
         }
         this.out = baseOut;
 
-	// register names/values as per spec
-	setAttribute(OUT, this.out);
-	setAttribute(REQUEST, request);
-	setAttribute(RESPONSE, response);
-
-	if (session != null)
-	    setAttribute(SESSION, session);
-
-	setAttribute(PAGE, servlet);
-	setAttribute(CONFIG, config);
-	setAttribute(PAGECONTEXT, this);
-	setAttribute(APPLICATION, context);
+        this.isNametableInitialized = false;
         setAttribute(Constants.FIRST_REQUEST_SEEN, "true", APPLICATION_SCOPE);
 
+    }
+
+    private void initializePageScopeNameTable() {
+        isNametableInitialized = true;
+        // register names/values as per spec
+        setAttribute(OUT, this.out);
+        setAttribute(REQUEST, request);
+        setAttribute(RESPONSE, response);
+
+        if (session != null)
+            setAttribute(SESSION, session);
+
+        setAttribute(PAGE, servlet);
+        setAttribute(CONFIG, config);
+        setAttribute(PAGECONTEXT, this);
+        setAttribute(APPLICATION, context);
     }
 
     public void release() {
@@ -241,6 +248,9 @@ public class PageContextImpl extends PageContext {
     }
 
     private Object doGetAttribute(String name){
+        if (!isNametableInitialized) {
+            initializePageScopeNameTable();
+        }
         return attributes.get(name);
     }
 
@@ -266,6 +276,9 @@ public class PageContextImpl extends PageContext {
     private Object doGetAttribute(String name, int scope){
         switch (scope) {
             case PAGE_SCOPE:
+                if (!isNametableInitialized) {
+                    initializePageScopeNameTable();
+                }
                 return attributes.get(name);
 
             case REQUEST_SCOPE:
@@ -307,6 +320,9 @@ public class PageContextImpl extends PageContext {
 
     private void doSetAttribute(String name, Object attribute){
         if (attribute != null) {
+            if (!isNametableInitialized) {
+                initializePageScopeNameTable();
+            }
             attributes.put(name, attribute);
         } else {
             removeAttribute(name, PAGE_SCOPE);
@@ -337,6 +353,9 @@ public class PageContextImpl extends PageContext {
         if (o != null) {
             switch (scope) {
             case PAGE_SCOPE:
+                if (!isNametableInitialized) {
+                    initializePageScopeNameTable();
+                }
                 attributes.put(name, o);
                 break;
 
@@ -385,6 +404,9 @@ public class PageContextImpl extends PageContext {
     private void doRemoveAttribute(String name, int scope){
         switch (scope) {
         case PAGE_SCOPE:
+            if (!isNametableInitialized) {
+                initializePageScopeNameTable();
+            }
             attributes.remove(name);
             break;
 
@@ -428,6 +450,11 @@ public class PageContextImpl extends PageContext {
     }
 
     private int doGetAttributeScope(String name){
+
+        if (!isNametableInitialized) {
+            initializePageScopeNameTable();
+        }
+
         if (attributes.get(name) != null)
             return PAGE_SCOPE;
 
@@ -474,6 +501,10 @@ public class PageContextImpl extends PageContext {
 
     private Object doFindAttribute(String name){
 
+        if (!isNametableInitialized) {
+            initializePageScopeNameTable();
+        }
+
         Object o = attributes.get(name);
         if (o != null)
             return o;
@@ -513,7 +544,10 @@ public class PageContextImpl extends PageContext {
     private Enumeration<String> doGetAttributeNamesInScope(int scope){
         switch (scope) {
         case PAGE_SCOPE:
-            return attributes.keys();
+            if (!isNametableInitialized) {
+                initializePageScopeNameTable();
+            }
+            return Collections.enumeration(attributes.keySet());
             
         case REQUEST_SCOPE:
             return request.getAttributeNames();
