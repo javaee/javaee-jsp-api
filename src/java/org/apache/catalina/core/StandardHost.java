@@ -25,12 +25,11 @@ package org.apache.catalina.core;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.lang.reflect.Method;
  
-
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
-
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
@@ -40,6 +39,9 @@ import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Valve;
+// START SJSAS 6324911
+import org.apache.catalina.deploy.ErrorPage;
+// END SJSAS 6324911
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.modeler.Registry;
 
@@ -51,7 +53,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/09/30 22:40:39 $
  */
 
 public class StandardHost
@@ -181,6 +183,16 @@ public class StandardHost
      * Attribute value used to turn on/off XML namespace awarenes.
      */
      private boolean xmlNamespaceAware = false;
+
+
+    // START SJSAS 6324911
+    /**
+     * The status code error pages for this StandardHost, keyed by HTTP status
+     * code.
+     */
+    private HashMap<Integer, ErrorPage> statusPages =
+        new HashMap<Integer, ErrorPage>();
+    // END SJSAS 6324911
 
 
     // BEGIN S1AS 5000999
@@ -768,6 +780,43 @@ public class StandardHost
         fireContainerEvent(REMOVE_ALIAS_EVENT, alias);
 
     }
+
+
+    // START SJSAS 6324911
+    /**
+     * Adds the given error page to this StandardHost.
+     *
+     * @param errorPage The error page definition to be added
+     */
+    public void addErrorPage(ErrorPage errorPage) {
+        // Validate the input parameters
+        if (errorPage == null) {
+            throw new IllegalArgumentException
+                (sm.getString("standardHost.errorPage.required"));
+        }
+
+        // Add the specified error page to our internal collections
+        synchronized (statusPages) {
+            statusPages.put(new Integer(errorPage.getErrorCode()),
+                            errorPage);
+        }
+
+        fireContainerEvent("addErrorPage", errorPage);
+
+    }
+
+    /**
+     * Gets the error page for the specified HTTP error code.
+     *
+     * @param errorCode Error code to look up
+     *
+     * @return The error page that is mapped to the specified HTTP error
+     * code, or null if no error page exists for that HTTP error code
+     */
+    public ErrorPage findErrorPage(int errorCode) {
+        return statusPages.get(new Integer(errorCode));
+    }
+    // END SJSAS 6324911
 
 
     /**

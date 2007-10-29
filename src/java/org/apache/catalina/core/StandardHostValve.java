@@ -22,8 +22,17 @@
 
 package org.apache.catalina.core;
 
-
 import java.io.IOException;
+
+// START SJSAS 6324911
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.Reader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.BufferedInputStream;
+import javax.servlet.ServletOutputStream;
+// END SJSAS 6324911
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -61,7 +70,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/08/22 16:13:19 $
+ * @version $Revision: 1.4 $ $Date: 2005/09/28 18:00:44 $
  */
 
 final class StandardHostValve
@@ -334,7 +343,19 @@ final class StandardHostValve
                 }
             }
         }
-
+        // START SJSAS 6324911
+        else {
+            errorPage = ((StandardHost) getContainer()).findErrorPage(
+                                                        statusCode);
+            if (errorPage != null) {
+                try {
+                    handleHostErrorPage(response, errorPage, statusCode);
+                } catch (Exception e) {
+                    log("Exception Processing " + errorPage, e);
+                }
+            }
+        }
+        // END SJSAS 6324911
     }
 
 
@@ -475,4 +496,126 @@ final class StandardHostValve
     }
 
 
+    // START SJSAS 6324911
+    /**
+     * Copies the contents of the given error page to the response, and
+     * updates the status message with the reason string of the error page.
+     *
+     * @param response The response object
+     * @param errorPage The error page whose contents are to be copied
+     * @param statusCode The status code
+     */
+    private void handleHostErrorPage(Response response,
+                                     ErrorPage errorPage,
+                                     int statusCode)
+            throws Exception {
+
+        ServletOutputStream ostream = null;
+        PrintWriter writer = null;
+        FileReader reader = null;
+        BufferedInputStream istream = null;
+        IOException ioe = null;
+
+        String message = errorPage.getReason();
+        if (message != null) {
+            ((HttpResponse) response).reset(statusCode, message);
+        }
+         
+        try {
+            ostream = response.getResponse().getOutputStream();
+        } catch (IllegalStateException e) {
+            // If it fails, we try to get a Writer instead if we're
+            // trying to serve a text file
+            writer = response.getResponse().getWriter();
+        }
+
+        if (writer != null) {
+            reader = new FileReader(errorPage.getLocation());
+            ioe = copy(reader, writer);
+            try {
+                reader.close();
+            } catch (Throwable t) {
+                ;
+            }
+        } else {
+            istream = new BufferedInputStream(
+                new FileInputStream(errorPage.getLocation()));
+            ioe = copy(istream, ostream);
+            try {
+                istream.close();
+            } catch (Throwable t) {
+                ;
+            }
+        }
+
+        // Rethrow any exception that may have occurred
+        if (ioe != null) {
+            throw ioe;
+        }
+
+    }
+
+
+    /**
+     * Copies the contents of the specified input stream to the specified
+     * output stream.
+     *
+     * @param istream The input stream to read from
+     * @param ostream The output stream to write to
+     *
+     * @return Exception that occurred during processing, or null
+     */
+    private IOException copy(InputStream istream,
+                             ServletOutputStream ostream) {
+
+        IOException exception = null;
+        byte buffer[] = new byte[2048];
+        int len = buffer.length;
+        while (true) {
+            try {
+                len = istream.read(buffer);
+                if (len == -1)
+                    break;
+                ostream.write(buffer, 0, len);
+            } catch (IOException e) {
+                exception = e;
+                len = -1;
+                break;
+            }
+        }
+        return exception;
+
+    }
+
+
+    /**
+     * Copies the contents of the specified input stream to the specified
+     * output stream.
+     *
+     * @param reader The reader to read from
+     * @param writer The writer to write to
+     *
+     * @return Exception that occurred during processing, or null
+     */
+    private IOException copy(Reader reader, PrintWriter writer) {
+
+        IOException exception = null;
+        char buffer[] = new char[2048];
+        int len = buffer.length;
+        while (true) {
+            try {
+                len = reader.read(buffer);
+                if (len == -1)
+                    break;
+                writer.write(buffer, 0, len);
+            } catch (IOException e) {
+                exception = e;
+                len = -1;
+                break;
+            }
+        }
+        return exception;
+
+    }
+    // END SJSAS 6324911
 }

@@ -33,7 +33,7 @@ import java.io.Serializable;
  * deployment descriptor.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:20 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
  */
 
 public class ErrorPage implements Serializable {
@@ -58,6 +58,14 @@ public class ErrorPage implements Serializable {
      * The context-relative location to handle this error or exception.
      */
     private String location = null;
+
+
+    // START SJSAS 6324911
+    /**
+     * The reason string to be displayed with the error (status) code
+     */
+    private String reason = null;
+    // END SJSAS 6324911
 
 
     // ------------------------------------------------------------- Properties
@@ -146,6 +154,29 @@ public class ErrorPage implements Serializable {
         this.location = RequestUtil.URLDecode(location);
 
     }
+
+
+    // START SJSAS 6324911
+    /**
+     * Gets the reason string that is associated with the error (status) code 
+     * for which this error page is active.
+     *
+     * @return The reason string of this error page
+     */
+    public String getReason() {
+        return reason;
+    }
+
+    /**
+     * Sets the reason string to be associated with the error (status) code 
+     * for which this error page is active.
+     *
+     * @param reason The reason string
+     */
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    // END SJSAS 6324911
 
 
     // --------------------------------------------------------- Public Methods
