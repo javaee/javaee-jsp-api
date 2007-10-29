@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/10/03 20:19:13 $
+ * @version $Revision: 1.11 $ $Date: 2006/10/27 16:07:13 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -910,19 +910,18 @@ public class Embedded  extends StandardService implements Lifecycle {
         started = true;
         initialized = true;
 
-        // Start our defined Engines first
-        for (int i = 0; i < engines.length; i++) {
-            if (engines[i] instanceof Lifecycle)
-                ((Lifecycle) engines[i]).start();
-        }
-
-        // Start our defined Connectors second
+        // Start our defined Connectors first
         for (int i = 0; i < connectors.length; i++) {
             connectors[i].initialize();
             if (connectors[i] instanceof Lifecycle)
                 ((Lifecycle) connectors[i]).start();
         }
 
+        // Start our defined Engines second
+        for (int i = 0; i < engines.length; i++) {
+            if (engines[i] instanceof Lifecycle)
+                ((Lifecycle) engines[i]).start();
+        }
     }
 
 

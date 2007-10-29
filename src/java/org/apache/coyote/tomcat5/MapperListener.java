@@ -165,11 +165,13 @@ public class MapperListener
         myInstance = System.getProperty("com.sun.aas.instanceName");
         // END SJSAS 6313044
 
+        if (defaultHost != null) {
+            mapper.setDefaultHostName(defaultHost);
+        }
+
         try {
 
             mBeanServer = Registry.getServer();
-
-            registerEngine();
 
             // Query hosts
             String onStr = domain + ":type=Host,*";
@@ -421,7 +423,7 @@ public class MapperListener
                 log.warn("Unknown default host: " + defaultHost);
         }
 
-        // This should probablt be called later 
+        // This should probably be called later 
         if( defaultHost != null ) {
             mapper.setDefaultHostName(defaultHost);
         }
