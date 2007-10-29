@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2006/06/21 14:27:04 $
+ * @version $Revision: 1.12 $ $Date: 2006/07/21 17:57:11 $
  */
 
 
@@ -1497,9 +1497,13 @@ public class CoyoteConnector
         if ( protocolHandler == null ) {
             try {
                 Class clazz = Class.forName(protocolHandlerClassName);
-                /* SJSAS 6439313
-                protocolHandler = (ProtocolHandler) clazz.newInstance();
-                 */
+             
+                // use no-arg constructor for JkCoyoteHandler
+                if (protocolHandlerClassName.equals("org.apache.jk.server.JkCoyoteHandler")) {
+                    protocolHandler = (ProtocolHandler) clazz.newInstance();
+                    return;
+                }
+
                 // START SJSAS 6439313                
                 Constructor constructor = 
                         clazz.getConstructor(new Class[]{Boolean.TYPE,
