@@ -52,6 +52,14 @@ public class ServerCookie implements Serializable {
     private static org.apache.commons.logging.Log log=
         org.apache.commons.logging.LogFactory.getLog(ServerCookie.class );
 
+    // START PWC 6392327
+    /**
+     * The string sent as the value of the cookie in the Set-Cookie header
+     * for a Cookie whose value is null.
+     */
+    private static final String NULL_VALUE = "null";
+    // END PWC 6392327
+
     private MessageBytes name=MessageBytes.newInstance();
     private MessageBytes value=MessageBytes.newInstance();
 
@@ -225,7 +233,16 @@ public class ServerCookie implements Serializable {
         // this part is the same for all cookies
 	buf.append( name );
         buf.append("=");
+        /* PWC 6392327
         maybeQuote(version, buf, value);
+        */
+        // START PWC 6392327
+        if (value != null) {
+            maybeQuote(version, buf, value);
+        } else {
+            maybeQuote(version, buf, ServerCookie.NULL_VALUE);
+        }
+        // END PWC 6392327
 
 	// XXX Netscape cookie: "; "
  	// add version 1 specific information
@@ -306,7 +323,7 @@ public class ServerCookie implements Serializable {
             if (value != null) {
                 maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
             } else {
-                maybeQuote(version, buf, URLEncoder.encode("null", "UTF-8"));
+                maybeQuote(version, buf, URLEncoder.encode(ServerCookie.NULL_VALUE, "UTF-8"));
             }
             // END PWC 6392327
         }
@@ -320,7 +337,7 @@ public class ServerCookie implements Serializable {
             if (value != null) {
                 maybeQuote(version, buf, URLEncoder.encode(value));
             } else {
-                maybeQuote(version, buf, URLEncoder.encode("null"));
+                maybeQuote(version, buf, URLEncoder.encode(ServerCookie.NULL_VALUE));
             }
             // END PWC 6392327
         }
