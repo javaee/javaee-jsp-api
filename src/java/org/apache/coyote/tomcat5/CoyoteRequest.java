@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.50 $ $Date: 2007/02/16 18:10:32 $
+ * @version $Revision: 1.51 $ $Date: 2007/02/21 02:00:30 $
  */
 
 public class CoyoteRequest
@@ -547,6 +547,7 @@ public class CoyoteRequest
         session = null;
         requestedSessionCookie = false;
         requestedSessionId = null;
+        requestedSessionVersion = null;
         requestedSessionURL = false;
 
         // START GlassFish 896
@@ -2611,8 +2612,10 @@ public class CoyoteRequest
             return (null);
 
         // Return the current session if it exists and is valid
-        if ((session != null) && !session.isValid())
+        if ((session != null) && !session.isValid()) {
             session = null;
+            requestedSessionVersion = null;
+        }
         if (session != null)
             return (session);
 
