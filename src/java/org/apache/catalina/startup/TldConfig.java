@@ -555,34 +555,6 @@ public final class TldConfig  {
     }
 
     /**
-     * Scan the JAR file at the specified resource path for TLDs in the
-     * <code>META-INF</code> subdirectory, and scan each TLD for application
-     * event listeners that need to be registered.
-     *
-     * @param resourcePath Resource path of the JAR file to scan
-     *
-     * @exception Exception if an exception occurs while scanning this JAR
-     */
-    private void tldScanJar(String resourcePath) throws Exception {
-
-        if (log.isDebugEnabled()) {
-            log.debug(" Scanning JAR at resource path '" + resourcePath + "'");
-        }
-
-        URL url = context.getServletContext().getResource(resourcePath);
-        if (url == null) {
-            throw new IllegalArgumentException
-                                (sm.getString("contextConfig.tldResourcePath",
-                                              resourcePath));
-        }
-
-        File file = new File(url.getFile());
-        file = file.getCanonicalFile();
-        tldScanJar(file);
-
-    }
-
-    /**
      * Scans all TLD entries in the given JAR for application listeners.
      *
      * @param file JAR file whose TLD entries are scanned for application
