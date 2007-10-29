@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.19 $ $Date: 2006/11/17 23:06:37 $
+ * @version $Revision: 1.20 $ $Date: 2006/11/20 22:59:29 $
  */
 
 public class CoyoteResponse
@@ -1670,24 +1670,26 @@ public class CoyoteResponse
             anchor = path.substring(pound);
             path = path.substring(0, pound);
         }
+
         StringBuffer sb = new StringBuffer(path);
         if( sb.length() > 0 ) { // jsessionid can't be first.
             sb.append(";jsessionid=");
             sb.append(sessionId);
+
+            // START SJSAS 6337561
+            String jrouteId = request.getHeader(Constants.PROXY_JROUTE);
+            if (jrouteId != null) {
+                sb.append(":");
+                sb.append(jrouteId);
+            }
+            // END SJSAS 6337561
+
             if (sessionVersion != null) {
                 sb.append(Globals.SESSION_VERSION_PARAMETER);
                 sb.append(sessionVersion);
             }
         }
 
-        // START SJSAS 6337561
-        String jrouteId = request.getHeader(Constants.PROXY_JROUTE);
-        if (jrouteId != null) {
-            sb.append(":");
-            sb.append(jrouteId);
-        }
-        // END SJSAS 6337561
-        
         sb.append(anchor);
         sb.append(query);
         return (sb.toString());
