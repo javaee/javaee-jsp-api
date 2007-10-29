@@ -71,7 +71,7 @@ public class JspContextWrapper extends PageContext {
     // Invoking JSP context
     private PageContext invokingJspCtxt;
 
-    private transient Hashtable	pageAttributes;
+    private Hashtable pageAttributes;
 
     // ArrayList of NESTED scripting variables
     private ArrayList nestedVars;

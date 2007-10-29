@@ -110,17 +110,17 @@ public class PageContextImpl extends PageContext {
     private ELContext elContext;
 
     // page-scope attributes
-    private transient Hashtable	attributes;
+    private Hashtable attributes;
 
     // per-request state
-    private transient ServletRequest request;
-    private transient ServletResponse response;
-    private transient HttpSession session;
+    private ServletRequest request;
+    private ServletResponse response;
+    private HttpSession session;
     private boolean isIncluded;
 
     // initial output stream
-    private transient JspWriter out;
-    private transient JspWriterImpl baseOut;
+    private JspWriter out;
+    private JspWriterImpl baseOut;
 
     /*
      * Constructor.

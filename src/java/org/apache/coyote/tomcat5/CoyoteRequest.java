@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.31 $ $Date: 2006/09/29 16:45:04 $
+ * @version $Revision: 1.32 $ $Date: 2006/09/29 22:10:17 $
  */
 
 public class CoyoteRequest
@@ -256,7 +256,7 @@ public class CoyoteRequest
      * Internal notes associated with this request by Catalina components
      * and event listeners.
      */
-    private transient HashMap notes = new HashMap();
+    private HashMap notes = new HashMap();
 
 
     /**
