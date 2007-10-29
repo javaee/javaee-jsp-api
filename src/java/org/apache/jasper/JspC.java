@@ -334,6 +334,7 @@ public class JspC implements Options {
                 smapSuppressed = false;
             } else if (tok.equals(SWITCH_DUMP_SMAP)) {
                 smapDumped = true;
+                smapSuppressed = false;
             // START PWC 6386258
             } else if (tok.equals(SWITCH_SCHEMAS_PREFIX)) {
                 setSchemaResourcePrefix(nextArg());
