@@ -49,8 +49,9 @@ import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.PatternSet;
 // START PWC 6441271
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import org.apache.jasper.Constants;
-import org.apache.tomcat.util.threads.ThreadPool;
 // END PWC 6441271
 
 /**
@@ -82,7 +83,7 @@ public class Compiler {
     */
     // START PWC 6441271
     // Use a threadpool and force it to 1 to simulate serialization
-    private static ThreadPool threadPool = null;
+    private static ExecutorService threadPool = null;
     private static int minThreads = Constants.DEFAULT_MIN_THREADS;
     private static int maxThreads = Constants.DEFAULT_MAX_THREADS;
     private static String lineSeparator = System.getProperty("line.separator");
@@ -515,7 +516,7 @@ public class Compiler {
 
             JavacObj javacObj = new JavacObj(javac);
             synchronized(javacObj) {
-                threadPool.run(javacObj);
+                threadPool.execute(javacObj);
                 // Wait for the thread to complete
                 try {
                     javacObj.wait();
@@ -838,15 +839,13 @@ public class Compiler {
 
     // START PWC 6441271
     public static void startThreadPool() {
-        threadPool = new ThreadPool();
-        threadPool.setName("javac");
-        if (maxThreads <= 0) 
-            threadPool.setMaxThreads(1);
-        else 
-            threadPool.setMaxThreads(maxThreads);
-        threadPool.setMaxSpareThreads(minThreads);
-        threadPool.setMinSpareThreads(minThreads);
-        threadPool.start();
+        threadPool = Executors.newCachedThreadPool();
+    }
+
+    public static void shutdownThreadPool() {
+        if (threadPool != null) {
+            threadPool.shutdown();
+	}
     }
 
     public static void setMinThreads(int i) {
