@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.15 $ $Date: 2006/08/10 21:35:20 $
+ * @version $Revision: 1.16 $ $Date: 2006/08/21 16:44:11 $
  */
 
 public class CoyoteAdapter
@@ -385,7 +385,10 @@ public class CoyoteAdapter
         // Request mapping.
         connector.getMapper().map(req.serverName(), decodedURI, 
                                   request.getMappingData());
-        
+        // START GlassFish 1024
+        request.setDefaultContext(request.getMappingData().isDefaultContext);
+        // END GlassFish 1024
+
         // START SJSAS 6253524
         // request.setContext((Context) request.getMappingData().context);
         // END SJSAS 6253524

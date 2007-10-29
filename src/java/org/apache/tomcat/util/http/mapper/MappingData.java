@@ -40,6 +40,9 @@ public class MappingData {
     public Object context = null;
     public Object wrapper = null;
     public boolean jspWildCard = false;
+    // START GlassFish 1024
+    public boolean isDefaultContext = false;
+    // END GlassFish 1024
 
     public MessageBytes contextPath = MessageBytes.newInstance();
     public MessageBytes requestPath = MessageBytes.newInstance();
@@ -58,6 +61,9 @@ public class MappingData {
         contextPath.recycle();
         redirectPath.recycle();
         jspWildCard = false;
+        // START GlassFish 1024
+        isDefaultContext = false;
+        // END GlassFish 1024
     }
 
 }

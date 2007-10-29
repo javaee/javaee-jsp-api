@@ -32,6 +32,9 @@ import javax.naming.directory.DirContext;
 import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.buf.Ascii;
+// START GlassFish 1024
+import java.util.HashMap;
+// END GlassFish 1024
 import java.util.List;
 import java.util.ArrayList;
 
@@ -66,6 +69,11 @@ public final class Mapper {
     protected Context context = new Context();
 
 
+    // START GlassFish 1024
+    private HashMap defaultContextPathsMap = new HashMap();
+    // END GlassFish 1024
+
+
     // --------------------------------------------------------- Public Methods
 
 
@@ -96,12 +104,21 @@ public final class Mapper {
      */
     public synchronized void addHost(String name, String[] aliases,
                                      Object host) {
+
         Host[] newHosts = new Host[hosts.length + 1];
         Host newHost = new Host();
         ContextList contextList = new ContextList();
+        // START GlassFish 1024
+        Context[] defaultContexts = new Context[1];
+        String[] defaultContextPaths = new String[1];
+        // END GlassFish 1024
         newHost.name = name;
         newHost.contextList = contextList;
         newHost.object = host;
+        // START GlassFish 1024
+        newHost.defaultContexts = defaultContexts;
+        newHost.defaultContextPaths = defaultContextPaths;
+        // END GlassFish 1024
         if (insertMap(hosts, newHosts, newHost)) {
             hosts = newHosts;
         }
@@ -110,11 +127,22 @@ public final class Mapper {
             newHost = new Host();
             newHost.name = aliases[i];
             newHost.contextList = contextList;
+            // START GlassFish 1024
+            newHost.defaultContexts = defaultContexts;
+            newHost.defaultContextPaths = defaultContextPaths;
+            // END GlassFish 1024
             newHost.object = host;
             if (insertMap(hosts, newHosts, newHost)) {
                 hosts = newHosts;
             }
         }
+
+        // START GlassFish 1024
+        String defaultContextPath = (String) defaultContextPathsMap.get(name);
+        if (defaultContextPath != null) {
+            newHost.defaultContextPaths[0] = defaultContextPath;
+	}
+        // END GlassFish 1024
     }
 
 
@@ -143,6 +171,10 @@ public final class Mapper {
                 }
             }
         }
+
+        // START GlassFish 1024
+        defaultContextPathsMap.remove(name);
+        // END GlassFish 1024
     }
 
     public String[] getHosts() {
@@ -209,6 +241,12 @@ public final class Mapper {
                 if (insertMap(contexts, newContexts, newContext)) {
                     host.contextList.contexts = newContexts;
                 }
+
+                // START GlassFish 1024
+                if (path.equals(host.defaultContextPaths[0])) {
+                    host.defaultContexts[0] = newContext;
+                }
+                // END GlassFish 1024
             }
         }
 
@@ -504,6 +542,58 @@ public final class Mapper {
     }
 
 
+    // START GlassFish 1024
+    /**
+     * Configures the given virtual server with the given default context path.
+     *
+     * The given default path corresponds to the context path of one of the
+     * web contexts deployed on the virtual server that has been designated as
+     * the virtual server's new default-web-module.
+     */
+    public void setDefaultContextPath(String hostName,
+                                      String defaultContextPath) {
+
+        if (defaultContextPath != null) {
+            defaultContextPathsMap.put(hostName, defaultContextPath);
+        }
+
+        int pos = find(hosts, hostName);
+        if (pos < 0) {
+            return;
+        }
+
+        hosts[pos].defaultContextPaths[0] = defaultContextPath;
+
+        if (defaultContextPath != null) {
+            addDefaultContext(hosts[pos], defaultContextPath);
+        } else {
+            hosts[pos].defaultContexts[0] = null;
+            defaultContextPathsMap.remove(hostName);
+        }
+    }
+
+
+    /**
+     * Configures the given virtual server with the given default context path.
+     *
+     * The given default path corresponds to the context path of one of the
+     * web contexts deployed on the virtual server that has been designated as
+     * the virtual server's new default-web-module.
+     */
+    private void addDefaultContext(Host host, String defaultContextPath) {
+
+        Context[] contexts = host.contextList.contexts;
+        if (contexts != null) {
+            for (int i=0; i<contexts.length; i++) {
+                if (contexts[i].name.equals(defaultContextPath)) {
+                    host.defaultContexts[0] = contexts[i];
+                    break;
+                }
+            }
+        }    
+    }
+    // END GlassFish 1024
+
 
     /**
      * Map the specified host name and URI, mutating the given mapping data.
@@ -561,6 +651,8 @@ public final class Mapper {
         Context[] contexts = null;
         Context context = null;
         int nesting = 0;
+       
+        int hostPos = -1;
 
         // Virtual host mapping
         if (mappingData.host == null) {
@@ -568,6 +660,7 @@ public final class Mapper {
             int pos = findIgnoreCase(hosts, host);
             if ((pos != -1) && (host.equalsIgnoreCase(hosts[pos].name))) {
                 mappingData.host = hosts[pos].object;
+                hostPos = pos;
                 contexts = hosts[pos].contextList.contexts;
                 nesting = hosts[pos].contextList.nesting;
             } else {
@@ -577,6 +670,7 @@ public final class Mapper {
                 pos = find(hosts, defaultHostName);
                 if ((pos != -1) && (defaultHostName.equals(hosts[pos].name))) {
                     mappingData.host = hosts[pos].object;
+                    hostPos = pos;
                     contexts = hosts[pos].contextList.contexts;
                     nesting = hosts[pos].contextList.nesting;
                 } else {
@@ -587,46 +681,73 @@ public final class Mapper {
 
         // Context mapping
         if (mappingData.context == null) {
+
+            // START GlassFish 1024
+            boolean found = false;
+            // END GlassFish 1024
+
             int pos = find(contexts, uri);
             if (pos == -1) {
-                return;
-            }
-
-            int lastSlash = -1;
-            int uriEnd = uri.getEnd();
-            int length = -1;
-            boolean found = false;
-            while (pos >= 0) {
-                if (uri.startsWith(contexts[pos].name)) {
-                    length = contexts[pos].name.length();
-                    if (uri.getLength() == length) {
-                        found = true;
-                        break;
-                    } else if (uri.startsWithIgnoreCase("/", length)) {
-                        found = true;
-                        break;
-                    }
+                // START GlassFish 1024
+                if (hosts[hostPos].defaultContexts[0] == null) {
+                // END GlassFish 1024
+                    return;
+                // START GlassFish 1024
                 }
-                if (lastSlash == -1) {
-                    lastSlash = nthSlash(uri, nesting + 1);
-                } else {
-                    lastSlash = lastSlash(uri);
-                }
-                uri.setEnd(lastSlash);
-                pos = find(contexts, uri);
-            }
-            uri.setEnd(uriEnd);
-
-            if (!found) {
-                if (contexts[0].name.equals("")) {
-                    context = contexts[0];
-                }
-            } else {
-                context = contexts[pos];
-            }
-            if (context != null) {
+                context = hosts[hostPos].defaultContexts[0];
                 mappingData.context = context.object;
                 mappingData.contextPath.setString(context.name);
+                found = true;
+                mappingData.isDefaultContext = true;
+                // END GlassFish 1024
+            }
+
+            // START GlassFish 1024
+            if (!found) {
+            // END GlassFish 1024
+                int lastSlash = -1;
+                int uriEnd = uri.getEnd();
+                int length = -1;
+                /* GlassFish 1024
+                boolean found = false;
+                */
+                while (pos >= 0) {
+                    if (uri.startsWith(contexts[pos].name)) {
+                        length = contexts[pos].name.length();
+                        if (uri.getLength() == length) {
+                            found = true;
+                            break;
+                        } else if (uri.startsWithIgnoreCase("/", length)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (lastSlash == -1) {
+                        lastSlash = nthSlash(uri, nesting + 1);
+                    } else {
+                        lastSlash = lastSlash(uri);
+                    }
+                    uri.setEnd(lastSlash);
+                    pos = find(contexts, uri);
+                }
+                uri.setEnd(uriEnd);
+
+                if (!found) {
+                    if (contexts[0].name.equals("")) {
+                        context = contexts[0];
+                    // START GlassFish 1024
+                    } else if (hosts[hostPos].defaultContexts[0] != null) {
+                        context = hosts[hostPos].defaultContexts[0];
+                        mappingData.isDefaultContext = true;
+                    // END GlassFish 1024
+                    }     
+                } else {
+                    context = contexts[pos];
+                }
+                if (context != null) {
+                    mappingData.context = context.object;
+                    mappingData.contextPath.setString(context.name);
+                }
             }
         }
 
@@ -650,16 +771,24 @@ public final class Mapper {
         int servletPath = pathOffset;
         boolean noServletPath = false;
 
-        int length = context.name.length();
-        if (length != (pathEnd - pathOffset)) {
-            servletPath = pathOffset + length;
+        // START GlassFish 1024
+        if (mappingData.isDefaultContext) {
+            servletPath = pathOffset;
         } else {
-            noServletPath = true;
-            path.append('/');
-            pathOffset = path.getOffset();
-            pathEnd = path.getEnd();
-            servletPath = pathOffset+length;
+        // END GlassFish 1024
+            int length = context.name.length();
+            if (length != (pathEnd - pathOffset)) {
+                servletPath = pathOffset + length;
+            } else {
+                noServletPath = true;
+                path.append('/');
+                pathOffset = path.getOffset();
+                pathEnd = path.getEnd();
+                servletPath = pathOffset+length;
+            }
+        // START GlassFish 1024
         }
+        // END GlassFish 1024
 
         path.setOffset(servletPath);
 
@@ -1248,7 +1377,10 @@ public final class Mapper {
         extends MapElement {
 
         public ContextList contextList = null;
-
+        // START GlassFish 1024
+        public String[] defaultContextPaths = null;
+        public Context[] defaultContexts = null;
+        // END GlassFish 1024
     }
 
 

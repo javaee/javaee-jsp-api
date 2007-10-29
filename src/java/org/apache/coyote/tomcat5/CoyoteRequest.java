@@ -487,6 +487,12 @@ public class CoyoteRequest
     private SessionTracker sessionTracker = new SessionTracker();
     // END GlassFish 896
 
+    // START GlassFish 1024
+    private boolean isDefaultContext = false;
+    // END GlassFish 1024
+
+    private String requestURI = null;
+
 
     // --------------------------------------------------------- Public Methods
 
@@ -513,6 +519,7 @@ public class CoyoteRequest
         requestDispatcherPath = null;
 
         authType = null;
+        requestURI = null;
         inputBuffer.recycle();
         usingInputStream = false;
         usingReader = false;
@@ -643,6 +650,18 @@ public class CoyoteRequest
     public void setContext(Context context) {
         this.context = context;
     }
+
+
+    // START GlassFish 1024
+    /**
+     * @param isDefaultContext true if this request was mapped to a context
+     * with an empty context root that is backed by the vitual server's
+     * default-web-module
+     */
+    public void setDefaultContext(boolean isDefaultContext) {
+        this.isDefaultContext = isDefaultContext;
+    }
+    // END GlassFish 1024
 
 
     /**
@@ -2334,7 +2353,21 @@ public class CoyoteRequest
      * Return the request URI for this request.
      */
     public String getRequestURI() {
-        return coyoteRequest.requestURI().toString();
+
+        if (requestURI == null) {
+            // START GlassFish 1024
+            if (isDefaultContext) {
+                requestURI = getContextPath()
+                    + coyoteRequest.requestURI().toString();
+            } else {
+                // END GlassFish 1024
+                requestURI = coyoteRequest.requestURI().toString();
+                // START GlassFish 1024
+            }
+            // END GlassFish 1024
+        }
+
+        return requestURI;
     }
 
 
@@ -2679,17 +2712,25 @@ public class CoyoteRequest
     protected void configureSessionCookie(Cookie cookie) {
         cookie.setMaxAge(-1);
         String contextPath = null;
-        if (getContext() != null) {
-            // START OF SJSAS 6231069
-            // contextPath = getContext().getEncodedPath();
-            contextPath = getContext().getPath();
-            // END OF SJSAS 6231069
-        }
-        if ((contextPath != null) && (contextPath.length() > 0)) {
-            cookie.setPath(contextPath);
-        } else {
+        // START GlassFish 1024
+        if (isDefaultContext) {
             cookie.setPath("/");
+        } else {
+            // END GlassFish 1024
+            if (getContext() != null) {
+                // START OF SJSAS 6231069
+                // contextPath = getContext().getEncodedPath();
+                contextPath = getContext().getPath();
+                // END OF SJSAS 6231069
+            }
+            if ((contextPath != null) && (contextPath.length() > 0)) {
+                cookie.setPath(contextPath);
+            } else {
+                cookie.setPath("/");
+            }
+        // START GlassFish 1024
         }
+        // END GlassFish 1024
         if (isSecure()) {
             cookie.setSecure(true);
         }
