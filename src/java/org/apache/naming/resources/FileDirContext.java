@@ -29,9 +29,11 @@
 package org.apache.naming.resources;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Date;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,7 +66,7 @@ import org.apache.naming.NamingContextEnumeration;
  * Filesystem Directory Context implementation helper class.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/09/08 18:43:05 $
+ * @version $Revision: 1.5 $ $Date: 2005/12/08 01:29:10 $
  */
 
 public class FileDirContext extends BaseDirContext {
@@ -110,7 +112,7 @@ public class FileDirContext extends BaseDirContext {
     /**
      * File cache.
      */
-    protected WeakHashMap fileCache = new WeakHashMap();
+    protected Map fileCache = Collections.synchronizedMap(new WeakHashMap());
     // END S1AS8PE 4965170
 
     /**
