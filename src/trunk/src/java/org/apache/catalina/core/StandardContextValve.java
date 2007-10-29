@@ -64,7 +64,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:10 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 final class StandardContextValve
@@ -314,7 +314,12 @@ final class StandardContextValve
     private void notFound(String requestURI, HttpServletResponse response) {
 
         try {
+            /* IASRI 4878272
             response.sendError(HttpServletResponse.SC_NOT_FOUND, requestURI);
+            */
+            // BEGIN IASRI 4878272
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            // END IASRI 4878272
         } catch (IllegalStateException e) {
             ;
         } catch (IOException e) {

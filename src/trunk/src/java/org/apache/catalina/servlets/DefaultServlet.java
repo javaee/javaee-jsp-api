@@ -78,7 +78,7 @@ import org.apache.catalina.core.ApplicationHttpResponse;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/08 21:53:14 $
  */
 
 public class DefaultServlet
@@ -688,8 +688,13 @@ public class DefaultServlet
                     requestUri));
             }
 
+            /* IASRI 4878272
             response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                requestUri);
+            */
+            // BEGIN IASRI 4878272
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            // END IASRI 4878272
             return;
         }
 
@@ -704,8 +709,13 @@ public class DefaultServlet
                 if (requestUri == null) {
                     requestUri = request.getRequestURI();
                 }
+                /* IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                    requestUri);
+                */
+                // BEGIN IASRI 4878272
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                // END IASRI 4878272
                 return;
             }
         }
@@ -739,8 +749,13 @@ public class DefaultServlet
             // Skip directory listings if we have been configured to
             // suppress them
             if (!listings) {
+                /* IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                    request.getRequestURI());
+                */
+                // BEGIN IASRI 4878272
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                // END IASRI 4878272
                 return;
             }
             contentType = "text/html;charset=UTF-8";

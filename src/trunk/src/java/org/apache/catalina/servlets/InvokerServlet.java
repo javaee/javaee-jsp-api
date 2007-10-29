@@ -45,7 +45,7 @@ import org.apache.catalina.util.StringManager;
  * in the web application deployment descriptor.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:52 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
  */
 
 public final class InvokerServlet
@@ -259,8 +259,14 @@ public final class InvokerServlet
                 throw new ServletException
                     (sm.getString("invokerServlet.invalidPath", inRequestURI));
             else {
+                /* IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                    inRequestURI);
+                */
+                // BEGIN IASRI 4878272
+                log(sm.getString("invokerServlet.invalidPath", inRequestURI));
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                // END IASRI 4878272
                 return;
             }
         }
@@ -280,8 +286,13 @@ public final class InvokerServlet
         }
 
         if (servletClass.startsWith("org.apache.catalina")) {
+            /* IASRI 4878272
             response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                inRequestURI);
+            */
+            // BEGIN IASRI 4878272
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            // END IASRI 4878272
             return;
         }
 
@@ -305,8 +316,13 @@ public final class InvokerServlet
                 if ((actualServletClass != null)
                     && (actualServletClass.startsWith
                         ("org.apache.catalina"))) {
+                    /* IASRI 4878272
                     response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                        inRequestURI);
+                    */
+                    // BEGIN IASRI 4878272
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    // END IASRI 4878272
                     return;
                 }
                 if (debug >= 1)
@@ -340,8 +356,15 @@ public final class InvokerServlet
                             (sm.getString("invokerServlet.cannotCreate",
                                           inRequestURI), t);
                     else {
+                        /* IASRI 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                            inRequestURI);
+                        */
+                        // BEGIN IASRI 4878272
+                        log(sm.getString("invokerServlet.invalidPath", 
+                                         inRequestURI));
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        // END IASRI 4878272
                         return;
                     }
                 }
@@ -380,8 +403,14 @@ public final class InvokerServlet
             if (rootCause == null)
                 rootCause = e;
             if (rootCause instanceof ClassNotFoundException) {
+                /* IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                    inRequestURI);
+                */
+                // BEGIN IASRI 4878272
+                log(sm.getString("invokerServlet.invalidPath", inRequestURI));
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                // END IASRI 4878272
                 return;
             } else if (rootCause instanceof IOException) {
                 throw (IOException) rootCause;
