@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.22 $ $Date: 2006/11/02 18:43:32 $
+ * @version $Revision: 1.23 $ $Date: 2006/11/09 01:12:51 $
  */
 
 public class StandardSession
@@ -1722,6 +1722,10 @@ public class StandardSession
     private void readObject(ObjectInputStream stream)
         throws ClassNotFoundException, IOException {
 
+        support = new PropertyChangeSupport(this);
+        listeners = new ArrayList();
+        notes = new Hashtable();
+
         // Deserialize the scalar instance variables (except Manager)
         authType = null;        // Transient only
         creationTime = ((Long) stream.readObject()).longValue();
@@ -1800,14 +1804,6 @@ public class StandardSession
             attributes.put(name, value);
         }
         isValid = isValidSave;
-
-        if (listeners == null) {
-            listeners = new ArrayList();
-        }
-
-        if (notes == null) {
-            notes = new Hashtable();
-        }
     }
 
 
