@@ -30,6 +30,7 @@ package org.apache.jasper.xmlparser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -66,7 +67,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/02/23 02:17:40 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/16 20:10:58 $
  */
 
 public class ParserUtils {
@@ -95,6 +96,9 @@ public class ParserUtils {
         = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd";
     private static final String SCHEMA_LOCATION_JSP_21
         = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
+
+    private static HashMap<String, Schema> schemaCache =
+        new HashMap<String, Schema>();
 
     // START PWC 6386258
     static final String[] CACHED_DTD_RESOURCE_PATHS = {
@@ -331,7 +335,7 @@ public class ParserUtils {
      *
      * @return The schema against which to validate
      */
-    private Schema getTaglibSchema(Document document)
+    private static Schema getTaglibSchema(Document document)
             throws SAXException, JasperException {
 
         Schema schema = null;
@@ -368,16 +372,28 @@ public class ParserUtils {
      *
      * @return The compiled schema
      */
-    private Schema getTaglibSchema(String schemaPublicId) throws SAXException {
+    private static Schema getTaglibSchema(String schemaPublicId)
+            throws SAXException {
 
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(
-            XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        schemaFactory.setResourceResolver(new MyLSResourceResolver());
-        schemaFactory.setErrorHandler(new MyErrorHandler());
+        Schema schema = schemaCache.get(schemaPublicId);
+        if (schema == null) {
+            synchronized (schemaCache) {
+                schema = schemaCache.get(schemaPublicId);
+                if (schema == null) {
+                    SchemaFactory schemaFactory = SchemaFactory.newInstance(
+                        XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                    schemaFactory.setResourceResolver(
+                        new MyLSResourceResolver());
+                    schemaFactory.setErrorHandler(new MyErrorHandler());
+                    schema = schemaFactory.newSchema(new StreamSource(
+                    ParserUtils.class.getResourceAsStream(
+                        schemaResourcePrefix + schemaPublicId)));
+                    schemaCache.put(schemaPublicId, schema);
+                }
+            }
+        }
 
-        return schemaFactory.newSchema(new StreamSource(
-            this.getClass().getResourceAsStream(
-                schemaResourcePrefix + schemaPublicId)));
+        return schema;
     }
 
 }
