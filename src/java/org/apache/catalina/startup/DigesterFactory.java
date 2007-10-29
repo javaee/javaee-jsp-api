@@ -168,6 +168,10 @@ public class DigesterFactory{
     protected static void registerLocalSchema(){
 
         if (schemaResourcePrefix != null) {
+            // Java EE 5
+            register(
+                    schemaResourcePrefix + Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5,
+                    Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5);
             // J2EE
             register(schemaResourcePrefix + Constants.J2eeSchemaPublicId_14,
                      Constants.J2eeSchemaPublicId_14);
@@ -193,6 +197,9 @@ public class DigesterFactory{
             register(schemaResourcePrefix + Constants.J2eeWebServiceClientSchemaPublicId_11,
                      Constants.J2eeWebServiceClientSchemaPublicId_11);
 	} else {
+            // Java EE 5
+            register(Constants.JAVA_EE_SCHEMA_RESOURCE_PATH_5,
+                     Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5);
             // J2EE
             register(Constants.J2eeSchemaResourcePath_14,
                      Constants.J2eeSchemaPublicId_14);
