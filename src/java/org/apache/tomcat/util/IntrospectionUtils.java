@@ -743,6 +743,10 @@ public final class IntrospectionUtils {
     }
 
     // -------------------- other utils  --------------------
+    public static void clear() {
+        objectMethods.clear();
+    }    
+     
     public static String[] findVoidSetters( Class c ) {
 	Method m[]=findMethods( c );
 	if( m==null ) return null;

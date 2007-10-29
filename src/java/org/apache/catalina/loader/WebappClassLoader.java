@@ -61,6 +61,7 @@ import org.apache.catalina.util.StringManager;
 import org.apache.naming.JndiPermission;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
+import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.compat.JdkCompat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,7 +106,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/08/19 23:39:37 $
+ * @version $Revision: 1.4 $ $Date: 2005/08/31 01:44:43 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1636,6 +1637,9 @@ public class WebappClassLoader
 
         // Clear the classloader reference in the VM's bean introspector
         java.beans.Introspector.flushCaches();
+        
+        // Clear the IntrospectionUtils cache
+        IntrospectionUtils.clear();
     }
 
 
