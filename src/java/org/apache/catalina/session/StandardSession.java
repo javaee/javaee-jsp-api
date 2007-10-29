@@ -93,7 +93,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.10 $ $Date: 2005/12/05 22:20:20 $
+ * @version $Revision: 1.11 $ $Date: 2005/12/08 01:28:00 $
  */
 
 public class StandardSession
@@ -272,8 +272,10 @@ public class StandardSession
 
     /**
      * The authenticated Principal associated with this session, if any.
-     * <b>IMPLEMENTATION NOTE:</b>  This object is <i>not</i> saved and
-     * restored across session serializations!
+     // START SJSWS 6371339
+     // * <b>IMPLEMENTATION NOTE:</b>  This object is <i>not</i> saved and
+     // * restored across session serializations!
+     // END SJSWS 6371339
      */
     protected transient Principal principal = null;
 
@@ -1689,9 +1691,24 @@ public class StandardSession
         isNew = ((Boolean) stream.readObject()).booleanValue();
         isValid = ((Boolean) stream.readObject()).booleanValue();
         thisAccessedTime = ((Long) stream.readObject()).longValue();
+        /* SJSWS 6371339
         principal = null;        // Transient only
         //        setId((String) stream.readObject());
         id = (String) stream.readObject();
+        */
+        // START SJSWS 6371339
+        // Read the next object, if it is of type Principal, then
+        // store it in the principal variable
+        Object obj = stream.readObject();
+        if (obj instanceof Principal) {
+            principal = (Principal)obj;
+            id = (String) stream.readObject();
+        }
+        else {
+            principal = null;
+            id = (String) obj;
+        }
+        // END SJSWS 6371339
         if (debug >= 2)
             log("readObject() loading session " + id);
 
@@ -1751,6 +1768,12 @@ public class StandardSession
         stream.writeObject(new Boolean(isNew));
         stream.writeObject(new Boolean(isValid));
         stream.writeObject(new Long(thisAccessedTime));
+        // START SJSWS 6371339
+        // If the principal is serializable, write it out
+        if (principal instanceof java.io.Serializable) {
+            stream.writeObject(principal);
+        }
+        // END SJSWS 6371339
         stream.writeObject(id);
         if (debug >= 2)
             log("writeObject() storing session " + id);
