@@ -197,17 +197,6 @@ public class Compiler {
 	    pageInfo.setIncludeCoda(jspProperty.getIncludeCoda());
         }
 
-        // For tag files, if the Jsp version for tag library is less than
-        // 2.1, deferredSyntaxAllowedAsLiteral is set to true
-        if (ctxt.isTagFile()) {
-            String versionString =
-                ctxt.getTagInfo().getTagLibrary().getRequiredVersion();
-            Double version = Double.valueOf(versionString).doubleValue();
-            if (version < 2.1) {
-                pageInfo.setDeferredSyntaxAllowedAsLiteral(true);
-            }
-        }
-
         String javaFileName = ctxt.getServletJavaFileName();
         ServletWriter writer = null;
 

@@ -95,9 +95,8 @@ class Validator {
 	 * Constructor
 	 */
 	DirectiveVisitor(Compiler compiler) throws JasperException {
-	    this.pageInfo = compiler.getPageInfo();
-	    this.err = compiler.getErrorDispatcher();
-	    JspCompilationContext ctxt = compiler.getCompilationContext();
+            this.pageInfo = compiler.getPageInfo();
+            this.err = compiler.getErrorDispatcher();
 	}
 
 	public void visit(Node.IncludeDirective n) throws JasperException {
@@ -406,8 +405,8 @@ class Validator {
 
 	private PageInfo pageInfo;
 	private ErrorDispatcher err;
-	private TagInfo tagInfo;
         private ClassLoader loader;
+        private JspCompilationContext ctxt;
 
 	private static final JspUtil.ValidAttribute[] jspRootAttrs = {
             new JspUtil.ValidAttribute("xsi:schemaLocation"),
@@ -491,8 +490,8 @@ class Validator {
 	ValidateVisitor(Compiler compiler) {
 	    this.pageInfo = compiler.getPageInfo();
 	    this.err = compiler.getErrorDispatcher();
-	    this.tagInfo = compiler.getCompilationContext().getTagInfo();
-	    this.loader = compiler.getCompilationContext().getClassLoader();
+            this.ctxt = compiler.getCompilationContext();
+	    this.loader = ctxt.getClassLoader();
 	}
 
 	public void visit(Node.JspRoot n) throws JasperException {
@@ -704,6 +703,17 @@ class Validator {
                 if (pageInfo.isDeferredSyntaxAllowedAsLiteral()) {
                     return;
                 }
+                // For tag files, if the Jsp version for tag library is 2.0 or
+                // less, #{} is not an error 
+                if (ctxt.isTagFile()) {
+                    String versionString =
+                        ctxt.getTagInfo().getTagLibrary().getRequiredVersion();
+                    Double version = Double.valueOf(versionString).doubleValue();
+                    if (version < 2.1) {
+                        return;
+                    }
+                }
+
                 err.jspError(n.getStart(), "jsp.error.not.in.template",
                              "#{...}");
             }
