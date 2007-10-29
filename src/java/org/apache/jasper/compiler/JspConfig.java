@@ -146,62 +146,16 @@ public class JspConfig {
                     continue;
                 }
  
-                // Add one JspPropertyGroup for each URL Pattern.  This makes
-                // the matching logic easier.
-                for( int p = 0; p < urlPatterns.size(); p++ ) {
-                    String urlPattern = (String)urlPatterns.elementAt( p );
-                    String path = null;
-                    String extension = null;
- 
-                    if (urlPattern.indexOf('*') < 0) {
-                        // Exact match
-                        path = urlPattern;
-                    } else {
-                        int i = urlPattern.lastIndexOf('/');
-                        String file;
-                        if (i >= 0) {
-                            path = urlPattern.substring(0,i+1);
-                            file = urlPattern.substring(i+1);
-                        } else {
-                            file = urlPattern;
-                        }
- 
-                        // pattern must be "*", or of the form "*.jsp"
-                        if (file.equals("*")) {
-                            extension = "*";
-                        } else if (file.startsWith("*.")) {
-                            extension = file.substring(file.indexOf('.')+1);
-                        }
-
-                        // The url patterns are reconstructed as the following:
-                        // path != null, extension == null:  / or /foo/bar.ext
-                        // path == null, extension != null:  *.ext
-                        // path != null, extension == "*":   /foo/*
-                        boolean isStar = "*".equals(extension);
-                        if ((path == null && (extension == null || isStar))
-                                || (path != null && !isStar)) {
-                            if (log.isWarnEnabled()) {
-			        log.warn(Localizer.getMessage(
-                                    "jsp.warning.bad.urlpattern.propertygroup",
-                                    urlPattern));
-                            }
-                            continue;
-                        }
-                     }
- 
-                     JspProperty property = new JspProperty(isXml,
-                                                            elIgnored,
-                                                            scriptingInvalid,
-                                                            trimSpaces,
-                                                            poundAllowed,
-                                                            pageEncoding,
-                                                            includePrelude,
-                                                            includeCoda);
-                     JspPropertyGroup propertyGroup =
-                         new JspPropertyGroup(path, extension, property);
-
-                     jspProperties.addElement(propertyGroup);
-                }
+                makeJspPropertyGroups(jspProperties,
+                                      urlPatterns, 
+                                      isXml,
+                                      elIgnored,
+                                      scriptingInvalid,
+                                      trimSpaces,
+                                      poundAllowed,
+                                      pageEncoding,
+                                      includePrelude,
+                                      includeCoda);
             }
         } catch (Exception ex) {
             throw new JasperException(ex);
@@ -211,6 +165,85 @@ public class JspConfig {
                     is.close();
                 } catch (Throwable t) {}
             }
+        }
+    }
+
+
+    /**
+     * Creates a JspPropertyGroup for each url pattern in the given
+     * <code>urlPatterns</code>, and adds it to the given
+     * <code>jspProperties</code>.
+     *
+     * This simplifies the matching logic.
+     */
+    public static void makeJspPropertyGroups(Vector jspProperties,
+                                             Vector urlPatterns,
+                                             String isXml,
+                                             String elIgnored,
+                                             String scriptingInvalid,
+                                             String trimSpaces,
+                                             String poundAllowed,
+                                             String pageEncoding,
+                                             Vector includePrelude,
+                                             Vector includeCoda) {
+
+        if (urlPatterns == null || urlPatterns.size() == 0) {
+            return;
+        }
+
+        for (int p = 0; p < urlPatterns.size(); p++) {
+            String urlPattern = (String)urlPatterns.elementAt( p );
+            String path = null;
+            String extension = null;
+ 
+            if (urlPattern.indexOf('*') < 0) {
+                // Exact match
+                path = urlPattern;
+            } else {
+                int i = urlPattern.lastIndexOf('/');
+                String file;
+                if (i >= 0) {
+                    path = urlPattern.substring(0,i+1);
+                    file = urlPattern.substring(i+1);
+                } else {
+                    file = urlPattern;
+                }
+ 
+                // pattern must be "*", or of the form "*.jsp"
+                if (file.equals("*")) {
+                    extension = "*";
+                } else if (file.startsWith("*.")) {
+                    extension = file.substring(file.indexOf('.')+1);
+                }
+
+                // The url patterns are reconstructed as the following:
+                // path != null, extension == null:  / or /foo/bar.ext
+                // path == null, extension != null:  *.ext
+                // path != null, extension == "*":   /foo/*
+                boolean isStar = "*".equals(extension);
+                if ((path == null && (extension == null || isStar))
+                        || (path != null && !isStar)) {
+                    if (log.isWarnEnabled()) {
+                        log.warn(Localizer.getMessage(
+                            "jsp.warning.bad.urlpattern.propertygroup",
+                            urlPattern));
+                    }
+                    continue;
+                }
+             }
+ 
+             JspProperty property = new JspProperty(isXml,
+                                                    elIgnored,
+                                                    scriptingInvalid,
+                                                    trimSpaces,
+                                                    poundAllowed,
+                                                    pageEncoding,
+                                                    includePrelude,
+                                                    includeCoda);
+             JspPropertyGroup propertyGroup =
+                 new JspPropertyGroup(path, extension, property);
+
+             jspProperties.addElement(propertyGroup);
         }
     }
 
