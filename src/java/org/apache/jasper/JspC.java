@@ -139,6 +139,9 @@ public class JspC implements Options {
     // START IASRI 4660687
     private static final String SWITCH_GENERATE_CLASSES = "-genclass";
     // END IASRI 4660687
+    // START PWC 6385018
+    private static final String SWITCH_VALIDATE = "-validate";
+    // END PWC 6385018
 
     private static final String SHOW_SUCCESS ="-s";
     private static final String LIST_ERRORS = "-l";
@@ -333,6 +336,10 @@ public class JspC implements Options {
             } else if (tok.equals(SWITCH_DTDS_PREFIX)) {
                 setDtdResourcePrefix(nextArg());
             // END PWC 6386258
+            // START PWC 6385018
+            } else if (tok.equals(SWITCH_VALIDATE)) {
+                setValidating(true);
+            // END PWC 6385018
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -675,6 +682,12 @@ public class JspC implements Options {
         ParserUtils.setDtdResourcePrefix(prefix);
     }
     // END PWC 6386258
+
+    // START PWC 6385018
+    public static void setValidating(boolean validating) {
+        ParserUtils.setValidating(validating);
+    }
+    // END PWC 6385018
 
     /*
      * Parses comma-separated list of JSP files to be processed.

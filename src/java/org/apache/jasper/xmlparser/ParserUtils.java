@@ -58,7 +58,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/02/17 00:39:24 $
+ * @version $Revision: 1.4 $ $Date: 2006/02/23 02:12:35 $
  */
 
 public class ParserUtils {
@@ -76,8 +76,8 @@ public class ParserUtils {
      */
     static EntityResolver entityResolver = new MyEntityResolver();
 
-    // Turn off for JSP 2.0 until switch over to using xschema.
     public static boolean validating = false;
+
 
     // START PWC 6386258
     static final String[] CACHED_DTD_RESOURCE_PATHS = {
@@ -128,6 +128,13 @@ public class ParserUtils {
         }
     }
     // END PWC 6386258
+
+
+    // START PWC 6385018
+    public static void setValidating(boolean valid) {
+        validating = valid;
+    }
+    // END PWC 6385018
 
 
     /**
