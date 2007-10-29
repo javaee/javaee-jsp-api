@@ -19,7 +19,8 @@
  * [name of copyright owner]
  *
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- */package com.sun.el;
+ */
+package com.sun.el;
 
 import java.io.Externalizable;
 import java.io.IOException;

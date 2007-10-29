@@ -19,8 +19,6 @@
  * [name of copyright owner]
  *
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- *
- * Portions Copyright Apache Software Foundation.
  */
 package com.sun.el.util;
 

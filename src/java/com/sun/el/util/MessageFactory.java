@@ -19,8 +19,6 @@
  * [name of copyright owner]
  *
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- *
- * Portions Copyright Apache Software Foundation.
  */
 package com.sun.el.util;
 
@@ -29,7 +27,7 @@ import java.util.ResourceBundle;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class MessageFactory {
 

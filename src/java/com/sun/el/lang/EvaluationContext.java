@@ -19,7 +19,8 @@
  * [name of copyright owner]
  *
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- */package com.sun.el.lang;
+ */
+package com.sun.el.lang;
 
 import javax.el.ELContext;
 import javax.el.ELResolver;
