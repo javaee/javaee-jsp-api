@@ -96,7 +96,7 @@ public final class ApplicationFilterFactory {
     /**
      * Return the fqctory instance.
      */
-    public static ApplicationFilterFactory getInstance() {
+    public static synchronized ApplicationFilterFactory getInstance() {
         if (factory == null) {
             factory = new ApplicationFilterFactory();
         }
