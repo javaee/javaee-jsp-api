@@ -73,7 +73,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:30 $
+ * @version $Revision: 1.7 $ $Date: 2006/02/08 23:05:12 $
  */
 
 public class ApplicationContext
@@ -92,6 +92,12 @@ public class ApplicationContext
         super();
         this.context = context;
         this.basePath = basePath;
+
+        //START PWC 6403328
+        this.logPrefix = sm.getString("applicationContext.logPrefix",
+                                      context.logName());
+        //END PWC 6403328
+
     }
 
 
@@ -155,6 +161,12 @@ public class ApplicationContext
      */
     private String basePath = null;
 
+    // START PWC 6403328
+    /**
+     * Log prefix string
+     */
+    private String logPrefix = null;
+    // END PWC 6403328
 
     /**
      * Thread local mapping data.
@@ -693,9 +705,14 @@ public class ApplicationContext
     public void log(String message) {
 
         Logger logger = context.getLogger();
-        if (logger != null)
+        if (logger != null) {
+            /* PWC 6403328
             logger.log(context.logName() + message, Logger.INFORMATION);
-
+            */
+            //START PWC 6403328
+            logger.log(this.logPrefix + message, Logger.INFORMATION);
+            //END PWC 6403328
+        }
     }
 
 
