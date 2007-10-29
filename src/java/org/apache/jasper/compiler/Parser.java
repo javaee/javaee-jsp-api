@@ -677,8 +677,7 @@ class Parser implements TagConstants {
      */
     private void parseAttributeDirective(Node parent) throws JasperException {
 	Attributes attrs = parseAttributes();
-	Node.AttributeDirective n =
-		new Node.AttributeDirective(attrs, start, parent);
+        new Node.AttributeDirective(attrs, start, parent);
     }
 
     /*
@@ -687,8 +686,7 @@ class Parser implements TagConstants {
      */
     private void parseVariableDirective(Node parent) throws JasperException {
 	Attributes attrs = parseAttributes();
-	Node.VariableDirective n =
-		new Node.VariableDirective(attrs, start, parent);
+        new Node.VariableDirective(attrs, start, parent);
     }
 
     /*
