@@ -175,7 +175,7 @@ public class JspC implements Options {
       "<login-config>", "<security-role>", "<env-entry>", "<ejb-ref>", 
       "<ejb-local-ref>" };
 
-    private static int die; 
+    private int dieLevel; 
     private String classPath = null;
     // START PWC 1.2 6311155
     private String sysClassPath = null;
@@ -192,7 +192,6 @@ public class JspC implements Options {
     private String targetClassName;
     private String uriBase;
     private String uriRoot;
-    private int dieLevel;
     private boolean helpNeeded = false;
     private boolean compile = false;
     private boolean smapSuppressed = true;
@@ -299,8 +298,8 @@ public class JspC implements Options {
         if (arg.length == 0) {
            System.out.println(Localizer.getMessage("jspc.usage"));
         } else {
+            JspC jspc = new JspC();
             try {
-                JspC jspc = new JspC();
                 jspc.setArgs(arg);
                 if (jspc.helpNeeded) {
                     System.out.println(Localizer.getMessage("jspc.usage"));
@@ -310,8 +309,8 @@ public class JspC implements Options {
             } catch (JasperException je) {
                 System.err.println(je);
                 //System.err.println(je.getMessage());
-                if (die != NO_DIE_LEVEL) {
-                    System.exit(die);
+                if (jspc.getDieLevel() != NO_DIE_LEVEL) {
+                    System.exit(jspc.getDieLevel());
                 }
             }
         }
@@ -322,7 +321,6 @@ public class JspC implements Options {
         String tok;
 
         dieLevel = NO_DIE_LEVEL;
-        die = dieLevel;
 
         while ((tok = nextArg()) != null) {
             if (tok.equals(SWITCH_VERBOSE)) {
@@ -377,7 +375,6 @@ public class JspC implements Options {
                 } catch (NumberFormatException nfe) {
                     dieLevel = DEFAULT_DIE_LEVEL;
                 }
-                die = dieLevel;
             } else if (tok.equals(SWITCH_HELP)) {
                 helpNeeded = true;
             } else if (tok.equals(SWITCH_SOURCE)) {
@@ -422,6 +419,10 @@ public class JspC implements Options {
             if( file==null ) break;
             pages.addElement( file );
         }
+    }
+
+    public int getDieLevel() {
+        return dieLevel;
     }
 
     public boolean getKeepGenerated() {
