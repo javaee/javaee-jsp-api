@@ -106,6 +106,27 @@ public class JspC implements Options {
     public static final String DEFAULT_IE_CLASS_ID =
             "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
 
+    // START SJSAS 6402545
+    /** Version constant for Java 1.0 */
+    private static final String JAVA_1_0 = "1.0";
+    /** Version constant for Java 1.1 */
+    private static final String JAVA_1_1 = "1.1";
+    /** Version constant for Java 1.2 */
+    private static final String JAVA_1_2 = "1.2";
+    /** Version constant for Java 1.3 */
+    private static final String JAVA_1_3 = "1.3";
+    /** Version constant for Java 1.4 */
+    private static final String JAVA_1_4 = "1.4";
+    /** Version constant for Java 1.5 */
+    private static final String JAVA_1_5 = "1.5";
+    /** Version constant for Java 1.6 */
+    private static final String JAVA_1_6 = "1.6";
+    /** Version constant for Java 5 */
+    private static final String JAVA_5 = "5";
+    /** Version constant for Java 6 */
+    private static final String JAVA_6 = "6";
+    // END SJSAS 6402545
+
     // Logger
     private static Log log = LogFactory.getLog(JspC.class);
 
@@ -183,8 +204,8 @@ public class JspC implements Options {
 
     private String compiler = null;
 
-    private String compilerTargetVM = "1.5";
-    private String compilerSourceVM = "1.5";
+    private String compilerTargetVM = JAVA_1_5;
+    private String compilerSourceVM = JAVA_1_5;
 
     private boolean classDebugInfo = true;
 
@@ -572,6 +593,15 @@ public class JspC implements Options {
     }
 
     public void setCompilerTargetVM(String vm) {
+        // START SJSAS 6402545
+        if (!JAVA_1_1.equals(vm) && !JAVA_1_2.equals(vm) 
+                && !JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm)
+                && !JAVA_1_5.equals(vm) && !JAVA_1_6.equals(vm)
+                && !JAVA_5.equals(vm) && !JAVA_6.equals(vm)) {
+            throw new IllegalArgumentException(
+                Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
+        }
+        // END SJSAS 6402545
         compilerTargetVM = vm;
     }
 
@@ -586,6 +616,13 @@ public class JspC implements Options {
      * @see Options#getCompilerSourceVM.
      */
     public void setCompilerSourceVM(String vm) {
+        // START SJSAS 6402545
+        if (!JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) 
+                && !JAVA_1_5.equals(vm) && !JAVA_5.equals(vm)) {
+            throw new IllegalArgumentException(
+                Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
+        }
+        // END SJSAS 6402545
         compilerSourceVM = vm;
     }
 
