@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:13 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/13 00:07:51 $
  */
 
 public class StandardContext
@@ -2648,7 +2648,10 @@ public class StandardContext
             try {
                 wrapper = (Wrapper) wrapperClass.newInstance();
             } catch (Throwable t) {
-                log.error("createWrapper", t);
+                log.error(sm.getString(
+                                "standardContext.createWrapperInstance",
+                                wrapperClassName),
+                          t);
                 return (null);
             }
         } else {
@@ -2663,7 +2666,10 @@ public class StandardContext
                       (InstanceListener) clazz.newInstance();
                     wrapper.addInstanceListener(listener);
                 } catch (Throwable t) {
-                    log.error("createWrapper", t);
+                    log.error(sm.getString(
+                                  "standardContext.instanceListener",
+                                  instanceListeners[i]),
+                              t);
                     return (null);
                 }
             }
@@ -2678,7 +2684,10 @@ public class StandardContext
                     if (wrapper instanceof Lifecycle)
                         ((Lifecycle) wrapper).addLifecycleListener(listener);
                 } catch (Throwable t) {
-                    log.error("createWrapper", t);
+                    log.error(sm.getString(
+                                "standardContext.lifecycleListener",
+                                wrapperLifecycles[i]),
+                              t);
                     return (null);
                 }
             }
@@ -2692,7 +2701,10 @@ public class StandardContext
                       (ContainerListener) clazz.newInstance();
                     wrapper.addContainerListener(listener);
                 } catch (Throwable t) {
-                    log.error("createWrapper", t);
+                    log.error(sm.getString(
+                                "standardContext.containerListener",
+                                wrapperListeners[i]),
+                              t);
                     return (null);
                 }
             }
@@ -3339,13 +3351,15 @@ public class StandardContext
         try {
             stop();
         } catch (LifecycleException e) {
-            log.error(sm.getString("standardContext.stoppingContext"), e);
+            log.error(sm.getString("standardContext.stoppingContext", this),
+                      e);
         }
 
         try {
             start();
         } catch (LifecycleException e) {
-            log.error(sm.getString("standardContext.startingContext"), e);
+            log.error(sm.getString("standardContext.startingContext", this),
+                      e);
         }
 
         setPaused(false);
@@ -4446,13 +4460,12 @@ public class StandardContext
                 else
                     setResources(new FileDirContext());
             } catch (IllegalArgumentException e) {
-                log.error("Error initializing resources: " + e.getMessage());
+                log.error(sm.getString("standardContext.resourcesInit"), e);
                 ok = false;
             }
         }
         if (ok) {
             if (!resourcesStart()) {
-                log.error( "Error in resourceStart()");
                 ok = false;
             }
         }
@@ -4505,7 +4518,8 @@ public class StandardContext
             dependencyCheck = ExtensionValidator.validateApplication
                 (getResources(), this);
         } catch (IOException ioe) {
-            log.error("Error in dependencyCheck", ioe);
+            log.error(sm.getString("standardContext.dependencyCheck", this),
+                      ioe);
             dependencyCheck = false;
         }
 
@@ -4607,8 +4621,7 @@ public class StandardContext
                 try {
                     tldConfig.execute();
                 } catch (Exception ex) {
-                    log.error("Error reading tld listeners " 
-                              + ex.toString(), ex);
+                    log.error(sm.getString("standardContext.tldConfig"), ex);
                     //ok=false;
                 }
                 
@@ -4672,13 +4685,11 @@ public class StandardContext
         // Configure and call application event listeners and filters
         if (ok) {
             if (!listenerStart()) {
-                log.error( "Error listenerStart");
                 ok = false;
             }
         }
         if (ok) {
             if (!filterStart()) {
-                log.error( "Error filterStart");
                 ok = false;
             }
         }
@@ -4859,7 +4870,7 @@ public class StandardContext
         try {
             resetContext();
         } catch( Exception ex ) {
-            log.error( "Error reseting context " + this + " " + ex, ex );
+            log.error(sm.getString("standardContext.reset", this), ex);
         }
         
         // Notify our interested LifecycleListeners
@@ -5751,7 +5762,9 @@ public class StandardContext
             try {
                 stop();
             } catch( Exception ex ) {
-                log.error( "error stopping ", ex);
+                log.error(sm.getString("standardContext.stoppingContext",
+                                       this),
+                          ex);
             }
         }
     }
@@ -5800,11 +5813,14 @@ public class StandardContext
         // "Life" update
         String path=oname.getKeyProperty("name");
         if( path == null ) {
-            log.error( "No name attribute " +name );
+            log.error(sm.getString(
+                            "standardContext.missingNameAttributeInName",
+                            getName()));
             return null;
         }
         if( ! path.startsWith( "//")) {
-            log.error("Invalid name " + name);
+            log.error(sm.getString("standardContext.malformedName",
+                                   getName()));
         }
         path=path.substring(2);
         int delim=path.indexOf( "/" );
