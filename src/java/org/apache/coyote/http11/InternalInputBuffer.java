@@ -81,12 +81,6 @@ public class InternalInputBuffer implements InputBuffer {
         bodyBuffer = new byte[headerBufferSize];
         buf = headerBuffer1;
 
-        // BEGIN SJSAS 8.1 BUG 6066026
-        //headerBuffer = new char[headerBufferSize];
-        //ascbuf = headerBuffer;
-        ascbuf = new char[headerBufferSize];
-        // END SJSAS 8.1 BUG 6066026
-
         inputStreamInputBuffer = new InputStreamInputBuffer();
 
         filterLibrary = new InputFilter[0];
@@ -140,12 +134,6 @@ public class InternalInputBuffer implements InputBuffer {
      * Pointer to the current read buffer.
      */
     protected byte[] buf;
-
-
-    /**
-     * Pointer to the US-ASCII header buffer.
-     */
-    protected char[] ascbuf;
 
 
     /**
@@ -479,11 +467,9 @@ public class InternalInputBuffer implements InputBuffer {
                         throw new EOFException(sm.getString("iib.eof.error"));
                 }
 
-                ascbuf[pos] = (char) buf[pos];
-
                 if (buf[pos] == Constants.SP) {
                     space = true;
-                    request.method().setChars(ascbuf, start, pos - start);
+                    request.method().setBytes(buf, start, pos - start);
                 }
 
                 pos++;
@@ -569,8 +555,6 @@ public class InternalInputBuffer implements InputBuffer {
                         throw new EOFException(sm.getString("iib.eof.error"));
                 }
 
-                ascbuf[pos] = (char) buf[pos];
-
                 if (buf[pos] == Constants.CR) {
                     end = pos;
                 } else if (buf[pos] == Constants.LF) {
@@ -587,7 +571,7 @@ public class InternalInputBuffer implements InputBuffer {
             // END OF SJSAS 6231069
             
             if ((end - start) > 0) {
-                request.protocol().setChars(ascbuf, start, end - start);
+                request.protocol().setBytes(buf, start, end - start);
             } else {
                 request.protocol().setString("");
             }
@@ -608,7 +592,6 @@ public class InternalInputBuffer implements InputBuffer {
         }
 
         parsingHeader = false;
-
     }
 
 
@@ -684,14 +667,12 @@ public class InternalInputBuffer implements InputBuffer {
 
                 if (buf[pos] == Constants.COLON) {
                     colon = true;
-                    headerValue = headers.addValue(ascbuf, start, pos - start);
+                    headerValue = headers.addValue(buf, start, pos - start);
                 }
                 chr = buf[pos];
                 if ((chr >= Constants.A) && (chr <= Constants.Z)) {
                     buf[pos] = (byte) (chr - Constants.LC_OFFSET);
                 }
-
-                ascbuf[pos] = (char) buf[pos];
 
                 pos++;
 

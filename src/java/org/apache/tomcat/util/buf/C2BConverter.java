@@ -64,6 +64,7 @@ public final class C2BConverter {
     public C2BConverter(String encoding) throws IOException {
         this( new ByteChunk(1024), encoding );
     }
+    
 
     public ByteChunk getByteChunk() {
         return bb;
@@ -96,6 +97,12 @@ public final class C2BConverter {
      */
     public  final void convert(String s ) throws IOException {
         conv.write( s );
+    }
+    
+    /** Generate the bytes using the specified encoding
+     */    
+    public  final void convert(String s, int off, int len ) throws IOException {
+	conv.write( s, off, len );
     }
 
     /** Generate the bytes using the specified encoding
