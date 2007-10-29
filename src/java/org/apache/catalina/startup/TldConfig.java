@@ -783,9 +783,8 @@ public final class TldConfig  {
      * Scans the web application's subdirectory identified by rootPath,
      * along with its subdirectories, for TLDs.
      *
-     * Initially, rootPath equals /WEB-INF. The /WEB-INF/classes and
-     * /WEB-INF/lib subdirectories are excluded from the search, as per the
-     * JSP 2.0 spec.
+     * Initially, rootPath equals /WEB-INF. /WEB-INF/tags and any of its
+     * subdirectories are excluded from the search, as per the JSP spec.
      *
      * @param resources The web application's resources
      * @param rootPath The path whose subdirectories are to be searched for
@@ -806,9 +805,7 @@ public final class TldConfig  {
             while (items.hasMoreElements()) {
                 NameClassPair item = (NameClassPair) items.nextElement();
                 String resourcePath = rootPath + "/" + item.getName();
-                if (!resourcePath.endsWith(".tld")
-                        && (resourcePath.startsWith("/WEB-INF/classes")
-                            || resourcePath.startsWith("/WEB-INF/lib"))) {
+                if (resourcePath.startsWith("/WEB-INF/tags")) {
                     continue;
                 }
                 if (resourcePath.endsWith(".tld")) {
