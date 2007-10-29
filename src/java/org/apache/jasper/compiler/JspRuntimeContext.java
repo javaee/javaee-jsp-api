@@ -58,7 +58,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1.1.1 $
  */
 public final class JspRuntimeContext implements Runnable {
 
@@ -107,12 +107,12 @@ public final class JspRuntimeContext implements Runnable {
                 (URLClassLoader)this.getClass().getClassLoader();
         }
 
-	if (log.isDebugEnabled()) {
+	if (log.isTraceEnabled()) {
 	    if (parentClassLoader != null) {
-		log.debug(Localizer.getMessage("jsp.message.parent_class_loader_is",
+		log.trace(Localizer.getMessage("jsp.message.parent_class_loader_is",
 					       parentClassLoader.toString()));
 	    } else {
-		log.debug(Localizer.getMessage("jsp.message.parent_class_loader_is",
+		log.trace(Localizer.getMessage("jsp.message.parent_class_loader_is",
 					       "<none>"));
 	    }
         }

@@ -217,8 +217,8 @@ public class InputBuffer extends Reader
      */
     public void recycle() {
 
-        if (log.isDebugEnabled())
-                log.debug("recycle()");
+        if (log.isTraceEnabled())
+            log.trace("recycle()");
 
         state = INITIAL_STATE;
         bytesRead = 0;

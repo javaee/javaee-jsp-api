@@ -112,10 +112,10 @@ public class JspServlet extends HttpServlet {
         }
         // END SJSWS 6232180
 
-        if (log.isDebugEnabled()) {
-            log.debug(Localizer.getMessage("jsp.message.scratch.dir.is",
+        if (log.isTraceEnabled()) {
+            log.trace(Localizer.getMessage("jsp.message.scratch.dir.is",
                                            options.getScratchDir().toString()));
-            log.debug(Localizer.getMessage("jsp.message.dont.modify.servlets"));
+            log.trace(Localizer.getMessage("jsp.message.dont.modify.servlets"));
         }
     }
 
@@ -288,19 +288,22 @@ public class JspServlet extends HttpServlet {
         }
 
         if (log.isDebugEnabled()) {	    
-            log.debug("JspEngine --> " + jspUri);
-            log.debug("\t     ServletPath: " + request.getServletPath());
-            log.debug("\t        PathInfo: " + request.getPathInfo());
-            log.debug("\t        RealPath: " + context.getRealPath(jspUri));
-            log.debug("\t      RequestURI: " + request.getRequestURI());
-            log.debug("\t     QueryString: " + request.getQueryString());
-            log.debug("\t  Request Params: ");
+            StringBuffer msg = new StringBuffer();
+            msg.append("JspEngine --> [" + jspUri);
+            msg.append("] ServletPath: [" + request.getServletPath());
+            msg.append("] PathInfo: [" + request.getPathInfo());
+            msg.append("] RealPath: [" + context.getRealPath(jspUri));
+            msg.append("] RequestURI: [" + request.getRequestURI());
+            msg.append("] QueryString: [" + request.getQueryString());
+            msg.append("] RequestParams: [");
             Enumeration e = request.getParameterNames();
             while (e.hasMoreElements()) {
                 String name = (String) e.nextElement();
-                log.debug("\t\t " + name + " = " 
+                msg.append(" " + name + "=" 
                           + request.getParameter(name));
             }
+            msg.append(" ]");
+            log.debug(msg);
         }
 
         try {
