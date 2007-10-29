@@ -353,7 +353,13 @@ public class JspWriterImpl extends JspWriter {
      * because it must suppress I/O exceptions.
      */
     public void write(String s) throws IOException {
-	write(s, 0, s.length());
+        // Simple fix for Bugzilla 35410
+        // Calling the other write function so as to init the buffer anyways
+        if(s == null) {
+            write(s, 0, 0);
+        } else {
+            write(s, 0, s.length());
+        }
     }
 
 
