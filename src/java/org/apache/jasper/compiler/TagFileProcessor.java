@@ -244,6 +244,9 @@ class TagFileProcessor {
                 err.jspError("jsp.error.deferredwithtype");
             }
 
+            if (isDeferredValue || isDeferredMethod) {
+                rtexprvalue = false;
+            }
             TagAttributeInfo tagAttributeInfo =
                     new TagAttributeInfo(attrName,
                                          required,
