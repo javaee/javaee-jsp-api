@@ -1034,13 +1034,14 @@ class Validator {
                                                   tldAttrs[j]);
                             ELNode.Nodes el = jspAttrs[i].getEL();
                             if (el != null) {
-                                if (el.hasDollarExpression() &&
-                                        !tldAttrs[j].canBeRequestTime()) {
-                                    err.jspError(n,
+                                if (el.hasDollarExpression()) {
+                                    if (!tldAttrs[j].canBeRequestTime()) {
+                                        err.jspError(n,
                                         "jsp.error.el.deferred.dollar",
                                         tldAttrs[j].getName());
+                                    }
                                 }
-                                if (el.hasPoundExpression()) {
+                                else if (el.hasPoundExpression()) {
                                     boolean isLiteral = 
                                     pageInfo.isDeferredSyntaxAllowedAsLiteral();
                                     if (!tldAttrs[j].isDeferredValue()
@@ -1060,7 +1061,8 @@ class Validator {
                                         jspAttrs[i].setValue(escapePound(
                                             jspAttrs[i].getValue()));
                                     }
-                                } else if (!el.hasDollarExpression()){
+                                } else if (pageInfo.isDeferredSyntaxAllowedAsLiteral()){
+                                    // The literal is of the form \#{}
                                     jspAttrs[i].setValue(escapePound(
                                         jspAttrs[i].getValue()));
                                 }
@@ -1389,11 +1391,24 @@ class Validator {
 	    }
 	}
 
+        /*
+         * Since the EL engine reconginizes escape sequence for #{ }, literals
+         * sent to it must be properly escaped, so "#{}" becomes "\#{}", and
+         * "\#{}" becomes "\\\#{}" etc.
+         */
         private String escapePound(String value) {
+            if (value.indexOf("#{") < 0) {
+                return value;
+            }
             StringBuffer buf = new StringBuffer(value.length() + 2);
             for (int i = 0; i < value.length(); i++) {
-                if (value.charAt(i) == '\\' || value.charAt(i) == '#') {
-                    buf.append('\\');
+                if (value.charAt(i) == '#') {
+                    if (((i+1) < value.length()) && (value.charAt(i+1) == '{')){
+                        if (((i-1) >= 0) && (value.charAt(i-1) == '\\')) {
+                            buf.append('\\');
+                        }
+                        buf.append('\\');
+                    }
                 }
                 buf.append(value.charAt(i));
             }
