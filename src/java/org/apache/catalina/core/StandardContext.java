@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2005/12/07 02:01:35 $
+ * @version $Revision: 1.13 $ $Date: 2005/12/08 01:27:35 $
  */
 
 public class StandardContext
@@ -701,6 +701,10 @@ public class StandardContext
      * Array containing the safe characters set.
      */
     protected static final URLEncoder urlEncoder;
+
+    // START S1AS8PE 4965017
+    private boolean isReload = false;
+    // END S1AS8PE 4965017
 
 
     /**
@@ -1942,6 +1946,17 @@ public class StandardContext
         this.auditors=auditor;
     }
     // END IASRI 4823322
+
+
+    // START S1AS8PE 4965017
+    public void setReload(boolean isReload) {
+        this.isReload = isReload;
+    }
+
+    public boolean isReload() {
+        return isReload;
+    }
+    // END S1AS8PE 4965017
 
 
     // ------------------------------------------------------ Public Properties
@@ -5025,25 +5040,25 @@ public class StandardContext
         }
 
         // START S1AS8PE 4965017
-        /*
-        if (getLoader() != null) {
-            if (reloadable && (getLoader().modified())) {
-                try {
-                    Thread.currentThread().setContextClassLoader
-                        (StandardContext.class.getClassLoader());
-                    reload();
-                } finally {
-                    if (getLoader() != null) {
+        if (isReload()) {
+            if (getLoader() != null) {
+                if (reloadable && (getLoader().modified())) {
+                    try {
                         Thread.currentThread().setContextClassLoader
-                            (getLoader().getClassLoader());
+                            (StandardContext.class.getClassLoader());
+                        reload();
+                    } finally {
+                        if (getLoader() != null) {
+                            Thread.currentThread().setContextClassLoader
+                                (getLoader().getClassLoader());
+                        }
                     }
                 }
-            }
-            if (getLoader() instanceof WebappLoader) {
-                ((WebappLoader) getLoader()).closeJARs(false);
+                if (getLoader() instanceof WebappLoader) {
+                    ((WebappLoader) getLoader()).closeJARs(false);
+                }
             }
         }
-        */
         // END S1AS8PE 4965017
     }
 
