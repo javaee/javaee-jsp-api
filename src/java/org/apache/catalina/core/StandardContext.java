@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/09/03 01:18:52 $
+ * @version $Revision: 1.5 $ $Date: 2005/09/12 23:29:02 $
  */
 
 public class StandardContext
@@ -5426,6 +5426,9 @@ public class StandardContext
 
         if (urlPattern == null)
             return (false);
+        if (urlPattern.indexOf('\n') >= 0 || urlPattern.indexOf('\r') >= 0) {
+            log.warn(sm.getString("standardContext.crlfinurl", urlPattern));
+        }
         if (urlPattern.startsWith("*.")) {
             if (urlPattern.indexOf('/') < 0)
                 return (true);
