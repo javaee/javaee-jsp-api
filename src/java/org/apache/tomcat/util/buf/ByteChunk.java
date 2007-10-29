@@ -99,8 +99,8 @@ public final class ByteChunk implements Cloneable, Serializable {
     // How much can it grow, when data is added
     private int limit=-1;
 
-    private ByteInputChannel in = null;
-    private ByteOutputChannel out = null;
+    private transient ByteInputChannel in = null;
+    private transient ByteOutputChannel out = null;
 
     private boolean isOutput=false;
     private boolean optimizedWrite=true;

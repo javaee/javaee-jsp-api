@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.17 $ $Date: 2006/06/30 17:08:17 $
+ * @version $Revision: 1.18 $ $Date: 2006/08/10 21:35:19 $
  */
 
 public class StandardSession
@@ -240,7 +240,7 @@ public class StandardSession
     /**
      * The Manager with which this Session is associated.
      */
-    protected Manager manager = null;
+    protected transient Manager manager = null;
 
 
     /**

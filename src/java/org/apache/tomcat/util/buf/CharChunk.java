@@ -80,8 +80,8 @@ public final class CharChunk implements Cloneable, Serializable {
     // maximum amount to be cached
     private int limit=-1;
 
-    private CharInputChannel in = null;
-    private CharOutputChannel out = null;
+    private transient CharInputChannel in = null;
+    private transient CharOutputChannel out = null;
     
     private boolean optimizedWrite=true;
 

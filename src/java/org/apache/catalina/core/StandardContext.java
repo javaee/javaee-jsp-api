@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.22 $ $Date: 2006/06/08 14:49:57 $
+ * @version $Revision: 1.23 $ $Date: 2006/09/28 19:55:13 $
  */
 
 public class StandardContext
@@ -359,7 +359,7 @@ public class StandardContext
     /**
      * The mapper associated with this context.
      */
-    private org.apache.tomcat.util.http.mapper.Mapper mapper = 
+    private transient org.apache.tomcat.util.http.mapper.Mapper mapper = 
         new org.apache.tomcat.util.http.mapper.Mapper();
 
 
@@ -652,7 +652,7 @@ public class StandardContext
     /**
      * List of configured Auditors for this context.
      */
-    private Auditor[] auditors = null;
+    private transient Auditor[] auditors = null;
     // END IASRI 4823322
 
     // START RIMOD 4868393
