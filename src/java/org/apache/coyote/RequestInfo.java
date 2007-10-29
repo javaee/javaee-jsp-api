@@ -106,6 +106,8 @@ public class RequestInfo  {
 
     // Number of responses with a status code equal to 503
     private long count503;
+
+    private Thread workerThread;
     // END S1AS
 
 
@@ -415,6 +417,26 @@ public class RequestInfo  {
     public void setCount503(long count503) {
         this.count503 = count503;
     }
+
+    /**
+     * Gets the worker thread which is processing the request associated
+     * with this RequestInfo.
+     * 
+     * @return The worker thread
+     */
+    public Thread getWorkerThread() {
+        return workerThread;
+    }
+
+    /**
+     * Sets the worker thread responsible for processing the request 
+     * associated with this RequestInfo.
+     *
+     * @param workerThread The worker thread
+     */
+    public void setWorkerThread(Thread workerThread) {
+        this.workerThread = workerThread;
+    }
     // END S1AS
 
 
@@ -443,6 +465,7 @@ public class RequestInfo  {
         setCount403(0);
         setCount404(0);
         setCount503(0);
+        setWorkerThread(null);
     }
     // END S1AS
 }
