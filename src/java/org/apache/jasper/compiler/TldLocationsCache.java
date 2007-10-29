@@ -34,7 +34,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.Enumeration;
+/* GlassFish 747
 import java.util.Hashtable;
+*/
+// START GlassFish 747
+import java.util.HashMap;
+// END GlassFish 747
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -46,6 +51,9 @@ import javax.servlet.ServletContext;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+// START GlassFish 747
+import org.apache.catalina.Globals;
+// END GlassFish 747
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 // START SJSAS 6384538
@@ -119,7 +127,12 @@ public class TldLocationsCache {
      *    [0] The location
      *    [1] If the location is a jar file, this is the location of the tld.
      */
+    /* GlassFish 747
     private Hashtable mappings;
+     */
+    // START GlassFish 747
+    private HashMap mappings;
+    // END GlassFish 747
 
     private boolean initialized;
     private ServletContext ctxt;
@@ -127,6 +140,10 @@ public class TldLocationsCache {
     // START SJSAS 6384538
     private Options options;
     // END SJSAS 6384538
+
+    // START GlassFish 747
+    private boolean localTldsProcessed = false;
+    // END GlassFish 747
 
     //*********************************************************************
     // Constructor and Initilizations
@@ -236,7 +253,9 @@ public class TldLocationsCache {
         this.options = options;
         // END SJSAS 6384538
         this.redeployMode = redeployMode;
+        /* GlassFish 747
         mappings = new Hashtable();
+        */
         initialized = false;
     }
 
@@ -297,10 +316,35 @@ public class TldLocationsCache {
 
     private void init() throws JasperException {
         if (initialized) return;
+
+        // START GlassFish 747
+        HashMap tldUriToLocationMap = (HashMap) ctxt.getAttribute(
+            Globals.JSP_TLD_URI_TO_LOCATION_MAP);
+        if (tldUriToLocationMap != null) {
+            localTldsProcessed = true;
+            mappings = tldUriToLocationMap;
+        } else {
+            mappings = new HashMap();
+        }
+        // END GlassFish 747
         try {
+            /* GlassFish 747
             processWebDotXml();
+            */
+            // START Glassfish 747
+            if (!localTldsProcessed) {
+                processWebDotXml();
+            }
+            // END Glassfish 747
             scanJars();
+            /* GlassFish 747
             processTldsInFileSystem("/WEB-INF/");
+            */
+            // START GlassFish 747
+            if (!localTldsProcessed) {
+                processTldsInFileSystem("/WEB-INF/");
+            }
+            // END Glassfish 747
             initialized = true;
         } catch (Exception ex) {
             throw new JasperException(
@@ -569,6 +613,14 @@ public class TldLocationsCache {
         ClassLoader webappLoader
             = Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
+
+        // START Glassfish 747
+        if (localTldsProcessed) {
+            if (loader != null) {
+                loader = loader.getParent();
+            }
+        }
+        // END GlassFish 747
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {

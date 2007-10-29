@@ -218,6 +218,15 @@ public final class TldConfig  {
 
     private ArrayList listeners=new ArrayList();
 
+    // START GlassFish 747
+    private HashMap<String, String[]> tldUriToLocationMap =
+            new HashMap<String, String[]>();
+    private String currentTldResourcePath;
+    private String currentTldJarFile;
+    private String currentTldJarEntryName;
+    // END GlassFish 747
+
+
     // --------------------------------------------------------- Public Methods
 
     /**
@@ -327,8 +336,9 @@ public final class TldConfig  {
     }
 
     public void addApplicationListener( String s ) {
-        //if(log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug( "Add tld listener " + s);
+        }
         if (!isCurrentTldLocal || !systemTldUris.contains(currentTldUri)) {
             listeners.add(s);
         }
@@ -336,6 +346,28 @@ public final class TldConfig  {
 
     public void setTldUri(String uri) {
         this.currentTldUri = uri;
+        // START GlassFish 747
+        /*
+         * Add the mapping for the given URI only if
+         * - the corresponding TLD is local, and
+         * - the URI is not one of the standard (i.e., JSTL or JSF) ones, and
+         * - the URI is not already mapped (this check is necessary because 
+         *   taglibs specified in web.xml are supposed to take precedence)
+         */
+        if (isCurrentTldLocal
+                && !systemTldUris.contains(currentTldUri)
+                && tldUriToLocationMap.get(currentTldUri) == null) {
+            String[] currentTldLocation = new String[2];
+            if (currentTldResourcePath != null) {
+                currentTldLocation[0] = currentTldResourcePath;
+            } else if (currentTldJarFile != null
+                    && currentTldJarEntryName != null) {
+                currentTldLocation[0] = "file:" + currentTldJarFile;
+                currentTldLocation[1] = currentTldJarEntryName;
+            }
+            tldUriToLocationMap.put(currentTldUri, currentTldLocation);
+        }
+        // END GlassFish 747
     }
 
     public String[] getTldListeners() {
@@ -403,14 +435,9 @@ public final class TldConfig  {
         }
 
         // Scan each accumulated resource path for TLDs to be processed
-        Iterator paths = resourcePaths.iterator();
+        Iterator<String> paths = resourcePaths.iterator();
         while (paths.hasNext()) {
-            String path = (String) paths.next();
-            if (path.endsWith(".jar")) {
-                tldScanJar(path);
-            } else {
-                tldScanTld(path);
-            }
+            tldScanTld(paths.next());
         }
         if (jarPaths != null) {
             Iterator<JarPathElement> elems = jarPaths.values().iterator();
@@ -445,6 +472,11 @@ public final class TldConfig  {
             ((StandardContext)context).setTldScanTime(t2-t1);
         }
 
+        // START GlassFish 747
+        context.getServletContext().setAttribute(
+            Globals.JSP_TLD_URI_TO_LOCATION_MAP,
+            tldUriToLocationMap);
+        // END GlassFish 747
     }
 
     // -------------------------------------------------------- Private Methods
@@ -590,6 +622,10 @@ public final class TldConfig  {
                 if (log.isTraceEnabled()) {
                     log.trace("  Processing TLD at '" + name + "'");
                 }
+                // START GlassFish 747
+                currentTldJarFile = jarPath;
+                currentTldJarEntryName = name;
+                // END GlassFish 747
                 try {
                     tldScanStream(new InputSource(jarFile.getInputStream(entry)),
                                   isLocal);
@@ -644,6 +680,11 @@ public final class TldConfig  {
             } finally {
                 isCurrentTldLocal = false;
                 currentTldUri = null;
+                // START GlassFish 747
+                currentTldJarFile = null;
+                currentTldJarEntryName = null;
+                currentTldResourcePath = null;
+                // END GlassFish 747
                 tldDigester.push(null);
                 tldDigester.clear();
             }
@@ -675,7 +716,10 @@ public final class TldConfig  {
                     (sm.getString("contextConfig.tldResourcePath",
                                   resourcePath));
             }
-            tldScanStream(inputSource);
+            // START GlassFish 747
+            currentTldResourcePath = resourcePath;
+            // END GlassFish 747
+            tldScanStream(inputSource, true);
         } catch (Exception e) {
              throw new ServletException
                  (sm.getString("contextConfig.tldFileException", resourcePath,
@@ -718,6 +762,10 @@ public final class TldConfig  {
                 log.trace("   Adding path '" + resourcePath +
                     "' for URI '" + taglibs[i] + "'");
             }
+            // START GlassFish 747
+            tldUriToLocationMap.put(taglibs[i],
+                                    new String[] { resourcePath, null});
+            // END GlassFish 747
             resourcePaths.add(resourcePath);
         }
 
