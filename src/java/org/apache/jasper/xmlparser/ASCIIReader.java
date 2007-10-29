@@ -38,7 +38,7 @@ import org.apache.jasper.compiler.Localizer;
  *
  * @author Andy Clark, IBM
  *
- * @version $Id: ASCIIReader.java,v 1.1.1.1 2005/05/27 22:55:14 dpatil Exp $
+ * @version $Id: ASCIIReader.java,v 1.2 2005/12/08 01:28:59 kchung Exp $
  */
 public class ASCIIReader
     extends Reader {
@@ -123,7 +123,7 @@ public class ASCIIReader
         int count = fInputStream.read(fBuffer, 0, length);
         for (int i = 0; i < count; i++) {
             int b0 = fBuffer[i];
-            if (b0 > 0x80) {
+            if (b0 < 0) {
                 throw new IOException(Localizer.getMessage("jsp.error.xml.invalidASCII",
 							   Integer.toString(b0)));
             }
