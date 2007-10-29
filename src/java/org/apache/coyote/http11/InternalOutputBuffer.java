@@ -358,11 +358,7 @@ public class InternalOutputBuffer
      */
     private void flush(boolean isFull) throws IOException {
          // Sending the response header buffer
-        if (useSocketBuffer) {
-            socketBuffer.append(buf, 0, pos);
-        } else {
-            outputStream.write(buf, 0, pos);
-        }    
+        realWriteBytes(buf, 0, pos);
         
         if ( isFull ) {
             pos = 0;
@@ -474,12 +470,8 @@ public class InternalOutputBuffer
         throws IOException {
 
         if (!committed){
-            if (useSocketBuffer) {
-                socketBuffer.append(Constants.ACK_BYTES,0,
+            realWriteBytes(Constants.ACK_BYTES,0,
                         Constants.ACK_BYTES.length);
-            } else {
-                outputStream.write(Constants.ACK_BYTES);
-            } 
         }
     }
 
@@ -701,11 +693,7 @@ public class InternalOutputBuffer
      */
     protected void write(ByteChunk bc) {
         try{
-            if (useSocketBuffer) {
-                socketBuffer.append(bc.getBytes(),bc.getStart(),bc.getLength());
-            } else {
-                outputStream.write(bc.getBytes(),bc.getStart(),bc.getLength());
-            }
+            realWriteBytes(bc.getBytes(),bc.getStart(),bc.getLength());
         } catch (IOException ex){
             ;
         }
@@ -734,18 +722,23 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
-             buf[pos++] = (byte) c;
-        }
-        try{
-            if (useSocketBuffer) {
-                socketBuffer.append(buf,0,pos);
-            } else {
-                outputStream.write(buf,0,pos);
+            // issue #3157, if buffer is full - flush it
+            if (pos >= buf.length) {
+                try {
+                    flush(true);
+                } catch(IOException e) {
+                    ;
+                }
             }
+            
+            buf[pos++] = (byte) c;
+        }
+        
+        try{
+            flush(true);
         } catch (IOException ex){
             ;
         }    
-        pos = 0;
     }
 
 
@@ -758,11 +751,7 @@ public class InternalOutputBuffer
      */
     protected void write(byte[] b) {
         try{
-            if (useSocketBuffer) {
-                socketBuffer.append(b,0,b.length);
-            } else {
-                outputStream.write(b,0,b.length);
-            }
+            realWriteBytes(b, 0, b.length);
         } catch (IOException ex){
             ;
         }
@@ -793,19 +782,23 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
+            // issue #3157, if buffer is full - flush it
+            if (pos >= buf.length) {
+                try {
+                    flush(true);
+                } catch(IOException e) {
+                    ;
+                }
+            }
+
             buf[pos++] = (byte) c;
         }
         
         try{
-            if (useSocketBuffer) {
-                socketBuffer.append(buf,0,pos);
-            } else {
-                outputStream.write(buf,0,pos);
-            }
+            flush(true);
         } catch (IOException ex){
             ;
         }    
-        pos = 0;
     }
 
 
@@ -855,13 +848,8 @@ public class InternalOutputBuffer
         public int doWrite(ByteChunk chunk, Response res) 
             throws IOException {
 
-            if (useSocketBuffer) {
-                socketBuffer.append(chunk.getBuffer(), chunk.getStart(), 
-                                   chunk.getLength());
-            } else {
-                outputStream.write(chunk.getBuffer(), chunk.getStart(), 
-                                   chunk.getLength());
-            }
+            realWriteBytes(chunk.getBuffer(), chunk.getStart(),
+                      chunk.getLength());
             return chunk.getLength();
 
         }
