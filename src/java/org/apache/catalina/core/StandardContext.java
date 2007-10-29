@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.40 $ $Date: 2007/03/09 00:33:05 $
+ * @version $Revision: 1.41 $ $Date: 2007/03/15 21:40:37 $
  */
 
 public class StandardContext
@@ -720,7 +720,6 @@ public class StandardContext
      */
     private ArrayList<AlternateDocBase> alternateDocBases = null;
 
-
     private boolean useMyFaces;
 
 
@@ -1295,25 +1294,23 @@ public class StandardContext
      * @param alternateDocBasesMap HashMap containing this context's 
      * mappings from url patterns to alternate doc base paths
      */
-    public void configureAlternateDocBases(
-            HashMap<String, String> alternateDocBasesMap) {
+    public void addAlternateDocBase(String urlPattern, String docBase) {
 
-        if (alternateDocBasesMap == null) {
-            return;
+        if (urlPattern == null || docBase == null) {
+            throw new IllegalArgumentException(
+                sm.getString(
+                    "standardContext.alternateDocBase.missingPathOrUrlPattern"));
         }
+  
+        AlternateDocBase alternateDocBase = new AlternateDocBase();
+        alternateDocBase.setUrlPattern(urlPattern);
+        alternateDocBase.setDocBase(docBase);
+        alternateDocBase.setBasePath(getBasePath(docBase));
 
-        this.alternateDocBases =
-            new ArrayList<AlternateDocBase>(alternateDocBasesMap.size());
-        Iterator<String> iter = alternateDocBasesMap.keySet().iterator();
-        while (iter.hasNext()) {
-            String urlPattern = iter.next();
-            AlternateDocBase alternateDocBase = new AlternateDocBase();
-            alternateDocBase.setUrlPattern(urlPattern);
-            String docBase = alternateDocBasesMap.get(urlPattern);
-            alternateDocBase.setDocBase(docBase);
-            alternateDocBase.setBasePath(getBasePath(docBase));
-            this.alternateDocBases.add(alternateDocBase);
+        if (alternateDocBases == null) {
+            alternateDocBases = new ArrayList<AlternateDocBase>();
         }
+        alternateDocBases.add(alternateDocBase);
     }
 
 
