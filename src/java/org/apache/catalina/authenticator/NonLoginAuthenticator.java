@@ -47,7 +47,7 @@ import org.apache.catalina.realm.GenericPrincipal;
  * only security constraints not involving user authentication.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:10:16 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:27 $
  */
 
 public final class NonLoginAuthenticator
@@ -115,7 +115,10 @@ public final class NonLoginAuthenticator
             log("User authentication is not required");
         
         //START SJSAS 6202703
-        request.setUserPrincipal(NONLOGIN_PRINCIPAL);
+        HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
+        if (hreq.getUserPrincipal() == null) {
+            request.setUserPrincipal(NONLOGIN_PRINCIPAL);
+        }
         //END SJSAS 6202703
         return (true);
 
