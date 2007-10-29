@@ -18,7 +18,7 @@ package com.sun.el.lang;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -45,11 +45,13 @@ import com.sun.el.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
  */
 public final class ExpressionBuilder implements NodeVisitor {
 
-    private static final Map cache = new WeakHashMap();
+    private static final int SIZE = 5000;
+    private static final Map cache = new ConcurrentHashMap(SIZE);
+    private static final Map cache2 = new ConcurrentHashMap(SIZE);
 
     private FunctionMapper fnMapper;
 
@@ -87,7 +89,7 @@ public final class ExpressionBuilder implements NodeVisitor {
         }
 
         Node n = (Node) cache.get(expr);
-        if (n == null) {
+        if (n == null && (n = (Node) cache2.get(expr)) == null) {
             try {
                 n = (new ELParser(new StringReader(expr)))
                         .CompositeExpression();
@@ -118,6 +120,11 @@ public final class ExpressionBuilder implements NodeVisitor {
                 if (n instanceof AstDeferredExpression
                         || n instanceof AstDynamicExpression) {
                     n = n.jjtGetChild(0);
+                }
+                if (cache.size() > SIZE) {
+                    cache2.clear();
+                    cache2.putAll(cache);
+                    cache.clear();
                 }
                 cache.put(expr, n);
             } catch (ParseException pe) {
