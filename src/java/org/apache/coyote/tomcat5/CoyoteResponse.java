@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.15 $ $Date: 2006/10/05 00:02:19 $
+ * @version $Revision: 1.16 $ $Date: 2006/10/13 17:35:51 $
  */
 
 public class CoyoteResponse
@@ -204,7 +204,15 @@ public class CoyoteResponse
      * Return the Context within which this Request is being processed.
      */
     public Context getContext() {
-        return context;
+        /*
+         * Ideally, we would call CoyoteResponse.setContext() from
+         * CoyoteAdapter (the same way we call it for CoyoteRequest), and
+         * have getContext() return this context. However, for backwards
+         * compatibility with WS 7.0's NSAPIProcessor, which does not call
+         * CoyoteResponse.setContext(), we must delegate to the getContext()
+         * method of the linked request object.
+         */
+        return request.getContext();
     }
 
     /**

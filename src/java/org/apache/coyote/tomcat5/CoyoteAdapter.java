@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.19 $ $Date: 2006/10/03 16:05:26 $
+ * @version $Revision: 1.20 $ $Date: 2006/10/13 17:35:51 $
  */
 
 public class CoyoteAdapter
@@ -411,8 +411,6 @@ public class CoyoteAdapter
         Context ctx = (Context) request.getMappingData().context;
         request.setContext(ctx);
         // END SJSAS 6253524
-
-        response.setContext(ctx);
 
         request.setWrapper((Wrapper) request.getMappingData().wrapper);
 
