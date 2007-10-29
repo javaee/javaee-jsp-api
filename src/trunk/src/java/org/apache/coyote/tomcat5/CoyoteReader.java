@@ -53,6 +53,18 @@ public class CoyoteReader
         this.ib = ib;
     }
 
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+    * Prevent cloning the facade.
+    */
+    protected Object clone()
+        throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+    
+    
     // -------------------------------------------------------- Package Methods
 
 

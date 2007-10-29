@@ -55,7 +55,20 @@ public class CoyoteOutputStream
     // END S1AS 6175642
         this.ob = ob;
     }
+    
+    
+    // --------------------------------------------------------- Public Methods
 
+
+    /**
+    * Prevent cloning the facade.
+    */
+    protected Object clone()
+        throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+
+  
     // -------------------------------------------------------- Package Methods
 
 

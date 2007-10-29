@@ -51,7 +51,7 @@ import org.apache.tomcat.util.http.ServerCookie;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/05/06 20:44:12 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:10 $
  */
 
 public class CoyoteAdapter
@@ -178,6 +178,7 @@ public class CoyoteAdapter
 
                 // Calling the container
                 connector.getContainer().invoke(request, response);
+              
             }
 
             response.finishResponse();
@@ -283,6 +284,7 @@ public class CoyoteAdapter
         // Request mapping.
         connector.getMapper().map(req.serverName(), decodedURI, 
                                   request.getMappingData());
+        
         // START SJSAS 6253524
         // request.setContext((Context) request.getMappingData().context);
         // END SJSAS 6253524
