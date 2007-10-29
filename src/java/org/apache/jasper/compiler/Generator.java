@@ -485,11 +485,11 @@ class Generator {
                 }
                 out.println();
             }
-        } else {
-            out.printil("private org.apache.jasper.runtime.ResourceInjector "
-                        + "_jspx_resourceInjector;");
-            out.println();
         }
+
+        out.printil("private org.apache.jasper.runtime.ResourceInjector "
+                    + "_jspx_resourceInjector;");
+        out.println();
     }
 
     /**
@@ -623,10 +623,7 @@ class Generator {
         out.printil("_jspx_out = out;");
         out.println();
 
-        if (!isPoolingEnabled) {
-            generateResourceInjector();
-        }
-
+        generateResourceInjector();
     }
 
     /**
@@ -2441,6 +2438,14 @@ class Generator {
             out.print("new ");
             out.print(tagHandlerClassName);
             out.println("();");
+
+            out.printil("if (_jspx_resourceInjector != null) {");
+            out.pushIndent();
+            out.printin("_jspx_resourceInjector.inject(");
+            out.print(tagHandlerVar);
+            out.printil(");");
+            out.popIndent();
+            out.printil("}");
 
             generateSetters(n, tagHandlerVar, handlerInfo, true);
 
