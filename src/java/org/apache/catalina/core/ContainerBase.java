@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.concurrent.locks.*;
 import javax.management.MBeanRegistration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -195,24 +196,24 @@ public abstract class ContainerBase
      */
     protected Loader loader = null;
 
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private Lock readLock = lock.readLock();
+    private Lock writeLock = lock.writeLock();
 
     /**
      * The Logger implementation with which this Container is associated.
      */
     protected Logger logger = null;
 
-
     /**
      * The Manager implementation with which this Container is associated.
      */
     protected Manager manager = null;
 
-
     /**
      * The cluster with which this Container is associated.
      */
     protected Cluster cluster = null;
-
 
     /**
      * The human-readable name of this Container.
@@ -243,12 +244,10 @@ public abstract class ContainerBase
      */
     protected Realm realm = null;
 
-
     /**
      * The resources DirContext object with which this Container is associated.
      */
     protected DirContext resources = null;
-
 
     /**
      * The string manager for this package.
@@ -351,14 +350,20 @@ public abstract class ContainerBase
      * no associated Loader, return the Loader associated with our parent
      * Container (if any); otherwise, return <code>null</code>.
      */
-    public synchronized Loader getLoader() {
+    public Loader getLoader() {
 
-        if (loader != null)
-            return (loader);
+        try {
+            readLock.lock();
+            if (loader != null)
+                return (loader);
+        } finally {
+            readLock.unlock();
+        }
+
         if (parent != null)
             return (parent.getLoader());
-        return (null);
 
+        return (null);
     }
 
 
@@ -367,34 +372,42 @@ public abstract class ContainerBase
      *
      * @param loader The newly associated loader
      */
-    public synchronized void setLoader(Loader loader) {
+    public void setLoader(Loader loader) {
 
-        // Change components if necessary
-        Loader oldLoader = this.loader;
-        if (oldLoader == loader)
-            return;
-        this.loader = loader;
+        Loader oldLoader;
 
-        // Stop the old component if necessary
-        if (started && (oldLoader != null) &&
-            (oldLoader instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) oldLoader).stop();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setLoader: stop: ", e);
+        try {
+	    writeLock.lock();
+
+            // Change components if necessary
+            oldLoader = this.loader;
+            if (oldLoader == loader)
+                return;
+            this.loader = loader;
+
+            // Stop the old component if necessary
+            if (started && (oldLoader != null) &&
+                    (oldLoader instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) oldLoader).stop();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setLoader: stop: ", e);
+                }
             }
-        }
 
-        // Start the new component if necessary
-        if (loader != null)
-            loader.setContainer(this);
-        if (started && (loader != null) &&
-            (loader instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) loader).start();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setLoader: start: ", e);
+            // Start the new component if necessary
+            if (loader != null)
+                loader.setContainer(this);
+            if (started && (loader != null) &&
+                (loader instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) loader).start();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setLoader: start: ", e);
+                }
             }
+        } finally {
+	    writeLock.unlock();
         }
 
         // Report this property change to interested listeners
@@ -408,14 +421,20 @@ public abstract class ContainerBase
      * no associated Logger, return the Logger associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public synchronized Logger getLogger() {
+    public Logger getLogger() {
 
-        if (logger != null)
-            return (logger);
+        try {
+            readLock.lock();
+            if (logger != null)
+                return (logger);
+        } finally {
+            readLock.unlock();
+        }
+
         if (parent != null)
             return (parent.getLogger());
-        return (null);
 
+        return (null);
     }
 
 
@@ -424,35 +443,42 @@ public abstract class ContainerBase
      *
      * @param logger The newly associated Logger
      */
-    public synchronized void setLogger(Logger logger) {
+    public void setLogger(Logger logger) {
 
-        // Change components if necessary
-        Logger oldLogger = this.logger;
-        if (oldLogger == logger)
-            return;
-        this.logger = logger;
+        Logger oldLogger;
 
-        // Stop the old component if necessary
-        if (started && (oldLogger != null) &&
-            (oldLogger instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) oldLogger).stop();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setLogger: stop: ", e);
+        try {
+            writeLock.lock();
+            // Change components if necessary
+            oldLogger = this.logger;
+            if (oldLogger == logger)
+                return;
+            this.logger = logger;
+
+            // Stop the old component if necessary
+            if (started && (oldLogger != null) &&
+                    (oldLogger instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) oldLogger).stop();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setLogger: stop: ", e);
+                }
             }
-        }
 
         
-        // Start the new component if necessary
-        if (logger != null)
-            logger.setContainer(this);
-        if (started && (logger != null) &&
-            (logger instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) logger).start();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setLogger: start: ", e);
+            // Start the new component if necessary
+            if (logger != null)
+                logger.setContainer(this);
+            if (started && (logger != null) &&
+                (logger instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) logger).start();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setLogger: start: ", e);
+                }
             }
+        } finally {
+            writeLock.unlock();
         }
 
         // Report this property change to interested listeners
@@ -466,14 +492,20 @@ public abstract class ContainerBase
      * no associated Manager, return the Manager associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public synchronized Manager getManager() {
+    public Manager getManager() {
 
-        if (manager != null)
-            return (manager);
+        try {
+            readLock.lock();
+            if (manager != null)
+                return (manager);
+        } finally {
+            readLock.unlock();
+        }
+
         if (parent != null)
             return (parent.getManager());
-        return (null);
 
+        return (null);
     }
 
 
@@ -482,39 +514,45 @@ public abstract class ContainerBase
      *
      * @param manager The newly associated Manager
      */
-    public synchronized void setManager(Manager manager) {
+    public void setManager(Manager manager) {
 
-        // Change components if necessary
-        Manager oldManager = this.manager;
-        if (oldManager == manager)
-            return;
-        this.manager = manager;
+        Manager oldManager;
 
-        // Stop the old component if necessary
-        if (started && (oldManager != null) &&
-            (oldManager instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) oldManager).stop();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setManager: stop: ", e);
+        try {
+            writeLock.lock();
+            // Change components if necessary
+            oldManager = this.manager;
+            if (oldManager == manager)
+                return;
+            this.manager = manager;
+
+            // Stop the old component if necessary
+            if (started && (oldManager != null) &&
+                    (oldManager instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) oldManager).stop();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setManager: stop: ", e);
+                }
             }
-        }
 
-        // Start the new component if necessary
-        if (manager != null)
-            manager.setContainer(this);
-        if (started && (manager != null) &&
-            (manager instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) manager).start();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setManager: start: ", e);
+            // Start the new component if necessary
+            if (manager != null)
+                manager.setContainer(this);
+            if (started && (manager != null) &&
+                    (manager instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) manager).start();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setManager: start: ", e);
+                }
             }
+        } finally {
+            writeLock.unlock();
         }
 
         // Report this property change to interested listeners
         support.firePropertyChange("manager", oldManager, this.manager);
-
     }
 
 
@@ -531,9 +569,15 @@ public abstract class ContainerBase
      * no associated Cluster, return the Cluster associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public synchronized Cluster getCluster() {
-        if (cluster != null)
-            return (cluster);
+    public Cluster getCluster() {
+
+        try {
+            readLock.lock();
+            if (cluster != null)
+                return (cluster);
+        } finally {
+            readLock.unlock();
+        }
 
         if (parent != null)
             return (parent.getCluster());
@@ -547,34 +591,42 @@ public abstract class ContainerBase
      *
      * @param cluster The newly associated Cluster
      */
-    public synchronized void setCluster(Cluster cluster) {
-        // Change components if necessary
-        Cluster oldCluster = this.cluster;
-        if (oldCluster == cluster)
-            return;
-        this.cluster = cluster;
+    public void setCluster(Cluster cluster) {
 
-        // Stop the old component if necessary
-        if (started && (oldCluster != null) &&
-            (oldCluster instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) oldCluster).stop();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setCluster: stop: ", e);
+        Cluster oldCluster;
+
+        try {
+            writeLock.lock();
+            // Change components if necessary
+            oldCluster = this.cluster;
+            if (oldCluster == cluster)
+                return;
+            this.cluster = cluster;
+
+            // Stop the old component if necessary
+            if (started && (oldCluster != null) &&
+                    (oldCluster instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) oldCluster).stop();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setCluster: stop: ", e);
+                }
             }
-        }
 
-        // Start the new component if necessary
-        if (cluster != null)
-            cluster.setContainer(this);
+            // Start the new component if necessary
+            if (cluster != null)
+                cluster.setContainer(this);
 
-        if (started && (cluster != null) &&
-            (cluster instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) cluster).start();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setCluster: start: ", e);
+            if (started && (cluster != null) &&
+                    (cluster instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) cluster).start();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setCluster: start: ", e);
+                }
             }
+        } finally {
+            writeLock.unlock();
         }
 
         // Report this property change to interested listeners
@@ -590,7 +642,6 @@ public abstract class ContainerBase
     public String getName() {
 
         return (name);
-
     }
 
 
@@ -620,7 +671,6 @@ public abstract class ContainerBase
     public Container getParent() {
 
         return (parent);
-
     }
 
 
@@ -640,7 +690,6 @@ public abstract class ContainerBase
         Container oldParent = this.parent;
         this.parent = container;
         support.firePropertyChange("parent", oldParent, this.parent);
-
     }
 
 
@@ -656,7 +705,6 @@ public abstract class ContainerBase
             return (parent.getParentClassLoader());
         }
         return (ClassLoader.getSystemClassLoader());
-
     }
 
 
@@ -674,7 +722,6 @@ public abstract class ContainerBase
         this.parentClassLoader = parent;
         support.firePropertyChange("parentClassLoader", oldParentClassLoader,
                                    this.parentClassLoader);
-
     }
 
 
@@ -685,7 +732,6 @@ public abstract class ContainerBase
     public Pipeline getPipeline() {
 
         return (this.pipeline);
-
     }
 
 
@@ -694,14 +740,19 @@ public abstract class ContainerBase
      * no associated Realm, return the Realm associated with our parent
      * Container (if any); otherwise return <code>null</code>.
      */
-    public synchronized Realm getRealm() {
+    public Realm getRealm() {
+        try {
+            readLock.lock();
+            if (realm != null)
+                return (realm);
+        } finally {
+            readLock.unlock();
+        }
 
-        if (realm != null)
-            return (realm);
         if (parent != null)
             return (parent.getRealm());
-        return (null);
 
+        return (null);
     }
 
 
@@ -710,39 +761,45 @@ public abstract class ContainerBase
      *
      * @param realm The newly associated Realm
      */
-    public synchronized void setRealm(Realm realm) {
+    public void setRealm(Realm realm) {
 
-        // Change components if necessary
-        Realm oldRealm = this.realm;
-        if (oldRealm == realm)
-            return;
-        this.realm = realm;
+        Realm oldRealm;
 
-        // Stop the old component if necessary
-        if (started && (oldRealm != null) &&
-            (oldRealm instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) oldRealm).stop();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setRealm: stop: ", e);
+        try {
+            writeLock.lock();
+            // Change components if necessary
+            oldRealm = this.realm;
+            if (oldRealm == realm)
+                return;
+            this.realm = realm;
+
+            // Stop the old component if necessary
+            if (started && (oldRealm != null) &&
+                    (oldRealm instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) oldRealm).stop();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setRealm: stop: ", e);
+                }
             }
-        }
 
-        // Start the new component if necessary
-        if (realm != null)
-            realm.setContainer(this);
-        if (started && (realm != null) &&
-            (realm instanceof Lifecycle)) {
-            try {
-                ((Lifecycle) realm).start();
-            } catch (LifecycleException e) {
-                log.error("ContainerBase.setRealm: start: ", e);
+            // Start the new component if necessary
+            if (realm != null)
+                realm.setContainer(this);
+            if (started && (realm != null) &&
+                    (realm instanceof Lifecycle)) {
+                try {
+                    ((Lifecycle) realm).start();
+                } catch (LifecycleException e) {
+                    log.error("ContainerBase.setRealm: start: ", e);
+                }
             }
+        } finally {
+            writeLock.unlock();
         }
 
         // Report this property change to interested listeners
         support.firePropertyChange("realm", oldRealm, this.realm);
-
     }
 
 
@@ -752,13 +809,20 @@ public abstract class ContainerBase
       * resources associated with our parent Container (if any); otherwise
       * return <code>null</code>.
      */
-    public synchronized DirContext getResources() {
-        if (resources != null)
-            return (resources);
+    public DirContext getResources() {
+
+        try {
+            readLock.lock();
+            if (resources != null)
+                return (resources);
+        } finally {
+            readLock.unlock();
+        }
+
         if (parent != null)
             return (parent.getResources());
-        return (null);
 
+        return (null);
     }
 
 
@@ -768,23 +832,31 @@ public abstract class ContainerBase
      *
      * @param resources The newly associated DirContext
      */
-    public synchronized void setResources(DirContext resources) {
+    public void setResources(DirContext resources) {
         // Called from StandardContext.setResources()
         //              <- StandardContext.start() 
         //              <- ContainerBase.addChildInternal() 
 
         // Change components if necessary
-        DirContext oldResources = this.resources;
-        if (oldResources == resources)
-            return;
-        Hashtable env = new Hashtable();
-        if (getParent() != null)
-            env.put(ProxyDirContext.HOST, getParent().getName());
-        env.put(ProxyDirContext.CONTEXT, getName());
-        this.resources = new ProxyDirContext(env, resources);
-        // Report this property change to interested listeners
-        support.firePropertyChange("resources", oldResources, this.resources);
+        DirContext oldResources;
 
+        try {
+            writeLock.lock();
+            oldResources = this.resources;
+            if (oldResources == resources)
+                return;
+            Hashtable env = new Hashtable();
+            if (getParent() != null)
+                env.put(ProxyDirContext.HOST, getParent().getName());
+            env.put(ProxyDirContext.CONTEXT, getName());
+            this.resources = new ProxyDirContext(env, resources);
+            // Report this property change to interested listeners
+        } finally {
+            writeLock.unlock();
+        }
+
+        support.firePropertyChange("resources", oldResources,
+                                   this.resources);
     }
 
 
@@ -914,7 +986,6 @@ public abstract class ContainerBase
                 new ContainerListener[listeners.size()];
             return ((ContainerListener[]) listeners.toArray(results));
         }
-
     }
 
 
@@ -937,7 +1008,6 @@ public abstract class ContainerBase
         throws IOException, ServletException {
 
         pipeline.invoke(request, response);
-
     }
 
 
@@ -972,7 +1042,6 @@ public abstract class ContainerBase
         fireContainerEvent(REMOVE_CHILD_EVENT, child);
         
         // child.setParent(null);
-
     }
 
 
@@ -986,7 +1055,6 @@ public abstract class ContainerBase
         synchronized (listeners) {
             listeners.remove(listener);
         }
-
     }
 
 
@@ -998,7 +1066,6 @@ public abstract class ContainerBase
     public void removePropertyChangeListener(PropertyChangeListener listener) {
 
         support.removePropertyChangeListener(listener);
-
     }
 
 
@@ -1013,7 +1080,6 @@ public abstract class ContainerBase
     public void addLifecycleListener(LifecycleListener listener) {
 
         lifecycle.addLifecycleListener(listener);
-
     }
 
 
@@ -1024,7 +1090,6 @@ public abstract class ContainerBase
     public LifecycleListener[] findLifecycleListeners() {
 
         return lifecycle.findLifecycleListeners();
-
     }
 
 
@@ -1036,7 +1101,6 @@ public abstract class ContainerBase
     public void removeLifecycleListener(LifecycleListener listener) {
 
         lifecycle.removeLifecycleListener(listener);
-
     }
 
 
@@ -1046,68 +1110,73 @@ public abstract class ContainerBase
      * @exception LifecycleException if this component detects a fatal error
      *  that prevents it from being started
      */
-    public synchronized void start() throws LifecycleException {
+    public void start() throws LifecycleException {
 
-        // Validate and update our current component state
-        if (started) {
-            if (log.isInfoEnabled()) {
-                log.info(sm.getString("containerBase.alreadyStarted",
-                                      logName()));
+        try {
+            writeLock.lock();
+            // Validate and update our current component state
+            if (started) {
+                if (log.isInfoEnabled()) {
+                    log.info(sm.getString("containerBase.alreadyStarted",
+                                          logName()));
+                }
+                return;
             }
-            return;
-        }
         
-        if( logger instanceof LoggerBase ) {
-            LoggerBase lb=(LoggerBase)logger;
-            if( lb.getObjectName()==null ) {
-                ObjectName lname=lb.createObjectName();
-                try {
-                    Registry.getRegistry().registerComponent(lb, lname, null);
-                } catch( Exception ex ) {
-                    log.error( "Can't register logger " + lname, ex);
+            if( logger instanceof LoggerBase ) {
+                LoggerBase lb=(LoggerBase)logger;
+                if( lb.getObjectName()==null ) {
+                    ObjectName lname=lb.createObjectName();
+                    try {
+                        Registry.getRegistry().registerComponent(lb, lname,
+                                                                 null);
+                    } catch( Exception ex ) {
+                        log.error( "Can't register logger " + lname, ex);
+                    }
                 }
             }
-        }
         
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
 
-        started = true;
+            started = true;
 
-        // Start our subordinate components, if any
-        if ((loader != null) && (loader instanceof Lifecycle))
-            ((Lifecycle) loader).start();
-        if ((logger != null) && (logger instanceof Lifecycle))
-            ((Lifecycle) logger).start();
-        if ((manager != null) && (manager instanceof Lifecycle))
-            ((Lifecycle) manager).start();
-        if ((cluster != null) && (cluster instanceof Lifecycle))
-            ((Lifecycle) cluster).start();
-        if ((realm != null) && (realm instanceof Lifecycle))
-            ((Lifecycle) realm).start();
-        if ((resources != null) && (resources instanceof Lifecycle))
-            ((Lifecycle) resources).start();
+            // Start our subordinate components, if any
+            if ((loader != null) && (loader instanceof Lifecycle))
+                ((Lifecycle) loader).start();
+            if ((logger != null) && (logger instanceof Lifecycle))
+                ((Lifecycle) logger).start();
+            if ((manager != null) && (manager instanceof Lifecycle))
+                ((Lifecycle) manager).start();
+            if ((cluster != null) && (cluster instanceof Lifecycle))
+                ((Lifecycle) cluster).start();
+            if ((realm != null) && (realm instanceof Lifecycle))
+                ((Lifecycle) realm).start();
+            if ((resources != null) && (resources instanceof Lifecycle))
+                ((Lifecycle) resources).start();
 
-        // Start our child containers, if any
-        Container children[] = findChildren();
-        for (int i = 0; i < children.length; i++) {
-            if (children[i] instanceof Lifecycle)
-                ((Lifecycle) children[i]).start();
+            // Start our child containers, if any
+            Container children[] = findChildren();
+            for (int i = 0; i < children.length; i++) {
+                if (children[i] instanceof Lifecycle)
+                    ((Lifecycle) children[i]).start();
+            }
+
+            // Start the Valves in our pipeline (including the basic), if any
+            if (pipeline instanceof Lifecycle)
+                ((Lifecycle) pipeline).start();
+
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(START_EVENT, null);
+
+            // Start our thread
+            threadStart();
+
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
+        } finally {
+            writeLock.unlock();
         }
-
-        // Start the Valves in our pipeline (including the basic), if any
-        if (pipeline instanceof Lifecycle)
-            ((Lifecycle) pipeline).start();
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(START_EVENT, null);
-
-        // Start our thread
-        threadStart();
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-
     }
 
 
@@ -1117,77 +1186,83 @@ public abstract class ContainerBase
      * @exception LifecycleException if this component detects a fatal error
      *  that needs to be reported
      */
-    public synchronized void stop() throws LifecycleException {
+    public void stop() throws LifecycleException {
 
-        // Validate and update our current component state
-        if (!started) {
-            if (log.isInfoEnabled()) {
-                log.info(sm.getString("containerBase.notStarted", logName()));
+        try {
+            writeLock.lock();
+            // Validate and update our current component state
+            if (!started) {
+                if (log.isInfoEnabled()) {
+                    log.info(sm.getString("containerBase.notStarted",
+                                          logName()));
+                }
+                return;
             }
-            return;
-        }
 
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
 
-        // Stop our thread
-        threadStop();
+            // Stop our thread
+            threadStop();
 
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        started = false;
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+            started = false;
 
-        // Stop the Valves in our pipeline (including the basic), if any
-        if (pipeline instanceof Lifecycle) {
-            ((Lifecycle) pipeline).stop();
-        }
+            // Stop the Valves in our pipeline (including the basic), if any
+            if (pipeline instanceof Lifecycle) {
+                ((Lifecycle) pipeline).stop();
+            }
 
-        // Stop our child containers, if any
-        Container children[] = findChildren();
-        for (int i = 0; i < children.length; i++) {
-            if (children[i] instanceof Lifecycle)
-                ((Lifecycle) children[i]).stop();
-        }
-        // Remove children - so next start can work
-        children = findChildren();
-        for (int i = 0; i < children.length; i++) {
-            removeChild(children[i]);
-        }
+            // Stop our child containers, if any
+            Container children[] = findChildren();
+            for (int i = 0; i < children.length; i++) {
+                if (children[i] instanceof Lifecycle)
+                    ((Lifecycle) children[i]).stop();
+            }
+            // Remove children - so next start can work
+            children = findChildren();
+            for (int i = 0; i < children.length; i++) {
+                removeChild(children[i]);
+            }
 
-        // Stop our subordinate components, if any
-        if ((resources != null) && (resources instanceof Lifecycle)) {
-            ((Lifecycle) resources).stop();
-        }
-        if ((realm != null) && (realm instanceof Lifecycle)) {
-            ((Lifecycle) realm).stop();
-        }
-        if ((cluster != null) && (cluster instanceof Lifecycle)) {
-            ((Lifecycle) cluster).stop();
-        }
-        if ((manager != null) && (manager instanceof Lifecycle)) {
-            ((Lifecycle) manager).stop();
-        }
-        if ((logger != null) && (logger instanceof Lifecycle)) {
-            ((Lifecycle) logger).stop();
-        }
-        if ((loader != null) && (loader instanceof Lifecycle)) {
-            ((Lifecycle) loader).stop();
-        }
+            // Stop our subordinate components, if any
+            if ((resources != null) && (resources instanceof Lifecycle)) {
+                ((Lifecycle) resources).stop();
+            }
+            if ((realm != null) && (realm instanceof Lifecycle)) {
+                ((Lifecycle) realm).stop();
+            }
+            if ((cluster != null) && (cluster instanceof Lifecycle)) {
+                ((Lifecycle) cluster).stop();
+            }
+            if ((manager != null) && (manager instanceof Lifecycle)) {
+                ((Lifecycle) manager).stop();
+            }
+            if ((logger != null) && (logger instanceof Lifecycle)) {
+                ((Lifecycle) logger).stop();
+            }
+            if ((loader != null) && (loader instanceof Lifecycle)) {
+                ((Lifecycle) loader).stop();
+            }
 
-        if( logger instanceof LoggerBase ) {
-            LoggerBase lb=(LoggerBase)logger;
-            if( lb.getObjectName()!=null ) {
-                try {
-                    Registry.getRegistry().unregisterComponent(lb.getObjectName());
-                } catch( Exception ex ) {
-                    log.error( "Can't unregister logger " + lb.getObjectName(), ex);
+            if( logger instanceof LoggerBase ) {
+                LoggerBase lb=(LoggerBase)logger;
+                if( lb.getObjectName()!=null ) {
+                    try {
+                        Registry.getRegistry().unregisterComponent(lb.getObjectName());
+                    } catch( Exception ex ) {
+                        log.error("Can't unregister logger "
+                                  + lb.getObjectName(), ex);
+                    }
                 }
             }
+
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
+        } finally {
+            writeLock.unlock();
         }
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-
     }
 
     /** Init method, part of the MBean lifecycle.
