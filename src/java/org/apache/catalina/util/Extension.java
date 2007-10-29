@@ -57,7 +57,7 @@ import java.util.jar.Manifest;
  * @author Craig McClanahan
  * @author Justyna Horwat
  * @author Greg Murray
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:16 $
  */
 
 public final class Extension {
@@ -77,7 +77,9 @@ public final class Extension {
     }
 
     public void setExtensionName(String extensionName) {
-        this.extensionName = extensionName;
+        if (extensionName != null) {
+            this.extensionName = extensionName.trim();
+        }
     }
 
     /**
@@ -144,7 +146,9 @@ public final class Extension {
     }
 
     public void setImplementationVersion(String implementationVersion) {
-        this.implementationVersion = implementationVersion;
+        if (implementationVersion != null) {
+            this.implementationVersion = implementationVersion.trim();
+        }
     }
 
 
