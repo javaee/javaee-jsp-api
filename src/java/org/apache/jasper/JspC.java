@@ -116,6 +116,9 @@ public class JspC implements Options {
     private static final String SWITCH_DIE = "-die";
     private static final String SWITCH_SMAP = "-smap";
     private static final String SWITCH_DUMP_SMAP = "-dumpsmap";
+    // START PWC 1.1 6281941
+    private static final String SWITCH_SOURCE = "-source";
+    // END PWC 1.1 6281941
     // START IASRI 4660687
     private static final String SWITCH_GENERATE_CLASSES = "-genclass";
     // END IASRI 4660687
@@ -159,6 +162,10 @@ public class JspC implements Options {
     private Vector extensions;
     private Vector pages = new Vector();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
+    
+    // START PWC 1.1 6281941
+    private String source;
+    // END PWC 1.1 6281941
 
     /**
      * The java file encoding.  Default
@@ -284,6 +291,10 @@ public class JspC implements Options {
                 smapSuppressed = false;
             } else if (tok.equals(SWITCH_DUMP_SMAP)) {
                 smapDumped = true;
+            // START PWC 1.1 6281941
+            } else if (tok.equals(SWITCH_SOURCE)) {
+                source = nextArg();
+            // END PWC 1.1 6281941
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -498,6 +509,12 @@ public class JspC implements Options {
     public String getCompiler() {
         return compiler;
     }
+
+    // START PWC 1.1 6281941
+    public String getSource() {
+        return source;
+    }
+    // END PWC 1.1 6281941
 
     public void setCompiler(String c) {
         compiler=c;

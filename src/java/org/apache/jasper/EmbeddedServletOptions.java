@@ -170,6 +170,10 @@ public final class EmbeddedServletOptions implements Options {
      */
     private boolean xpoweredBy;
 
+    // START PWC 1.1 6281941
+    private String source;
+    // END PWC 1.1 6281941
+
     // BEGIN S1AS 6181923
     private boolean usePrecompiled;
     // END S1AS 6181923
@@ -308,6 +312,12 @@ public final class EmbeddedServletOptions implements Options {
     public String getCompiler() {
         return compiler;
     }
+
+    // START PWC 1.1 6281941
+    public String getSource() {
+        return source;
+    }
+    // END PWC 1.1 6281941
 
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return errorOnUseBeanInvalidClassAttribute;
@@ -573,6 +583,10 @@ public final class EmbeddedServletOptions implements Options {
 					   scratchDir.getAbsolutePath()));
                                   
         this.compiler = config.getInitParameter("compiler");
+
+        // START PWC 1.1 6281941
+        this.source = config.getInitParameter("source");
+        // END PWC 1.1 6281941
 
         String javaEncoding = config.getInitParameter("javaEncoding");
         if (javaEncoding != null) {
