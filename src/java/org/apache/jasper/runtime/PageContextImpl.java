@@ -914,13 +914,13 @@ public class PageContextImpl extends PageContext {
             // to get a stack trace for the real problem
             if (t instanceof IOException) throw (IOException)t;
             if (t instanceof ServletException) throw (ServletException)t;
-                if (t instanceof RuntimeException) throw (RuntimeException)t;
+            if (t instanceof RuntimeException) throw (RuntimeException)t;
 
             Throwable rootCause = null;
-                if (t instanceof JspException) {
-                    rootCause = ((JspException) t).getRootCause();
-                } else if (t instanceof ELException) {
-                    rootCause = t.getCause();
+            if (t instanceof JspException) {
+                rootCause = ((JspException) t).getRootCause();
+            } else if (t instanceof ELException) {
+                rootCause = t.getCause();
             }
 
             if (rootCause != null) {
