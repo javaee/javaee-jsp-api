@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.12 $ $Date: 2006/04/26 17:38:34 $
+ * @version $Revision: 1.13 $ $Date: 2006/07/13 19:19:02 $
  */
 
 public class ErrorReportValve
@@ -491,6 +491,8 @@ public class ErrorReportValve
                 sb.append(RequestUtil.filter(stackTrace));
                 // END SJSAS 6387790
                 sb.append("</pre></p>");
+
+                /* GlassFish 823
                 // In case root cause is somehow heavily nested
                 try {
                     rootCause = (Throwable)PropertyUtils.getProperty
@@ -504,6 +506,10 @@ public class ErrorReportValve
                 } catch (java.lang.reflect.InvocationTargetException e) {
                     rootCause = null;
                 }
+                */
+                // START GlassFish 823
+                rootCause = rootCause.getCause();
+                // END GlassFish 823
             }
 
             sb.append("<p><b>");
