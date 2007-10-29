@@ -535,7 +535,7 @@ public class JspCompilationContext {
     // ==================== Manipulating the class ====================
 
     public Class load() 
-        throws JasperException, FileNotFoundException
+        throws JasperException
     {
         try {
             // START S1AS 6181923
