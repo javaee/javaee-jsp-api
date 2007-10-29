@@ -1349,7 +1349,7 @@ class Validator {
                     return null;
                 }
                 if (p == '\\') {
-                    if (c == '\\' || c == '$' || (c == '#' && acceptsPound)) {
+                    if (c == '\\' || c == '$' || (c == '#' && !acceptsPound)) {
                         buf.append(c);
                         p = ' ';
                     } else {
