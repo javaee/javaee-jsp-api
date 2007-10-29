@@ -71,6 +71,10 @@ import org.apache.commons.logging.LogConfigurationException;
 import com.sun.appserv.server.util.PreprocessorUtil;
 // END OF IASRI 4709374
 
+// START SJSAS 6258619
+import com.sun.appserv.ClassLoaderUtil;
+// END SJSAS 6258619
+
 /**
  * Specialized web application class loader.
  * <p>
@@ -106,7 +110,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2005/09/08 16:29:26 $
+ * @version $Revision: 1.6 $ $Date: 2005/09/28 00:24:06 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1603,6 +1607,10 @@ public class WebappClassLoader
          * ThreadDeath if the started flag has been set to FALSE.
          */
         IntrospectionUtils.clear();
+
+        // START SJSAS 6258619
+        ClassLoaderUtil.releaseLoader(this);
+        // END SJSAS 6258619
 
         started = false;
 

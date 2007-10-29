@@ -53,6 +53,10 @@ import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.servlet.JspCServletContext;
 import org.apache.tools.ant.AntClassLoader;
 
+// START SJSAS 6258619
+import com.sun.appserv.ClassLoaderUtil;
+// END SJSAS 6258619
+
 /**
  * Shell for the jspc compiler.  Handles all options associated with the
  * command line and creates compilation contexts which it then compiles
@@ -1070,6 +1074,9 @@ public class JspC implements Options {
             // START S1AS 5032338
             if (loader != null) {
                 LogFactory.release(loader);
+                // START SJSAS 6258619
+                ClassLoaderUtil.releaseLoader(loader);
+                // END SJSAS 6258619
             }
             // END S1AS 5032338
         }
