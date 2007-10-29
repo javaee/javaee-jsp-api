@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.34 $ $Date: 2006/10/06 01:29:06 $
+ * @version $Revision: 1.35 $ $Date: 2006/10/10 23:50:38 $
  */
 
 public class CoyoteRequest
@@ -649,6 +649,9 @@ public class CoyoteRequest
      */
     public void setContext(Context context) {
         this.context = context;
+        // START GlassFish 896
+        initSessionTracker();
+        // END GlassFish 896
     }
 
 
@@ -1667,7 +1670,7 @@ public class CoyoteRequest
      * @param value The associated value
      */
     public void setAttribute(String name, Object value) {
-	
+
         // Name cannot be null
         if (name == null)
             throw new IllegalArgumentException
@@ -1708,7 +1711,7 @@ public class CoyoteRequest
             coyoteRequest.setAttribute(name, value);
         }
         // END SJSAS 6231069
-        
+
         // Notify interested application event listeners
         Object listeners[] = context.getApplicationEventListeners();
         if ((listeners == null) || (listeners.length == 0))
@@ -3385,10 +3388,8 @@ public class CoyoteRequest
 
 
     // START GlassFish 896
-    protected void initSessionTracker() {
-        if (context != null) {
-            setAttribute(Globals.SESSION_TRACKER, sessionTracker);
-        }
+    private void initSessionTracker() {
+        attributes.put(Globals.SESSION_TRACKER, sessionTracker);
     }
     // END GlassFish 896
 

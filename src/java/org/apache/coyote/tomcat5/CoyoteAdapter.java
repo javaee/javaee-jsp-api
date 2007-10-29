@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.18 $ $Date: 2006/09/29 16:45:04 $
+ * @version $Revision: 1.19 $ $Date: 2006/10/03 16:05:26 $
  */
 
 public class CoyoteAdapter
@@ -412,9 +412,7 @@ public class CoyoteAdapter
         request.setContext(ctx);
         // END SJSAS 6253524
 
-        // START GlassFish 896
-        request.initSessionTracker();
-        // END GlassFish 896
+        response.setContext(ctx);
 
         request.setWrapper((Wrapper) request.getMappingData().wrapper);
 

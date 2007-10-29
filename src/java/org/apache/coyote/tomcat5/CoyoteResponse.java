@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.14 $ $Date: 2006/09/29 22:10:17 $
+ * @version $Revision: 1.15 $ $Date: 2006/10/05 00:02:19 $
  */
 
 public class CoyoteResponse
@@ -134,6 +134,12 @@ public class CoyoteResponse
      */
     protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
+
+
+    /**
+     * Associated context.
+     */
+    protected Context context = null;
 
 
     // ------------------------------------------------------------- Properties
@@ -198,7 +204,7 @@ public class CoyoteResponse
      * Return the Context within which this Request is being processed.
      */
     public Context getContext() {
-        return (request.getContext());
+        return context;
     }
 
     /**
@@ -210,7 +216,7 @@ public class CoyoteResponse
      * @param context The newly associated Context
      */
     public void setContext(Context context) {
-        request.setContext(context);
+        this.context = context;
     }
 
 
@@ -308,6 +314,7 @@ public class CoyoteResponse
      */
     public void recycle() {
 
+        context = null;
         outputBuffer.recycle();
         usingOutputStream = false;
         usingWriter = false;
