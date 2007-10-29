@@ -465,8 +465,7 @@ public class JDTJavaCompiler implements JavaCompiler {
         if (problemList.isEmpty()) {
             return null;
         }
-        return (JavacErrorDetail[])problemList.toArray();
-        
+        return problemList.toArray(new JavacErrorDetail[]{});
     }
     
 }
