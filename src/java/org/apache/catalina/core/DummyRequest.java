@@ -93,7 +93,7 @@ import org.apache.catalina.util.StringManager;
  * JSP precompilation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/11/07 22:39:57 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:34 $
  */
 
 public class DummyRequest
@@ -119,6 +119,14 @@ public class DummyRequest
 
     protected FilterChain filterChain = null;
     protected ValveContext valveContext = null;
+
+    // START CR 6415120
+    /**
+     * Whether or not access to resources in WEB-INF or META-INF needs to be
+     * checked.
+     */
+    protected boolean checkRestrictedResources = true;
+    // END CR 6415120
 
     // START PWC 4707989
     private String method;
@@ -332,6 +340,30 @@ public class DummyRequest
     public String getLocalName() { return null; }
     public int getLocalPort() { return -1; }
     public int getRemotePort() { return -1; }
+
+
+    // START CR 6415120
+    /**
+     * Set whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public void setCheckRestrictedResources(boolean check) {
+
+        this.checkRestrictedResources = check;
+
+    }
+
+    /**
+     * Return whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public boolean getCheckRestrictedResources() {
+
+        return this.checkRestrictedResources;
+
+    }
+    // END CR 6415120
+
 
     // START SJSAS 6346226
     /**

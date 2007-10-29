@@ -70,7 +70,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/03/01 18:17:50 $
+ * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:01 $
  */
 
 final class StandardContextValve
@@ -137,6 +137,9 @@ final class StandardContextValve
 
         // Disallow any direct access to resources under WEB-INF or META-INF
         HttpRequest hreq = (HttpRequest) request;
+        // START CR 6415120
+        if (request.getCheckRestrictedResources()) {
+        // END CR 6415120
         MessageBytes requestPathMB = hreq.getRequestPathMB();
         if ((requestPathMB.startsWithIgnoreCase("/META-INF/", 0))
             || (requestPathMB.equalsIgnoreCase("/META-INF"))
@@ -146,6 +149,9 @@ final class StandardContextValve
             notFound(requestURI, (HttpServletResponse) response.getResponse());
             return END_PIPELINE;
         }
+        // START CR 6415120
+        }
+        // END CR 6415120
 
         // Wait if we are reloading
         while (((StandardContext) container).getPaused()) {

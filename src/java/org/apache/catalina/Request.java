@@ -45,7 +45,7 @@ import javax.servlet.ServletRequest;
  * produce the corresponding <code>Response</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/11/07 22:39:57 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:19 $
  */
 
 public interface Request {
@@ -351,6 +351,22 @@ public interface Request {
      * @param port The server port
      */
     public void setServerPort(int port);
+
+
+    // START CR 6415120
+    /**
+     * Set whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public void setCheckRestrictedResources(boolean check);
+
+
+    /**
+     * Return whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public boolean getCheckRestrictedResources();
+    // END CR 6415120
 
 
     // START SJSAS 6346226

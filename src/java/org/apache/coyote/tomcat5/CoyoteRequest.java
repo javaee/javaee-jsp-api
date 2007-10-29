@@ -113,7 +113,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.20 $ $Date: 2006/03/12 01:27:09 $
+ * @version $Revision: 1.21 $ $Date: 2006/04/11 18:06:26 $
  */
 
 public class CoyoteRequest
@@ -411,7 +411,17 @@ public class CoyoteRequest
     /* CR 6309511
     protected Log log=null;
     */
+
     
+    // START CR 6415120
+    /**
+     * Whether or not access to resources in WEB-INF or META-INF needs to be
+     * checked.
+     */
+    protected boolean checkRestrictedResources = true;
+    // END CR 6415120
+
+
     /**
      * has findSession been called and returned null already
      */
@@ -983,6 +993,30 @@ public class CoyoteRequest
     public void setServerPort(int port) {
         coyoteRequest.setServerPort(port);
     }
+
+
+    // START CR 6415120
+    /**
+     * Set whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public void setCheckRestrictedResources(boolean check) {
+
+        this.checkRestrictedResources = check;
+
+    }
+
+
+    /**
+     * Return whether or not access to resources under WEB-INF or META-INF
+     * needs to be checked.
+     */
+    public boolean getCheckRestrictedResources() {
+
+        return this.checkRestrictedResources;
+
+    }
+    // END CR 6415120
 
 
     // ------------------------------------------------- ServletRequest Methods
