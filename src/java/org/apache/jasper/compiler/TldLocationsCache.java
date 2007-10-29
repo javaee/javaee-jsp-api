@@ -307,11 +307,13 @@ public class TldLocationsCache {
                 }
             } else {
                 is = ctxt.getResourceAsStream(WEB_XML);
+                /* SJSAS 6396582
                 if (is == null && log.isWarnEnabled()) {
                     log.warn(Localizer.getMessage(
                                             "jsp.error.internal.filenotfound",
                                             WEB_XML));
                 }
+                */
             }
 
             if (is == null) {
