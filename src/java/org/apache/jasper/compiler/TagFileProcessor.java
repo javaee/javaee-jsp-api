@@ -121,22 +121,36 @@ class TagFileProcessor {
         private Vector attributeVector;
         private Vector variableVector;
 
-        private static final String ATTR_NAME =
-            "the name attribute of the attribute directive";
-        private static final String VAR_NAME_GIVEN =
-            "the name-given attribute of the variable directive";
-        private static final String VAR_NAME_FROM =
-            "the name-from-attribute attribute of the variable directive";
-        private static final String VAR_ALIAS =
-            "the alias attribute of the variable directive";
-        private static final String TAG_DYNAMIC =
-            "the dynamic-attributes attribute of the tag directive";
-
-        private HashMap nameTable = new HashMap();
-        private HashMap nameFromTable = new HashMap();
+        private HashMap<String, NameEntry> nameTable =
+                    new HashMap<String, NameEntry>();
+        private HashMap<String, NameEntry> nameFromTable =
+                    new HashMap<String, NameEntry>();
 
         // The tag file's JSP version
         private Double jspVersionDouble;
+
+        private static enum Name {
+            ATTR_NAME(
+                "the name attribute of the attribute directive"),
+            VAR_NAME_GIVEN(
+                "the name-given attribute of the variable directive"),
+            VAR_NAME_FROM(
+                "the name-from-attribute attribute of the variable directive"),
+            VAR_ALIAS(
+                "the alias attribute of the variable directive"),
+            TAG_DYNAMIC(
+                "the dynamic-attributes attribute of the tag directive");
+
+            private String name;
+
+            String getName() {
+                return this.name;
+            }
+
+            Name(String name) {
+                this.name = name;
+            }
+        }
 
         public TagFileDirectiveVisitor(Compiler compiler,
                                        TagLibraryInfo tagLibInfo,
@@ -186,7 +200,7 @@ class TagFileProcessor {
             dynamicAttrsMapName = checkConflict(n, dynamicAttrsMapName,
                                                 "dynamic-attributes");
             if (dynamicAttrsMapName != null) {
-                checkUniqueName(dynamicAttrsMapName, TAG_DYNAMIC, n);
+                checkUniqueName(dynamicAttrsMapName, Name.TAG_DYNAMIC, n);
             }
             smallIcon = checkConflict(n, smallIcon, "small-icon");
             largeIcon = checkConflict(n, largeIcon, "large-icon");
@@ -326,7 +340,7 @@ class TagFileProcessor {
                                          expectedType,
                                          methodSignature);
             attributeVector.addElement(tagAttributeInfo);
-            checkUniqueName(attrName, ATTR_NAME, n, tagAttributeInfo);
+            checkUniqueName(attrName, Name.ATTR_NAME, n, tagAttributeInfo);
         }
 
         public void visit(Node.VariableDirective n) throws JasperException {
@@ -379,12 +393,12 @@ class TagFileProcessor {
 		 * denotes the name of the variable that is being aliased
 		 */
                 nameGiven = alias;
-                checkUniqueName(nameFromAttribute, VAR_NAME_FROM, n);
-                checkUniqueName(alias, VAR_ALIAS, n);
+                checkUniqueName(nameFromAttribute, Name.VAR_NAME_FROM, n);
+                checkUniqueName(alias, Name.VAR_ALIAS, n);
             }
             else {
                 // name-given specified
-                checkUniqueName(nameGiven, VAR_NAME_GIVEN, n);
+                checkUniqueName(nameGiven, Name.VAR_NAME_GIVEN, n);
             }
                 
             variableVector.addElement(new TagVariableInfo(
@@ -454,17 +468,17 @@ class TagFileProcessor {
         }
 
         static class NameEntry {
-            private String type;
+            private Name type;
             private Node node;
             private TagAttributeInfo attr;
 
-            NameEntry(String type, Node node, TagAttributeInfo attr) {
+            NameEntry(Name type, Node node, TagAttributeInfo attr) {
                 this.type = type;
                 this.node = node;
                 this.attr = attr;
             }
 
-            String getType() { return type;}
+            Name getType() { return type;}
             Node getNode() { return node; }
             TagAttributeInfo getTagAttributeInfo() { return attr; }
         }
@@ -484,24 +498,25 @@ class TagFileProcessor {
          * Also, 'name-from' attribute of a variable directive cannot have
          * the same value as that from another variable directive.
          */
-        private void checkUniqueName(String name, String type, Node n)
+        private void checkUniqueName(String name, Name type, Node n)
                 throws JasperException {
             checkUniqueName(name, type, n, null);
         }
 
-        private void checkUniqueName(String name, String type, Node n,
+        private void checkUniqueName(String name, Name type, Node n,
                                      TagAttributeInfo attr)
                 throws JasperException {
 
-            HashMap table = (VAR_NAME_FROM.equals(type))?
-                                            nameFromTable: nameTable;
-            NameEntry nameEntry = (NameEntry) table.get(name);
+            HashMap<String, NameEntry> table =
+                (type == Name.VAR_NAME_FROM)? nameFromTable: nameTable;
+            NameEntry nameEntry = table.get(name);
             if (nameEntry != null) {
-                if (!TAG_DYNAMIC.equals(type)
-                        || !TAG_DYNAMIC.equals(nameEntry.getType())) {
+                if (type != Name.TAG_DYNAMIC
+                        || nameEntry.getType() != Name.TAG_DYNAMIC) {
                     int line = nameEntry.getNode().getStart().getLineNumber();
                     err.jspError(n, "jsp.error.tagfile.nameNotUnique",
-                         type, nameEntry.getType(), Integer.toString(line));
+                        type.getName(), nameEntry.getType().getName(),
+                        Integer.toString(line));
                 }
             } else {
                 table.put(name, new NameEntry(type, n, attr));
@@ -516,9 +531,8 @@ class TagFileProcessor {
 	    Iterator iter = nameFromTable.keySet().iterator();
             while (iter.hasNext()) {
                 String nameFrom = (String) iter.next();
-                NameEntry nameEntry = (NameEntry) nameTable.get(nameFrom);
-                NameEntry nameFromEntry =
-                    (NameEntry) nameFromTable.get(nameFrom);
+                NameEntry nameEntry = nameTable.get(nameFrom);
+                NameEntry nameFromEntry = nameFromTable.get(nameFrom);
                 Node nameFromNode = nameFromEntry.getNode();
                 if (nameEntry == null) {
                     err.jspError(nameFromNode,
