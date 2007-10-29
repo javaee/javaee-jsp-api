@@ -60,4 +60,19 @@ public final class Constants {
     // S1AS 4703023
     public static final int DEFAULT_MAX_DISPATCH_DEPTH = 20;
 
+    
+    // START SJSAS 6328909
+    /**
+     * The default response-type
+     */
+    public final static String DEFAULT_RESPONSE_TYPE = 
+            "text/html; charset=iso-8859-1";
+
+
+    /**
+     * The forced response-type
+     */
+    public final static String FORCED_RESPONSE_TYPE = 
+           "text/html; charset=iso-8859-1";
+    // END SJSAS 6328909
 }
