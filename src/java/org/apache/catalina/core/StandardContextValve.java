@@ -73,7 +73,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/04/24 16:36:13 $
+ * @version $Revision: 1.13 $ $Date: 2006/10/19 22:01:39 $
  */
 
 final class StandardContextValve
@@ -267,12 +267,13 @@ final class StandardContextValve
         Object instances[] = 
             ((Context) container).getApplicationEventListeners();
 
-        ServletRequestEvent event = new ServletRequestEvent
-                    (((StandardContext) container).getServletContext(), 
-                     request.getRequest());
-
         if ((instances !=null ) &&
                 (instances.length > 0)) {
+
+            ServletRequestEvent event = new ServletRequestEvent
+                (((StandardContext) container).getServletContext(), 
+                request.getRequest());
+
             // create post-service event
             for (int i = 0; i < instances.length; i++) {
                 if (instances[i] == null)
