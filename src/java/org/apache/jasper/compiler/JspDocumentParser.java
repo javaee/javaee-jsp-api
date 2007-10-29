@@ -530,7 +530,7 @@ class JspDocumentParser
                 } else {
                     column++;
                 }
-                if (lastCh == '$' && ch == '{') {
+                if ((lastCh == '$' || lastCh == '#') && ch == '{') {
                     if (ttext.size() > 0) {
                         new Node.TemplateText(
                             ttext.toString(),
@@ -541,7 +541,7 @@ class JspDocumentParser
                         //account for the '${' that we've already parsed
                         startMark = new Mark(ctxt, path, line, column - 2);
                     }
-                    ttext.write('$');
+                    ttext.write(lastCh);
                     ttext.write('{');
                     // following "${" to first unquoted "}"
                     i++;
@@ -553,7 +553,7 @@ class JspDocumentParser
                             throw new SAXParseException(
                                 Localizer.getMessage(
                                     "jsp.error.unterminated",
-                                    "${"),
+                                    lastCh=='$'? "${": "#{"),
                                 locator);
 
                         }
@@ -587,20 +587,20 @@ class JspDocumentParser
                         ttext.write(ch);
                         lastCh = ch;
                     }
-                } else if (lastCh == '\\' && ch == '$') {
-                    ttext.write('$');
+                } else if (lastCh == '\\' && (ch == '$' || ch == '#')) {
+                    ttext.write(ch);
                     ch = 0;  // Not start of EL anymore
                 } else {
-                    if (lastCh == '$' || lastCh == '\\') {
+                    if (lastCh == '$' || lastCh == '#' || lastCh == '\\') {
                         ttext.write(lastCh);
                     }
-                    if (ch != '$' && ch != '\\') {
+                    if (ch != '$' && ch != '#' && ch != '\\') {
                         ttext.write(ch);
                     }
                 }
                 lastCh = ch;
             }
-            if (lastCh == '$' || lastCh == '\\') {
+            if (lastCh == '$' || lastCh == '#' || lastCh == '\\') {
                 ttext.write(lastCh);
             }
             if (ttext.size() > 0) {
