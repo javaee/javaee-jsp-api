@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -60,17 +60,24 @@ import com.sun.el.util.MessageFactory;
  */
 public final class ExpressionBuilder implements NodeVisitor {
 
-     private static final int CACHE_MAX_SIZE = 4096;
      private static final int CACHE_INIT_SIZE = 256;
-     private static final Map cache = Collections.synchronizedMap(
-         new LinkedHashMap(CACHE_INIT_SIZE, 0.75f, true) {
+     private static final ConcurrentHashMap cache = 
+         new ConcurrentHashMap(CACHE_INIT_SIZE) {
+             @Override
              public Object put(Object key, Object value) {
                  SoftReference ref = new SoftReference(value);
                  SoftReference prev = (SoftReference)super.put(key, ref);
-                 if (prev != null) return prev.get();
-                 return null;                
+                 return prev == null? null: prev.get();
              }
-             
+ 
+             @Override
+             public Object putIfAbsent(Object key, Object value) {
+                 SoftReference ref = new SoftReference(value);
+                 SoftReference prev = (SoftReference)super.putIfAbsent(key, ref);
+                 return prev == null? null: prev.get();
+             }
+ 
+             @Override
              public Object get(Object key) {
                  SoftReference ref = (SoftReference)super.get(key);
                  if (ref != null && ref.get() == null) {
@@ -78,11 +85,7 @@ public final class ExpressionBuilder implements NodeVisitor {
                  }
                  return ref != null ? ref.get() : null;
              }
-             
-             protected boolean removeEldestEntry(Map.Entry eldest) {
-                 return size() > CACHE_MAX_SIZE;
-             }
-         });
+         };
 
     private FunctionMapper fnMapper;
 
@@ -152,7 +155,7 @@ public final class ExpressionBuilder implements NodeVisitor {
                         || n instanceof AstDynamicExpression) {
                     n = n.jjtGetChild(0);
                 }
-                cache.put(expr, n);
+                cache.putIfAbsent(expr, n);
             } catch (ParseException pe) {
                 throw new ELException("Error Parsing: " + expr, pe);
             }
