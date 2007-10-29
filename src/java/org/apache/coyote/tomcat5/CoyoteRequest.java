@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.56 $ $Date: 2007/03/26 17:17:07 $
+ * @version $Revision: 1.57 $ $Date: 2007/03/28 19:34:19 $
  */
 
 public class CoyoteRequest
@@ -210,6 +210,9 @@ public class CoyoteRequest
 
     /**
      * The set of SimpleDateFormat formats to use in getDateHeader().
+     *
+     * Notice that because SimpleDateFormat is not thread-safe, we can't
+     * declare formats[] as a static variable.
      */
     private static ThreadLocal staticDateFormats = new ThreadLocal() {
         protected Object initialValue() {
