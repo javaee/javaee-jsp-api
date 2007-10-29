@@ -150,6 +150,7 @@ public final class Request {
     private long contentLength = -1;
     private MessageBytes contentTypeMB = null;
     private String charEncoding = null;
+    private boolean charEncodingParsed = false;
     private Cookies cookies = new Cookies(headers);
     private Parameters parameters = new Parameters();
 
@@ -291,12 +292,14 @@ public final class Request {
      */
     public String getCharacterEncoding() {
 
-        if (charEncoding != null)
+        if (charEncoding != null || charEncodingParsed) {
             return charEncoding;
+        }
 
         charEncoding = ContentType.getCharsetFromContentType(getContentType());
-        return charEncoding;
+        charEncodingParsed = true;
 
+        return charEncoding;
     }
 
 
@@ -490,6 +493,7 @@ public final class Request {
 	contentLength = -1;
         contentTypeMB = null;
         charEncoding = null;
+        charEncodingParsed = false;
         headers.recycle();
         serverNameMB.recycle();
         serverPort=-1;
