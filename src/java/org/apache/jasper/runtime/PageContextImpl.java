@@ -283,23 +283,23 @@ public class PageContextImpl extends PageContext {
     private Object doGetAttribute(String name, int scope){
         switch (scope) {
             case PAGE_SCOPE:
-            return attributes.get(name);
+                return attributes.get(name);
 
             case REQUEST_SCOPE:
-            return request.getAttribute(name);
+                return request.getAttribute(name);
 
             case SESSION_SCOPE:
-            if (session == null) {
-                throw new IllegalStateException(
+                if (session == null) {
+                    throw new IllegalStateException(
                         Localizer.getMessage("jsp.error.page.noSession"));
-            }
-            return session.getAttribute(name);
+                }
+                return session.getAttribute(name);
 
             case APPLICATION_SCOPE:
-            return context.getAttribute(name);
+                return context.getAttribute(name);
 
             default:
-            throw new IllegalArgumentException("Invalid scope");
+                throw new IllegalArgumentException("Invalid scope");
         }
     }
 
@@ -354,27 +354,27 @@ public class PageContextImpl extends PageContext {
         if (o != null) {
             switch (scope) {
             case PAGE_SCOPE:
-            attributes.put(name, o);
-            break;
+                attributes.put(name, o);
+                break;
 
             case REQUEST_SCOPE:
-            request.setAttribute(name, o);
-            break;
+                request.setAttribute(name, o);
+                break;
 
             case SESSION_SCOPE:
-            if (session == null) {
-                throw new IllegalStateException(
+                if (session == null) {
+                    throw new IllegalStateException(
                         Localizer.getMessage("jsp.error.page.noSession"));
-            }
-            session.setAttribute(name, o);
-            break;
+                }
+                session.setAttribute(name, o);
+                break;
 
             case APPLICATION_SCOPE:
-            context.setAttribute(name, o);
-            break;
+                context.setAttribute(name, o);
+                break;
 
             default:
-            throw new IllegalArgumentException("Invalid scope");
+                throw new IllegalArgumentException("Invalid scope");
             }
         } else {
             removeAttribute(name, scope);
@@ -557,7 +557,7 @@ public class PageContextImpl extends PageContext {
         } else {
             doRemoveAttribute(name);
         }
-	}
+    }
 
 
     private void doRemoveAttribute(String name){
@@ -565,10 +565,10 @@ public class PageContextImpl extends PageContext {
             removeAttribute(name, PAGE_SCOPE);
             removeAttribute(name, REQUEST_SCOPE);
             if( session != null ) {
-                    removeAttribute(name, SESSION_SCOPE);
-                }
-                removeAttribute(name, APPLICATION_SCOPE);
-            } catch (Exception ex) {
+                removeAttribute(name, SESSION_SCOPE);
+            }
+            removeAttribute(name, APPLICATION_SCOPE);
+        } catch (Exception ex) {
             // we remove as much as we can, and
             // simply ignore possible exceptions
         }
@@ -711,7 +711,8 @@ public class PageContextImpl extends PageContext {
     }
                          
     public void forward(final String relativeUrlPath)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
+
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
                 AccessController.doPrivileged(new PrivilegedExceptionAction(){
@@ -920,30 +921,6 @@ public class PageContextImpl extends PageContext {
             throw new ServletException(t);
         }
     }
-
-/** Not used now
-    private static String XmlEscape(String s) {
-        if (s == null) return null;
-        StringBuffer sb = new StringBuffer();
-        for(int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c == '<') {
-                sb.append("&lt;");
-            } else if (c == '>') {
-                sb.append("&gt;");
-            } else if (c == '\'') {
-                sb.append("&#039;");	// &apos;
-            } else if (c == '&') {
-                sb.append("&amp;");
-            } else if (c == '"') {
-                sb.append("&#034;");	// &quot;
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-*/
 
     /**
      * Evaluates an EL expression
