@@ -64,6 +64,7 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.catalina.deploy.ErrorPage;
 import org.apache.catalina.util.RequestUtil;
+import org.apache.catalina.util.ResponseUtil;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
@@ -78,7 +79,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/02/15 02:11:01 $
+ * @version $Revision: 1.10 $ $Date: 2006/03/07 22:30:07 $
  */
 
 final class StandardHostValve
@@ -574,7 +575,7 @@ final class StandardHostValve
 
         if (writer != null) {
             reader = new FileReader(errorPage.getLocation());
-            ioe = copy(reader, writer);
+            ioe = ResponseUtil.copy(reader, writer);
             try {
                 reader.close();
             } catch (Throwable t) {
@@ -583,7 +584,7 @@ final class StandardHostValve
         } else {
             istream = new BufferedInputStream(
                 new FileInputStream(errorPage.getLocation()));
-            ioe = copy(istream, ostream);
+            ioe = ResponseUtil.copy(istream, ostream);
             try {
                 istream.close();
             } catch (Throwable t) {
@@ -595,70 +596,6 @@ final class StandardHostValve
         if (ioe != null) {
             throw ioe;
         }
-
-    }
-
-
-    /**
-     * Copies the contents of the specified input stream to the specified
-     * output stream.
-     *
-     * @param istream The input stream to read from
-     * @param ostream The output stream to write to
-     *
-     * @return Exception that occurred during processing, or null
-     */
-    private IOException copy(InputStream istream,
-                             ServletOutputStream ostream) {
-
-        IOException exception = null;
-        byte buffer[] = new byte[2048];
-        int len = buffer.length;
-        while (true) {
-            try {
-                len = istream.read(buffer);
-                if (len == -1)
-                    break;
-                ostream.write(buffer, 0, len);
-            } catch (IOException e) {
-                exception = e;
-                len = -1;
-                break;
-            }
-        }
-        return exception;
-
-    }
-
-
-    /**
-     * Copies the contents of the specified input stream to the specified
-     * output stream.
-     *
-     * @param reader The reader to read from
-     * @param writer The writer to write to
-     *
-     * @return Exception that occurred during processing, or null
-     */
-    private IOException copy(Reader reader, PrintWriter writer) {
-
-        IOException exception = null;
-        char buffer[] = new char[2048];
-        int len = buffer.length;
-        while (true) {
-            try {
-                len = reader.read(buffer);
-                if (len == -1)
-                    break;
-                writer.write(buffer, 0, len);
-            } catch (IOException e) {
-                exception = e;
-                len = -1;
-                break;
-            }
-        }
-        return exception;
-
     }
     // END SJSAS 6324911
 
