@@ -1157,7 +1157,7 @@ public class JspUtil {
 
     private static ExpressionFactory getExpressionFactory() {
         if (expFactory == null) {
-            expFactory = ExpressionFactory.getExpressionFactory();
+            expFactory = ExpressionFactory.newInstance();
         }
         return expFactory;
     }

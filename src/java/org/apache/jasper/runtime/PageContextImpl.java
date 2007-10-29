@@ -165,7 +165,7 @@ public class PageContextImpl extends PageContext {
 	this.autoFlush = autoFlush;
 	this.request = request;
  	this.response = response;
-        expFactory = ExpressionFactory.getExpressionFactory();
+        expFactory = ExpressionFactory.newInstance();
 
 	// Setup session (if required)
 	if (request instanceof HttpServletRequest && needsSession)

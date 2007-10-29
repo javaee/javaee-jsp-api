@@ -62,7 +62,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
 
     public ExpressionFactory getExpressionFactory() {
         if (expressionFactory == null) {
-            expressionFactory = ExpressionFactory.getExpressionFactory();
+            expressionFactory = ExpressionFactory.newInstance();
         }
         return expressionFactory;
     }

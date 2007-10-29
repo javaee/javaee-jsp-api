@@ -65,7 +65,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator
                                       FunctionMapper fMapper )
             throws ELException {
 
-        ExpressionFactory fac = ExpressionFactory.getExpressionFactory();
+        ExpressionFactory fac = ExpressionFactory.newInstance();
         javax.el.ValueExpression expr;
         ELContextImpl elContext = new ELContextImpl(null);
         javax.el.FunctionMapper fm = new FunctionMapperWrapper(fMapper);
@@ -98,7 +98,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator
 
         javax.el.FunctionMapper fm = new FunctionMapperWrapper(fMapper);
         elContext.setFunctionMapper(fm);
-        ExpressionFactory fac = ExpressionFactory.getExpressionFactory();
+        ExpressionFactory fac = ExpressionFactory.newInstance();
         Object value;
         try {
             ValueExpression expr = fac.createValueExpression(
