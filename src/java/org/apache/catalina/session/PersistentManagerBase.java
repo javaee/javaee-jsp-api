@@ -59,7 +59,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.5 $ $Date: 2005/11/14 20:28:10 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:58 $
  */
 
 public abstract class PersistentManagerBase
@@ -568,8 +568,13 @@ public abstract class PersistentManagerBase
         Session sessions[] = findSessions();
 
         for (int i = 0; i < sessions.length; i++) {
-            StandardSession session = (StandardSession) sessions[i];
+            StandardSession session = (StandardSession) sessions[i];            
+            /* START CR 6363689
             if (!session.isValid()) {
+            */
+            // START CR 6363689
+            if(!session.getIsValid() || session.hasExpired()) {
+            // END CR 6363689            
                 if(session.lockBackground()) { 
                     try {
                         session.expire();
@@ -749,8 +754,7 @@ public abstract class PersistentManagerBase
             }
 
     }
-
-
+    
     /**
      * Remove this Session from the active Sessions for this Manager,
      * and from the Store.
@@ -758,14 +762,24 @@ public abstract class PersistentManagerBase
      * @param session Session to be removed
      */
     public void remove(Session session) {
+        remove(session, true);
+    }
+    
+    /**
+     * Remove this Session from the active Sessions for this Manager,
+     * and from the Store.
+     *
+     * @param session Session to be removed
+     * @param boolean persistentRemove - do we remove persistent session too
+     */
+    public void remove(Session session, boolean persistentRemove) {
 
         super.remove (session);
 
-        if (store != null){
+        if (persistentRemove && store != null){
             removeSession(session.getIdInternal());
         }
-    }
-
+    }    
     
     /**
      * Remove this Session from the active Sessions for this Manager,

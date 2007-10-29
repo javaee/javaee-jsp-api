@@ -93,7 +93,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.11 $ $Date: 2005/12/08 01:28:00 $
+ * @version $Revision: 1.12 $ $Date: 2006/01/17 17:21:16 $
  */
 
 public class StandardSession
@@ -636,6 +636,11 @@ public class StandardSession
         return (this.isValid);
     }
 
+    // START CR 6363689
+    public boolean getIsValid() {
+        return this.isValid; 
+    }    
+    // END CR 6363689    
 
     /**
      * Set the <code>isValid</code> flag for this session.
@@ -699,8 +704,7 @@ public class StandardSession
         expire(true);
 
     }
-
-
+    
     /**
      * Perform the internal processing required to invalidate this session,
      * without triggering an exception if the session has already expired.
@@ -709,6 +713,19 @@ public class StandardSession
      *  this session?
      */
     public void expire(boolean notify) {
+        expire(notify, true);
+    }
+    
+    /**
+     * Perform the internal processing required to invalidate this session,
+     * without triggering an exception if the session has already expired.
+     *
+     * @param notify Should we notify listeners about the demise of
+     *  this session?
+     * @param persistentRemove should we call store to remove the session
+     *  if available
+     */
+    public void expire(boolean notify, boolean persistentRemove) {
 
         // Mark this session as "being expired" if needed
         if (expiring)
@@ -775,9 +792,15 @@ public class StandardSession
                 average = ((average * (numExpired-1)) + timeAlive)/numExpired;
                 manager.setSessionAverageAliveTimeSeconds(average);
             }
-
+            
             // Remove this session from our manager's active sessions
-            manager.remove(this);
+            if(persistentRemove) {
+                manager.remove(this);
+            } else {
+                if(manager instanceof PersistentManagerBase) {
+                    ((PersistentManagerBase)manager).remove(this, false);
+                }
+            }            
 
             /*
              * Mark session as expired *before* removing its attributes, so
@@ -799,9 +822,8 @@ public class StandardSession
 
         }
 
-    }
-
-
+    }    
+    
     /**
      * Perform the internal processing required to passivate
      * this session.
