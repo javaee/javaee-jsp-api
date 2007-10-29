@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2006/08/31 23:34:08 $
+ * @version $Revision: 1.12 $ $Date: 2006/10/03 17:51:00 $
  */
 
 final class ApplicationDispatcher
@@ -609,9 +609,12 @@ final class ApplicationDispatcher
             wrequest.setAttribute(Globals.NAMED_DISPATCHER_ATTR, name);
             if (servletPath != null)
                 wrequest.setServletPath(servletPath);
-            wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                                             Integer.valueOf(ApplicationFilterFactory.INCLUDE));
-            wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR, origServletPath);
+            wrequest.setAttribute(
+                ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
+                Integer.valueOf(ApplicationFilterFactory.INCLUDE));
+            wrequest.setAttribute(
+                ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR,
+                origServletPath);
             invoke(outerRequest, outerResponse);
 
             wrequest.recycle();
@@ -648,9 +651,12 @@ final class ApplicationDispatcher
                 wrequest.setQueryParams(queryString);
             }
             
-            wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                                             Integer.valueOf(ApplicationFilterFactory.INCLUDE));
-            wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR, origServletPath);
+            wrequest.setAttribute(
+                ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
+                Integer.valueOf(ApplicationFilterFactory.INCLUDE));
+            wrequest.setAttribute(
+                ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR,
+                origServletPath);
             invoke(outerRequest, outerResponse);
 
             wrequest.recycle();
