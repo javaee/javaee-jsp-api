@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.15 $ $Date: 2006/07/14 17:40:14 $
+ * @version $Revision: 1.16 $ $Date: 2006/08/01 18:42:43 $
  */
 
 public class ErrorReportValve
@@ -307,7 +307,7 @@ public class ErrorReportValve
 
         // START SJSAS 6412710
         /*
-         * If throwable is not null, we've already preserved any non-null
+         * If throwable is not null, we've already preserved any non-default
          * response encoding in postInvoke(), so that the throwable's exception
          * message can be delivered to the client without any loss of
          * information. The following call to ServletResponse.setLocale()
