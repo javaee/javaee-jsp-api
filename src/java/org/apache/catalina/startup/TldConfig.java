@@ -77,9 +77,6 @@ public final class TldConfig  {
     // Names of JARs that are known not to contain any TLDs with listeners
     private static HashSet<String> noTldListeners;
 
-    // Names of system jar files that are ignored if placed under WEB-INF
-    private static HashSet<String> systemJars = new HashSet<String>();
-
     private static com.sun.org.apache.commons.logging.Log log=
         com.sun.org.apache.commons.logging.LogFactory.getLog( TldConfig.class );
 
@@ -101,10 +98,6 @@ public final class TldConfig  {
         systemTldUris.add("http://java.sun.com/jsf/core");
         systemTldUris.add("http://java.sun.com/jsf/html");
         systemTldUris.add("http://java.sun.com/jsp/jstl/core");
-
-        systemJars.add("standard.jar");
-        systemJars.add("appserv-jstl.jar");
-        systemJars.add("jsf-impl.jar");
     }
 
     // ----------------------------------------------------- Instance Variables
@@ -850,11 +843,9 @@ public final class TldConfig  {
                      * that are not known not to contain any TLDs with
                      * listeners
                      */
-                    if ((loader != webappLoader
-                                || !systemJars.contains(file.getName()))
-                            && (loader == webappLoader
-                                || noTldListeners == null
-                                || !noTldListeners.contains(file.getName()))) {
+                    if (loader == webappLoader
+                            || noTldListeners == null
+                            || !noTldListeners.contains(file.getName())) {
                         JarPathElement elem = new JarPathElement(
                                 file, loader == webappLoader);
                         if (jarPathMap == null) {
