@@ -121,6 +121,14 @@ public class JspCServletContext implements ServletContext {
 
 
     /**
+     * Returns the context path of the web application.
+     */
+    public String getContextPath() {
+        return null;
+    }
+
+
+    /**
      * Return the servlet context for the specified path.
      *
      * @param uripath Server-relative path starting with '/'

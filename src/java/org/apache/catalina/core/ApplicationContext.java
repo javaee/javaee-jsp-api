@@ -73,7 +73,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2005/09/08 18:37:42 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:30 $
  */
 
 public class ApplicationContext
@@ -211,6 +211,30 @@ public class ApplicationContext
             return new Enumerator(attributes.keySet(), true);
         }
 
+    }
+
+
+    /**
+     * Returns the context path of the web application.
+     *
+     * <p>The context path is the portion of the request URI that is used
+     * to select the context of the request. The context path always comes
+     * first in a request URI. The path starts with a "/" character but does
+     * not end with a "/" character. For servlets in the default (root)
+     * context, this method returns "".
+     *
+     * <p>It is possible that a servlet container may match a context by
+     * more than one context path. In such cases the
+     * {@link javax.servlet.http.HttpServletRequest#getContextPath()}
+     * will return the actual context path used by the request and it may
+     * differ from the path returned by this method.
+     * The context path returned by this method should be considered as the
+     * prime or preferred context path of the application.
+     *
+     * @see javax.servlet.http.HttpServletRequest#getContextPath()
+     */
+    public String getContextPath() {
+        return context.getPath();
     }
 
 

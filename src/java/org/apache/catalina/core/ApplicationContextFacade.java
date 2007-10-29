@@ -64,7 +64,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/06/20 20:22:34 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:30 $
  */
 
 public final class ApplicationContextFacade
@@ -132,6 +132,10 @@ public final class ApplicationContextFacade
 
 
     // ------------------------------------------------- ServletContext Methods
+
+    public String getContextPath() {
+        return context.getContextPath();
+    }
 
 
     public ServletContext getContext(String uripath) {
