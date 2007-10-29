@@ -107,8 +107,8 @@ public class RequestInfo  {
     // Number of responses with a status code equal to 503
     private long count503;
 
-    // Worker thread that processes the associated request
-    private Thread workerThread;
+    // Worker thread ID that processes the associated request
+    private long workerThreadID = 0;
 
     // Request completion time
     private long requestCompletionTime;
@@ -425,23 +425,23 @@ public class RequestInfo  {
     }
 
     /**
-     * Gets the worker thread which is processing the request associated
-     * with this RequestInfo.
+     * Gets the worker thread ID which is processing the request associated
+     * with this RequestInfo. Return 0 if no thread ID has been associated.
      * 
-     * @return The worker thread
+     * @return The worker thread id
      */
-    public Thread getWorkerThread() {
-        return workerThread;
+    public long getWorkerThreadID() {
+        return workerThreadID;
     }
 
     /**
-     * Sets the worker thread responsible for processing the request 
-     * associated with this RequestInfo.
+     * Sets the worker thread ID responsible for processing the request 
+     * associated with this RequestInfo. 
      *
-     * @param workerThread The worker thread
+     * @param workerThread The worker thread is
      */
-    public void setWorkerThread(Thread workerThread) {
-        this.workerThread = workerThread;
+    public void setWorkerThreadID(long workerThreadID) {
+        this.workerThreadID = workerThreadID;
     }
   
     /**
@@ -487,7 +487,7 @@ public class RequestInfo  {
         setCount403(0);
         setCount404(0);
         setCount503(0);
-        setWorkerThread(null);
+        setWorkerThreadID(0);
         setRequestCompletionTime(0);
     }
     // END S1AS
