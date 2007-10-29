@@ -36,8 +36,9 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -86,7 +87,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.8 $ $Date: 2005/11/14 23:12:39 $
+ * @version $Revision: 1.9 $ $Date: 2005/11/15 20:26:13 $
  */
 
 public class StandardSession
@@ -139,7 +140,7 @@ public class StandardSession
     /**
      * The collection of user data attributes associated with this Session.
      */
-    protected ConcurrentHashMap attributes = new ConcurrentHashMap();    
+    protected Map attributes = new Hashtable();    
 
 
     /**
@@ -260,7 +261,7 @@ public class StandardSession
      * and event listeners.  <b>IMPLEMENTATION NOTE:</b> This object is
      * <em>not</em> saved and restored across session serializations!
      */
-    protected transient ConcurrentHashMap notes = new ConcurrentHashMap();
+    protected transient Map notes = new Hashtable();
 
 
     /**
@@ -1690,7 +1691,7 @@ public class StandardSession
 
         // Deserialize the attribute count and attribute values
         if (attributes == null)
-            attributes = new ConcurrentHashMap();
+            attributes = new Hashtable();
         int n = ((Integer) stream.readObject()).intValue();
         boolean isValidSave = isValid;
         isValid = true;
@@ -1711,7 +1712,7 @@ public class StandardSession
         }
 
         if (notes == null) {
-            notes = new ConcurrentHashMap();
+            notes = new Hashtable();
         }
     }
 
