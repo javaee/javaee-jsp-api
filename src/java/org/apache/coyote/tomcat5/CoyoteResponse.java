@@ -68,16 +68,13 @@ import org.apache.tomcat.util.net.URL;
 // START S1AS 6170450
 import com.sun.appserv.ProxyHandler;
 // END S1AS 6170450
-// START GlassFish 896
-import org.apache.catalina.Globals;
-// END GlassFish 896
 
 /**
  * Wrapper object for the Coyote response.
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2006/08/22 22:10:46 $
+ * @version $Revision: 1.12 $ $Date: 2006/08/23 02:19:13 $
  */
 
 public class CoyoteResponse
@@ -99,9 +96,6 @@ public class CoyoteResponse
         writer = new CoyoteWriter(outputBuffer);
         // END OF SJSAS 6231069
         urlEncoder.addSafeCharacter('/');
-        // START GlassFish 896
-        outputBuffer.setCoyoteResponse(this);
-        // END GlassFish 896
     }
     
     // START OF SJSAS 6231069
@@ -110,9 +104,6 @@ public class CoyoteResponse
         outputStream = new CoyoteOutputStream(outputBuffer);
         writer = new CoyoteWriter(outputBuffer);
         urlEncoder.addSafeCharacter('/');
-        // START GlassFish 896
-        outputBuffer.setCoyoteResponse(this);
-        // END GlassFish 896
     }
     // END OF SJSAS 6231069
 
@@ -1705,16 +1696,8 @@ public class CoyoteResponse
 
 
     // START GlassFish 896
-    void addCookieIfNecessary() {
-        if (getContext() != null && getContext().getCookies()) {
-            SessionTracker sc = request.getSessionTracker();
-            if (sc != null && sc.getActiveSessions() > 0) {
-                Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
-                                           sc.getSessionId());
-                request.configureSessionCookie(cookie);
-                addCookie(cookie);
-            }
-        }
+    public void removeCookie() {
+        coyoteResponse.removeCookie();        
     }
     // END GlassFish 896
 

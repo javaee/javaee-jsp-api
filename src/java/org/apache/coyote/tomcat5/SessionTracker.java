@@ -38,6 +38,8 @@ import org.apache.catalina.SessionListener;
  * in the form of a response cookie). If no active sessions are associated
  * with the request by the time the response is committed, no session
  * information will be reflected in the response.
+ *
+ * See GlassFish Issue 896 for additional details.
  */
 public class SessionTracker implements SessionListener {
 
@@ -45,7 +47,9 @@ public class SessionTracker implements SessionListener {
     private int count;
 
     // The session id that is shared by all tracked sessions
-    private String sessionId;
+    private String trackedSessionId;
+
+    private CoyoteResponse response;
 
     /**
      * Processes the given session event, by unregistering this SessionTracker
@@ -55,18 +59,26 @@ public class SessionTracker implements SessionListener {
      * @param event The session event
      */
     public void sessionEvent(SessionEvent event) {
+
         if (!Session.SESSION_DESTROYED_EVENT.equals(event.getType())) {
             return;
         }
+
+        Session session = event.getSession();
            
         synchronized (this) {
-            count--;
-            if (count == 0) {
-                sessionId = null;
+            if (session.getIdInternal() != null
+                    && session.getIdInternal().equals(trackedSessionId)) {
+                count--;
+                if (count == 0) {
+                    trackedSessionId = null;
+                    if (response != null) {
+                        response.removeCookie();
+                    }
+                }
             }
         }
 
-        Session session = event.getSession();
         session.removeSessionListener(this);
     }
 
@@ -88,7 +100,7 @@ public class SessionTracker implements SessionListener {
      * @return The id of the sessions that are being tracked
      */
     public String getSessionId() {
-        return sessionId;
+        return trackedSessionId;
     }
 
     /**
@@ -101,9 +113,9 @@ public class SessionTracker implements SessionListener {
     public void track(Session session) {
 
         synchronized (this) {
-            if (sessionId == null) {
-                sessionId = session.getIdInternal();
-            } else if (!sessionId.equals(session.getIdInternal())) {
+            if (trackedSessionId == null) {
+                trackedSessionId = session.getIdInternal();
+            } else if (!trackedSessionId.equals(session.getIdInternal())) {
                 throw new IllegalArgumentException("Should never reach here");
             }
 
@@ -114,9 +126,15 @@ public class SessionTracker implements SessionListener {
     }
 
 
+    public void setResponse(CoyoteResponse response) {
+        this.response = response;
+    }
+
+
     void reset() {
         count = 0;
-        sessionId = null;
+        trackedSessionId = null;
+        response = null;
     }
 
 }

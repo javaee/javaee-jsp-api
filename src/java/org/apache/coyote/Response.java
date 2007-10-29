@@ -607,4 +607,12 @@ public final class Response {
     public void setBytesWritten(long bytesWritten) {
         this.bytesWritten = bytesWritten;
     }
+
+
+    // START GlassFish 896
+    public void removeCookie() {
+        headers.removeHeader("Set-Cookie");
+    }
+    // END GlassFish 896
+
 }

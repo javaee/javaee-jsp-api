@@ -143,11 +143,6 @@ public class OutputBuffer extends Writer
     private Response coyoteResponse;
 
 
-    // START GlassFish 896
-    private CoyoteResponse coyoResponse;
-    // END GlassFish 896
-
-
     /**
      * Suspended flag. All output bytes will be swallowed if this is true.
      */
@@ -216,13 +211,6 @@ public class OutputBuffer extends Writer
     public void setResponse(Response coyoteResponse) {
 	this.coyoteResponse = coyoteResponse;
     }
-
-
-    // START GlassFish 896
-    void setCoyoteResponse(CoyoteResponse coyoResponse) {
-	this.coyoResponse = coyoResponse;
-    }        
-    // END GlassFish 896
 
 
     /**
@@ -338,9 +326,6 @@ public class OutputBuffer extends Writer
 
         doFlush = true;
         if (initial){
-            // START GlassFish 896
-            coyoResponse.addCookieIfNecessary();
-            // END GlassFish 896
             coyoteResponse.sendHeaders();
             initial = false;
         }

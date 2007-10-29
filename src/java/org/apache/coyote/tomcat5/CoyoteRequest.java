@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.27 $ $Date: 2006/08/10 21:35:20 $
+ * @version $Revision: 1.28 $ $Date: 2006/08/14 20:46:53 $
  */
 
 public class CoyoteRequest
@@ -755,6 +755,7 @@ public class CoyoteRequest
      */
     public void setResponse(org.apache.catalina.Response response) {
         this.response = response;
+        sessionTracker.setResponse((CoyoteResponse) response);
     }
 
 
@@ -2652,7 +2653,6 @@ public class CoyoteRequest
         sessionTracker.track(session);
         // END GlassFish 896
 
-        /* GlassFish 896: Delay cookie generation to CoyoteResponse.finishResponse()
         // Creating a new session cookie based on that session
         if ((session != null) && (getContext() != null)
                 && getContext().getCookies()) {
@@ -2661,7 +2661,6 @@ public class CoyoteRequest
             configureSessionCookie(cookie);
             ((HttpServletResponse) response).addCookie(cookie);
         }
-        */
 
         if (session != null) {
             session.access();
@@ -3346,12 +3345,10 @@ public class CoyoteRequest
 
     // START GlassFish 896
     void initSessionTracker() {
-        setAttribute(Globals.SESSION_TRACKER, sessionTracker);
+        if (context != null) {
+            setAttribute(Globals.SESSION_TRACKER, sessionTracker);
+        }
     }
-
-    SessionTracker getSessionTracker() {
-        return sessionTracker;
-    }    
     // END GlassFish 896
 
 }
