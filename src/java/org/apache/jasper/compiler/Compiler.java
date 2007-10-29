@@ -295,6 +295,9 @@ public class Compiler {
         }
         javaCompiler.setClassPath(cpath);
         
+        // Set debug info
+        javaCompiler.setDebug(options.getClassDebugInfo());
+
         // Initialize and set java extensions
         String exts = System.getProperty("java.ext.dirs");
         if (exts != null) {
