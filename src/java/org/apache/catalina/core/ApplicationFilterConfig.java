@@ -223,8 +223,11 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         this.filter = (Filter) clazz.newInstance();
 
         // START PWC 1.2
-        context.fireContainerEvent(ContainerEvent.BEFORE_FILTER_INITIALIZED,
-                                   filter);
+        if (context != null) {
+            context.fireContainerEvent(
+                ContainerEvent.BEFORE_FILTER_INITIALIZED,
+                filter);
+        }
         // END PWC 1.2
 
         if (context.getSwallowOutput()) {
@@ -242,8 +245,10 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         }
 
         // START PWC 1.2
-        context.fireContainerEvent(ContainerEvent.AFTER_FILTER_INITIALIZED,
-                                   filter);
+        if (context != null) {
+            context.fireContainerEvent(ContainerEvent.AFTER_FILTER_INITIALIZED,
+                                       filter);
+        }
         // END PWC 1.2
 
         return (this.filter);
@@ -268,10 +273,17 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
     void release() {
 
         if (this.filter != null){
-                // START SJS WS 7.0 6236329
-                //if( System.getSecurityManager() != null) {
-                if ( SecurityUtil.executeUnderSubjectDoAs() ){
-                // END OF SJS WS 7.0 6236329
+
+            if (context != null) {
+                context.fireContainerEvent(
+                    ContainerEvent.BEFORE_FILTER_DESTROYED,
+                    filter);
+            }
+
+            // START SJS WS 7.0 6236329
+            //if( System.getSecurityManager() != null) {
+            if ( SecurityUtil.executeUnderSubjectDoAs() ){
+            // END OF SJS WS 7.0 6236329
                 try{
                     SecurityUtil.doAsPrivilege("destroy",
                                                filter); 
@@ -282,7 +294,15 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
             } else { 
                 filter.destroy();
             }
+
+            if (context != null) {
+                context.fireContainerEvent(
+                    ContainerEvent.AFTER_FILTER_DESTROYED,
+                    filter);
+            }
+
         }
+
         this.filter = null;
 
      }
