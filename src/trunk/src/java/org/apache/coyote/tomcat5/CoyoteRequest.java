@@ -100,7 +100,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:43:02 $
+ * @version $Revision: 1.7 $ $Date: 2005/08/23 00:05:44 $
  */
 
 public class CoyoteRequest
@@ -1574,12 +1574,15 @@ public class CoyoteRequest
 
 
     /**
-     * Overrides the name of the character encoding used in the body of
-     * this request.  This method must be called prior to reading request
-     * parameters or reading input using <code>getReader()</code>.
+     * Overrides the name of the character encoding used in the body of this
+     * request.
      *
-     * @param enc The character encoding to be used
-     *
+     * This method must be called prior to reading request parameters or
+     * reading input using <code>getReader()</code>. Otherwise, it has no
+     * effect.
+     * 
+     * @param env      <code>String</code> containing the name of
+     *                 the character encoding.
      * @throws         java.io.UnsupportedEncodingException if this
      *                 ServletRequest is still in a state where a
      *                 character encoding may be set, but the specified
@@ -1591,12 +1594,11 @@ public class CoyoteRequest
         throws UnsupportedEncodingException {
 
         // START SJSAS 4936855
-        /*
         if (requestParametersParsed || usingReader) {
-            throw new IllegalStateException
-              (sm.getString("coyoteRequest.setCharacterEncoding.ise"));
+            log.warn(sm.getString("coyoteRequest.setCharacterEncoding.ise",
+                                  enc));
+            return;
         }
-        */
         // END SJSAS 4936855
 
         // Ensure that the specified encoding is valid
@@ -2559,13 +2561,23 @@ public class CoyoteRequest
      */
     protected void parseRequestParameters() {
 
+        /* SJSAS 4936855
         requestParametersParsed = true;
+        */
 
         Parameters parameters = coyoteRequest.getParameters();
 
         // getCharacterEncoding() may have been overridden to search for
         // hidden form field containing request encoding
         String enc = getCharacterEncoding();
+        // START SJSAS 4936855
+        // Delay updating requestParametersParsed to TRUE until
+        // after getCharacterEncoding() has been called, because
+        // getCharacterEncoding() may cause setCharacterEncoding() to be
+        // called, and the latter will ignore the specified encoding if
+        // requestParametersParsed is TRUE
+        requestParametersParsed = true;
+        // END SJSAS 4936855
         if (enc != null) {
             parameters.setEncoding(enc);
             parameters.setQueryStringEncoding(enc);
