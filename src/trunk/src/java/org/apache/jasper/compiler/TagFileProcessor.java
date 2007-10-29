@@ -69,7 +69,10 @@ class TagFileProcessor {
             new JspUtil.ValidAttribute("pageEncoding"),
             new JspUtil.ValidAttribute("language"),
             new JspUtil.ValidAttribute("import"),
-            new JspUtil.ValidAttribute("isELIgnored") };
+            new JspUtil.ValidAttribute("isELIgnored"),
+            new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
+            new JspUtil.ValidAttribute("trimDirectiveWhitespaces")
+        };
 
         private static final JspUtil.ValidAttribute[] attributeDirectiveAttrs = {
             new JspUtil.ValidAttribute("name", true),
@@ -91,9 +94,7 @@ class TagFileProcessor {
             new JspUtil.ValidAttribute("variable-class"),
             new JspUtil.ValidAttribute("scope"),
             new JspUtil.ValidAttribute("declare"),
-            new JspUtil.ValidAttribute("description"),
-            new JspUtil.ValidAttribute("deferredSyntaxAllowedAsLiteral"),
-            new JspUtil.ValidAttribute("trimDirectiveWhitespaces")
+            new JspUtil.ValidAttribute("description")
         };
 
         private ErrorDispatcher err;
