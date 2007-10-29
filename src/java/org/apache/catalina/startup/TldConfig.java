@@ -85,6 +85,15 @@ public final class TldConfig  {
     private static final String FILE_URL_PREFIX = "file:";
     private static final int FILE_URL_PREFIX_LEN = FILE_URL_PREFIX.length();
 
+    // Names of system TLD URIs
+    private static HashSet<String> systemTldUris;
+
+    static {
+        systemTldUris = new HashSet();
+        systemTldUris.add("http://java.sun.com/jsf/core");
+        systemTldUris.add("http://java.sun.com/jsf/html");
+        systemTldUris.add("http://java.sun.com/jsp/jstl/core");
+    }
 
     /*
      * Initializes the set of JARs that are known not to contain any TLDs
@@ -168,12 +177,21 @@ public final class TldConfig  {
      */
     private Digester tldDigester = null;
 
+    /**
+     * True if the TLD currently being scanned is locally bundled, false 
+     * otherwise
+     */
+    private boolean isCurrentTldLocal = false;
+
+    /**
+     * The URI of the TLD currently being scanned
+     */
+    private String currentTldUri;
 
     /**
      * Attribute value used to turn on/off TLD validation
      */
      private boolean tldValidation = false;
-
      
     /**
      * Attribute value used to turn on/off TLD  namespace awarenes.
@@ -284,7 +302,13 @@ public final class TldConfig  {
     public void addApplicationListener( String s ) {
         //if(log.isDebugEnabled())
             log.debug( "Add tld listener " + s);
-        listeners.add(s);
+        if (!isCurrentTldLocal || !systemTldUris.contains(currentTldUri)) {
+            listeners.add(s);
+        }
+    }
+
+    public void setTldUri(String uri) {
+        this.currentTldUri = uri;
     }
 
     public String[] getTldListeners() {
@@ -350,9 +374,10 @@ public final class TldConfig  {
             }
         }
         if (jarPaths != null) {
-            paths = jarPaths.values().iterator();
-            while (paths.hasNext()) {
-                tldScanJar((File) paths.next());
+            Iterator<JarPathElement> elems = jarPaths.values().iterator();
+            while (elems.hasNext()) {
+                JarPathElement elem = elems.next();
+                tldScanJar(elem.getJarFile(), elem.getIsLocal());
             }
         }
 
@@ -414,9 +439,10 @@ public final class TldConfig  {
         }
 
         if (jarPaths != null) {
-            paths = jarPaths.values().iterator();
-            while (paths.hasNext()) {
-                File jarFile = (File) paths.next();
+            Iterator<JarPathElement> elems = jarPaths.values().iterator();
+            while (elems.hasNext()) {
+                JarPathElement elem = elems.next();
+                File jarFile = elem.getJarFile();
                 long lastM = jarFile.lastModified();
                 if (lastM > lastModified) lastModified = lastM;
                 if (log.isDebugEnabled()) {
@@ -494,6 +520,10 @@ public final class TldConfig  {
      * listeners
      */
     private void tldScanJar(File file) throws Exception {
+        tldScanJar(file, false);
+    }
+
+    private void tldScanJar(File file, boolean isLocal) throws Exception {
 
         JarFile jarFile = null;
         String name = null;
@@ -516,7 +546,8 @@ public final class TldConfig  {
                     log.trace("  Processing TLD at '" + name + "'");
                 }
                 try {
-                    tldScanStream(new InputSource(jarFile.getInputStream(entry)));
+                    tldScanStream(new InputSource(jarFile.getInputStream(entry)),
+                                  isLocal);
                 } catch (Exception e) {
                     log.error(sm.getString("contextConfig.tldEntryException",
                                            name, jarPath, context.getPath()),
@@ -549,7 +580,12 @@ public final class TldConfig  {
      * @exception Exception if an exception occurs while scanning this TLD
      */
     private void tldScanStream(InputSource resourceStream)
-        throws Exception {
+            throws Exception {
+        tldScanStream(resourceStream, false);
+    }
+
+    private void tldScanStream(InputSource resourceStream, boolean isLocal)
+            throws Exception {
 
         if (tldDigester == null){
             tldDigester = createTldDigester();
@@ -558,8 +594,11 @@ public final class TldConfig  {
         synchronized (tldDigester) {
             try {
                 tldDigester.push(this);
+                isCurrentTldLocal = isLocal;
                 tldDigester.parse(resourceStream);
             } finally {
+                isCurrentTldLocal = false;
+                currentTldUri = null;
                 tldDigester.push(null);
                 tldDigester.clear();
             }
@@ -751,11 +790,13 @@ public final class TldConfig  {
                                 || !systemJars.contains(file.getName()))
                             && (noTldJars == null
                                 || !noTldJars.contains(file.getName()))) {
+                        JarPathElement elem = new JarPathElement(
+                                file, loader == webappLoader);
                         if (jarPathMap == null) {
                             jarPathMap = new HashMap();
-                            jarPathMap.put(path, file);
+                            jarPathMap.put(path, elem);
                         } else if (!jarPathMap.containsKey(path)) {
-                            jarPathMap.put(path, file);
+                            jarPathMap.put(path, elem);
                         }
                     }
                 }
@@ -773,5 +814,24 @@ public final class TldConfig  {
         }
 
         return jarPathMap;
+    }
+}
+
+class JarPathElement {
+
+    private File jarFile;
+    private boolean isLocal;
+
+    public JarPathElement(File jarFile, boolean isLocal) {
+        this.jarFile = jarFile;
+        this.isLocal = isLocal;        
+    }
+
+    public File getJarFile() {
+        return jarFile;
+    }
+
+    public boolean getIsLocal() {
+        return isLocal;
     }
 }

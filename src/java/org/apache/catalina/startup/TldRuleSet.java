@@ -40,7 +40,7 @@ import org.xml.sax.Attributes;
  * descriptor resource.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:10 $
  */
 
 public class TldRuleSet extends RuleSetBase {
@@ -99,9 +99,11 @@ public class TldRuleSet extends RuleSetBase {
      */
     public void addRuleInstances(Digester digester) {
 
+        digester.addCallMethod(prefix + "taglib/uri",
+                               "setTldUri", 0);
+
         digester.addCallMethod(prefix + "taglib/listener/listener-class",
                                "addApplicationListener", 0);
-
     }
 
 
