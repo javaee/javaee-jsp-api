@@ -65,6 +65,8 @@ import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.SchemaResolver;
 import org.apache.commons.digester.Digester;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
@@ -74,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.5 $ $Date: 2005/12/08 01:28:06 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/12 19:11:35 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -84,8 +86,7 @@ public class ContextConfig
 // END OF SJAS 8.0 BUG 5046959
     implements LifecycleListener {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( ContextConfig.class );
+    private static Log log= LogFactory.getLog( ContextConfig.class );
 
     // ----------------------------------------------------- Instance Variables
 
@@ -334,6 +335,9 @@ public class ContextConfig
                     }
                     webDigester.setUseContextClassLoader(false);
                     webDigester.push(context);
+                    // START PWC 6390776
+                    webDigester.setLogger(new DigesterLogger());
+                    // END PWC 6390776
                     webDigester.parse(is);
                 } else {
                     log.info("No web.xml, using defaults " + context );
@@ -992,5 +996,97 @@ public class ContextConfig
         }
 
     }
+} //end of public class
 
+// START PWC 6390776
+/**
+ * This class is to override log.error method that Digester uses.
+ * With log.error call, we don't want the Digester to log the entire stack
+ * trace at the default log level. We are interested in only error message. 
+ * If log-level is debug, then only stack trace is shown.
+ */
+class DigesterLogger implements Log {
+
+    public Log log;
+
+    public DigesterLogger() {
+        log = LogFactory.getLog("org.apache.commons.digester.Digester");
+    }
+    
+    public void debug(Object message) {
+        log.debug(message);
+    }
+
+    public void debug(Object message, Throwable t) {
+        log.debug(message,t);
+    }
+
+    public void error(Object message) {
+        log.error(message);
+    }
+
+    public void error(Object message, Throwable t) {
+        if (log.isDebugEnabled()) {
+            log.error(message,t);
+        } else {
+            log.error(message);
+        }
+    }
+
+    public void fatal(Object message) {
+        log.fatal(message);
+    }
+
+    public void fatal(Object message, Throwable t) {
+        log.fatal(message,t);
+    }
+
+    public void info(Object message) {
+        log.info(message);
+    }
+
+    public void info(Object message, Throwable t) {
+        log.info(message, t);
+    }
+
+    public void trace(Object message) {
+        log.trace(message);
+    }
+
+    public void trace(Object message, Throwable t) {
+        log.trace(message, t);
+    }
+
+    public void warn(Object message) {
+        log.warn(message);
+    }
+
+    public void warn(Object message, Throwable t) {
+        log.warn(message, t);
+    }
+
+    public boolean isDebugEnabled() {
+        return log.isDebugEnabled();
+    }
+
+    public boolean isErrorEnabled() {
+        return log.isErrorEnabled();
+    }
+
+    public boolean isFatalEnabled() {
+        return log.isFatalEnabled();
+    }
+
+    public boolean isInfoEnabled() {
+        return log.isInfoEnabled();
+    }
+
+    public boolean isTraceEnabled() {
+        return log.isTraceEnabled();
+    }
+
+    public boolean isWarnEnabled() {
+        return log.isWarnEnabled();
+    }
 }
+// END PWC 6390776
