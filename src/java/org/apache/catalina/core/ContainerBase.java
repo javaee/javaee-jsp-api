@@ -1244,7 +1244,19 @@ public abstract class ContainerBase
         for (int i = 0; i < children.length; i++) {
             removeChild(children[i]);
         }
-                
+
+        // START SJSAS 6330332
+        // Remove LifecycleListeners
+        LifecycleListener[] tmpLifecycleListeners = findLifecycleListeners();
+        if (tmpLifecycleListeners != null) {
+            for (int i=0;i<tmpLifecycleListeners.length;i++) {
+                removeLifecycleListener(tmpLifecycleListeners[i]);
+            }
+        }
+ 
+        // Release realm
+        setRealm(null);
+        // END SJSAS 6330332                
     }
 
     // ------------------------------------------------------- Pipeline Methods
