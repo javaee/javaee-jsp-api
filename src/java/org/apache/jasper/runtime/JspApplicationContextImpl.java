@@ -19,10 +19,20 @@ import javax.el.ExpressionFactory;
 import javax.el.ELContextListener;
 import javax.el.ELContextEvent;
 
+import org.apache.jasper.Constants;
+
 public class JspApplicationContextImpl implements JspApplicationContext {
 
+    public JspApplicationContextImpl(ServletContext context) {
+        this.context = context;
+    }
+
     public void addELResolver(ELResolver resolver) {
-        // TODO: Check for IllegalStateException
+        if ("true".equals(context.getAttribute(Constants.FIRST_REQUEST_SEEN))) {
+            throw new IllegalStateException("Attempt to invoke addELResolver "
+                + "after the application has already received a request");
+        }
+
         elResolvers.add(0, resolver);
     }
 
@@ -52,7 +62,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         JspApplicationContextImpl jaContext =
             (JspApplicationContextImpl)map.get(context);
         if (jaContext == null) {
-            jaContext = new JspApplicationContextImpl();
+            jaContext = new JspApplicationContextImpl(context);
             map.put(context, jaContext);
         }
         return jaContext;
@@ -88,5 +98,6 @@ public class JspApplicationContextImpl implements JspApplicationContext {
     private static HashMap map = new HashMap();
     private ArrayList elResolvers = new ArrayList();
     private ArrayList listeners = new ArrayList();
+    private ServletContext context;
 }
 

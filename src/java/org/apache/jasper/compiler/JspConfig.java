@@ -56,6 +56,8 @@ public class JspConfig {
     private String defaultIsXml = null;		// unspecified
     private String defaultIsELIgnored = null;	// unspecified
     private String defaultIsScriptingInvalid = "false";
+    private String defaultTrimSpaces = "false";
+    private String defaultPoundAllowed = "false";
     private JspProperty defaultJspProperty;
 
     public JspConfig(ServletContext ctxt) {
@@ -103,6 +105,8 @@ public class JspConfig {
                 String isXml = null;
                 Vector includePrelude = new Vector();
                 Vector includeCoda = new Vector();
+                String trimSpaces = null;
+                String poundAllowed = null;
 
                 while (list.hasNext()) {
 
@@ -123,6 +127,10 @@ public class JspConfig {
                         includePrelude.addElement(element.getBody());
                     else if ("include-coda".equals(tname))
                         includeCoda.addElement(element.getBody());
+                    else if ("trim-directive-whitespaces".equals(tname))
+                        trimSpaces = element.getBody();
+                    else if ("deferred-syntax-allowed-as-literal".equals(tname))
+                        poundAllowed = element.getBody();
                 }
 
                 if (urlPatterns.size() == 0) {
@@ -175,6 +183,8 @@ public class JspConfig {
                      JspProperty property = new JspProperty(isXml,
                                                             elIgnored,
                                                             scriptingInvalid,
+                                                            trimSpaces,
+                                                            poundAllowed,
                                                             pageEncoding,
                                                             includePrelude,
                                                             includeCoda);
@@ -202,7 +212,9 @@ public class JspConfig {
 	    defaultJspProperty = new JspProperty(defaultIsXml,
 						 defaultIsELIgnored,
 						 defaultIsScriptingInvalid,
-						 null, null, null);
+                                                 defaultTrimSpaces,
+                                                 defaultPoundAllowed,
+                                                 null, null, null);
 	    initialized = true;
 	}
     }
@@ -275,6 +287,8 @@ public class JspConfig {
 	JspPropertyGroup isXmlMatch = null;
 	JspPropertyGroup elIgnoredMatch = null;
 	JspPropertyGroup scriptingInvalidMatch = null;
+	JspPropertyGroup trimSpacesMatch = null;
+	JspPropertyGroup poundAllowedMatch = null;
 	JspPropertyGroup pageEncodingMatch = null;
 
 	Iterator iter = jspProperties.iterator();
@@ -330,12 +344,20 @@ public class JspConfig {
              if (jp.getPageEncoding() != null) {
                  pageEncodingMatch = selectProperty(pageEncodingMatch, jpg);
              }
+             if (jp.getTrimSpaces() != null) {
+                 trimSpacesMatch = selectProperty(trimSpacesMatch, jpg);
+             }
+             if (jp.getPoundAllowed() != null) {
+                 poundAllowedMatch = selectProperty(poundAllowedMatch, jpg);
+             }
 	}
 
 
 	String isXml = defaultIsXml;
 	String isELIgnored = defaultIsELIgnored;
 	String isScriptingInvalid = defaultIsScriptingInvalid;
+        String trimSpaces = defaultTrimSpaces;
+        String poundAllowed = defaultPoundAllowed;
 	String pageEncoding = null;
 
 	if (isXmlMatch != null) {
@@ -348,11 +370,18 @@ public class JspConfig {
 	    isScriptingInvalid =
 		scriptingInvalidMatch.getJspProperty().isScriptingInvalid();
 	}
+	if (trimSpacesMatch != null) {
+	    trimSpaces = trimSpacesMatch.getJspProperty().getTrimSpaces();
+	}
+	if (poundAllowedMatch != null) {
+	    poundAllowed = poundAllowedMatch.getJspProperty().getPoundAllowed();
+	}
 	if (pageEncodingMatch != null) {
 	    pageEncoding = pageEncodingMatch.getJspProperty().getPageEncoding();
 	}
 
 	return new JspProperty(isXml, isELIgnored, isScriptingInvalid,
+                               trimSpaces, poundAllowed,
 			       pageEncoding, includePreludes, includeCodas);
     }
 
@@ -434,16 +463,25 @@ public class JspConfig {
 	private String elIgnored;
 	private String scriptingInvalid;
 	private String pageEncoding;
+	private String trimSpaces;
+	private String poundAllowed;
 	private Vector includePrelude;
 	private Vector includeCoda;
 
-	public JspProperty(String isXml, String elIgnored,
-		    String scriptingInvalid, String pageEncoding,
-		    Vector includePrelude, Vector includeCoda) {
+	public JspProperty(String isXml,
+                           String elIgnored,
+                           String scriptingInvalid,
+                           String trimSpaces,
+                           String poundAllowed,
+		           String pageEncoding,
+		           Vector includePrelude,
+                           Vector includeCoda) {
 
 	    this.isXml = isXml;
 	    this.elIgnored = elIgnored;
 	    this.scriptingInvalid = scriptingInvalid;
+            this.trimSpaces = trimSpaces;
+            this.poundAllowed = poundAllowed;
 	    this.pageEncoding = pageEncoding;
 	    this.includePrelude = includePrelude;
 	    this.includeCoda = includeCoda;
@@ -463,6 +501,14 @@ public class JspConfig {
 
 	public String getPageEncoding() {
 	    return pageEncoding;
+	}
+
+	public String getTrimSpaces() {
+	    return trimSpaces;
+	}
+
+	public String getPoundAllowed() {
+	    return poundAllowed;
 	}
 
 	public Vector getIncludePrelude() {

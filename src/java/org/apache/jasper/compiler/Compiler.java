@@ -180,6 +180,10 @@ public class Compiler {
                                             jspProperty.isELIgnored()));
         pageInfo.setScriptingInvalid(JspUtil.booleanValue(
                                             jspProperty.isScriptingInvalid()));
+        pageInfo.setTrimDirectiveWhitespaces(JspUtil.booleanValue(
+                                            jspProperty.getTrimSpaces()));
+        pageInfo.setDeferredSyntaxAllowedAsLiteral(JspUtil.booleanValue(
+                                            jspProperty.getPoundAllowed()));
         if (jspProperty.getIncludePrelude() != null) {
             pageInfo.setIncludePrelude(jspProperty.getIncludePrelude());
         }
