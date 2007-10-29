@@ -428,6 +428,10 @@ public class JspC implements Options {
         return true;
     }
 
+    public boolean getSaveBytecode() {
+        return true;
+    }
+
     public boolean getTrimSpaces() {
         return trimSpaces;
     }

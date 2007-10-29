@@ -210,4 +210,11 @@ public interface Options {
     public boolean isValidationEnabled();
     // END SJSAS 6384538
 
+    /**
+     * If class files are generated as byte arrays, should they be saved to
+     * disk at the end of compilations?
+     */
+
+    public boolean getSaveBytecode();
+
 }

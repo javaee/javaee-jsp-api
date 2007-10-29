@@ -1,17 +1,26 @@
 /*
- * Copyright 1999,2004 The Apache Software Foundation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * The contents of this file are subject to the terms
+ * of the Common Development and Distribution License
+ * (the "License").  You may not use this file except
+ * in compliance with the License.
+ *
+ * You can obtain a copy of the license at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt or
+ * https://glassfish.dev.java.net/public/CDDLv1.0.html.
+ * See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL
+ * HEADER in each file and include the License file at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt.  If applicable,
+ * add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your
+ * own identifying information: Portions Copyright [yyyy]
+ * [name of copyright owner]
+ *
+ * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
+ *
+ * Portions Copyright Apache Software Foundation.
  */
 
 package org.apache.jasper.compiler;
@@ -26,14 +35,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
+import java.io.UnsupportedEncodingException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.jasper.JasperException;
+import org.apache.jasper.JspCompilationContext;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -56,38 +72,144 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
  *
  * @author Cocoon2
  * @author Remy Maucherat
+ * @author Kin-man Chung   Modified to implement JavaCompiler
  */
-public class JDTJavaCompiler extends org.apache.jasper.compiler.Compiler {
 
-    
-    /** 
-     * Compile the servlet from .java file to .class file
-     */
-    protected void generateClass(String[] smap)
-        throws FileNotFoundException, JasperException, Exception {
+public class JDTJavaCompiler implements JavaCompiler {
 
-        long t1 = 0;
-        if (log.isDebugEnabled()) {
-            t1 = System.currentTimeMillis();
+    private final Map settings = new HashMap();
+    private JspCompilationContext ctxt;
+    private ErrorDispatcher errDispatcher;
+    private com.sun.org.apache.commons.logging.Log log;
+    private String javaFileName;
+
+
+    public void init(JspCompilationContext ctxt,
+                     ErrorDispatcher errDispatcher,
+                     boolean suppressLogging) {
+        this.errDispatcher = errDispatcher;
+        this.ctxt = ctxt;
+        log = suppressLogging?
+            new com.sun.org.apache.commons.logging.impl.NoOpLog():
+            com.sun.org.apache.commons.logging.LogFactory.getLog(
+                JDTJavaCompiler.class);
+    }
+
+    public void setExtdirs(String exts) {
+        // no op here
+    }
+
+    public void setClassPath(List<File> cpath) {
+       // No op here, because the current classloader is used.  However,
+       // This may not include the system classpath specified in options
+    }
+
+    public long getClassLastModified() {
+        File classFile = new File(ctxt.getClassFileName());
+        return classFile.lastModified();
+    }
+
+    public Writer getJavaWriter(String javaFileName,
+                                String javaEncoding)
+            throws JasperException {
+
+        this.javaFileName = javaFileName;
+
+        Writer writer = null;
+        try {
+            writer = new OutputStreamWriter(
+                        new FileOutputStream(javaFileName), javaEncoding);
+        } catch (UnsupportedEncodingException ex) {
+            errDispatcher.jspError("jsp.error.needAlternateJavaEncoding",
+                                   javaEncoding);
+        } catch (IOException ex) {
         }
-        
+        return writer;
+    }
+
+    public void setDebug(boolean debug) {
+        settings.put(CompilerOptions.OPTION_LineNumberAttribute,
+                     CompilerOptions.GENERATE);
+        settings.put(CompilerOptions.OPTION_SourceFileAttribute,
+                     CompilerOptions.GENERATE);
+        settings.put(CompilerOptions.OPTION_ReportDeprecation,
+                     CompilerOptions.IGNORE);
+        if (debug) {
+            settings.put(CompilerOptions.OPTION_LocalVariableAttribute,
+                         CompilerOptions.GENERATE);
+        }
+    }
+
+    public void setSourceVM(String sourceVM) {
+        if(sourceVM.equals("1.1")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_1);
+        } else if(sourceVM.equals("1.2")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_2);
+        } else if(sourceVM.equals("1.3")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_3);
+        } else if(sourceVM.equals("1.4")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_4);
+        } else if(sourceVM.equals("1.5")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_5);
+        } else {
+            log.warn("Unknown source VM " + sourceVM + " ignored.");
+            settings.put(CompilerOptions.OPTION_Source,
+                    CompilerOptions.VERSION_1_5);
+        }
+    }
+
+    public void setTargetVM(String targetVM) {
+        if(targetVM.equals("1.1")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_1);
+        } else if(targetVM.equals("1.2")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_2);
+        } else if(targetVM.equals("1.3")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_3);
+        } else if(targetVM.equals("1.4")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_4);
+        } else if(targetVM.equals("1.5")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_5);
+        } else {
+            log.warn("Unknown target VM " + targetVM + " ignored.");
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                    CompilerOptions.VERSION_1_5);
+        }
+    }
+
+    public void saveClassFile(String className, String classFileName) {
+        // class file are alwyas saved.
+    }
+
+    public void removeJavaFile() {
+        File javaFile = new File(javaFileName);
+        javaFile.delete();
+    }
+
+    public JavacErrorDetail[] compile(final String targetClassName,
+                                      final Node.Nodes pageNodes)
+            throws JasperException {
+
         final String sourceFile = ctxt.getServletJavaFileName();
-        final String outputDir = ctxt.getOptions().getScratchDir().getAbsolutePath();
+        final String outputDir =
+            ctxt.getOptions().getScratchDir().getAbsolutePath();
         String packageName = ctxt.getServletPackageName();
 
-        final String targetClassName = 
-            ((packageName.length() != 0) ? (packageName + ".") : "") 
-                    + ctxt.getServletClassName();
         final ClassLoader classLoader = ctxt.getJspLoader();
         String[] fileNames = new String[] {sourceFile};
         String[] classNames = new String[] {targetClassName};
-        final ArrayList problemList = new ArrayList();
+        final ArrayList<JavacErrorDetail> problemList =
+                new ArrayList<JavacErrorDetail>();
 
-System.out.println("JJJ sourceFile=" + sourceFile);
-System.out.println("JJJ targetClassName=" + targetClassName);
-System.out.println("JJJ packageName=" + packageName);
-System.out.println("JJJ ctxt.getServletClassName()=" + ctxt.getServletClassName());
-        
         class CompilationUnit implements ICompilationUnit {
 
             String className;
@@ -263,78 +385,9 @@ System.out.println("JJJ ctxt.getServletClassName()=" + ctxt.getServletClassName(
         final IErrorHandlingPolicy policy = 
             DefaultErrorHandlingPolicies.proceedWithAllProblems();
 
-        final Map settings = new HashMap();
-        settings.put(CompilerOptions.OPTION_LineNumberAttribute,
-                     CompilerOptions.GENERATE);
-        settings.put(CompilerOptions.OPTION_SourceFileAttribute,
-                     CompilerOptions.GENERATE);
-        settings.put(CompilerOptions.OPTION_ReportDeprecation,
-                     CompilerOptions.IGNORE);
         if (ctxt.getOptions().getJavaEncoding() != null) {
             settings.put(CompilerOptions.OPTION_Encoding,
                     ctxt.getOptions().getJavaEncoding());
-        }
-        if (ctxt.getOptions().getClassDebugInfo()) {
-            settings.put(CompilerOptions.OPTION_LocalVariableAttribute,
-                         CompilerOptions.GENERATE);
-        }
-
-        // Source JVM
-        if(ctxt.getOptions().getCompilerSourceVM() != null) {
-            String opt = ctxt.getOptions().getCompilerSourceVM();
-            if(opt.equals("1.1")) {
-                settings.put(CompilerOptions.OPTION_Source,
-                             CompilerOptions.VERSION_1_1);
-            } else if(opt.equals("1.2")) {
-                settings.put(CompilerOptions.OPTION_Source,
-                             CompilerOptions.VERSION_1_2);
-            } else if(opt.equals("1.3")) { 
-                settings.put(CompilerOptions.OPTION_Source,
-                             CompilerOptions.VERSION_1_3);
-            } else if(opt.equals("1.4")) {
-                settings.put(CompilerOptions.OPTION_Source,
-                             CompilerOptions.VERSION_1_4);
-            } else if(opt.equals("1.5")) {
-                settings.put(CompilerOptions.OPTION_Source,
-                             CompilerOptions.VERSION_1_5);
-            } else {
-                log.warn("Unknown source VM " + opt + " ignored.");
-                settings.put(CompilerOptions.OPTION_Source,
-                        CompilerOptions.VERSION_1_5);
-            }
-        } else {
-            // Default to 1.5
-            settings.put(CompilerOptions.OPTION_Source,
-                    CompilerOptions.VERSION_1_5);
-        }
-        
-        // Target JVM
-        if(ctxt.getOptions().getCompilerTargetVM() != null) {
-            String opt = ctxt.getOptions().getCompilerTargetVM();
-            if(opt.equals("1.1")) {
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                             CompilerOptions.VERSION_1_1);
-            } else if(opt.equals("1.2")) {
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                             CompilerOptions.VERSION_1_2);
-            } else if(opt.equals("1.3")) { 
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                             CompilerOptions.VERSION_1_3);
-            } else if(opt.equals("1.4")) {
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                             CompilerOptions.VERSION_1_4);
-            } else if(opt.equals("1.5")) {
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                             CompilerOptions.VERSION_1_5);
-            } else {
-                log.warn("Unknown target VM " + opt + " ignored.");
-                settings.put(CompilerOptions.OPTION_TargetPlatform,
-                        CompilerOptions.VERSION_1_5);
-            }
-        } else {
-            // Default to 1.5
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                    CompilerOptions.VERSION_1_5);
         }
 
         final IProblemFactory problemFactory = 
@@ -351,9 +404,12 @@ System.out.println("JJJ ctxt.getServletClassName()=" + ctxt.getServletClassName(
                                     String name = 
                                         new String(problems[i].getOriginatingFileName());
                                     try {
-                                        problemList.add(ErrorDispatcher.createJavacError
-                                                (name, pageNodes, new StringBuffer(problem.getMessage()), 
-                                                        problem.getSourceLineNumber()));
+                                        problemList.add(
+                                            ErrorDispatcher.createJavacError(
+                                                name,
+                                                pageNodes,
+                                                new StringBuffer(problem.getMessage()), 
+                                                problem.getSourceLineNumber()));
                                     } catch (JasperException e) {
                                         log.error("Error visiting node", e);
                                     }
@@ -394,9 +450,9 @@ System.out.println("JJJ ctxt.getServletClassName()=" + ctxt.getServletClassName(
         ICompilationUnit[] compilationUnits = 
             new ICompilationUnit[classNames.length];
         for (int i = 0; i < compilationUnits.length; i++) {
-            String className = classNames[i];
-            compilationUnits[i] = new CompilationUnit(fileNames[i], className);
+            compilationUnits[i] = new CompilationUnit(fileNames[i], classNames[i]);
         }
+
         Compiler compiler = new Compiler(env,
                                          policy,
                                          settings,
@@ -404,33 +460,11 @@ System.out.println("JJJ ctxt.getServletClassName()=" + ctxt.getServletClassName(
                                          problemFactory);
         compiler.compile(compilationUnits);
 
-        if (!ctxt.keepGenerated()) {
-            File javaFile = new File(ctxt.getServletJavaFileName());
-            javaFile.delete();
+        if (problemList.isEmpty()) {
+            return null;
         }
-    
-        if (!problemList.isEmpty()) {
-            JavacErrorDetail[] jeds = 
-                (JavacErrorDetail[]) problemList.toArray(new JavacErrorDetail[0]);
-            errDispatcher.javacError(jeds);
-        }
-        
-        if( log.isDebugEnabled() ) {
-            long t2=System.currentTimeMillis();
-            log.debug("Compiled " + ctxt.getServletJavaFileName() + " "
-                      + (t2-t1) + "ms");
-        }
-
-        if (ctxt.isPrototypeMode()) {
-            return;
-        }
-
-        // JSR45 Support
-        if (! options.isSmapSuppressed()) {
-            SmapUtil.installSmap(smap);
-        }
+        return (JavacErrorDetail[])problemList.toArray();
         
     }
-    
     
 }

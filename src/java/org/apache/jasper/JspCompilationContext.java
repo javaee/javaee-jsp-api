@@ -32,17 +32,13 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-// START GlassFish 750
 import java.util.concurrent.ConcurrentHashMap;
-// END GlassFish 750
 import java.util.Hashtable;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.TagInfo;
-// START GlassFish 750
 import javax.servlet.jsp.tagext.TagLibraryInfo;
-// END GlassFish 750
 
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspRuntimeContext;
@@ -67,10 +63,6 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * @author Kin-man Chung
  */
 public class JspCompilationContext {
-
-    // START GlassFish Issue 812
-    private static Class jdtCompilerClass;
-    // END GlassFish Issue 812
 
     private Hashtable tagFileJarUrls;
     private boolean isPackagedTagFile;
@@ -100,7 +92,6 @@ public class JspCompilationContext {
 
     private int removed = 0;
 
-    private URLClassLoader jspLoader;
     private URL baseUrl;
     private Class servletClass;
 
@@ -108,21 +99,7 @@ public class JspCompilationContext {
     private boolean protoTypeMode;
     private TagInfo tagInfo;
     private URL tagFileJarUrl;
-
-    // START GlassFish 750
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
-    // END GlassFish 750
-
-    // START GlassFish Issue 812
-    static {
-        try {
-            jdtCompilerClass = Class.forName(
-                "org.apache.jasper.compiler.JDTCompiler");
-        } catch (ClassNotFoundException e) {
-            // do nothing
-        }
-    }
-    // END GlassFish Issue 812
 
     // jspURI _must_ be relative to the context
     public JspCompilationContext(String jspUri,
@@ -156,10 +133,8 @@ public class JspCompilationContext {
         this.tagFileJarUrls = new Hashtable();
         this.basePackageName = Constants.JSP_PACKAGE_NAME;
 
-        // START GlassFish 750
         taglibs = (ConcurrentHashMap<String, TagLibraryInfo>)
             context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE);
-        // END GlassFish 750
     }
 
     public JspCompilationContext(String tagfile,
@@ -182,7 +157,6 @@ public class JspCompilationContext {
     /* ==================== Methods to override ==================== */
 
 
-    // START GlassFish 750
     /**
      * Adds the given tag library with the given URI to the context-wide
      * tag library cache.
@@ -209,8 +183,6 @@ public class JspCompilationContext {
     public void clearTaglibs() {
         taglibs.clear();
     }
-    // END GlassFish 750
-
 
     /** ---------- Class path and loader ---------- */
 
@@ -260,32 +232,14 @@ public class JspCompilationContext {
     }
 
     /**
-     * Create a "Compiler" object based on some init param data. This
-     * is not done yet. Right now we're just hardcoding the actual
-     * compilers that are created. 
+     * Create a "Compiler" object.
      */
     public Compiler createCompiler(boolean jspcMode) throws JasperException {
         if (jspCompiler != null ) {
             return jspCompiler;
         }
 
-        /* GlassFish Issue 812
-        jspCompiler = new Compiler(this, jsw);
-        */
-        // START GlassFish Issue 812
-        if (jdtCompilerClass != null) {
-            try {
-                jspCompiler = (Compiler) jdtCompilerClass.newInstance();
-            } catch (Exception e) {
-                throw new JasperException(e);
-            }
-        } else {
-            jspCompiler = new Compiler();
-            jspCompiler.setJspcMode(jspcMode);
-        }
-        jspCompiler.init(this, jsw);
-        // END GlassFish Issue 812
-
+        jspCompiler = new Compiler(this, jsw, jspcMode);
         return jspCompiler;
     }
 
@@ -516,6 +470,16 @@ public class JspCompilationContext {
     }
 
     /**
+     * Full class name
+     */
+    public String getFullClassName() {
+        if (isTagFile()) {
+            return tagInfo.getTagClassName();
+        }
+        return getServletPackageName() + '.' + getServletClassName();
+    }
+
+    /**
      * Path of the Java file relative to the work directory.
      */
     public String getJavaPath() {
@@ -524,13 +488,7 @@ public class JspCompilationContext {
             return javaPath;
         }
 
-        if (isTagFile()) {
-	    String tagName = tagInfo.getTagClassName();
-            javaPath = tagName.replace('.', '/') + ".java";
-        } else {
-            javaPath = getServletPackageName().replace('.', '/') + '/' +
-                       getServletClassName() + ".java";
-	}
+        javaPath = getFullClassName().replace('.','/') + ".java";
         return javaPath;
     }
 
@@ -615,7 +573,7 @@ public class JspCompilationContext {
         createCompiler(false);
         if (isPackagedTagFile || jspCompiler.isOutDated()) {
             try {
-                jspCompiler.compile();
+                jspCompiler.compile(true);
                 jsw.setReload(true);
                 jsw.setCompilationException(null);
             } catch (JasperException ex) {
@@ -640,66 +598,33 @@ public class JspCompilationContext {
         throws JasperException
     {
         try {
-            /* GlassFish Issue 812
-            // START S1AS 6181923
-            if (!options.getUsePrecompiled()) {
-            // END S1AS 6181923
-                jspLoader = new JasperLoader(new URL[] {baseUrl},
-                                             getClassLoader(),
-                                             rctxt.getPermissionCollection(),
-                                             rctxt.getCodeSource());
-            // START S1AS 6181923
-            }
-            // END S1AS 6181923
-            */
-            // START GlassFish Issue 812
-            getJspLoader();
-            // END GlassFish Issue 812
 
-            String name;
-            if (isTagFile()) {
-                name = tagInfo.getTagClassName();
-            } else {
-                name = getServletPackageName() + "." + getServletClassName();
-            }
+            String name = getFullClassName();
 
-            // START S1AS 6181923
             if (options.getUsePrecompiled()) {
                 servletClass = getClassLoader().loadClass(name);
             } else {
-            // END S1AS 6181923
-                servletClass = jspLoader.loadClass(name);
-            // START S1AS 6181923
+                servletClass = getJspLoader().loadClass(name);
             }
-            // END S1AS 6181923
         } catch (ClassNotFoundException cex) {
-            throw new JasperException(Localizer.getMessage("jsp.error.unable.load"),
-                                      cex);
+            throw new JasperException(
+                    Localizer.getMessage("jsp.error.unable.load"), cex);
         } catch (Exception ex) {
-            throw new JasperException(Localizer.getMessage("jsp.error.unable.compile"),
-                                      ex);
+            throw new JasperException(
+                    Localizer.getMessage("jsp.error.unable.compile"), ex);
         }
         removed = 0;
         return servletClass;
     }
 
 
-    // START GlassFish Issue 812
     public ClassLoader getJspLoader() {
-        // START S1AS 6181923
-        if (!options.getUsePrecompiled()) {
-        // END S1AS 6181923
-            jspLoader = new JasperLoader(new URL[] {baseUrl},
-                                         getClassLoader(),
-                                         rctxt.getPermissionCollection(),
-                                         rctxt.getCodeSource());
-        // START S1AS 6181923
-        }
-        // END S1AS 6181923
-
-        return jspLoader;
+        return new JasperLoader(new URL[] {baseUrl},
+                                getClassLoader(),
+                                rctxt.getPermissionCollection(),
+                                rctxt.getCodeSource(),
+                                rctxt.getBytecodes());
     }
-    // END GlassFish Issue 812
 
     // ==================== Private methods ==================== 
 

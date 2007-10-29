@@ -38,6 +38,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
+import java.util.Map;
 
 import javax.servlet.http.*;
 
@@ -56,6 +57,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  * @author Anil K. Vijendran
  * @author Harish Prabandham
  * @author Jean-Francois Arcand
+ * @author Kin-man Chung
  */
 public class JasperLoader extends URLClassLoader {
 
@@ -64,15 +66,18 @@ public class JasperLoader extends URLClassLoader {
     private String className;
     private ClassLoader parent;
     private SecurityManager securityManager;
+    private Map<String, byte[]> bytecodes;
 
     public JasperLoader(URL[] urls, ClassLoader parent,
 			PermissionCollection permissionCollection,
-			CodeSource codeSource) {
+			CodeSource codeSource,
+                        Map<String, byte[]> bytecodes) {
 	super(urls, parent);
 	this.permissionCollection = permissionCollection;
 	this.codeSource = codeSource;
 	this.parent = parent;
 	this.securityManager = System.getSecurityManager();
+        this.bytecodes = bytecodes;
     }
 
     /**
@@ -160,24 +165,30 @@ public class JasperLoader extends URLClassLoader {
     // START OF IASRI 4709374
     public Class findClass(String className) throws ClassNotFoundException {
 
-        // If the bytecode preprocessor is not enabled, use super.findClass
-	// as usual.
-        if (!PreprocessorUtil.isPreprocessorEnabled()) {                   
-	    return super.findClass(className);
-        }
+        // If the class file is in memory, use it
+        byte[] cdata = this.bytecodes.get(className);
 
-        // If the bytecode preprocessor is enabled, read class data and
-	// invoke the preprocessor.
-        Class clazz = null;
         String path = className.replace('.', '/') + ".class";
-        byte[] cdata = loadClassDataFromFile(path);
-	if (cdata == null) {
-            throw new ClassNotFoundException(className);
+        if (cdata == null) {
+            // If the bytecode preprocessor is not enabled, use super.findClass
+   	    // as usual.
+            if (!PreprocessorUtil.isPreprocessorEnabled()) { 
+                return super.findClass(className);
+            }
+
+            // read class data from file
+            cdata = loadClassDataFromFile(path);
+            if (cdata == null) {
+                throw new ClassNotFoundException(className);
+            }
         }
 
         // Preprocess the loaded byte code
-        cdata = PreprocessorUtil.processClass(path, cdata);
+        if (PreprocessorUtil.isPreprocessorEnabled()) {
+            cdata = PreprocessorUtil.processClass(path, cdata);
+        }
 
+        Class clazz = null;
         if (securityManager != null) {
             ProtectionDomain pd
                     = new ProtectionDomain(codeSource, permissionCollection);

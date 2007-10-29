@@ -26,13 +26,11 @@ package org.apache.jasper.compiler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -41,21 +39,9 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
 import org.apache.jasper.servlet.JspServletWrapper;
-import org.apache.jasper.util.SystemLogHandler;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Javac;
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.PatternSet;
-// START PWC 6441271
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import org.apache.jasper.Constants;
-// END PWC 6441271
 
 /**
- * Main JSP compiler class. This class uses Ant for compiling.
+ * Main JSP compiler class.
  *
  * @author Anil K. Vijendran
  * @author Mandar Raje
@@ -64,147 +50,54 @@ import org.apache.jasper.Constants;
  * @author Remy Maucherat
  * @author Mark Roth
  */
+
 public class Compiler {
-    /* GlassFish Issue 812
-    private static com.sun.org.apache.commons.logging.Log log=
-        com.sun.org.apache.commons.logging.LogFactory.getLog( Compiler.class );
-    */
-    // START GlassFish Issue 812
-    protected static com.sun.org.apache.commons.logging.Log log=
-        com.sun.org.apache.commons.logging.LogFactory.getLog( Compiler.class );
-    // END GlassFish Issue 812
+    private static com.sun.org.apache.commons.logging.Log commonsLog =
+        com.sun.org.apache.commons.logging.LogFactory.getLog(Compiler.class);
+    private static com.sun.org.apache.commons.logging.Log noOpLog =
+        new com.sun.org.apache.commons.logging.impl.NoOpLog();
 
     // ----------------------------------------------------------------- Static
 
-
-    /* PWC 6441271
-    // Some javac are not thread safe; use a lock to serialize compilation, 
-    static Object javacLock = new Object();
-    */
-    // START PWC 6441271
-    // Use a threadpool and force it to 1 to simulate serialization
-    private static ExecutorService threadPool = null;
-    private static int minThreads = Constants.DEFAULT_MIN_THREADS;
-    private static int maxThreads = Constants.DEFAULT_MAX_THREADS;
-    private static String lineSeparator = System.getProperty("line.separator");
-    // END PWC 6441271
-
-
     // ----------------------------------------------------- Instance Variables
-
 
     protected JspCompilationContext ctxt;
 
-    /* GlassFish Issue 812
     private ErrorDispatcher errDispatcher;
-    */
-    // START GlassFish Issue 812
-    protected ErrorDispatcher errDispatcher;
-    // END GlassFish Issue 812
     private PageInfo pageInfo;
     private JspServletWrapper jsw;
-    private JasperAntLogger logger;
     private TagFileProcessor tfp;
-
-    // START GlassFish Issue 812
+    private JavaCompiler javaCompiler;
     private boolean jspcMode;
-    // END GlassFish Issue 812
+    private com.sun.org.apache.commons.logging.Log log;
+    private SmapUtil smapUtil;
+    private Options options;
+    private Node.Nodes pageNodes;
 
-    protected Project project=null;
-
-    protected Options options;
-
-    protected Node.Nodes pageNodes;
     // ------------------------------------------------------------ Constructor
 
 
-    /* GlassFish Issue 812
-    public Compiler(JspCompilationContext ctxt) {
-        this(ctxt, null);
-    }
-
-
-    public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw) {
+    public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw,
+                    boolean jspcMode) {
         this.jsw = jsw;
         this.ctxt = ctxt;
+        this.jspcMode = jspcMode;
         this.options = ctxt.getOptions();
-    }
-    */
-
-    // START GlassFish Issue 812
-    public void init(JspCompilationContext ctxt, JspServletWrapper jsw) {
-        this.jsw = jsw;
-        this.ctxt = ctxt;
-        this.options = ctxt.getOptions();
-    }
-    // END GlassFish Issue 812
-
-
-    // Lazy eval - if we don't need to compile we probably don't need the project
-    private Project getProject() {
-
-        if( project!=null ) return project;
-
-        // Initializing project
-        project = new Project();
-        logger = new JasperAntLogger();
-        logger.setOutputPrintStream(System.out);
-        logger.setErrorPrintStream(System.err);
-	logger.setMessageOutputLevel(Project.MSG_INFO);
-        project.addBuildListener( logger);
-	if (System.getProperty("catalina.home") != null) {
-            project.setBasedir( System.getProperty("catalina.home"));
-        }
-        
-        if( options.getCompiler() != null ) {
-            if( log.isDebugEnabled() )
-                log.debug("Compiler " + options.getCompiler() );
-            project.setProperty("build.compiler", options.getCompiler() );
-        }
-        project.init();
-        return project;
+        this.log = jspcMode? noOpLog: commonsLog;
+        this.smapUtil = new SmapUtil(ctxt);
+        initJavaCompiler();
     }
 
-    class JasperAntLogger extends DefaultLogger {
-
-        private StringBuffer reportBuf = new StringBuffer();
-
-        protected void printMessage(final String message,
-                                    final PrintStream stream,
-                                    final int priority) {
-        }
-
-        protected void log(String message) {
-            reportBuf.append(message);
-            /* PWC 6441271
-            reportBuf.append(System.getProperty("line.separator"));
-            */
-            // START PWC 6441271
-            reportBuf.append(lineSeparator);
-            // END PWC 6441271
-        }
-
-        protected String getReport() {
-            String report = reportBuf.toString();
-            reportBuf.setLength(0);
-            return report;
-        }
-    }
 
     // --------------------------------------------------------- Public Methods
 
 
     /** 
-     * Compile the jsp file into equivalent servlet in .java file
-     * @return a smap for the current JSP page, if one is generated,
-     *         null otherwise
+     * Compile the jsp file into equivalent servlet in java source
      */
-    private String[] generateJava() throws Exception {
+    private void generateJava() throws Exception {
         
-        String[] smapStr = null;
-
         long t1, t2, t3, t4;
-
         t1 = t2 = t3 = t4 = 0;
 
         if (log.isDebugEnabled()) {
@@ -245,18 +138,10 @@ public class Compiler {
 
         try {
             // Setup the ServletWriter
-            String javaEncoding = ctxt.getOptions().getJavaEncoding();
-            OutputStreamWriter osw = null; 
-
-            try {
-                osw = new OutputStreamWriter(
-                            new FileOutputStream(javaFileName), javaEncoding);
-            } catch (UnsupportedEncodingException ex) {
-                errDispatcher.jspError("jsp.error.needAlternateJavaEncoding",
-                                       javaEncoding);
-            }
-
-            writer = new ServletWriter(new PrintWriter(osw));
+            Writer javaWriter = javaCompiler.getJavaWriter(
+                                    javaFileName,
+                                    ctxt.getOptions().getJavaEncoding());
+            writer = new ServletWriter(new PrintWriter(javaWriter));
             ctxt.setWriter(writer);
 
             // Reset the temporary variable counter for the generator.
@@ -271,7 +156,7 @@ public class Compiler {
                 Generator.generate(writer, this, pageNodes);
                 writer.close();
                 writer = null;
-                return null;
+                return;
             }
 
             // Validate and process attributes
@@ -333,7 +218,7 @@ public class Compiler {
                 }
             }
             // Remove the generated .java file
-            new File(javaFileName).delete();            
+            javaCompiler.removeJavaFile();
             throw e;
         } finally {
             if (writer != null) {
@@ -347,7 +232,12 @@ public class Compiler {
         
         // JSR45 Support
         if (! options.isSmapSuppressed()) {
-            smapStr = SmapUtil.generateSmap(ctxt, pageNodes);
+            smapUtil.generateSmap(pageNodes);
+        }
+
+        if (options.getSaveBytecode()) {
+            javaCompiler.saveClassFile(ctxt.getFullClassName(),
+                                       ctxt.getClassFileName());
         }
 
         // If any proto type .java and .class files was generated,
@@ -356,20 +246,13 @@ public class Compiler {
         // .class file need to be removed, to make sure that javac would
         // generate .class again from the new .java file just generated.
         tfp.removeProtoTypeFiles(ctxt.getClassFileName());
-
-        return smapStr;
     }
 
 
     /** 
      * Compile the servlet from .java file to .class file
      */
-    /* GlassFish Issue 812
-    private void generateClass(String[] smap)
-     */
-    // START GlassFish Issue 812
-    protected void generateClass(String[] smap)
-    // END GlassFish Issue 812
+    private void generateClass()
         throws FileNotFoundException, JasperException, Exception {
 
         long t1 = 0;
@@ -377,198 +260,53 @@ public class Compiler {
             t1 = System.currentTimeMillis();
         }
 
-        String javaEncoding = ctxt.getOptions().getJavaEncoding();
         String javaFileName = ctxt.getServletJavaFileName();
         String classpath = ctxt.getClassPath(); 
-
         String sep = System.getProperty("path.separator");
 
-        StringBuffer errorReport = new StringBuffer();
-
-        StringBuffer info=new StringBuffer();
-        info.append("Compile: javaFileName=" + javaFileName + "\n" );
-        info.append("    classpath=" + classpath + "\n" );
-
-        // Start capturing the System.err output for this thread
-        SystemLogHandler.setThread();
-
-        // Initializing javac task
-        getProject();
-        Javac javac = (Javac) project.createTask("javac");
-
         // Initializing classpath
-        Path path = new Path(project);
-        /* PWC 1.2 6311155
-        path.setPath(System.getProperty("java.class.path"));
-        info.append("    cp=" + System.getProperty("java.class.path") + "\n");
-        */
-        // START PWC 1.2 6311155
+        ArrayList<File> cpath = new ArrayList<File>();
+
+        // Process classpath, which includes system classpath from compiler
+        // options, plus the context classpath from the classloader
         String sysClassPath = options.getSystemClassPath();
-        path.setPath(sysClassPath);
-        info.append("    cp=" + sysClassPath + "\n");
-        // END PWC 1.2 6311155
+        if (sysClassPath != null) {
+            StringTokenizer tokenizer = new StringTokenizer(sysClassPath, sep);
+            while (tokenizer.hasMoreElements()) {
+                cpath.add(new File(tokenizer.nextToken()));
+            }
+        }
         StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
         while (tokenizer.hasMoreElements()) {
-            String pathElement = tokenizer.nextToken();
-            File repository = new File(pathElement);
-            path.setLocation(repository);
-            info.append("    cp=" + repository + "\n");
+            File repository = new File(tokenizer.nextToken());
+            cpath.add(repository);
         }
-
-        if( log.isDebugEnabled() )
-            /* PWC 1.2 6311155
-            log.debug( "Using classpath: " + System.getProperty("java.class.path") + sep
-                       + classpath);
-            */
-            // START PWC 1.2 6311155
+        if(log.isDebugEnabled()) {
             log.debug("Using classpath: " + sysClassPath + sep + classpath);
-            //  END PWC 1.2 6311155
+        }
+        javaCompiler.setClassPath(cpath);
         
-        // Initializing sourcepath
-        Path srcPath = new Path(project);
-        srcPath.setLocation(options.getScratchDir());
-
-        info.append("    work dir=" + options.getScratchDir() + "\n");
-
         // Initialize and set java extensions
         String exts = System.getProperty("java.ext.dirs");
         if (exts != null) {
-            Path extdirs = new Path(project);
-            extdirs.setPath(exts);
-            javac.setExtdirs(extdirs);
-            info.append("    extension dir=" + exts + "\n");
-        }
-
-        // Configure the compiler object
-        javac.setEncoding(javaEncoding);
-        javac.setClasspath(path);
-        javac.setDebug(ctxt.getOptions().getClassDebugInfo());
-        javac.setSrcdir(srcPath);
-        javac.setOptimize(! ctxt.getOptions().getClassDebugInfo() );
-        javac.setFork(ctxt.getOptions().getFork());
-        info.append("    srcDir=" + srcPath + "\n" );
-
-        // Set the Java compiler to use
-        if (options.getCompiler() != null) {
-            javac.setCompiler(options.getCompiler());
-            info.append("    compiler=" + options.getCompiler() + "\n");
+            javaCompiler.setExtdirs(exts);
         }
 
         if (options.getCompilerTargetVM() != null) {
-            javac.setTarget(options.getCompilerTargetVM());
-            info.append("   compilerTargetVM=" + options.getCompilerTargetVM() + "\n");
+            javaCompiler.setTargetVM(options.getCompilerTargetVM());
         }
 
         if (options.getCompilerSourceVM() != null) {
-            javac.setSource(options.getCompilerSourceVM());
-            info.append("   compilerSourceVM=" + options.getCompilerSourceVM() + "\n");
+            javaCompiler.setSourceVM(options.getCompilerSourceVM());
         }
 
-        // Build includes path
-        PatternSet.NameEntry includes = javac.createInclude();
+        // Start java compilation
+        JavacErrorDetail[] javacErrors =
+            javaCompiler.compile(ctxt.getFullClassName(), pageNodes);
 
-        includes.setName(ctxt.getJavaPath());
-        info.append("    include="+ ctxt.getJavaPath() + "\n" );
-
-        BuildException be = null;
-
-        /* PWC 6441271
-        try {
-            if (ctxt.getOptions().getFork()) {
-                javac.execute();
-            } else {
-                synchronized(javacLock) {
-                    javac.execute();
-                }
-            }
-        } catch (BuildException e) {
-            be = e;
-            if (!jspcMode) {
-                log.error( "Javac exception ", e);
-                log.error( "Env: " + info.toString());
-            }
-        }
-        */
-        // START PWC 6441271
-        String errorCapture = null;
-        if (ctxt.getOptions().getFork()) {
-            try {
-                javac.execute();
-            } catch (BuildException e) {
-                be = e;
-                if (!jspcMode) {
-                    log.error( "Javac exception ", e);
-                    log.error( "Env: " + info.toString());
-                }
-            }
-            errorReport.append(logger.getReport());
-            // Stop capturing the System.err output for this thread
-            errorCapture = SystemLogHandler.unsetThread();
-        } else {
-            errorReport.append(logger.getReport());
-            errorCapture = SystemLogHandler.unsetThread();
-
-            // Capture the current thread
-            if (errorCapture != null) {
-                errorReport.append(lineSeparator);
-                errorReport.append(errorCapture);
-            }
-
-            JavacObj javacObj = new JavacObj(javac);
-            synchronized(javacObj) {
-                threadPool.execute(javacObj);
-                // Wait for the thread to complete
-                try {
-                    javacObj.wait();
-                } catch (InterruptedException e) {
-                    ;
-                }
-            }
-            be = javacObj.getException();
-            if (be != null) {
-                if (!jspcMode) {
-                    log.error( "Javac exception ", be);
-                    log.error( "Env: " + info.toString());
-                }
-            }
-            errorReport.append(logger.getReport());
-            errorCapture = javacObj.getErrorCapture();
-        }
-        // END PWC 6441271
-        /* PWC 6441271
-        errorReport.append(logger.getReport());
-
-        // Stop capturing the System.err output for this thread
-        String errorCapture = SystemLogHandler.unsetThread();
-        */
-        if (errorCapture != null) {
-            /* PWC 6441271
-            errorReport.append(System.getProperty("line.separator"));
-            */
-            // START PWC 6441271
-            errorReport.append(lineSeparator);
-            // END PWC 6441271
-            errorReport.append(errorCapture);
-        }
-
-        if (!ctxt.keepGenerated()) {
-            File javaFile = new File(javaFileName);
-            javaFile.delete();
-        }
-
-        if (be != null) {
-            String errorReportString = errorReport.toString();
-            if (!jspcMode) {
-                log.error("Error compiling file: " + javaFileName + " "
-                          + errorReportString);
-            }
-            JavacErrorDetail[] javacErrors = ErrorDispatcher.parseJavacErrors(
-                        errorReportString, javaFileName, pageNodes);
-            if (javacErrors != null) {
-                errDispatcher.javacError(javacErrors);
-            } else {
-                errDispatcher.javacError(errorReportString, be);
-            }
+        if (javacErrors != null) {
+            log.error("Error compiling file: " + javaFileName);
+            errDispatcher.javacError(javacErrors);
         }
 
         if (log.isDebugEnabled()) {
@@ -576,30 +314,21 @@ public class Compiler {
             log.debug("Compiled " + javaFileName + " " + (t2-t1) + "ms");
         }
 
-	if (ctxt.isPrototypeMode()) {
-	    return;
-	}
+        if (!ctxt.keepGenerated()) {
+            javaCompiler.removeJavaFile();
+        }
 
         // JSR45 Support
-        if (! options.isSmapSuppressed()) {
-            SmapUtil.installSmap(smap);
+        if (!ctxt.isPrototypeMode() && !options.isSmapSuppressed()) {
+            smapUtil.installSmap();
         }
 
         // START CR 6373479
         if (jsw != null && jsw.getServletClassLastModifiedTime() <= 0) {
-            File targetFile = new File(ctxt.getClassFileName());
-            jsw.setServletClassLastModifiedTime(targetFile.lastModified());
+            jsw.setServletClassLastModifiedTime(
+                javaCompiler.getClassLastModified());
         }
         // END CR 6373479
-    }
-
-    /** 
-     * Compile the jsp file from the current engine context
-     */
-    public void compile()
-        throws FileNotFoundException, JasperException, Exception
-    {
-        compile(true);
     }
 
     /**
@@ -617,9 +346,9 @@ public class Compiler {
         }
 
         try {
-            String[] smap = generateJava();
+            generateJava();
             if (compileClass) {
-                generateClass(smap);
+                generateClass();
             }
         } finally {
             if (tfp != null) {
@@ -631,16 +360,9 @@ public class Compiler {
             // memory footprint.
             tfp = null;
             errDispatcher = null;
-            logger = null;
-            project = null;
-            /* SJSAS 6393940
-            pageInfo = null;
-            */
-            // START SJSAS 6393940
             if (!jspcMode) {
                 pageInfo = null;
             }
-            // END SJSAS 6393940
             pageNodes = null;
             if (ctxt.getWriter() != null) {
                 ctxt.getWriter().close();
@@ -837,65 +559,53 @@ public class Compiler {
         }
     }
 
-    // START PWC 6441271
-    public static void startThreadPool() {
-        threadPool = Executors.newCachedThreadPool();
-    }
-
-    public static void shutdownThreadPool() {
-        if (threadPool != null) {
-            threadPool.shutdown();
-	}
-    }
-
-    public static void setMinThreads(int i) {
-        minThreads = i;
-    }
-
-    public static void setMaxThreads(int i) {
-        maxThreads = i;
-    }
-
-    // Implement java compilation in a separate java thread to 
-    // avoid stack overflow problem (exposed by 64 -bit server)
-    protected class JavacObj implements Runnable {
-        
-        Javac _javac = null;
-        BuildException _be = null;
-        String _errorCapture = null;
-
-        public JavacObj(Javac javac) {
-            _javac = javac;
-        }
-
-        public void run() {
-            SystemLogHandler.setThread();
-            try {
-                _javac.execute();
-            } catch  (BuildException e) {
-                _be = e;
-            } finally {
-                _errorCapture = SystemLogHandler.unsetThread();
-                synchronized(this) {
-                    this.notify();
+    /**
+     * Get an instance of JavaCompiler.
+     * If Running with Mustang (JDK1.6), use a Jsr199JavaCompiler that
+     * supports JSR199,
+     * else if eclipse's JDT compiler is avalable, use that.
+     * The default is to use javac from ant.
+     * NOTE: When the appserver can be built with and runs only with JDK1.6,
+     * this should be changed to instantiate Jsr199JavaCompiler with new
+     * operator directly.
+     */
+    private void initJavaCompiler() {
+        Class c = getClassFor("javax.tools.ToolProvider");
+        if (c != null) {
+            // JDK1.6
+            c = getClassFor("org.apache.jasper.compiler.Jsr199JavaCompiler");
+            if (c != null) {
+                try {
+                    javaCompiler = (JavaCompiler) c.newInstance();
+                } catch (Exception ex) {
                 }
             }
         }
-
-        public BuildException getException() {
-            return _be;
+        if (javaCompiler == null) {
+            c = getClassFor("org.eclipse.jdt.internal.compiler.Compiler");
+            if (c != null) {
+                c = getClassFor("org.apache.jasper.compiler.JDTJavaCompiler");
+                if (c != null) {
+                    try {
+                        javaCompiler = (JavaCompiler) c.newInstance();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        }
+        if (javaCompiler == null) {
+            javaCompiler = new AntJavaCompiler();
         }
 
-        public String getErrorCapture() {
-            return _errorCapture;
+        javaCompiler.init(ctxt, errDispatcher, jspcMode);
+    }
+
+    private Class getClassFor(String className) {
+        Class c = null;
+        try {
+            c = Class.forName(className, false, getClass().getClassLoader());
+        } catch (ClassNotFoundException ex) {
         }
+        return c;
     }
-    // END PWC 6441271
-
-
-    // START GlassFish Issue 812
-    public void setJspcMode(boolean jspcMode) {
-        this.jspcMode = jspcMode;
-    }
-    // END GlassFish Issue 812
 }

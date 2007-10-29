@@ -34,9 +34,6 @@ import java.text.MessageFormat;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-// START PWC 6441271
-import org.apache.jasper.compiler.Compiler;
-// END PWC 6441271
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.TagPluginManager;
@@ -73,6 +70,12 @@ public final class EmbeddedServletOptions implements Options {
      * Do you want to keep the generated Java files around?
      */
     private boolean keepGenerated = true;
+
+    /**
+     * If class files are generated as byte arrays, should they be saved to
+     * disk at the end of compilations?
+     */
+    private boolean saveBytecode = false;
 
     /**
      * Should white spaces between directives or actions be trimmed?
@@ -225,7 +228,11 @@ public final class EmbeddedServletOptions implements Options {
     public boolean getKeepGenerated() {
         return keepGenerated;
     }
-    
+
+    public boolean getSaveBytecode() {
+        return this.saveBytecode;
+    }
+
     /**
      * Should white spaces between directives or actions be trimmed?
      */
@@ -473,7 +480,19 @@ public final class EmbeddedServletOptions implements Options {
 		}
 	    }
         }
-            
+
+        String saveCode = config.getInitParameter("saveBytecode");
+        if (saveCode != null) {
+            if (saveCode.equalsIgnoreCase("true")) {
+                this.saveBytecode = true;
+            } else if (saveCode.equalsIgnoreCase("false")) {
+                this.saveBytecode = false;
+            } else {
+                if (log.isWarnEnabled()) {
+                    log.warn(Localizer.getMessage("jsp.warning.saveCode"));
+                }
+            }
+        }
 
         String trimsp = config.getInitParameter("trimSpaces"); 
         if (trimsp != null) {
@@ -796,51 +815,6 @@ public final class EmbeddedServletOptions implements Options {
             }
         }
         // END SJSWS
-
-        // START PWC 6441271
-        String numThreads = config.getInitParameter("minThreads");
-        if (numThreads != null) {
-            try {
-                int num = Integer.parseInt(numThreads);
-                if (num > 0) {
-                    Compiler.setMinThreads(num);
-                }
-            } catch (NumberFormatException nfe) {
-                if (log.isWarnEnabled()) {
-                    String msg = Localizer.getMessage(
-                        "jsp.warning.minThreads");
-                    msg = MessageFormat.format(
-                        msg,
-                        new Object[] {
-                            capacity,
-                            new Integer(Constants.DEFAULT_MIN_THREADS)});
-                    log.warn(msg);
-                }
-            }
-        }
-
-        numThreads = config.getInitParameter("maxThreads");
-        if (numThreads != null) {
-            try {
-                int num = Integer.parseInt(numThreads);
-                if (num > 0) {
-                    Compiler.setMaxThreads(num);
-                }
-            } catch (NumberFormatException nfe) {
-                if (log.isWarnEnabled()) {
-                    String msg = Localizer.getMessage(
-                        "jsp.warning.maxThreads");
-                    msg = MessageFormat.format(
-                        msg,
-                        new Object[] {
-                            capacity,
-                            new Integer(Constants.DEFAULT_MAX_THREADS)});
-                    log.warn(msg);
-
-                }
-            }
-        }
-        // END PWC 6441271
 
 	// Setup the global Tag Libraries location cache for this
 	// web-application.

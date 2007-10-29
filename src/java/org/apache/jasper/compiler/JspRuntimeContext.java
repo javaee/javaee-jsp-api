@@ -29,6 +29,8 @@ package org.apache.jasper.compiler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilePermission;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
@@ -36,9 +38,11 @@ import java.security.cert.Certificate;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspFactory;
@@ -64,16 +68,12 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public final class JspRuntimeContext implements Runnable {
 
     // Logger
     private static Log log = LogFactory.getLog(JspRuntimeContext.class);
-
-    // START PWC 6441271
-    private static boolean started = false;
-    // END PWC 6441271
 
     /*
      * Counts how many times the webapp's JSPs have been reloaded.
@@ -106,8 +106,11 @@ public final class JspRuntimeContext implements Runnable {
         this.context = context;
         this.options = options;
 
-        jsps = Collections.synchronizedMap(
-            new HashMap(options.getInitialCapacity()));
+        int hashSize = options.getInitialCapacity();
+        jsps = new ConcurrentHashMap<String, JspServletWrapper>(hashSize);
+
+        bytecodes = new ConcurrentHashMap<String, byte[]>(hashSize);
+        bytecodeBirthTimes = new ConcurrentHashMap<String, Long>(hashSize);
 
         // Get the parent class loader
         parentClassLoader =
@@ -128,10 +131,6 @@ public final class JspRuntimeContext implements Runnable {
         }
 
         initClassPath();
-
-        // START PWC 6441271
-        startThreadPool(options);
-        // END PWC 6441271
 
 	if (context instanceof org.apache.jasper.servlet.JspCServletContext) {
 	    return;
@@ -172,8 +171,21 @@ public final class JspRuntimeContext implements Runnable {
     /**
      * Maps JSP pages to their JspServletWrapper's
      */
-    private Map jsps;
+    private Map <String, JspServletWrapper> jsps;
  
+    /**
+     * Maps class names to in-memory bytecodes
+     */
+    private Map<String, byte[]> bytecodes;
+    private Map<String, Long> bytecodeBirthTimes;
+
+    /**
+     * Maps classes in packages compiled by the JSP compiler.
+     * Used only by Jsr199Compiler.
+     * Should be Map<String, ArrayList<JavaFileObject>>, is this way now
+     * so not to be dependent on the JSP199 API at build time.
+     */
+    private Map<String, ArrayList<Object>> packageMap;
 
     /**
      * The background thread.
@@ -212,7 +224,7 @@ public final class JspRuntimeContext implements Runnable {
      * @return JspServletWrapper for JSP
      */
     public JspServletWrapper getWrapper(String jspUri) {
-        return (JspServletWrapper) jsps.get(jspUri);
+        return jsps.get(jspUri);
     }
 
     /**
@@ -273,9 +285,8 @@ public final class JspRuntimeContext implements Runnable {
 
         threadStop();
 
-        Iterator servlets = jsps.values().iterator();
-        while (servlets.hasNext()) {
-            ((JspServletWrapper) servlets.next()).destroy();
+        for (JspServletWrapper jsw: jsps.values()) {
+            jsw.destroy();
         }
     }
 
@@ -304,18 +315,70 @@ public final class JspRuntimeContext implements Runnable {
         return jspReloadCount;
     }
 
+    /**
+     * Save the bytecode for the class in a map.  The current time is noted.
+     * @param name The name of the class
+     * @param bytecode The bytecode in byte array
+     */
+    public void setBytecode(String name, byte[] bytecode) {
+        bytecodes.put(name, bytecode);
+        bytecodeBirthTimes.put(name, new Long(System.currentTimeMillis()));
+    }
 
-    // -------------------------------------------------------- Private Methods
+    /**
+     * Get the class-name to bytecode map
+     */
+    public Map<String, byte[]> getBytecodes() {
+        return bytecodes;
+    }
 
+    /**
+     * Retrieve the bytecode associated with the class
+     */
+    public byte[] getBytecode(String name) {
+        return bytecodes.get(name);
+    }
 
-    // START PWC 6441271
-    private static synchronized void startThreadPool(Options options) {
-        if (!started && !options.getFork()) {
-            started = true;
-            Compiler.startThreadPool();
+    /**
+     * Retrieve the time the bytecode for a class was created
+     */
+    public long getBytecodeBirthTime(String name) {
+        Long time = bytecodeBirthTimes.get(name);
+        return (time != null? time.longValue(): 0);
+    }
+
+    /**
+     * The packageMap keeps track of the bytecode files in a package generated
+     * by a java compiler.  This is in turn loaded by the java compiler during
+     * compilation.  This is gets around the fact that JSR199 API does not
+     * provide a way for the compiler use current classloader.
+     */
+    public Map<String, ArrayList<Object>> getPackageMap() {
+        if (packageMap == null) {
+            packageMap = new HashMap<String, ArrayList<Object>>();
+        }
+        return packageMap;
+    }
+
+    /**
+     * Save the bytecode for a class to disk.
+     */
+    public void saveBytecode(String className, String classFileName) {
+        byte[] bytecode = getBytecode(className);
+        if (bytecode != null) {
+            try {
+                FileOutputStream fos = new FileOutputStream(classFileName);
+                fos.write(bytecode);
+                fos.close();
+            } catch (IOException ex) {
+                context.log("Error in saving bytecode for " + className +
+                    " to " + classFileName, ex);
+            }
         }
     }
-    // END PWC 6441271   
+
+
+    // -------------------------------------------------------- Private Methods
 
 
     /**
@@ -323,9 +386,7 @@ public final class JspRuntimeContext implements Runnable {
      * registered with this class for JSP's.
      */
     private void checkCompile() {
-        Object [] wrappers = jsps.values().toArray();
-        for (int i = 0; i < wrappers.length; i++ ) {
-            JspServletWrapper jsw = (JspServletWrapper)wrappers[i];
+        for (JspServletWrapper jsw: jsps.values()) {
             JspCompilationContext ctxt = jsw.getJspEngineContext();
             // JspServletWrapper also synchronizes on this when
             // it detects it has to do a reload
