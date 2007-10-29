@@ -105,7 +105,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/19 00:31:56 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1578,23 +1578,6 @@ public class WebappClassLoader
      */
     public void stop() throws LifecycleException {
 
-        // START S1AS 5032338
-        /*
-         * After upgrading to commons-logging 1.0.3, this would be as simple
-         * as calling LogFactroy.release(this).
-         * However, LogFactory.release() that takes ClassLoader argument was
-         * added in commons-logging 1.0.3 and is not available in the
-         * currently bundled commons-logging 1.0.2.
-         * Therefore, we need to create our own extension of LogFactory
-         * ("DummyLogFactory") which implements this method.
-         *
-         * We need to reference DummyLogFactory here, before 'started' is set
-         * to FALSE, because this WebappClassLoader won't load anything after
-         * it has been stopped.
-         */
-        DummyLogFactory.release(this);
-        // END S1AS 5032338
-
         started = false;
 
         int length = files.length;
@@ -1636,9 +1619,9 @@ public class WebappClassLoader
             deleteDir(loaderDir);
         }
 
-        // Clear the classloader reference in commons-logging.
         // START S1AS 5032338
-        // LogFactory.release(this);
+        // Clear the classloader reference in commons-logging.
+        LogFactory.release(this);
         // END S1AS 5032338
 
         // Clear the classloader reference in the VM's bean introspector
@@ -2300,68 +2283,5 @@ public class WebappClassLoader
         dir.delete();
 
     }
-
-
-    // START S1AS 5032338
-    /*
-     * Dummy extension of LogFactory which provides release() method
-     * which takes ClassLoader argument. This method was added in 
-     * commons-logging 1.0.3 and is not available in the currently bundled
-     * commons-logging 1.0.2.
-     */        
-    private static class DummyLogFactory extends LogFactory {
-        
-        public Object getAttribute(String name) {
-            return null;
-        }
-
-        public String[] getAttributeNames() {
-            return null;
-        }
-
-        public Log getInstance(Class clazz)
-                throws LogConfigurationException {
-            return null;
-        }
-
-        public Log getInstance(String name)
-                throws LogConfigurationException {
-            return null;
-        }
-
-        public void release() {
-            // do nothing
-        }
-
-        public void removeAttribute(String name) {
-            // do nothing
-        }
-
-        public void setAttribute(String name, Object value) {
-            // do nothing
-        }
-    
-        /**
-         * Release any internal references to previously created LogFactory
-         * instances that have been associated with the specified class
-         * loader (if any), after calling the instance method
-         * <code>release()</code> on each of them.
-         *
-         * Copied from LogFactory in commons-logging 1.0.3.
-         *
-         * @param classLoader ClassLoader for which to release the LogFactory
-         */
-        public static void release(ClassLoader classLoader) {
-
-            synchronized (factories) {
-                LogFactory factory = (LogFactory) factories.get(classLoader);
-                if (factory != null) {
-                    factory.release();
-                    factories.remove(classLoader);
-                }
-            }
-        }
-    }
-    // END S1AS 5032338
 }
 

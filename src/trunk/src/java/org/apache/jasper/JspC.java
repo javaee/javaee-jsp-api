@@ -1071,9 +1071,11 @@ public class JspC implements Options {
             }
             throw je;
         } finally {
+            // START S1AS 5032338
             if (loader != null) {
-                DummyLogFactory.release(loader);
+                LogFactory.release(loader);
             }
+            // END S1AS 5032338
         }
     }
 
@@ -1293,66 +1295,4 @@ public class JspC implements Options {
             // pass straight through
         }
     }
-
-
-    /*
-     * Dummy extension of LogFactory which provides release() method
-     * which takes ClassLoader argument. This method was added in 
-     * commons-logging 1.0.3 and is not available in the currently bundled
-     * commons-logging 1.0.2.
-     */        
-    private static class DummyLogFactory extends LogFactory {
-        
-        public Object getAttribute(String name) {
-            return null;
-        }
-
-        public String[] getAttributeNames() {
-            return null;
-        }
-
-        public Log getInstance(Class clazz)
-                throws LogConfigurationException {
-            return null;
-        }
-
-        public Log getInstance(String name)
-                throws LogConfigurationException {
-            return null;
-        }
-
-        public void release() {
-            // do nothing
-        }
-
-        public void removeAttribute(String name) {
-            // do nothing
-        }
-
-        public void setAttribute(String name, Object value) {
-            // do nothing
-        }
-    
-        /**
-         * Release any internal references to previously created LogFactory
-         * instances that have been associated with the specified class
-         * loader (if any), after calling the instance method
-         * <code>release()</code> on each of them.
-         *
-         * Copied from LogFactory in commons-logging 1.0.3.
-         *
-         * @param classLoader ClassLoader for which to release the LogFactory
-         */
-        public static void release(ClassLoader classLoader) {
-
-            synchronized (factories) {
-                LogFactory factory = (LogFactory) factories.get(classLoader);
-                if (factory != null) {
-		    factory.release();
-                    factories.remove(classLoader);
-                }
-            }
-        }
-    }
-
 }
