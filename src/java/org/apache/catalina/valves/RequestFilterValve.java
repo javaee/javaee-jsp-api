@@ -25,16 +25,15 @@ package org.apache.catalina.valves;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
-import org.apache.catalina.Container;
+
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
-import org.apache.catalina.Valve;
 import org.apache.catalina.util.StringManager;
 
 
@@ -69,38 +68,14 @@ import org.apache.catalina.util.StringManager;
  * of the filtering you wish to perform.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:41 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
  */
 
 public abstract class RequestFilterValve
     extends ValveBase {
 
 
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The comma-delimited set of <code>allow</code> expressions.
-     */
-    protected String allow = null;
-
-
-    /**
-     * The set of <code>allow</code> regular expressions we will evaluate.
-     */
-    protected RE allows[] = new RE[0];
-
-
-    /**
-     * The set of <code>deny</code> regular expressions we will evaluate.
-     */
-    protected RE denies[] = new RE[0];
-
-
-    /**
-     * The comma-delimited set of <code>deny</code> expressions.
-     */
-    protected String deny = null;
+    // ----------------------------------------------------- Class Variables
 
 
     /**
@@ -115,6 +90,33 @@ public abstract class RequestFilterValve
      */
     protected static StringManager sm =
         StringManager.getManager(Constants.Package);
+
+
+    // ----------------------------------------------------- Instance Variables
+
+
+    /**
+     * The comma-delimited set of <code>allow</code> expressions.
+     */
+    protected String allow = null;
+
+
+    /**
+     * The set of <code>allow</code> regular expressions we will evaluate.
+     */
+    protected Pattern allows[] = new Pattern[0];
+
+
+    /**
+     * The set of <code>deny</code> regular expressions we will evaluate.
+     */
+    protected Pattern denies[] = new Pattern[0];
+
+
+    /**
+     * The comma-delimited set of <code>deny</code> expressions.
+     */
+    protected String deny = null;
 
 
     // ------------------------------------------------------------- Properties
@@ -214,13 +216,13 @@ public abstract class RequestFilterValve
      * @exception IllegalArgumentException if one of the patterns has
      *  invalid syntax
      */
-    protected RE[] precalculate(String list) {
+    protected Pattern[] precalculate(String list) {
 
         if (list == null)
-            return (new RE[0]);
+            return (new Pattern[0]);
         list = list.trim();
         if (list.length() < 1)
-            return (new RE[0]);
+            return (new Pattern[0]);
         list += ",";
 
         ArrayList reList = new ArrayList();
@@ -230,8 +232,8 @@ public abstract class RequestFilterValve
                 break;
             String pattern = list.substring(0, comma).trim();
             try {
-                reList.add(new RE(pattern));
-            } catch (RESyntaxException e) {
+                reList.add(Pattern.compile(pattern));
+            } catch (PatternSyntaxException e) {
                 IllegalArgumentException iae = new IllegalArgumentException
                     (sm.getString("requestFilterValve.syntax", pattern));
                 iae.initCause(e);
@@ -240,8 +242,8 @@ public abstract class RequestFilterValve
             list = list.substring(comma + 1);
         }
 
-        RE reArray[] = new RE[reList.size()];
-        return ((RE[]) reList.toArray(reArray));
+        Pattern reArray[] = new Pattern[reList.size()];
+        return ((Pattern[]) reList.toArray(reArray));
 
     }
 
@@ -264,7 +266,7 @@ public abstract class RequestFilterValve
 
         // Check the deny patterns, if any
         for (int i = 0; i < denies.length; i++) {
-            if (denies[i].match(property)) {
+            if (denies[i].matcher(property).matches()) {
                 ServletResponse sres = response.getResponse();
                 if (sres instanceof HttpServletResponse) {
                     HttpServletResponse hres = (HttpServletResponse) sres;
@@ -279,7 +281,7 @@ public abstract class RequestFilterValve
 
         // Check the allow patterns, if any
         for (int i = 0; i < allows.length; i++) {
-            if (allows[i].match(property)) {
+            if (allows[i].matcher(property).matches()) {
                 // START OF IASRI 4665318
                 //context.invokeNext(renuest
                 // return;
