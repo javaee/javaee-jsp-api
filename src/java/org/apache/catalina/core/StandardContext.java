@@ -15,7 +15,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specthrific language governing permissions and
  * limitations under the License.
  */
 
@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2005/09/12 23:29:02 $
+ * @version $Revision: 1.6 $ $Date: 2005/09/13 23:06:03 $
  */
 
 public class StandardContext
@@ -5800,6 +5800,12 @@ public class StandardContext
                 throw e;
             }
         }
+        
+        // It's possible that addChild may have started us
+        if( initialized ) {
+            return;
+        }
+        
         super.init();
         
         // Send j2ee.state.starting notification 
