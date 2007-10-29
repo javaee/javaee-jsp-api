@@ -133,7 +133,11 @@ public final class EmbeddedServletOptions implements Options {
      * What classpath should I use while compiling generated servlets?
      */
     private String classpath = null;
-    
+
+    // START PWC 1.2 6311155
+    private String sysClassPath = null;
+    // END PWC 1.2 6311155
+
     /**
      * Compiler to use.
      */
@@ -304,6 +308,17 @@ public final class EmbeddedServletOptions implements Options {
     public String getClassPath() {
         return classpath;
     }
+
+    // START PWC 1.2 6311155
+    /**
+     * Gets the system class path.
+     *
+     * @return The system class path
+     */
+    public String getSystemClassPath() {
+        return sysClassPath;
+    }
+    // END PWC 1.2 6311155
 
     /**
      * Is generation of X-Powered-By response header enabled/disabled?
@@ -579,6 +594,13 @@ public final class EmbeddedServletOptions implements Options {
         String classpath = config.getInitParameter("classpath");
         if (classpath != null)
             this.classpath = classpath;
+
+        // START PWC 1.2 6311155
+        String sysClassPath = config.getInitParameter(
+                                    "com.sun.appserv.jsp.classpath");
+        if (sysClassPath != null)
+            this.sysClassPath = sysClassPath;
+        // END PWC 1.2 6311155
 
 	/*
 	 * scratchdir
