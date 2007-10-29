@@ -268,6 +268,10 @@ public final class CGIServlet extends HttpServlet {
     /** the executable to use with the script */
     private String cgiExecutable = "perl";
     
+    /** strip the substring from the request URI before passing it on
+        to the CGI environment */
+    private String stripRequestURI = "";
+
     /** the encoding to use for parameters */
     private String parameterEncoding = System.getProperty("file.encoding",
                                                           "UTF-8");
@@ -341,6 +345,10 @@ public final class CGIServlet extends HttpServlet {
             parameterEncoding = value;
         }
 
+        value = getServletConfig().getInitParameter("stripRequestURI");
+        if (value != null) {
+            stripRequestURI = value;
+        }
     }
 
 
@@ -1060,7 +1068,8 @@ public final class CGIServlet extends HttpServlet {
 
             envp.put("REQUEST_METHOD", nullsToBlanks(req.getMethod()));
 
-            envp.put("REQUEST_URI", nullsToBlanks(req.getRequestURI()));
+            envp.put("REQUEST_URI", stripRequestURI(
+                nullsToBlanks(req.getRequestURI())) );
 
 
             /*-
@@ -1167,6 +1176,25 @@ public final class CGIServlet extends HttpServlet {
 
             return true;
 
+        }
+
+        /**
+         * If the stripRequestURI is specified and the requestURI
+         * starts with it, the stripRequestURI is lopped off in
+         * in the returned value. Else, the requestURI is returned as is
+         */
+        protected String stripRequestURI(String reqURI) {
+
+            if( stripRequestURI == null ||
+                stripRequestURI.intern() == "".intern() ||
+                ! reqURI.startsWith(stripRequestURI) ) 
+                return reqURI;
+
+            int index = reqURI.indexOf(stripRequestURI);
+            if( index <= 0 )
+                return reqURI;
+            else
+                return reqURI.substring(index);
         }
 
         /**
