@@ -751,14 +751,13 @@ public class JspC implements Options {
      * includes
      */
     public void setUriroot( String s ) {
-        if( s==null ) {
-            uriRoot=s;
-            return;
-        }
-        try {
-            uriRoot=new File( s ).getCanonicalPath();
-        } catch( Exception ex ) {
-            uriRoot=s;
+        uriRoot = s;
+        if (s != null) {
+            try {
+                uriRoot=new File( s ).getCanonicalPath();
+            } catch( Exception ex ) {
+                uriRoot=s;
+            }
         }
     }
 
