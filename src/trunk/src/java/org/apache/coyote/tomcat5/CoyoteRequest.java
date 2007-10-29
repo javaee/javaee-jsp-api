@@ -93,7 +93,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.22 $ $Date: 2005/04/26 00:23:56 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/11 03:43:02 $
  */
 
 public class CoyoteRequest
@@ -1552,13 +1552,22 @@ public class CoyoteRequest
      *
      * @param enc The character encoding to be used
      *
-     * @exception UnsupportedEncodingException if the specified encoding
-     *  is not supported
+     * @throws         java.io.UnsupportedEncodingException if this
+     *                 ServletRequest is still in a state where a
+     *                 character encoding may be set, but the specified
+     *                 encoding is invalid
+     * @throws         IllegalStateException if request parameters have
+     *                 already been read or getReader() has been called
      *
      * @since Servlet 2.3
      */
     public void setCharacterEncoding(String enc)
         throws UnsupportedEncodingException {
+
+        if (requestParametersParsed || usingReader) {
+            throw new IllegalStateException
+              (sm.getString("coyoteRequest.setCharacterEncoding.ise"));
+        }
 
         // Ensure that the specified encoding is valid
         byte buffer[] = new byte[1];
