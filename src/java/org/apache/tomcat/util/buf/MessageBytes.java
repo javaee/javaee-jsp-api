@@ -515,6 +515,11 @@ public final class MessageBytes implements Cloneable, Serializable {
      */
     public void duplicate( MessageBytes src ) throws IOException
     {
+	// START CR 6309514
+	// Discard previous state before duplicating
+	recycle();
+	// END CR 6309514
+
 	switch( src.getType() ) {
 	case MessageBytes.T_BYTES:
 	    type=T_BYTES;
