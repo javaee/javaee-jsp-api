@@ -106,6 +106,9 @@ public class ELSupport {
         } else if (obj0 instanceof Boolean || obj1 instanceof Boolean) {
             return coerceToBoolean(obj0).equals(coerceToBoolean(obj1));
         }
+        if (obj0 instanceof String || obj1 instanceof String) {
+            return coerceToString(obj0).equals(coerceToString(obj1));
+        }
         if (isBigDecimalOp(obj0, obj1)) {
             BigDecimal bd0 = (BigDecimal) coerceToNumber(obj0, BigDecimal.class);
             BigDecimal bd1 = (BigDecimal) coerceToNumber(obj1, BigDecimal.class);
