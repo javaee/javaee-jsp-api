@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
@@ -70,6 +71,9 @@ public class AntJavaCompiler implements JavaCompiler {
 
     // Use a threadpool and force it to 1 to simulate serialization
     private static ExecutorService threadPool = null;
+    private static ThreadFactory threadFactory = new JavacThreadFactory();
+    private static final String JAVAC_THREAD_PREFIX = "javac-";
+
     private static String lineSeparator = System.getProperty("line.separator");
 
 
@@ -288,7 +292,7 @@ public class AntJavaCompiler implements JavaCompiler {
 
     public static void startThreadPool() {
         if (threadPool == null) {
-            threadPool = Executors.newCachedThreadPool();
+            threadPool = Executors.newCachedThreadPool(threadFactory);
         }
     }
 
@@ -300,7 +304,7 @@ public class AntJavaCompiler implements JavaCompiler {
 
     // Implement java compilation in a separate java thread to
     // avoid stack overflow problem (exposed by 64 -bit server)
-    static protected class JavacObj implements Runnable {
+    private static class JavacObj implements Runnable {
 
         Javac _javac = null;
         BuildException _be = null;
@@ -331,6 +335,17 @@ public class AntJavaCompiler implements JavaCompiler {
         public String getErrorCapture() {
             return _errorCapture;
         }
+    }
+
+    private static class JavacThreadFactory implements ThreadFactory {
+
+        private ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+
+        public Thread newThread(Runnable r) {
+            Thread t = defaultFactory.newThread(r);
+            t.setName(JAVAC_THREAD_PREFIX + t.getName());
+            return t;
+        }        
     }
 }
 
