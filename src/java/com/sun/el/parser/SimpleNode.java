@@ -172,7 +172,10 @@ public abstract class SimpleNode extends ELSupport implements Node {
             return false;
         }
         if (this.children == null && n.children == null) {
-            return true;
+            if (this.image == null) {
+                return n.image == null;
+            }
+            return this.image.equals(n.image);
         }
         if (this.children == null || n.children == null) {
             // One is null and the other is non-null
@@ -198,7 +201,7 @@ public abstract class SimpleNode extends ELSupport implements Node {
     @Override
     public int hashCode() {
         if (this.children == null || this.children.length == 0) {
-            if (this.image == null) {
+            if (this.image != null) {
                 return this.image.hashCode();
             }
             return this.id;
