@@ -33,7 +33,7 @@ import javax.naming.directory.DirContext;
  * Stream handler to a JNDI directory context.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1.1.1 $
  */
 public class DirContextURLStreamHandler 
     extends URLStreamHandler {
@@ -227,5 +227,48 @@ public class DirContextURLStreamHandler
         return (DirContext) threadBindings.get(thread);
     }
     
-    
+
+    // START SJSAS 6318494
+    /**
+     * Converts a <code>URL</code> of a specific protocol to a
+     * <code>String</code>.
+     *
+     * The impl of this method is almost identical to that of the
+     * java.net.URLStreamHandler superclass, except that it omits the
+     * URL's authority field from the URL's String representation.
+     *
+     * @param   u   the URL.
+     * @return  a string representation of the <code>URL</code> argument.
+     */
+    protected String toExternalForm(URL u) {
+
+        // pre-compute length of StringBuffer
+        int len = u.getProtocol().length() + 1;
+        if (u.getPath() != null) {
+            len += u.getPath().length();
+        }
+        if (u.getQuery() != null) {
+            len += 1 + u.getQuery().length();
+        }
+        if (u.getRef() != null) 
+            len += 1 + u.getRef().length();
+
+        StringBuffer result = new StringBuffer(len);
+        result.append(u.getProtocol());
+        result.append(":");
+        if (u.getPath() != null) {
+            result.append(u.getPath());
+        }
+        if (u.getQuery() != null) {
+            result.append('?');
+            result.append(u.getQuery());
+        }
+        if (u.getRef() != null) {
+            result.append("#");
+            result.append(u.getRef());
+        }
+        return result.toString();
+    }
+    // END SJSAS 6318494
+
 }

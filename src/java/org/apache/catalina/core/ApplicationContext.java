@@ -64,7 +64,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/08/17 01:49:25 $
+ * @version $Revision: 1.4 $ $Date: 2005/08/29 23:32:21 $
  */
 
 public class ApplicationContext
@@ -509,8 +509,13 @@ public class ApplicationContext
                 try {
                     resources.lookup(path);
                     return new URL
+                        /* SJSAS 6318494
                         ("jndi", null, 0, getJNDIUri(hostName, fullPath),
-                         new DirContextURLStreamHandler(resources));
+                         */
+                        // START SJAS 6318494
+                        ("jndi", "", 0, getJNDIUri(hostName, fullPath),
+                        // END SJSAS 6318494
+		         new DirContextURLStreamHandler(resources));
                 } catch (Exception e) {
                     // Ignore
                 }
