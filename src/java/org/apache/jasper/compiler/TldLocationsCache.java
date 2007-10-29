@@ -620,19 +620,21 @@ public class TldLocationsCache {
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
-                boolean ignoreSystem = (loader == webappLoader);
+                boolean isLocal = (loader == webappLoader);
                 URL[] urls = ((URLClassLoader) loader).getURLs();
                 for (int i=0; i<urls.length; i++) {
                     URLConnection conn = urls[i].openConnection();
                     if (conn instanceof JarURLConnection) {
-                        if (needScanJar(((JarURLConnection) conn).getJarFile().getName())) {
+                        if (needScanJar(
+                                ((JarURLConnection) conn).getJarFile().getName(),
+                                isLocal)) {
                             scanJar((JarURLConnection) conn, true);
                         }
                     } else {
                         String urlStr = urls[i].toString();
                         if (urlStr.startsWith(FILE_PROTOCOL)
                                 && urlStr.endsWith(JAR_FILE_SUFFIX)
-                                && needScanJar(urlStr)) {
+                                && needScanJar(urlStr, isLocal)) {
                             URL jarURL = new URL("jar:" + urlStr + "!/");
                             scanJar((JarURLConnection) jarURL.openConnection(),
                                     true);
@@ -650,11 +652,19 @@ public class TldLocationsCache {
      * scanned for TLDs.
      *
      * @param jarPath The JAR file path
+     * @param isLocal true if the JAR file with the given jarPath is local to 
+     * the webapp (and therefore needs to be scanned unconditionally), false
+     * otherwise
      *
-     * @return TRUE if the JAR file identified by <tt>jarPath</tt> needs to be
-     * scanned for TLDs, FALSE otherwise
+     * @return true if the JAR file identified by <tt>jarPath</tt> needs to be
+     * scanned for TLDs, false otherwise
      */
-    private boolean needScanJar(String jarPath) {
+    private boolean needScanJar(String jarPath, boolean isLocal) {
+
+        if (isLocal) {
+            return true;
+        }
+
         String jarName = jarPath;
         int slash = jarPath.lastIndexOf('/');
         if (slash >= 0) {
