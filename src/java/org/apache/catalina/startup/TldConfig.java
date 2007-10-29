@@ -85,6 +85,14 @@ public final class TldConfig  {
     private static final String FILE_URL_PREFIX = "file:";
     private static final int FILE_URL_PREFIX_LEN = FILE_URL_PREFIX.length();
 
+    // START CR 6402120   
+    /**
+     * The variable that indicates whether a single or multiple JVMs 
+     * are running 
+     */
+    private static boolean isSingleProcess = true;
+    // END CR 6402120   
+
     // Names of system TLD URIs
     private static HashSet<String> systemTldUris;
 
@@ -243,7 +251,26 @@ public final class TldConfig  {
     }
     // END SJSAS 8.1 5049111     
     
-    
+    // START CR 6402120
+    /**
+     * Sets the flag that indicates whether a single 
+     * or multiple JVMs are running.
+     *
+     * @param isSingleProcess true for a single JVM process, false otherwise 
+     */
+    public static void setSingleProcess(boolean isSingleProcess) {
+        TldConfig.isSingleProcess = isSingleProcess;
+    } 
+ 
+    /**
+     * Check if multiple JVMs are running 
+     *
+     * @return true if a single JVM is running, false otherwise
+     */
+    public static boolean isSingleProcess() {
+        return isSingleProcess;
+    } 
+    // END CR 6402120    
  
     /**
      * Set the validation feature of the XML parser used when
@@ -331,7 +358,19 @@ public final class TldConfig  {
 
         File tldCache=null;
 
+        /* CR 6402120   
         if (context instanceof StandardContext) {
+        */
+        // START CR 6402120
+        if (log.isDebugEnabled()) { 
+            log.debug("Are multiple JVMs running ? " + (!isSingleProcess));
+        }
+
+        // If multiple JVMs are running, then do not create tldCache.ser 
+        // file as it will cause exceptions on the server side 
+        // because of unsynchronized access of tldCache.ser file.
+        if ((context instanceof StandardContext) && TldConfig.isSingleProcess()) {
+        // END CR 6402120   
             File workDir= (File)
                 ((StandardContext)context).getServletContext().getAttribute(Globals.WORK_DIR_ATTR);
             tldCache=new File( workDir, "tldCache.ser");
