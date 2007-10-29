@@ -45,7 +45,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.2 $, $Date: 2005/09/12 23:29:06 $
+ * @version $Revision: 1.3 $, $Date: 2005/09/13 00:34:31 $
  */
 
 public abstract class StoreBase
@@ -56,12 +56,32 @@ public abstract class StoreBase
     /**
      * The descriptive information about this implementation.
      */
+    /* SJSAS
     protected static String info = "StoreBase/1.0";
+    */
+    // START SJSAS
+    // If this variable were static, it would need to be protected from 
+    // manipulation by malicious code by making it final. However, this
+    // variable must not be final, because it is assigned a different value 
+    // in some of the EE subclasses. Therefore, turning it into an instance
+    // variable.
+    protected String info = "StoreBase/1.0";
+    // END SJSAS
 
     /**
      * Name to register for this Store, used for logging.
      */
+    /* SJSAS 
     protected static String storeName = "StoreBase";
+    */
+    // START SJSAS
+    // If this variable were static, it would need to be protected from 
+    // manipulation by malicious code by making it final. However, this
+    // variable must not be final, because it is assigned a different value 
+    // in some of the EE subclasses. Therefore, turning it into an instance
+    // variable.
+    protected String storeName = "StoreBase";
+    // END SJSAS
 
     /**
      * The debugging detail level for this component.
