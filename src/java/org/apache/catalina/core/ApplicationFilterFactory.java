@@ -111,20 +111,6 @@ public final class ApplicationFilterFactory {
      */
     public ApplicationFilterChain createFilterChain
         (ServletRequest request, Wrapper wrapper, Servlet servlet) {
-
-        // get the dispatcher type
-        int dispatcher = -1; 
-        if (request.getAttribute(DISPATCHER_TYPE_ATTR) != null) {
-            Integer dispatcherInt = 
-                (Integer) request.getAttribute(DISPATCHER_TYPE_ATTR);
-            dispatcher = dispatcherInt.intValue();
-        }
-        String requestPath = null;
-        Object attribute = request.getAttribute(DISPATCHER_REQUEST_PATH_ATTR);
-        
-        if (attribute != null){
-            requestPath = attribute.toString();
-        }
         
         HttpServletRequest hreq = null;
         /* GlassFish 6386229
@@ -166,6 +152,19 @@ public final class ApplicationFilterFactory {
         // If there are no filter mappings, we are done
         if ((filterMaps == null) || (filterMaps.length == 0))
             return (filterChain);
+
+        // get the dispatcher type
+        int dispatcher = -1; 
+        if (request.getAttribute(DISPATCHER_TYPE_ATTR) != null) {
+            Integer dispatcherInt = 
+                (Integer) request.getAttribute(DISPATCHER_TYPE_ATTR);
+            dispatcher = dispatcherInt.intValue();
+        }
+        String requestPath = null;
+        Object attribute = request.getAttribute(DISPATCHER_REQUEST_PATH_ATTR);
+        if (attribute != null){
+            requestPath = attribute.toString();
+        }
 
         // Acquire the information we will need to match filter mappings
         String servletName = wrapper.getName();
