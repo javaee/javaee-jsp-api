@@ -111,9 +111,6 @@ public class TldLocationsCache {
     // Names of JARs that are known not to contain any TLDs
     private static HashSet<String> noTldJars;
 
-    // Names of system jar files that are ignored if placed under WEB-INF
-    private static HashSet<String> systemJars = new HashSet<String>();
-
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
     private static HashSet<String> systemUris = new HashSet<String>();
 
@@ -149,9 +146,6 @@ public class TldLocationsCache {
      * Initializes the set of JARs that are known not to contain any TLDs
      */
     static {
-        systemJars.add("standard.jar");
-        systemJars.add("appserv-jstl.jar");
-        systemJars.add("jsf-impl.jar");
         systemUris.add("http://java.sun.com/jsf/core");
         systemUris.add("http://java.sun.com/jsf/html");
         systemUris.add("http://java.sun.com/jsp/jstl/core");
