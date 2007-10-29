@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.37 $ $Date: 2007/02/20 20:16:56 $
+ * @version $Revision: 1.39 $ $Date: 2007/02/24 01:14:42 $
  */
 
 public class StandardContext
@@ -2121,13 +2121,26 @@ public class StandardContext
     public void addApplicationListener(String listener) {
 
         synchronized (applicationListeners) {
-            String results[] =new String[applicationListeners.length + 1];
-            for (int i = 0; i < applicationListeners.length; i++) {
-                if (listener.equals(applicationListeners[i]))
-                    return;
-                results[i] = applicationListeners[i];
+            String results[] = new String[applicationListeners.length + 1];
+            if ("com.sun.faces.config.ConfigureListener".equals(listener)) {
+                // Always add the JSF listener as the first element, 
+                // see GlassFish Issue 2563 for details
+                for (int i = 0; i < applicationListeners.length; i++) {
+                    if (listener.equals(applicationListeners[i])) {
+                        return;
+                    }
+                    results[i+1] = applicationListeners[i];
+                }
+                results[0] = listener;
+            } else {
+                for (int i = 0; i < applicationListeners.length; i++) {
+                    if (listener.equals(applicationListeners[i])) {
+                        return;
+                    }
+                    results[i] = applicationListeners[i];
+                }
+                results[applicationListeners.length] = listener;
             }
-            results[applicationListeners.length] = listener;
             applicationListeners = results;
         }
 
