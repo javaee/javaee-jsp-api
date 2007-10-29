@@ -36,13 +36,21 @@ package org.apache.catalina;
  * provide a consistent mechanism to start and stop the component.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:17 $
  */
 
 public interface Lifecycle {
 
 
     // ----------------------------------------------------- Manifest Constants
+
+
+    // START GlassFish 2439
+    /**
+     * The LifecycleEvent type for the "component init" event.
+     */
+    public static final String INIT_EVENT = "init";
+    // END GlassFish 2439
 
 
     /**

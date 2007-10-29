@@ -98,7 +98,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * (but not required) when deploying and starting Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:01 $
+ * @version $Revision: 1.4 $ $Date: 2006/11/10 16:51:13 $
  */
 
 public final class StandardServer
@@ -2358,6 +2358,9 @@ public final class StandardServer
                 log.info(sm.getString("standardServer.initialize.initialized"));
             return;
         }
+        // START GlassFish 2439
+        lifecycle.fireLifecycleEvent(INIT_EVENT, null);
+        // END GlassFish 2439
         initialized = true;
 
         if( oname==null ) {

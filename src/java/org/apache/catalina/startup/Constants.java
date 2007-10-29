@@ -29,13 +29,16 @@ package org.apache.catalina.startup;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.4 $ $Date: 2006/08/25 02:18:36 $
+ * @version $Revision: 1.5 $ $Date: 2006/09/22 00:18:56 $
  */
 public final class Constants {
 
     public static final String Package = "org.apache.catalina.startup";
 
     public static final String ApplicationWebXml = "/WEB-INF/web.xml";
+    // START GlassFish 2439
+    public static final String DEFAULT_CONTEXT_XML = "config/context.xml";
+    // END GlassFish 2439
     public static final String DefaultWebXml = "conf/web.xml";
 
     public static final String TldDtdPublicId_11 =

@@ -56,6 +56,7 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardEngine;
+import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.deploy.ErrorPage;
 import org.apache.catalina.deploy.FilterDef;
 import org.apache.catalina.deploy.FilterMap;
@@ -65,8 +66,10 @@ import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.SchemaResolver;
 import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.RuleSet;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
@@ -76,7 +79,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.12 $ $Date: 2006/03/18 20:29:56 $
+ * @version $Revision: 1.13 $ $Date: 2006/10/12 23:30:18 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -122,7 +125,15 @@ public class ContextConfig
      */
     private int debug = 0;
 
+
+    // START GlassFish 2439
+    /**
+     * The default web application's context file location.
+     */
+    protected String defaultContextXml = null;
+    // END GlassFish 2439
     
+
     /**
      * The default web application's deployment descriptor location.
      */
@@ -139,11 +150,28 @@ public class ContextConfig
     // END OF SJSAS 8.1 6172288 
 
 
+    // START GlassFish 2439
+    /**
+     * Any parse error which occurred while parsing XML descriptors.
+     */
+    protected SAXParseException parseException = null;
+    // END GlassFish 2439 
+
+
     /**
      * The string resources for this package.
      */
     private static final StringManager sm =
         StringManager.getManager(Constants.Package);
+
+
+    // START GlassFish 2439
+    /**
+     * The <code>Digester</code> we will use to process web application
+     * context files.
+     */
+    protected static Digester contextDigester = null;
+    // END GlassFish 2439
 
 
     /**
@@ -201,6 +229,7 @@ public class ContextConfig
     }
     
     
+    // START GlassFish 2439
     /**
      * Return the location of the default deployment descriptor
      */
@@ -219,6 +248,32 @@ public class ContextConfig
     public void setDefaultWebXml(String path) {
 
         this.defaultWebXml = path;
+
+    }
+    // END GlassFish 2439
+
+
+    /**
+     * Return the location of the default context file
+     */
+    public String getDefaultContextXml() {
+        if( defaultContextXml == null ) {
+            defaultContextXml=Constants.DEFAULT_CONTEXT_XML;
+        }
+
+        return (this.defaultContextXml);
+
+    }
+
+
+    /**
+     * Set the location of the default context file
+     *
+     * @param path Absolute/relative path to the default context.xml
+     */
+    public void setDefaultContextXml(String path) {
+
+        this.defaultContextXml = path;
 
     }
 
@@ -259,10 +314,14 @@ public class ContextConfig
 
         // Called from ContainerBase.addChild() -> StandardContext.start()
         // Process the event that has occurred
-        if (event.getType().equals(Lifecycle.START_EVENT))
+        if (event.getType().equals(Lifecycle.START_EVENT)) 
             start();
-        else if (event.getType().equals(Lifecycle.STOP_EVENT))
+        else if (event.getType().equals(Lifecycle.STOP_EVENT)) 
             stop();
+        // START GlassFish 2439
+        else if (event.getType().equals(Lifecycle.INIT_EVENT)) 
+            init();
+        // END GlassFish 2439
 
     }
 
@@ -588,6 +647,24 @@ public class ContextConfig
         return webDigester;
     }
 
+
+    // START GlassFish 2439 
+    /**
+     * Create (if necessary) and return a Digester configured to process the
+     * context configuration descriptor for an application.
+     */
+    protected Digester createContextDigester() {
+        Digester digester = new Digester();
+        digester.setValidating(false);
+        RuleSet contextRuleSet = new ContextRuleSet("", false);
+        digester.addRuleSet(contextRuleSet);
+        RuleSet namingRuleSet = new NamingRuleSet("Context/");
+        digester.addRuleSet(namingRuleSet);
+        return digester;
+    }
+    // END GlassFish 2439
+
+
     protected String getBaseDir() {
         Container engineC=context.getParent().getParent();
         if( engineC instanceof StandardEngine ) {
@@ -704,6 +781,106 @@ public class ContextConfig
     }
 
 
+    // START GlassFish 2439
+    /**
+     * Process the default configuration file, if it exists.
+     */
+    protected void contextConfig() {
+
+        if( defaultContextXml==null ) getDefaultContextXml();
+
+        if (!context.getOverride()) {
+            processContextConfig(new File(getBaseDir()), defaultContextXml);
+        }
+
+        if (context.getConfigFile() != null)
+            processContextConfig(new File(context.getConfigFile()), null);
+
+    }
+
+
+    /**
+     * Process a context.xml.
+     */
+    protected void processContextConfig(File baseDir, String resourceName) {
+        if (log.isDebugEnabled())
+            log.debug("Processing context [" + context.getName()
+                    + "] configuration file " + baseDir + " " + resourceName);
+
+        InputSource source = null;
+        InputStream stream = null;
+
+        File file = baseDir;
+        if (resourceName != null) {
+            file = new File(baseDir, resourceName);
+        }
+        try {
+            if ( !file.exists() ) {
+                if (resourceName != null) {
+                    // Use getResource and getResourceAsStream
+                    stream = getClass().getClassLoader()
+                        .getResourceAsStream(resourceName);
+                    if( stream != null ) {
+                        source = new InputSource
+                            (getClass().getClassLoader()
+                            .getResource(resourceName).toString());
+                    }
+                }
+            } else {
+                source =
+                    new InputSource("file://" + file.getAbsolutePath());
+                stream = new FileInputStream(file);
+            }
+        } catch (Exception e) {
+            log.error(sm.getString("contextConfig.defaultMissing")
+                      + " " + resourceName + " " + file , e);
+        }
+        if (source == null)
+            return;
+        if (contextDigester == null){
+            contextDigester = createContextDigester();
+        }
+        synchronized (contextDigester) {
+            try {
+                source.setByteStream(stream);
+                contextDigester.setClassLoader(this.getClass().getClassLoader());
+                contextDigester.setUseContextClassLoader(false);
+                contextDigester.push(context.getParent());
+                contextDigester.push(context);
+                contextDigester.setErrorHandler(new ContextErrorHandler());
+                contextDigester.parse(source);
+                if (parseException != null) {
+                    ok = false;
+                }
+                if (log.isDebugEnabled())
+                    log.debug("Successfully processed context [" + context.getName()
+                            + "] configuration file " + baseDir + " " + resourceName);
+            } catch (SAXParseException e) {
+                log.error(sm.getString("contextConfig.defaultParse"), e);
+                log.error(sm.getString("contextConfig.defaultPosition",
+                                 "" + e.getLineNumber(),
+                                 "" + e.getColumnNumber()));
+                ok = false;
+            } catch (Exception e) {
+                log.error(sm.getString("contextConfig.defaultParse"), e);
+                ok = false;
+            } finally {
+                //contextDigester.reset();
+                parseException = null;
+                try {
+                    if (stream != null) {
+                        stream.close();
+                    }
+                } catch (IOException e) {
+                    log.error(sm.getString("contextConfig.defaultClose"), e);
+                }
+            }
+        }
+
+    }
+    // END GlassFish 2439
+
+
     /**
      * Log a message on the Logger associated with our Context (if any)
      *
@@ -740,6 +917,26 @@ public class ContextConfig
         }
 
     }
+
+
+    
+    // START GlassFish 2439
+    /**
+     * Process a "init" event for this Context.
+     */
+    protected void init() {
+
+        // Called from StandardContext.init()
+
+        if (log.isDebugEnabled())
+            log.debug(sm.getString("contextConfig.init"));
+        context.setConfigured(false);
+        ok = true;
+
+        contextConfig();
+
+    }
+    // END GlassFish 2439
 
 
     /**
@@ -1019,6 +1216,27 @@ public class ContextConfig
         }
 
     }
+
+
+    // START GlassFish 2439
+    protected class ContextErrorHandler
+        implements ErrorHandler {
+
+        public void error(SAXParseException exception) {
+            parseException = exception;
+        }
+
+        public void fatalError(SAXParseException exception) {
+            parseException = exception;
+        }
+
+        public void warning(SAXParseException exception) {
+            parseException = exception;
+        }
+
+    }
+    // END GlassFish 2439
+
 
 } //end of public class
 

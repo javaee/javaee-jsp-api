@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.35 $ $Date: 2007/01/23 00:06:55 $
+ * @version $Revision: 1.36 $ $Date: 2007/02/16 01:48:34 $
  */
 
 public class StandardContext
@@ -6280,6 +6280,11 @@ public class StandardContext
         }
         
         super.init();
+
+        // START GlassFish 2439
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(INIT_EVENT, null);
+        // END GlassFish 2439
         
         // Send j2ee.state.starting notification 
         if (this.getObjectName() != null) {
