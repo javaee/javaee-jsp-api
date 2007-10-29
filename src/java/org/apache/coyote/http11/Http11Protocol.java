@@ -57,16 +57,25 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
     // START SJSAS 6439313     
     protected boolean blocking = false;
     // END SJSAS 6439313     
-       
+
+    /**
+     * The <code>SelectorThread</code> implementation class. Not used when 
+     * Coyote is used.
+     */
+    protected String selectorThreadImpl = null; 
+    
+    
     public Http11Protocol() {
         // START SJSAS 6439313 
-        this(false,false);
+        this(false,false,null);
     }
 
     
-    public Http11Protocol(boolean secure, boolean blocking) {
+    public Http11Protocol(boolean secure, boolean blocking, 
+                          String selectorThreadImpl) {
         this.secure = secure;
         this.blocking = blocking; 
+        this.selectorThreadImpl = selectorThreadImpl;
         // END SJSAS 6439313
         create();
     }

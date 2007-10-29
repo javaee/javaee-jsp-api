@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2006/03/12 01:27:09 $
+ * @version $Revision: 1.11 $ $Date: 2006/06/21 14:27:04 $
  */
 
 
@@ -412,6 +412,12 @@ public class CoyoteConnector
 
     protected ProxyHandler proxyHandler = null;
     // END S1AS 6188932
+
+    /**
+     * The <code>SelectorThread</code> implementation class.
+     */
+    private String selectorThreadImpl = null; 
+    
     
     // ------------------------------------------------------------- Properties
 
@@ -1497,10 +1503,11 @@ public class CoyoteConnector
                 // START SJSAS 6439313                
                 Constructor constructor = 
                         clazz.getConstructor(new Class[]{Boolean.TYPE,
-                                                         Boolean.TYPE});
+                                                         Boolean.TYPE,
+                                                         String.class});
 
                 protocolHandler = (ProtocolHandler) 
-                    constructor.newInstance(secure,blocking);
+                    constructor.newInstance(secure,blocking,selectorThreadImpl);
                 // END SJSAS 6439313                                
             } catch (Exception e) {
                 throw new LifecycleException
@@ -2078,5 +2085,21 @@ public class CoyoteConnector
         this.protocolHandler = protocolHandler;
     }
     // END SJSAS 6363251
- 
+
+    
+    /**
+     * Get the underlying <code>SelectorThread</code> implementation, null if 
+     * the default is used.
+     */
+    public String getSelectorThreadImpl() {
+        return selectorThreadImpl;
+    }
+
+    
+    /**
+     * Set the underlying <code>SelectorThread</code> implementation  
+     */   
+    public void setSelectorThreadImpl(String selectorThreadImpl) {
+        this.selectorThreadImpl = selectorThreadImpl;
+    } 
 }
