@@ -228,11 +228,12 @@ public class JDTJavaCompiler implements JavaCompiler {
             
             public char[] getContents() {
                 char[] result = null;
+                Reader reader = null;
                 try {
                     InputStreamReader isReader =
                         new InputStreamReader(new FileInputStream(sourceFile),
                                 ctxt.getOptions().getJavaEncoding());
-                    Reader reader = new BufferedReader(isReader);
+                    reader = new BufferedReader(isReader);
                     if (reader != null) {
                         char[] chars = new char[8192];
                         StringBuffer buf = new StringBuffer();
@@ -246,6 +247,14 @@ public class JDTJavaCompiler implements JavaCompiler {
                     }
                 } catch (IOException e) {
                     log.error("Compilation error", e);
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException ioe) {
+                            // Ignore
+                        }
+                    }
                 }
                 return result;
             }
