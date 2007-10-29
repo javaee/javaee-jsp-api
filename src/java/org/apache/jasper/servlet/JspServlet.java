@@ -357,8 +357,13 @@ public class JspServlet extends HttpServlet {
                     if (null == context.getResource(jspUri)
                             && !options.getUsePrecompiled()) {
                     // END PWC 6181923
+                        /* RIMOD PWC 6282167, 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                            jspUri);
+                        */
+                        // START PWC 6282167, 4878272
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        // END PWC 6282167, 4878272
                         return;
                     }
                     boolean isErrorPage = exception != null;
