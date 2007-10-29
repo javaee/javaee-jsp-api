@@ -33,6 +33,10 @@ import com.sun.org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
+// START PWC 6457880
+import java.net.URI;
+import java.net.URISyntaxException;
+// END PWC 6457880
 
 /**
  * This class implements a local SAX's <code>EntityResolver</code>. All
@@ -68,6 +72,12 @@ public class SchemaResolver implements EntityResolver {
      */
     protected String schemaExtension = "xsd";
 
+    // START PWC 6457880
+    /**
+     * Attribute value used to turn on/off network access of dtd/schema
+     */
+    private static boolean forceLocalSchema = false;
+    // END PWC 6457880
 
     /**
      * Create a new <code>EntityResolver</code> that will redirect
@@ -129,10 +139,37 @@ public class SchemaResolver implements EntityResolver {
             entityURL = (String)entityValidator.get(key);
         }
 
+/* PWC 6457880
         if (entityURL == null) {
            return (null);
         }
 
+*/
+        // START PWC 6457880
+        if (entityURL == null) {
+            if (forceLocalSchema) {
+                URI u;
+                try {
+                    u  = new URI(systemId);
+                } catch (URISyntaxException e) {
+                    throw new SAXException(e);
+                }
+                String scheme = u.getScheme();
+                // if the scheme is local, let the digester look it up
+                // otherwise, throw an exception
+                if (scheme != null && (scheme.equals("file") ||
+                    scheme.equals("jar"))) {
+                    return (null);
+                }
+                else {
+                    throw new SAXException("Unable to find local schema for "+key);
+                }
+            }
+            else {
+                return (null);
+            }
+        }
+        // END PWC 6457880
         try {
             return (new InputSource(entityURL));
         } catch (Exception e) {
@@ -141,4 +178,9 @@ public class SchemaResolver implements EntityResolver {
 
     }
 
+    // START PWC 6457880
+    public static void setForceLocalSchema(boolean flag) {
+        forceLocalSchema = flag;
+    }
+    // END PWC 6457880
 }
