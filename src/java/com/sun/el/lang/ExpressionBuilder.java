@@ -26,8 +26,10 @@ package com.sun.el.lang;
 
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.lang.ref.SoftReference;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 
 import javax.el.ELContext;
 import javax.el.ELException;
@@ -58,9 +60,29 @@ import com.sun.el.util.MessageFactory;
  */
 public final class ExpressionBuilder implements NodeVisitor {
 
-    private static final int SIZE = 5000;
-    private static final Map cache = new ConcurrentHashMap(SIZE);
-    private static final Map cache2 = new ConcurrentHashMap(SIZE);
+     private static final int CACHE_MAX_SIZE = 4096;
+     private static final int CACHE_INIT_SIZE = 256;
+     private static final Map cache = Collections.synchronizedMap(
+         new LinkedHashMap(CACHE_INIT_SIZE, 0.75f, true) {
+             public Object put(Object key, Object value) {
+                 SoftReference ref = new SoftReference(value);
+                 SoftReference prev = (SoftReference)super.put(key, ref);
+                 if (prev != null) return prev.get();
+                 return null;                
+             }
+             
+             public Object get(Object key) {
+                 SoftReference ref = (SoftReference)super.get(key);
+                 if (ref != null && ref.get() == null) {
+                     remove(key);
+                 }
+                 return ref != null ? ref.get() : null;
+             }
+             
+             protected boolean removeEldestEntry(Map.Entry eldest) {
+                 return size() > CACHE_MAX_SIZE;
+             }
+         });
 
     private FunctionMapper fnMapper;
 
@@ -98,7 +120,7 @@ public final class ExpressionBuilder implements NodeVisitor {
         }
 
         Node n = (Node) cache.get(expr);
-        if (n == null && (n = (Node) cache2.get(expr)) == null) {
+        if (n == null) {
             try {
                 n = (new ELParser(new StringReader(expr)))
                         .CompositeExpression();
@@ -129,11 +151,6 @@ public final class ExpressionBuilder implements NodeVisitor {
                 if (n instanceof AstDeferredExpression
                         || n instanceof AstDynamicExpression) {
                     n = n.jjtGetChild(0);
-                }
-                if (cache.size() > SIZE) {
-                    cache2.clear();
-                    cache2.putAll(cache);
-                    cache.clear();
                 }
                 cache.put(expr, n);
             } catch (ParseException pe) {
