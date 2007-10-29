@@ -64,7 +64,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/06/20 20:22:34 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/17 01:49:25 $
  */
 
 public class ApplicationContext
@@ -348,12 +348,7 @@ public class ApplicationContext
         if (wrapper == null)
             return (null);
         
-        ApplicationDispatcher dispatcher;
-        dispatcher =
-              new ApplicationDispatcher(wrapper, null, null, null, null, name);
-        
-        return ((RequestDispatcher) dispatcher);
-
+        return new ApplicationDispatcher(wrapper, null, null, null, null, name);
     }
 
 
@@ -463,7 +458,7 @@ public class ApplicationContext
         mappingData.recycle();
         
         // Construct a RequestDispatcher to process this request
-        return (RequestDispatcher) new ApplicationDispatcher
+        return new ApplicationDispatcher
             (wrapper, uriCC.toString(), wrapperPath, pathInfo, 
              queryString, null);
 
