@@ -343,6 +343,9 @@ public class Compiler {
             javaCompiler.compile(ctxt.getFullClassName(), pageNodes);
 
         if (javacErrors != null) {
+            // If there are errors, always generate java files to disk.
+            javaCompiler.doJavaFile(true);
+
             log.error("Error compiling file: " + javaFileName);
             errDispatcher.javacError(javacErrors);
         }
@@ -352,6 +355,8 @@ public class Compiler {
             log.debug("Compiled " + javaFileName + " " + (t2-t1) + "ms");
         }
 
+        // Save or delete the generated Java files, depending on the
+        // value of "keepgenerated" attribute
         javaCompiler.doJavaFile(ctxt.keepGenerated());
 
         // JSR45 Support
@@ -395,6 +400,12 @@ public class Compiler {
             // directories were deleted after the server was started.
             ctxt.getOutputDir();
             ctxt.makeOutputDir();
+
+            // If errDispatcher is nulled from a previous compilation of the
+            // same page, instantiate one here.
+            if (errDispatcher == null) {
+                errDispatcher = new ErrorDispatcher(jspcMode);
+            }
             generateJava();
             if (compileClass) {
                 generateClass();
