@@ -1194,7 +1194,7 @@ class Validator {
                             String returnType = getReturnType(methodSignature);
                             // It is an error to specify a string literal
                             // as a value for MethodExpression if the literal
-                            // cannot be coerced to a String
+                            // cannot be coerced to the return type
                             if (!el.containsEL()) {
                                 try {
                                     Class typeClass =

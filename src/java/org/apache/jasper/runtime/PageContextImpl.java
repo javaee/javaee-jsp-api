@@ -1021,4 +1021,18 @@ public class PageContextImpl extends PageContext {
                                     paramTypes);
     }
 
+    public static void setValueVariable(PageContext pageContext,
+                                        String variable,
+                                        ValueExpression expression) {
+        ELContextImpl elctxt = (ELContextImpl)pageContext.getELContext();
+        elctxt.getVariableMapper().setVariable(variable, expression);
+    }
+
+    public static void setMethodVariable(PageContext pageContext,
+                                         String variable,
+                                         MethodExpression expression) {
+        ValueExpression exp =
+            expFactory.createValueExpression(expression, Object.class);
+        setValueVariable(pageContext, variable, exp);
+    }
 }

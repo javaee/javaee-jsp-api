@@ -2748,9 +2748,11 @@ class Generator {
                 }
             } else if (attr.isELInterpreterInput()) {
                 // run attrValue through the expression interpreter
-                // Special case: when type == Object and #{}, then this
-                // is a rtexprvalue-or-deferred-value attribute with a #{}
+
                 Class attrType = c[0];
+
+                // When type == Object and attribute value contains #{},
+                // then type is adjusted accordingly.
                 if (attrType == Object.class &&
                                 attr.getEL().hasPoundExpression()) {
                     attrType = javax.el.ValueExpression.class;
@@ -3678,14 +3680,36 @@ class Generator {
         TagAttributeInfo[] attrInfos = tagInfo.getAttributes();
         for (int i = 0; i < attrInfos.length; i++) {
             String attrName = attrInfos[i].getName();
-            out.printil("if( " + toGetterMethod(attrName) + " != null ) ");
+            out.printil("if( " + toGetterMethod(attrName) + " != null ) {");
             out.pushIndent();
             out.printin("_jspx_page_context.setAttribute(");
             out.print(quote(attrName));
             out.print(", ");
             out.print(toGetterMethod(attrName));
             out.println(");");
+            if (attrInfos[i].isDeferredValue()) { 
+                // If the attribute is a deferred value, also set it to an EL
+                // variable of the same name.
+                out.printin("org.apache.jasper.runtime.PageContextImpl.setValueVariable(");
+                out.print("_jspx_page_context, ");
+                out.print(quote(attrName));
+                out.print(", ");
+                out.print(toGetterMethod(attrName));
+                out.println(");");
+            }
+                
+            if (attrInfos[i].isDeferredMethod()) {
+                // If the attribute is a deferred method, set a wrapped
+                // ValueExpression to an EL variable of the same name.
+                out.printin("org.apache.jasper.runtime.PageContextImpl.setMethodVariable(");
+                out.print("_jspx_page_context, ");
+                out.print(quote(attrName));
+                out.print(", ");
+                out.print(toGetterMethod(attrName));
+                out.println(");");
+            }
             out.popIndent();
+            out.println("}");
         }
 
         // Expose the Map containing dynamic attributes as a page-scoped var

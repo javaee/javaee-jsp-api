@@ -280,6 +280,8 @@ public class JspContextWrapper extends PageContext {
             elContext = pci.getJspApplicationContext().createELContext(
                               invokingJspCtxt.getELContext().getELResolver());
             elContext.putContext(javax.servlet.jsp.JspContext.class, this);
+            ((ELContextImpl)elContext).setVariableMapper(
+                new VariableMapperImpl());
         }
         return elContext;
     }

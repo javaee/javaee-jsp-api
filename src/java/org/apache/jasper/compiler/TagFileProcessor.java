@@ -77,7 +77,11 @@ class TagFileProcessor {
             new JspUtil.ValidAttribute("fragment"),
             new JspUtil.ValidAttribute("rtexprvalue"),
             new JspUtil.ValidAttribute("type"),
-            new JspUtil.ValidAttribute("description")
+            new JspUtil.ValidAttribute("description"),
+            new JspUtil.ValidAttribute("deferredValue"),
+            new JspUtil.ValidAttribute("deferredMethod"),
+            new JspUtil.ValidAttribute("expectedType"),
+            new JspUtil.ValidAttribute("methodSignature")
         };
 
         private static final JspUtil.ValidAttribute[] variableDirectiveAttrs = {
@@ -192,6 +196,29 @@ class TagFileProcessor {
             boolean fragment = JspUtil.booleanValue(
                                         n.getAttributeValue("fragment"));
             String type = n.getAttributeValue("type");
+            boolean isDeferredValue = JspUtil.booleanValue(
+                                          n.getAttributeValue("deferredValue"));
+            boolean isDeferredMethod = JspUtil.booleanValue(
+                                         n.getAttributeValue("deferredMethod"));
+            String expectedType = n.getAttributeValue("expectedType");
+            if (expectedType == null) {
+                if (isDeferredValue) {
+                    expectedType = "java.lang.Object";
+                }
+            }
+            else {
+                isDeferredValue = true;
+            }
+            String methodSignature = n.getAttributeValue("methodSignature");
+            if (methodSignature == null) {
+                if (isDeferredMethod) {
+                    methodSignature = "void method()";
+                }
+            }
+            else {
+                isDeferredMethod = true;
+            }
+
             if (fragment) {
                 // type is fixed to "JspFragment" and a translation error
                 // must occur if specified.
@@ -204,14 +231,23 @@ class TagFileProcessor {
                 if( rtexprvalueString != null ) {
                     err.jspError(n, "jsp.error.frgmentwithrtexprvalue" );
                 }
-            } else {
-                if (type == null)
+            } else if (type == null) {
+                if (isDeferredValue) {
+                    type = "javax.el.ValueExpression";
+                } else if (isDeferredMethod) {
+                    type = "javax.el.MethodExpression";
+                } else {
                     type = "java.lang.String";
+                }
+            } else if (isDeferredValue || isDeferredMethod) {
+                err.jspError("jsp.error.deferredwithtype");
             }
 
             TagAttributeInfo tagAttributeInfo =
                     new TagAttributeInfo(attrName, required, type, rtexprvalue,
-                                         fragment);
+                                         fragment, isDeferredValue,
+                                         isDeferredMethod, expectedType,
+                                         methodSignature);
             attributeVector.addElement(tagAttributeInfo);
             checkUniqueName(attrName, ATTR_NAME, n, tagAttributeInfo);
         }
@@ -394,7 +430,7 @@ class TagFileProcessor {
         }
 
         /**
-         * Perform miscellean checks after the nodes are visited.
+         * Perform miscelleaneous checks after the nodes are visited.
          */
         void postCheck() throws JasperException {
             // Check that var.name-from-attributes has valid values.
