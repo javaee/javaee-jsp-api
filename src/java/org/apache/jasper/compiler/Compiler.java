@@ -86,6 +86,8 @@ public class Compiler {
         this.options = ctxt.getOptions();
         this.log = commonsLog;
         this.smapUtil = new SmapUtil(ctxt);
+        javaCompiler = new AntJavaCompiler();
+        javaCompiler.init(ctxt, errDispatcher, jspcMode);
     }
 
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw,
