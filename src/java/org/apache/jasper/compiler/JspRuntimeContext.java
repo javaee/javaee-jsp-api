@@ -70,7 +70,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public final class JspRuntimeContext implements Runnable {
 
@@ -323,8 +323,23 @@ public final class JspRuntimeContext implements Runnable {
      * @param bytecode The bytecode in byte array
      */
     public void setBytecode(String name, byte[] bytecode) {
+        if (bytecode == null) {
+            bytecodes.remove(name);
+            bytecodeBirthTimes.remove(name);
+            return;
+        }
         bytecodes.put(name, bytecode);
         bytecodeBirthTimes.put(name, Long.valueOf(System.currentTimeMillis()));
+    }
+
+    public void adjustBytecodeTime(String name, long reference) {
+        Long time = bytecodeBirthTimes.get(name);
+        if (time == null)
+            return;
+
+        if (time.longValue() < reference) {
+            bytecodeBirthTimes.put(name, Long.valueOf(reference));
+        }
     }
 
     /**

@@ -74,6 +74,7 @@ public class Compiler {
     private SmapUtil smapUtil;
     private Options options;
     private Node.Nodes pageNodes;
+    private long jspModTime;
 
     // ------------------------------------------------------------ Constructor
 
@@ -342,6 +343,13 @@ public class Compiler {
                 javaCompiler.getClassLastModified());
         }
         // END CR 6373479
+
+        // On some systems, due to file caching, the time stamp for the updated
+        // JSP file may actually be greater than that of the newly created byte
+        // codes in the cache.  In such cases, adjust the cache time stamp to
+        // JSP page time, to avoid unnecessary recompilations.
+        ctxt.getRuntimeContext().adjustBytecodeTime(ctxt.getFullClassName(),
+                                                    jspModTime);
     }
 
     /**
@@ -431,6 +439,21 @@ public class Compiler {
         // Get the target file's last modified time. File.lastModified()
         // returns 0 if the file does not exist.
         long targetLastModified = targetFile.lastModified();
+
+        // Check cached class file
+        if (checkClass) {
+            JspRuntimeContext rtctxt = ctxt.getRuntimeContext();
+            String className = ctxt.getFullClassName();
+            long cachedTime = rtctxt.getBytecodeBirthTime(className);
+            if (cachedTime > targetLastModified) {
+                targetLastModified = cachedTime;
+            } else {
+                // Remove from cache, since the bytecodes from the file is more
+                // current, so that JasperLoader won't load the cached version
+                rtctxt.setBytecode(className, null);
+            }
+        }
+
         if (targetLastModified == 0L)
             return true;
 
@@ -485,7 +508,10 @@ public class Compiler {
         if (checkClass && jsw != null) {
             jsw.setServletClassLastModifiedTime(targetLastModified);
         }
+
         if (targetLastModified < jspRealLastModified) {
+            // Remember JSP mod time
+            jspModTime = jspRealLastModified;
             if( log.isDebugEnabled() ) {
                 log.debug("Compiler: outdated: " + targetFile + " " +
                     targetLastModified );
