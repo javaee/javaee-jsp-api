@@ -87,7 +87,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.30 $ $Date: 2007/05/05 05:32:42 $
+ * @version $Revision: 1.31 $ $Date: 2007/06/05 21:47:31 $
  */
 
 public class CoyoteAdapter
@@ -491,14 +491,14 @@ public class CoyoteAdapter
                 redirectPath = redirectPath + ";jsessionid=" 
                     + request.getRequestedSessionId();
             }            
+            // START GlassFish 936
+            redirectPath = urlEncoder.encodeURL(redirectPath);
+            // END GlassFish 936
             if (query != null) {
                 // This is not optimal, but as this is not very common, it
                 // shouldn't matter
                 redirectPath = redirectPath + "?" + query;
             }
-            // START GlassFish 936
-            redirectPath = urlEncoder.encodeURL(redirectPath);
-            // END GlassFish 936
             response.sendRedirect(redirectPath);
             return false;
         }
