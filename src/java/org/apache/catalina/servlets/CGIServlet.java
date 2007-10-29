@@ -940,12 +940,14 @@ public final class CGIServlet extends HttpServlet {
             if (debug >= 3) {
                 log("findCGI: currentLoc=" + currentLocation);
             }
+            boolean pathTokenConsumed = false;
             while (!currentLocation.isFile() && dirWalker.hasMoreElements()) {
                 if (debug >= 3) {
                     log("findCGI: currentLoc=" + currentLocation);
                 }
                 currentLocation = new File(currentLocation,
                                            (String) dirWalker.nextElement());
+                pathTokenConsumed = true;
             }
             if (!currentLocation.isFile()) {
                 return new String[] { null, null, null, null };
@@ -955,11 +957,14 @@ public final class CGIServlet extends HttpServlet {
                 }
                 path = currentLocation.getAbsolutePath();
                 name = currentLocation.getName();
-                cginame =
-                currentLocation.getParent().substring(webAppRootDir.length())
-                + File.separator
-                + name;
-
+                if (pathTokenConsumed) {
+                    cginame = currentLocation.getParent().substring(
+                                            webAppRootDir.length())
+                        + File.separator
+                        + name;
+                } else {
+                    cginame = "";
+                }
                 if (".".equals(contextPath)) {
                     scriptname = servletPath + cginame;
                 } else {
