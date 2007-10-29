@@ -92,6 +92,7 @@ import org.apache.catalina.deploy.ContextResourceLink;
 import org.apache.catalina.deploy.ErrorPage;
 import org.apache.catalina.deploy.FilterDef;
 import org.apache.catalina.deploy.FilterMap;
+import org.apache.catalina.deploy.FilterMaps;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.MessageDestination;
 import org.apache.catalina.deploy.MessageDestinationRef;
@@ -99,6 +100,7 @@ import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.ResourceParams;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
+import org.apache.catalina.deploy.ServletMap;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.mbeans.MBeanUtils;
 import org.apache.catalina.session.ManagerBase;
@@ -128,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.33 $ $Date: 2007/01/10 17:18:15 $
+ * @version $Revision: 1.34 $ $Date: 2007/01/10 21:39:55 $
  */
 
 public class StandardContext
@@ -2402,6 +2404,37 @@ public class StandardContext
 
 
     /**
+     * Add multiple filter mappings to this Context.
+     *
+     * @param filterMaps The filter mappings to be added
+     *
+     * @exception IllegalArgumentException if the specified filter name
+     *  does not match an existing filter definition, or the filter mapping
+     *  is malformed
+     */
+    public void addFilterMaps(FilterMaps filterMaps) {
+        int dispatcherMapping = filterMaps.getDispatcherMapping();
+        String filterName = filterMaps.getFilterName();
+        String[] servletNames = filterMaps.getServletNames();
+        String[] urlPatterns = filterMaps.getURLPatterns();
+        for (int i = 0; i < servletNames.length; i++) {
+            FilterMap fmap = new FilterMap();
+            fmap.setFilterName(filterName);
+            fmap.setServletName(servletNames[i]);
+            fmap.setDispatcherMapping(dispatcherMapping);
+            addFilterMap(fmap);
+        }
+        for (int i = 0; i < urlPatterns.length; i++) {
+            FilterMap fmap = new FilterMap();
+            fmap.setFilterName(filterName);
+            fmap.setURLPattern(urlPatterns[i]);
+            fmap.setDispatcherMapping(dispatcherMapping);
+            addFilterMap(fmap);
+        }
+    }
+
+
+    /**
      * Add a filter mapping to this Context.
      *
      * @param filterMap The filter mapping to be added
@@ -2684,6 +2717,24 @@ public class StandardContext
             fireContainerEvent("addSecurityRole", role);
         }
     }
+
+
+    /**
+     * Add a new servlet mapping, replacing any existing mapping for
+     * the multiple patterns.
+     *
+     * @param servletMap ServletMap containing the servletname and patterns
+     *
+     * @exception IllegalArgumentException if the specified servlet name
+     *  is not known to this Context
+     */
+     public void addServletMapping(ServletMap servletMap) {
+         String[] patterns = servletMap.getUrlPatterns();
+         String name = servletMap.getServletName();
+         for (int i = 0; i < patterns.length; i++) {
+             addServletMapping(patterns[i], name, false);
+         }
+     }
 
 
     /**

@@ -44,7 +44,7 @@ import org.xml.sax.Attributes;
  * deployment descriptor (<code>/WEB-INF/web.xml</code>) resource.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:07 $
+ * @version $Revision: 1.4 $ $Date: 2006/08/14 20:53:10 $
  */
 
 public class WebRuleSet extends RuleSetBase {
@@ -231,17 +231,17 @@ public class WebRuleSet extends RuleSetBase {
                               1);
 
         digester.addObjectCreate(prefix + "web-app/filter-mapping",
-                                 "org.apache.catalina.deploy.FilterMap");
+                                 "org.apache.catalina.deploy.FilterMaps");
         digester.addSetNext(prefix + "web-app/filter-mapping",
-                            "addFilterMap",
-                            "org.apache.catalina.deploy.FilterMap");
+                            "addFilterMaps",
+                            "org.apache.catalina.deploy.FilterMaps");
 
         digester.addCallMethod(prefix + "web-app/filter-mapping/filter-name",
                                "setFilterName", 0);
         digester.addCallMethod(prefix + "web-app/filter-mapping/servlet-name",
-                               "setServletName", 0);
+                               "addServletName", 0);
         digester.addCallMethod(prefix + "web-app/filter-mapping/url-pattern",
-                               "setURLPattern", 0);
+                               "addURLPattern", 0);
         // added by Greg Murray
         digester.addCallMethod(prefix + "web-app/filter-mapping/dispatcher",
                                "setDispatcher", 0);
@@ -397,10 +397,15 @@ public class WebRuleSet extends RuleSetBase {
         digester.addCallMethod(prefix + "web-app/servlet/servlet-name",
                               "setName", 0);
 
-        digester.addCallMethod(prefix + "web-app/servlet-mapping",
-                               "addServletMapping", 2);
-        digester.addCallParam(prefix + "web-app/servlet-mapping/servlet-name", 1);
-        digester.addCallParam(prefix + "web-app/servlet-mapping/url-pattern", 0);
+        digester.addObjectCreate(prefix + "web-app/servlet-mapping",
+                                 "org.apache.catalina.deploy.ServletMap");
+        digester.addSetNext(prefix + "web-app/servlet-mapping",
+                            "addServletMapping",
+                            "org.apache.catalina.deploy.ServletMap");
+        digester.addCallMethod(prefix + "web-app/servlet-mapping/servlet-name",
+                               "setServletName", 0);
+        digester.addCallMethod(prefix + "web-app/servlet-mapping/url-pattern",
+                               "addURLPattern", 0);
 
         digester.addRule(prefix + "web-app/session-config",
                          sessionConfig);

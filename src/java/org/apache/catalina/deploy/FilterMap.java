@@ -40,7 +40,7 @@ import java.io.Serializable;
  * a URL pattern or a servlet name.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:41 $
  */
 
 public class FilterMap implements Serializable {
@@ -194,6 +194,11 @@ public class FilterMap implements Serializable {
         // equivelant to a REQUEST value
         if (dispatcherMapping == NOT_SET) return REQUEST;
         else return dispatcherMapping; 
+    }
+
+
+    public void setDispatcherMapping(int mapping) {
+        dispatcherMapping = mapping;
     }
 
 
