@@ -77,7 +77,7 @@ import org.apache.catalina.Globals;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/08/17 16:19:08 $
+ * @version $Revision: 1.10 $ $Date: 2006/08/18 22:59:29 $
  */
 
 public class CoyoteResponse
@@ -544,8 +544,6 @@ public class CoyoteResponse
     /**
      * Perform whatever actions are required to flush and close the output
      * stream or writer, in a single operation.
-     *
-     * Appends session cookie if necessary.
      *
      * @exception IOException if an input/output error occurs
      */
