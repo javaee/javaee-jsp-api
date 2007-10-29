@@ -135,7 +135,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.63 $ $Date: 2007/06/05 21:47:31 $
+ * @version $Revision: 1.64 $ $Date: 2007/06/18 23:14:22 $
  */
 
 public class CoyoteRequest
@@ -1048,10 +1048,6 @@ public class CoyoteRequest
      */
     public void setSecure(boolean secure) {
         this.secure = secure;
-        
-        if ( secure ){
-            populateSSLAttributes();
-        }
     }
 
 
@@ -1177,6 +1173,9 @@ public class CoyoteRequest
      * empty <code>Enumeration</code> if there are none.
      */
     public Enumeration getAttributeNames() {
+        if (isSecure()) {
+            getAttribute(Globals.CERTIFICATES_ATTR);
+        }
         return new Enumerator(attributes.keySet(), true);
     }
 
