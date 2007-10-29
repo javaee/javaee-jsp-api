@@ -53,7 +53,7 @@ import javax.naming.Context;
  * </ul>
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:03 $
+ * @version $Revision: 1.3 $ $Date: 2007/05/05 05:32:59 $
  */
 
 public class ContextBindings {
@@ -95,7 +95,7 @@ public class ContextBindings {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm = 
+    protected static final StringManager sm = 
         StringManager.getManager(Constants.Package);
 
 
