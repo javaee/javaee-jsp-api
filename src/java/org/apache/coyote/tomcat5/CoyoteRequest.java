@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.42 $ $Date: 2006/11/21 17:39:40 $
+ * @version $Revision: 1.43 $ $Date: 2006/11/29 02:51:44 $
  */
 
 public class CoyoteRequest
@@ -3358,25 +3358,27 @@ public class CoyoteRequest
 
         // Search for JSESSIONIDVERSION with the least specific path
         // (this is important for cross-context request dispatches)
-        Manager manager = context.getManager();
-        if (manager != null && manager.isSessionVersioningSupported()) {
-            String sessionVersionString = null;
-            for (int i = 0; i < count; i++) {
-                ServerCookie scookie = serverCookies.getCookie(i);
-                if (scookie.getName().equals(
+        if (context != null) {
+            Manager manager = context.getManager();
+            if (manager != null && manager.isSessionVersioningSupported()) {
+                String sessionVersionString = null;
+                for (int i = 0; i < count; i++) {
+                    ServerCookie scookie = serverCookies.getCookie(i);
+                    if (scookie.getName().equals(
                                         Globals.SESSION_VERSION_COOKIE_NAME)) {
-                    sessionVersionString = scookie.getValue().toString();
+                        sessionVersionString = scookie.getValue().toString();
+                    }
                 }
-            }
 
-            if (sessionVersionString != null) {
-                HashMap<String, String> sessionVersions =
-                    RequestUtil.parseSessionVersions(sessionVersionString);
-                if (sessionVersions != null) {
-                    attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                if (sessionVersionString != null) {
+                    HashMap<String, String> sessionVersions =
+                        RequestUtil.parseSessionVersions(sessionVersionString);
+                    if (sessionVersions != null) {
+                        attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
                                    sessionVersions);
-                    this.requestedSessionVersion =
-                        sessionVersions.get(context.getPath());
+                        this.requestedSessionVersion =
+                            sessionVersions.get(context.getPath());
+                    }
                 }
             }
         }
