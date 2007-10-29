@@ -62,7 +62,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/08/16 20:04:25 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 17:51:05 $
  */
 
 public class StandardHost
@@ -212,6 +212,15 @@ public class StandardHost
     // END S1AS 5000999
 
 
+    /**
+     * With proxy caching disabled, setting this flag to true adds 
+     * Pragma and Cache-Control headers with "No-cache" as value. 
+     * Setting this flag to false does not add any Pragma header,
+     * but sets the Cache-Control header to "private".
+     */
+    private boolean securePagesWithPragma = true;
+    
+    
     // ------------------------------------------------------------- Properties
 
 
@@ -1113,6 +1122,37 @@ public class StandardHost
 
     }
 
+    
+    /**
+     * Returns the value of the securePagesWithPragma property.
+     */
+    public boolean isSecurePagesWithPragma() {
+
+        return (this.securePagesWithPragma);
+    }
+
+
+    /**
+     * Sets the securePagesWithPragma property of this Context.
+     *
+     * Setting this property to true will result in Pragma and Cache-Control
+     * headers with a value of "No-cache" if proxy caching has been disabled.
+     *
+     * Setting this property to false will not add any Pragma header,
+     * but will set the Cache-Control header to "private".
+     *
+     * @param securePagesWithPragma true if Pragma and Cache-Control headers
+     * are to be set to "No-cache" if proxy caching has been disabled, false
+     * otherwise
+     */
+    public void setSecurePagesWithPragma(boolean securePagesWithPragma) {
+
+        boolean oldSecurePagesWithPragma = this.securePagesWithPragma;
+        this.securePagesWithPragma = securePagesWithPragma;
+        support.firePropertyChange("securePagesWithPragma",
+                                   Boolean.valueOf(oldSecurePagesWithPragma),
+                                   Boolean.valueOf(this.securePagesWithPragma));
+    }
 
     // ------------------------------------------------------ Protected Methods
 
