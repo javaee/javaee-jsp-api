@@ -37,6 +37,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -215,6 +216,10 @@ public class JspC implements Options {
     private int argPos;
     private boolean fullstop = false;
     private String args[];
+
+    // START SJSAS 6329723
+    private List<JasperException> jspErrors = new ArrayList<JasperException>();
+    // END SJSAS 6329723
 
     public static void main(String arg[]) {
         if (arg.length == 0) {
@@ -765,6 +770,27 @@ public class JspC implements Options {
         }
     }
 
+
+    // START SJSAS 6329723
+    /**
+     * Gets the list of JSP compilation errors caught during the most recent
+     * invocation of this instance's <code>execute</code> method when
+     * failOnError has been set to FALSE.
+     *
+     * Each error error in the list is represented by an instance of
+     * org.apache.jasper.JasperException.
+     *
+     * @return List of JSP compilation errors caught during most recent
+     * invocation of this instance's <code>execute</code> method, or an empty
+     * list if no errors were encountered or this instance's failOnError
+     * property was set to TRUE
+     */
+    public List<JasperException> getJSPCompilationErrors() {
+        return jspErrors;
+    }
+    // END SJSAS 6329723
+
+
     /**
      * Include the generated web.xml inside the webapp's web.xml.
      */
@@ -939,6 +965,9 @@ public class JspC implements Options {
                 throw je;
             } else {
                 log.error(je.getMessage());
+                // START SJAS 6329723
+                jspErrors.add(je);
+                // END SJSAS 6329723
             }
 
         } catch (Exception e) {
@@ -992,6 +1021,10 @@ public class JspC implements Options {
     }
 
     public void execute() throws JasperException {
+
+        // START SJSAS 6329723
+        jspErrors.clear();
+        // END SJSAS 6329723
 
         try {
 	    if (uriRoot == null) {
