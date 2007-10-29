@@ -140,7 +140,7 @@ public class OutputBuffer extends Writer
     /**
      * Associated Coyote response.
      */
-    private Response coyoteResponse;
+    private Response response;
 
 
     /**
@@ -206,10 +206,10 @@ public class OutputBuffer extends Writer
     /**
      * Associated Coyote response.
      * 
-     * @param coyoteResponse Associated Coyote response
+     * @param response Associated Coyote response
      */
-    public void setResponse(Response coyoteResponse) {
-	this.coyoteResponse = coyoteResponse;
+    public void setResponse(Response response) {
+	this.response = response;
     }
 
 
@@ -219,7 +219,7 @@ public class OutputBuffer extends Writer
      * @return the associated Coyote response
      */
     public Response getResponse() {
-        return this.coyoteResponse;
+        return this.response;
     }
 
 
@@ -285,19 +285,19 @@ public class OutputBuffer extends Writer
         if (suspended)
             return;
 
-        if ((!coyoteResponse.isCommitted()) 
-            && (coyoteResponse.getContentLength() == -1)) {
+        if ((!response.isCommitted()) 
+            && (response.getContentLength() == -1)) {
             // If this didn't cause a commit of the response, the final content
             // length can be calculated
-            if (!coyoteResponse.isCommitted()) {
-                coyoteResponse.setContentLength(bb.getLength());
+            if (!response.isCommitted()) {
+                response.setContentLength(bb.getLength());
             }
         }
 
         doFlush(false);
         closed = true;
 
-        coyoteResponse.finish();
+        response.finish();
 
     }
 
@@ -326,7 +326,7 @@ public class OutputBuffer extends Writer
 
         doFlush = true;
         if (initial){
-            coyoteResponse.sendHeaders();
+            response.sendHeaders();
             initial = false;
         }
         if (bb.getLength() > 0) {
@@ -335,13 +335,12 @@ public class OutputBuffer extends Writer
         doFlush = false;
 
         if (realFlush) {
-            coyoteResponse.action(ActionCode.ACTION_CLIENT_FLUSH, 
-                                  coyoteResponse);
+            response.action(ActionCode.ACTION_CLIENT_FLUSH, response);
             // If some exception occurred earlier, or if some IOE occurred
             // here, notify the servlet with an IOE
-            if (coyoteResponse.isExceptionPresent()) {
+            if (response.isExceptionPresent()) {
                 throw new ClientAbortException
-                    (coyoteResponse.getErrorException());
+                    (response.getErrorException());
             }
         }
 
@@ -365,11 +364,11 @@ public class OutputBuffer extends Writer
 	throws IOException {
 
         if (log.isDebugEnabled())
-            log.debug("realWrite(b, " + off + ", " + cnt + ") " + coyoteResponse);
+            log.debug("realWrite(b, " + off + ", " + cnt + ") " + response);
 
         if (closed)
             return;
-        if (coyoteResponse == null)
+        if (response == null)
             return;
 
         // If we really have something to write
@@ -377,7 +376,7 @@ public class OutputBuffer extends Writer
             // real write to the adapter
             outputChunk.setBytes(buf, off, cnt);
             try {
-                coyoteResponse.doWrite(outputChunk);
+                response.doWrite(outputChunk);
             } catch (IOException e) {
                 // An IOException on a write is almost always due to
                 // the remote client aborting the request.  Wrap this
@@ -520,8 +519,8 @@ public class OutputBuffer extends Writer
     protected void setConverter() 
         throws IOException {
 
-        if (coyoteResponse != null)
-            enc = coyoteResponse.getCharacterEncoding();
+        if (response != null)
+            enc = response.getCharacterEncoding();
 
         if (log.isDebugEnabled())
             log.debug("Got encoding: " + enc);
