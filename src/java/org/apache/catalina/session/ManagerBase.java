@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -997,37 +995,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     }
     
     
-    /**
-     * Finds and returns the session with the given id that also satisfies
-     * the given version requirement.
-     *
-     * @param id The session id to match
-     * @param version The session version requirement to satisfy
-     *
-     * @return The session that matches the given id and also satisfies the
-     * given version requirement, or null if no such session could be found
-     * by this session manager
-     *
-     * @exception IOException if an IO error occurred
-     */
-    public Session findSession(String id, String version)
-            throws IOException {
-        return findSession(id);
-    }
-
-
-    /**
-     * Returns true if this session manager supports session versioning, false
-     * otherwise.
-     *
-     * @return true if this session manager supports session versioning, false
-     * otherwise.
-     */
-    public boolean isSessionVersioningSupported() {
-        return false;
-    }
-
-
     /**
      * clear out the sessions cache
      * HERCULES:added
