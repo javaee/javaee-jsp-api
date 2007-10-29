@@ -383,6 +383,14 @@ public class Compiler {
             info.append("    compiler=" + options.getCompiler() + "\n");
         }
 
+        // START PWC 1.1 6281941
+        // Set the source version to use
+        if (options.getSource() != null) {
+            javac.setSource(options.getSource());
+            info.append("    source=" + options.getSource() + "\n");
+        }
+        // END PWC 1.1 6281941
+
         // Build includes path
         PatternSet.NameEntry includes = javac.createInclude();
 

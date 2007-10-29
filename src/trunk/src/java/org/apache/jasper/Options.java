@@ -111,6 +111,10 @@ public interface Options {
      */
     public String getClassPath();
 
+    // START PWC 1.1 6281941
+    public String getSource();
+    // END PWC 1.1 6281941
+
     /**
      * Compiler to use.
      */
