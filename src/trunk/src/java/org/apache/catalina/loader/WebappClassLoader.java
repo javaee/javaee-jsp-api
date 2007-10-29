@@ -105,7 +105,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/08/19 00:31:56 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/19 23:39:37 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -201,7 +201,12 @@ public class WebappClassLoader
 
         super(new URL[0]);
         this.parent = getParent();
+        /* SJSAS 6317864
         system = getSystemClassLoader();
+        */
+        // START SJSAS 6317864
+        system = this.getClass().getClassLoader();
+        // END SJSAS 6317864
         securityManager = System.getSecurityManager();
 
         if (securityManager != null) {
@@ -220,8 +225,13 @@ public class WebappClassLoader
         super(new URL[0], parent);
                 
         this.parent = getParent();
-        
+
+        /* SJSAS 6317864
         system = getSystemClassLoader();
+        */
+        // START SJSAS 6317864
+        system = this.getClass().getClassLoader();
+        // END SJSAS 6317864
         securityManager = System.getSecurityManager();
 
         if (securityManager != null) {
