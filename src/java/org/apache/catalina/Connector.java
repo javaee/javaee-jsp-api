@@ -27,7 +27,9 @@ import org.apache.catalina.net.ServerSocketFactory;
 // START OF SJSAS 8.1 PE 6191830
 import java.security.cert.X509Certificate;
 // END OF SJSAS 8.1 PE 6191830
-
+// START S1AS 6188932
+import com.sun.appserv.ProxyHandler;
+// END S1AS 6188932
 
 /**
  * A <b>Connector</b> is a component responsible receiving requests from,
@@ -78,7 +80,7 @@ import java.security.cert.X509Certificate;
  * normative.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:37 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public interface Connector {
@@ -232,6 +234,21 @@ public interface Connector {
      * requests from a trusted intermediate server, false otherwise
      */
     public void setAuthPassthroughEnabled(boolean authPassthroughEnabled);
+
+    /**
+     * Gets the ProxyHandler instance associated with this CoyoteConnector.
+     * 
+     * @return ProxyHandler instance associated with this CoyoteConnector,
+     * or null
+     */
+    public ProxyHandler getProxyHandler();
+
+    /**
+     * Sets the ProxyHandler implementation for this CoyoteConnector to use.
+     * 
+     * @param proxyHandler ProxyHandler instance to use
+     */
+    public void setProxyHandler(ProxyHandler proxyHandler);
     // END S1AS 6188932
 
 

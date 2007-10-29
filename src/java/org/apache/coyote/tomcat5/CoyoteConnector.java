@@ -30,7 +30,6 @@ import java.util.Iterator;
 
 // START OF SJSAS 8.1 PE 6191830
 import java.security.cert.X509Certificate;
-import java.security.cert.CertificateException;
 // END OF SJSAS 8.1 PE 6191830
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
@@ -68,14 +67,16 @@ import org.apache.catalina.net.DefaultServerSocketFactory;
 import org.apache.catalina.net.ServerSocketFactory;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
-
+// START S1AS 6188932
+import com.sun.appserv.ProxyHandler;
+// END S1AS 6188932
 
 /**
  * Implementation of a Coyote connector for Tomcat 5.x.
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/05/06 20:44:14 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:10 $
  */
 
 
@@ -375,6 +376,8 @@ public class CoyoteConnector
      * a trusted intermediate server
      */
     protected boolean authPassthroughEnabled = false;
+
+    protected ProxyHandler proxyHandler = null;
     // END S1AS 6188932
 
 
@@ -1236,23 +1239,22 @@ public class CoyoteConnector
     }
 
     /**
-     * Retrieves the proxy auth certificate chain (if present) from a custom
-     * header of the given request, and parses it into an array of
-     * java.security.cert.X509Certificate instances.
-     *
-     * @param request The request from which to retrieve the proxy auth
-     * certificate chain
-     *
-     * @return Array of java.security.cert.X509Certificate instances
-     * into which the header value was parsed
-     *
-     * @throws CertificateException if the string representation of the
-     * client's certificate chain cannot be parsed
+     * Gets the ProxyHandler instance associated with this CoyoteConnector.
+     * 
+     * @return ProxyHandler instance associated with this CoyoteConnector,
+     * or null
      */
-    public X509Certificate[] getProxyAuthCertificateChain(
-                                        HttpServletRequest request)
-            throws CertificateException {
-        return null;
+    public ProxyHandler getProxyHandler() {
+        return proxyHandler;
+    }
+
+    /**
+     * Sets the ProxyHandler implementation for this CoyoteConnector to use.
+     * 
+     * @param proxyHandler ProxyHandler instance to use
+     */
+    public void setProxyHandler(ProxyHandler proxyHandler) {
+        this.proxyHandler = proxyHandler;
     }
     // END S1AS 6188932
 
