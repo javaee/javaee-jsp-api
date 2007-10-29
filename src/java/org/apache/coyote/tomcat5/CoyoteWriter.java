@@ -33,14 +33,17 @@ import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
 import org.apache.catalina.util.StringManager;
+import com.sun.enterprise.web.io.ByteWriter;
+
 
 /**
  * Coyote implementation of the servlet writer.
  * 
  * @author Remy Maucherat
+ * @author Kin-man Chung
  */
 public class CoyoteWriter
-    extends PrintWriter {
+    extends PrintWriter implements ByteWriter {
 
 
     // -------------------------------------------------------------- Constants
@@ -191,7 +194,6 @@ public class CoyoteWriter
         } catch (IOException e) {
             error = true;
         }
-
     }
 
 
@@ -222,6 +224,28 @@ public class CoyoteWriter
 
     public void write(String s) {
         write(s, 0, s.length());
+    }
+
+
+    // --------------------------------------------------- ByteWriter Methods
+
+
+    public void write(byte[] buff, int off, int len, int strlen) {
+
+        // Disallow operation if the object has gone out of scope
+        if (ob == null) {
+            throw new IllegalStateException(
+                sm.getString("object.invalidScope"));
+        }
+
+        if (error)
+            return;
+
+        try {
+            ob.write(buff, off, len);
+        } catch (IOException e) {
+            error = true;
+        }
     }
 
 
@@ -337,6 +361,4 @@ public class CoyoteWriter
         print(o);
         println();
     }
-
-
 }
