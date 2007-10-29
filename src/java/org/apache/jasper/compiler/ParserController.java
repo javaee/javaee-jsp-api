@@ -184,6 +184,7 @@ class ParserController implements TagConstants {
 
 	if (parent != null) {
 	    // Included resource, add to dependent list
+System.out.println("XXX: ADD DEPENDENT=" + absFileName);
 	    compiler.getPageInfo().addDependant(absFileName);
 	}
 

@@ -38,7 +38,7 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
  * @author Kin-man Chung
  */
 
-class PageInfo {
+public class PageInfo {
 
     private Vector imports;
     private Vector dependants;
