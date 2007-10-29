@@ -86,7 +86,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.15 $ $Date: 2007/02/06 17:43:01 $
+ * @version $Revision: 1.16 $ $Date: 2007/02/15 17:52:26 $
  */
 
 
@@ -396,7 +396,12 @@ public class CoyoteConnector
     /**
      * URI encoding.
      */
+    /* GlassFish Issue 2339
     private String uriEncoding = null;
+     */
+    // START GlassFish Issue 2339
+    private String uriEncoding = "UTF-8";
+    // END GlassFish Issue 2339
 
 
     // START SJSAS 6331392

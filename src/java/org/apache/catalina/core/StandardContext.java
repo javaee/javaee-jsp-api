@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.34 $ $Date: 2007/01/10 21:39:55 $
+ * @version $Revision: 1.35 $ $Date: 2007/01/23 00:06:55 $
  */
 
 public class StandardContext
@@ -1528,8 +1528,12 @@ public class StandardContext
      */
     public void setPath(String path) {
         // XXX  Use host in name
+        /* GlassFish Issue 2339
         setName(RequestUtil.URLDecode(path));
-
+         */
+        // START GlassFish Issue 2339
+        setName(RequestUtil.URLDecode(path, "UTF-8"));
+        // END GlassFish Issue 2339
     }
 
 
