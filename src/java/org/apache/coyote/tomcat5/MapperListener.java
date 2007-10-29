@@ -49,7 +49,9 @@ import com.sun.org.apache.commons.logging.LogFactory;
 import com.sun.org.apache.commons.modeler.Registry;
 
 import org.apache.catalina.Host;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
+import org.apache.catalina.core.StandardWrapper;
 
 import org.apache.tomcat.util.http.mapper.Mapper;
 
@@ -502,18 +504,19 @@ public class MapperListener
     private void registerContext(ObjectName objectName)
         throws Exception {
 
+        StandardContext context = (StandardContext)
+            mBeanServer.invoke(objectName, "findMappingObject", null, null);
+        if (context == null) {
+            throw new Exception("No context registered for " + objectName);
+        }
+
         String name = objectName.getKeyProperty("name");
         
         // If the domain is the same with ours or the engine 
         // name attribute is the same... - then it's ours
         String targetDomain=objectName.getDomain();
         if( ! domain.equals( targetDomain )) {
-            try {
-                targetDomain = (String) mBeanServer.getAttribute
-                    (objectName, "engineName");
-            } catch (Exception e) {
-                // Ignore
-            }
+            targetDomain = context.getEngineName();
             if( ! domain.equals( targetDomain )) {
                 // not ours
                 return;
@@ -542,18 +545,11 @@ public class MapperListener
                                    contextName));
         }
 
-        Object context = 
-            mBeanServer.invoke(objectName, "findMappingObject", null, null);
-            //mBeanServer.getAttribute(objectName, "mappingObject");
-        javax.naming.Context resources = (javax.naming.Context)
-            mBeanServer.invoke(objectName, "findStaticResources", null, null);
-            //mBeanServer.getAttribute(objectName, "staticResources");
-        String[] welcomeFiles = (String[])
-            mBeanServer.getAttribute(objectName, "welcomeFiles");
+        javax.naming.Context resources = context.findStaticResources();
+        String[] welcomeFiles = context.getWelcomeFiles();
 
         mapper.addContext(hostName, contextName, context, 
                           welcomeFiles, resources);
-
     }
 
 
@@ -613,16 +609,18 @@ public class MapperListener
      */
     private void registerWrapper(ObjectName objectName)
         throws Exception {
+
+        StandardWrapper wrapper = (StandardWrapper)
+            mBeanServer.invoke(objectName, "findMappingObject", null, null);
+        if (wrapper == null) {
+            throw new Exception("No wrapper registered for " + objectName);
+        }
     
         // If the domain is the same with ours or the engine 
         // name attribute is the same... - then it's ours
         String targetDomain=objectName.getDomain();
         if( ! domain.equals( targetDomain )) {
-            try {
-                targetDomain=(String) mBeanServer.getAttribute(objectName, "engineName");
-            } catch (Exception e) {
-                // Ignore
-            }
+            targetDomain= wrapper.getEngineName();
             if( ! domain.equals( targetDomain )) {
                 // not ours
                 return;
@@ -655,10 +653,7 @@ public class MapperListener
                                    wrapperName, contextName));
         }
 
-        String[] mappings = (String[])
-            mBeanServer.invoke(objectName, "findMappings", null, null);
-        Object wrapper = 
-            mBeanServer.invoke(objectName, "findMappingObject", null, null);
+        String[] mappings = wrapper.findMappings();
 
         for (int i = 0; i < mappings.length; i++) {
             boolean jspWildCard = (wrapperName.equals("jsp")
