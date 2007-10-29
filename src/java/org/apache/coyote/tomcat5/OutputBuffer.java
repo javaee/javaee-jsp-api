@@ -384,6 +384,7 @@ public class OutputBuffer extends Writer
 
         // If we really have something to write
         if (cnt > 0) {
+            addSessionVersionCookieIfNecessary();
             // real write to the adapter
             outputChunk.setBytes(buf, off, cnt);
             try {
