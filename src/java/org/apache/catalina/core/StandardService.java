@@ -560,13 +560,14 @@ public class StandardService
             }
         }
 
+        /* CR 6368091
         if( oname==controller ) {
             // we registered ourself on init().
             // That should be the typical case - this object is just for
             // backward compat, nobody should bother to load it explicitely
             Registry.getRegistry().unregisterComponent(oname);
-        }
-        
+        }        
+        */
 
         // Notify our interested LifecycleListeners
         lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
@@ -622,6 +623,17 @@ public class StandardService
     public void destroy() throws LifecycleException {
         if( started ) stop();
         // unregister should be here probably
+        // START CR 6368091
+        if (initialized) {
+            if( oname==controller ) {
+                // we registered ourself on init().
+                // That should be the typical case - this object is just for
+                // backward compat, nobody should bother to load it explicitely
+                Registry.getRegistry().unregisterComponent(oname);
+            }
+            initialized = false;
+        }
+        // END CR 6368091
     }
 
     public void init() {
