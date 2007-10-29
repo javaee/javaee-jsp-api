@@ -43,6 +43,9 @@ import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.Cookies;
 import org.apache.tomcat.util.http.ServerCookie;
+// START S1AS 6188932
+import com.sun.appserv.ProxyHandler;
+// END S1AS 6188932
 
 
 /**
@@ -51,7 +54,7 @@ import org.apache.tomcat.util.http.ServerCookie;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:10 $
+ * @version $Revision: 1.2 $ $Date: 2005/07/22 12:12:23 $
  */
 
 public class CoyoteAdapter
@@ -163,16 +166,23 @@ public class CoyoteAdapter
             if ( postParseRequest(req, request, res, response) ) {
 
                 // START S1AS 6188932
-                try {
-                    X509Certificate[] certs =
-                        connector.getProxyAuthCertificateChain(
-                            request.getRequest());
-                    if (certs != null) {
-                        request.setAttribute(Globals.CERTIFICATES_ATTR, certs);
+                boolean authPassthroughEnabled = 
+                    connector.getAuthPassthroughEnabled();
+                ProxyHandler proxyHandler = connector.getProxyHandler();
+                if (authPassthroughEnabled && proxyHandler != null) {
+                    X509Certificate[] certs = null;
+                    try {
+                        certs = proxyHandler.getSSLClientCertificateChain(
+                                    request.getRequest());
+                    } catch (CertificateException ce) {
+                        log.error(sm.getString(
+                            "coyoteAdapter.proxyAuthCertError"),
+                            ce);
                     }
-                } catch (CertificateException ce) {
-                    log.error(sm.getString("coyoteAdapter.proxyAuthCertError"),
-                              ce);
+                    if (certs != null) {
+                        request.setAttribute(Globals.CERTIFICATES_ATTR,
+                                             certs);
+                    }
                 }
                 // END S1AS 6188932
 

@@ -59,12 +59,16 @@ import org.apache.tomcat.util.http.MimeHeaders;
 import org.apache.tomcat.util.http.ServerCookie;
 import org.apache.tomcat.util.net.URL;
 
+// START S1AS 6170450
+import com.sun.appserv.ProxyHandler;
+// END S1AS 6170450
+
 /**
  * Wrapper object for the Coyote response.
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:29:00 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:11 $
  */
 
 public class CoyoteResponse
@@ -1490,9 +1494,12 @@ public class CoyoteResponse
 
             // START S1AS 6170450
             if (getConnector() != null
-                    && getConnector().getAuthPassthroughEnabled()
-                    && request.getHeader("Proxy-keysize") != null) {
-                scheme = "https";
+                    && getConnector().getAuthPassthroughEnabled()) {
+                ProxyHandler proxyHandler = getConnector().getProxyHandler();
+                if (proxyHandler != null
+                        && proxyHandler.getSSLKeysize(request) > 0) {
+                    scheme = "https";
+                }
             }
             // END S1AS 6170450
 
