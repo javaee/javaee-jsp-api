@@ -2030,8 +2030,18 @@ class Generator {
                         sb.append(ch);
                         break;
                     case '#':
-                        if ((pageInfo.isELIgnored()
-                                 || pageInfo.isDeferredSyntaxAllowedAsLiteral())
+                        boolean unescapePound = false;
+                        if (isTagFile) {
+                            String verS = ctxt.getTagInfo().
+                                    getTagLibrary().getRequiredVersion();
+                            Double version = Double.valueOf(verS).doubleValue();
+                            if (version < 2.1) {
+                                unescapePound = true;
+                            }
+                        }
+                        unescapePound = unescapePound || pageInfo.isELIgnored()
+                            || pageInfo.isDeferredSyntaxAllowedAsLiteral();
+                        if (unescapePound
                                && (i+1 < text.length())
                                && (text.charAt(i+1) == '{')){
                             sb.append('\\').append('\\');
