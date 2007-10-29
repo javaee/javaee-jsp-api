@@ -659,30 +659,12 @@ public class PageContextImpl extends PageContext {
 				  true);
     }
 
-    public void include(final String relativeUrlPath, final boolean flush)
-	        throws ServletException, IOException {
-        if (SecurityUtil.isPackageProtectionEnabled()){
-            try{
-                AccessController.doPrivileged(new PrivilegedExceptionAction(){
-                    public Object run() throws Exception{
-                        doInclude(relativeUrlPath, flush);
-                        return null;
-                    }
-                });
-            } catch (PrivilegedActionException e){
-                Exception ex =  e.getException();
-                if (ex instanceof IOException){
-                    throw (IOException)ex;
-                } else {
-                    throw (ServletException)ex;
-                }
-            }
-        } else {
-            doInclude(relativeUrlPath, flush);
-        }
-    }
-
-    private void doInclude(String relativeUrlPath, boolean flush)
+    /*
+     * No need to execute include inside a privileged block, since it calls
+     * ApplicationDispatcher include, which in turn is executed inside a
+     * privileged block
+     */
+    public void include(String relativeUrlPath, boolean flush)
 	        throws ServletException, IOException {
         JspRuntimeLibrary.include(request, response, relativeUrlPath, out,
 				  flush);
@@ -735,31 +717,12 @@ public class PageContextImpl extends PageContext {
         return jspApplicationContext;
     }
                          
-    public void forward(final String relativeUrlPath)
-            throws ServletException, IOException {
-
-        if (SecurityUtil.isPackageProtectionEnabled()){
-            try{
-                AccessController.doPrivileged(new PrivilegedExceptionAction(){
-                    public Object run() throws Exception{
-                        doForward(relativeUrlPath);
-                        return null;
-                    }
-                });
-            } catch (PrivilegedActionException e){
-                Exception ex =  e.getException();
-                if (ex instanceof IOException){
-                    throw (IOException)ex;
-                } else {
-                    throw (ServletException)ex;
-                }
-            }
-        } else {
-            doForward(relativeUrlPath);
-        }
-    }
-
-    private void doForward(String relativeUrlPath)
+    /*
+     * No need to execute forward inside a privileged block, since it calls
+     * ApplicationDispatcher forward, which in turn is executed inside a
+     * privileged block
+     */
+    public void forward(String relativeUrlPath)
         throws ServletException, IOException{
 
         // JSP.4.5 If the buffer was flushed, throw IllegalStateException
