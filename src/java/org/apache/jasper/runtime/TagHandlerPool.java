@@ -33,8 +33,8 @@ import org.apache.jasper.Constants;
  */
 public class TagHandlerPool {
 
-    public static String OPTION_TAGPOOL="tagpoolClassName";
-    public static String OPTION_MAXSIZE="tagpoolMaxSize";
+    public static final String OPTION_TAGPOOL="tagpoolClassName";
+    public static final String OPTION_MAXSIZE="tagpoolMaxSize";
 
     private Tag[] handlers;
     private ResourceInjector resourceInjector;

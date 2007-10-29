@@ -59,13 +59,13 @@ public class SystemLogHandler extends PrintStream {
     /**
      * Thread <-> PrintStream associations.
      */
-    protected static ThreadLocal streams = new ThreadLocal();
+    protected static final ThreadLocal streams = new ThreadLocal();
 
 
     /**
      * Thread <-> ByteArrayOutputStream associations.
      */
-    protected static ThreadLocal data = new ThreadLocal();
+    protected static final ThreadLocal data = new ThreadLocal();
 
 
     // --------------------------------------------------------- Public Methods

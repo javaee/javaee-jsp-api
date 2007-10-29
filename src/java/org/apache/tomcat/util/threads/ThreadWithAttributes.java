@@ -21,7 +21,7 @@ import java.util.Hashtable;
 public class ThreadWithAttributes extends Thread {
     
     private Object control;
-    public static int MAX_NOTES=16;
+    public static final int MAX_NOTES=16;
     private Object notes[]=new Object[MAX_NOTES];
     private Hashtable attributes=new Hashtable();
     private String currentStage;
