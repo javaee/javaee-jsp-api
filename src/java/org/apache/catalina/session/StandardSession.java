@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.24 $ $Date: 2006/11/11 00:42:57 $
+ * @version $Revision: 1.25 $ $Date: 2006/11/15 19:04:03 $
  */
 
 public class StandardSession
@@ -408,7 +408,7 @@ public class StandardSession
         // Notify interested application event listeners
         Context context = (Context) manager.getContainer();
         Object listeners[] = context.getApplicationLifecycleListeners();
-        if (listeners != null) {
+        if (listeners != null && (listeners.length > 0)) {
             HttpSessionEvent event =
                 new HttpSessionEvent(getSession());
             for (int i = 0; i < listeners.length; i++) {
@@ -744,7 +744,7 @@ public class StandardSession
             // FIXME - Assumes we call listeners in reverse order
             Context context = (Context) manager.getContainer();
             Object listeners[] = context.getApplicationLifecycleListeners();
-            if (notify && (listeners != null)) {
+            if (notify && (listeners != null) && (listeners.length > 0)) {
                 HttpSessionEvent event =
                     new HttpSessionEvent(getSession());
                 for (int i = 0; i < listeners.length; i++) {
