@@ -48,6 +48,8 @@ import javax.servlet.jsp.tagext.ValidationMessage;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
+import org.apache.jasper.runtime.JspRuntimeLibrary;
+
 import org.xml.sax.Attributes;
 
 /**
@@ -990,6 +992,69 @@ class Validator {
 	    }
 	}
 
+
+        /*
+         * Check that the setter method exists for the tag handler and is
+         * consistent with the TLD entries.
+         * 
+         * This can probably be done globally, when taglib directives are
+         * processed.  We do it here so checking is done only for the
+         * attributes are actually used.
+         */
+        private void checkSetter(Node.CustomTag n, TagAttributeInfo tldattr) 
+                throws JasperException {
+
+            Class handler = n.getTagHandlerClass();
+            if (handler == null) {
+                // Handler unknown.  Maybe tag file?
+                return;
+            }
+
+            String handlerName = handler.getName();
+            String property = tldattr.getName();
+            Method setter = null;
+
+            try {
+                setter = JspRuntimeLibrary.getWriteMethod(handler, property);
+            } catch (Exception ex) {
+            }
+            if (setter == null) {
+                err.jspError(n, "jsp.error.setter.none", handlerName,
+                             property);
+            }
+            Class setterType = setter.getParameterTypes()[0];
+            String typeName = setterType.getName();
+            if (tldattr.isDeferredValue()) {
+                if (tldattr.canBeRequestTime()) {
+                    if (! "java.lang.Object".equals(typeName)) {
+                        err.jspError(n, "jsp.error.setter.notobject",
+                            handlerName, property);
+                    }
+                    return;
+                }
+                if (! "javax.el.ValueExpression".equals(typeName)) {
+                    err.jspError(n, "jsp.error.setter.notvalueexpression",
+                        handlerName, property);
+                }
+                return;
+            }
+            if (tldattr.isDeferredMethod()) {
+                if (! "javax.el.MethodExpression".equals(typeName)) {
+                    err.jspError(n, "jsp.error.setter.notmethodexpression",
+                        handlerName, property);
+                }
+                return;
+            }
+/* Temporarily removed, as it breaks some JSF applications.  Should be
+   able to refine the check.
+            String tldType = tldattr.getTypeName();
+            if (tldType != null && ! tldType.equals(typeName)) {
+                err.jspError(n, "jsp.error.setter.notequal",
+                    handlerName, property);
+            }
+*/
+        }
+
 	/*
 	 * Make sure the given custom action does not have any invalid
 	 * attributes.
@@ -1030,6 +1095,9 @@ class Validator {
 			    && (attrs.getURI(i) == null
 				|| attrs.getURI(i).length() == 0
 				|| attrs.getURI(i).equals(n.getURI()))) {
+
+                        checkSetter(n, tldAttrs[j]);
+                        
 			if (tldAttrs[j].canBeRequestTime() ||
                             tldAttrs[j].isDeferredValue() ||
                             tldAttrs[j].isDeferredMethod()) {
