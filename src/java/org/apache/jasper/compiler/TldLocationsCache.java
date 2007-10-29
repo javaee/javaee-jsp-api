@@ -48,6 +48,9 @@ import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
+// START SJSAS 6384538
+import org.apache.jasper.Options;
+// END SJSAS 6384538
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
 
@@ -121,6 +124,9 @@ public class TldLocationsCache {
     private boolean initialized;
     private ServletContext ctxt;
     private boolean redeployMode;
+    // START SJSAS 6384538
+    private Options options;
+    // END SJSAS 6384538
 
     //*********************************************************************
     // Constructor and Initilizations
@@ -194,8 +200,18 @@ public class TldLocationsCache {
         systemUris.add("http://java.sun.com/jsp/jstl/core");
     }
 
+    /* SJSAS 6384538
     public TldLocationsCache(ServletContext ctxt) {
+    */
+    // START SJSAS 6384538
+    public TldLocationsCache(ServletContext ctxt, Options options) {
+    // END SJSAS 6384538
+        /* SJSAS 6384538
         this(ctxt, true);
+        */
+        // START SJSAS 6384538
+        this(ctxt, options, true);
+        // END SJSAS 6384538
     }
 
     /** Constructor. 
@@ -208,8 +224,17 @@ public class TldLocationsCache {
      * because of JDK bug 4211817 fixed in this release.
      * If redeployMode is false, a faster but less capable mode will be used.
      */
+    /* SJSAS 6384538
     public TldLocationsCache(ServletContext ctxt, boolean redeployMode) {
+    */
+    // START SJSAS 6384538
+    public TldLocationsCache(ServletContext ctxt, Options options,
+                             boolean redeployMode) {
+    // END SJSAS 6384538
         this.ctxt = ctxt;
+        // START SJSAS 6384538
+        this.options = options;
+        // END SJSAS 6384538
         this.redeployMode = redeployMode;
         mappings = new Hashtable();
         initialized = false;
@@ -496,7 +521,13 @@ public class TldLocationsCache {
         throws JasperException
     {
         // Parse the tag library descriptor at the specified resource path
+        /* SJSAS 6384538
         TreeNode tld = new ParserUtils().parseXMLDocument(resourcePath, in);
+        */
+        // START SJSAS 6384538
+        TreeNode tld = new ParserUtils().parseXMLDocument(
+            resourcePath, in, true, options.isTldValidationEnabled());
+        // END SJSAS 6384538
         TreeNode uri = tld.findChild("uri");
         if (uri != null) {
             String body = uri.getBody();

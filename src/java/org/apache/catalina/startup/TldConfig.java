@@ -479,10 +479,16 @@ public final class TldConfig  {
      */
     private Digester createTldDigester() {
 
+        /* SJSAS 6384538
         return DigesterFactory.newDigester(tldValidation, 
                                            tldNamespaceAware, 
                                            new TldRuleSet());
-
+        */
+        // START SJSAS 6384538
+        return DigesterFactory.newDigester(false, 
+                                           tldNamespaceAware, 
+                                           new TldRuleSet());
+        // END SJSAS 6384538
     }
 
     /**

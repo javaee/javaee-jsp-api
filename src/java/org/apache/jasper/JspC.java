@@ -233,6 +233,10 @@ public class JspC implements Options {
     private boolean fullstop = false;
     private String args[];
 
+    // START SJSAS 6384538
+    private boolean isTldValidationEnabled;
+    // END SJSAS 6384538
+
     // START SJSAS 6329723
     private List<JasperException> jspErrors = new ArrayList<JasperException>();
     // END SJSAS 6329723
@@ -338,7 +342,7 @@ public class JspC implements Options {
             // END PWC 6386258
             // START PWC 6385018
             } else if (tok.equals(SWITCH_VALIDATE)) {
-                setValidating(true);
+                setValidateXml(true);
             // END PWC 6385018
             } else {
                 if (tok.startsWith("-")) {
@@ -683,12 +687,6 @@ public class JspC implements Options {
     }
     // END PWC 6386258
 
-    // START PWC 6385018
-    public static void setValidating(boolean validating) {
-        ParserUtils.setValidating(validating);
-    }
-    // END PWC 6385018
-
     /*
      * Parses comma-separated list of JSP files to be processed.
      *
@@ -717,8 +715,23 @@ public class JspC implements Options {
     }
 
     public void setValidateXml( boolean b ) {
+        /* SJSAS 6384538
         org.apache.jasper.xmlparser.ParserUtils.validating=b;
+        */
+        // START SJSAS 6384538
+        setIsTldValidationEnabled(b);
+        // END SJSAS 6384538
     }
+
+    // START SJSAS 6384538
+    public void setIsTldValidationEnabled(boolean b) {
+        isTldValidationEnabled = b;
+    }
+
+    public boolean isTldValidationEnabled() {
+        return isTldValidationEnabled;
+    }
+    // END SJSAS 6384538
 
     public void setListErrors( boolean b ) {
         listErrors = b;
@@ -1242,7 +1255,12 @@ public class JspC implements Options {
                 (new PrintWriter(System.out),
                  new URL("file:" + uriRoot.replace('\\','/') + '/'));
             tldLocationsCache = new
+                /* SJSAS 6384538
                 TldLocationsCache(context, true);
+                */
+                // START SJSAS 6384538
+                TldLocationsCache(context, this, true);
+                // END SJSAS 6384538
         } catch (MalformedURLException me) {
             System.out.println("**" + me);
         }

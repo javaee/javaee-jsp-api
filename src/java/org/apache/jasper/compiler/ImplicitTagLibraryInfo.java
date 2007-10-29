@@ -221,7 +221,13 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
             }
 
             is = uri.openStream();
+            /* SJSAS 6384538
             tld = new ParserUtils().parseXMLDocument(IMPLICIT_TLD, is);
+            */
+            // START SJSAS 6384538
+            tld = new ParserUtils().parseXMLDocument(
+                IMPLICIT_TLD, is, true, ctxt.getOptions().isTldValidationEnabled());
+            // END SJSAS 6384538
         } catch (Exception ex) {
             throw new JasperException(ex);
         } finally {

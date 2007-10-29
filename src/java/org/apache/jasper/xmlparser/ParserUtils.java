@@ -29,10 +29,16 @@ package org.apache.jasper.xmlparser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.XMLConstants;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
@@ -41,16 +47,18 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.ls.LSResourceResolver;
+import org.w3c.dom.ls.LSInput;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
 
 /**
  * XML parsing utilities for processing web application deployment
@@ -76,8 +84,17 @@ public class ParserUtils {
      */
     static EntityResolver entityResolver = new MyEntityResolver();
 
+    /* SJSAS 6384538
     public static boolean validating = false;
+    */
 
+    static String schemaResourcePrefix;
+
+    private static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
+    private static final String SCHEMA_LOCATION_JSP_20
+        = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd";
+    private static final String SCHEMA_LOCATION_JSP_21
+        = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
 
     // START PWC 6386258
     static final String[] CACHED_DTD_RESOURCE_PATHS = {
@@ -96,7 +113,7 @@ public class ParserUtils {
     // END PWC 6386258
 
 
-    // --------------------------------------------------------- Public Methods
+    // --------------------------------------------------------- Static Methods
 
 
     // START PWC 6386258
@@ -104,6 +121,9 @@ public class ParserUtils {
      * Sets the path prefix for .xsd resources
      */
     public static void setSchemaResourcePrefix(String prefix) {
+
+        schemaResourcePrefix = prefix;
+
         for (int i=0; i<CACHED_SCHEMA_RESOURCE_PATHS.length; i++) {
             String path = CACHED_SCHEMA_RESOURCE_PATHS[i];
             int index = path.lastIndexOf('/');
@@ -130,12 +150,7 @@ public class ParserUtils {
     // END PWC 6386258
 
 
-    // START PWC 6385018
-    public static void setValidating(boolean valid) {
-        validating = valid;
-    }
-    // END PWC 6385018
-
+    // --------------------------------------------------------- Public Methods
 
     /**
      * Parse the specified XML document, and return a <code>TreeNode</code>
@@ -144,11 +159,29 @@ public class ParserUtils {
      * @param uri URI of the XML document being parsed
      * @param is Input source containing the deployment descriptor
      *
-     * @exception JasperException if an input/output error occurs
-     * @exception JasperException if a parsing error occurs
+     * @exception JasperException if an I/O or parsing error has occurred
      */
     public TreeNode parseXMLDocument(String uri, InputSource is)
-        throws JasperException {
+            throws JasperException {
+        return parseXMLDocument(uri, is, false, false);
+    }
+
+    /**
+     * Parse the specified XML document, and return a <code>TreeNode</code>
+     * that corresponds to the root node of the document tree.
+     *
+     * @param uri URI of the XML document being parsed
+     * @param is Input source containing the deployment descriptor
+     * @param isTld true if the XML document to be parsed is a TLD, false
+     * otherwise
+     * @param validate true if the XML document needs to be validated against
+     * its DTD or schema, false otherwise
+     *
+     * @exception JasperException if an I/O or parsing error has occurred
+     */
+    public TreeNode parseXMLDocument(String uri, InputSource is,
+                                     boolean isTld, boolean validate)
+            throws JasperException {
 
         Document document = null;
 
@@ -157,11 +190,29 @@ public class ParserUtils {
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
-            factory.setValidating(validating);
+            /* See CR 6399139
+            factory.setFeature(
+                "http://apache.org/xml/features/validation/dynamic",
+                true);
+            */
             DocumentBuilder builder = factory.newDocumentBuilder();
             builder.setEntityResolver(entityResolver);
             builder.setErrorHandler(errorHandler);
             document = builder.parse(is);
+            document.setDocumentURI(uri);
+            if (isTld && validate) {
+                Schema schema = getTaglibSchema(document);
+                if (schema != null) {
+                    // Validate TLD against specified schema
+                    schema.newValidator().validate(new DOMSource(document));
+                }
+                /* See CR 6399139
+                else {
+                    log.warn(Localizer.getMessage(
+                        "jsp.warning.dtdValidationNotSupported"));
+                }
+                */
+            }
 	} catch (ParserConfigurationException ex) {
             throw new JasperException
                 (Localizer.getMessage("jsp.error.parse.xml", uri), ex);
@@ -192,13 +243,30 @@ public class ParserUtils {
      * @param uri URI of the XML document being parsed
      * @param is Input stream containing the deployment descriptor
      *
-     * @exception JasperException if an input/output error occurs
-     * @exception JasperException if a parsing error occurs
+     * @exception JasperException if an I/O or parsing error has occurred
      */
     public TreeNode parseXMLDocument(String uri, InputStream is)
             throws JasperException {
+        return parseXMLDocument(uri, new InputSource(is), false, false);
+    }
 
-        return (parseXMLDocument(uri, new InputSource(is)));
+    /**
+     * Parse the specified XML document, and return a <code>TreeNode</code>
+     * that corresponds to the root node of the document tree.
+     *
+     * @param uri URI of the XML document being parsed
+     * @param is Input stream containing the deployment descriptor
+     * @param isTld true if the XML document to be parsed is a TLD, false
+     * otherwise
+     * @param validate true if the XML document needs to be validated against
+     * its DTD or schema, false otherwise
+     *
+     * @exception JasperException if an I/O or parsing error has occurred
+     */
+    public TreeNode parseXMLDocument(String uri, InputStream is,
+                                     boolean isTld, boolean validate)
+            throws JasperException {
+        return  parseXMLDocument(uri, new InputSource(is), isTld, validate);
     }
 
 
@@ -252,6 +320,66 @@ public class ParserUtils {
         // Return the completed TreeNode graph
         return (treeNode);
     }
+
+
+    // -------------------------------------------------------- Private Methods
+
+    /*
+     * Gets the compiled schema referenced by the given TLD.
+     *
+     * @param document The TLD to validate
+     *
+     * @return The schema against which to validate
+     */
+    private Schema getTaglibSchema(Document document)
+            throws SAXException, JasperException {
+
+        Schema schema = null;
+        Element root = document.getDocumentElement();
+        NamedNodeMap map = root.getAttributes();
+        for (int i=0; map!=null && i<map.getLength(); i++) {
+            if (SCHEMA_LOCATION_ATTR.equals(map.item(i).getLocalName())) {
+                if (SCHEMA_LOCATION_JSP_20.equals(map.item(i).getNodeValue())) {
+                    schema = getTaglibSchema(
+                            Constants.TAGLIB_SCHEMA_PUBLIC_ID_20);
+                    break;
+                } else if (SCHEMA_LOCATION_JSP_21.equals(map.item(i).getNodeValue())) {
+                    schema = getTaglibSchema(
+                            Constants.TAGLIB_SCHEMA_PUBLIC_ID_21);
+                    break;
+                } else {
+                    throw new JasperException(Localizer.getMessage(
+                        "jsp.error.parse.unknownTldSchemaLocation",
+                        document.getDocumentURI(),
+                        map.item(i).getNodeValue()));
+                }
+            }
+        }
+
+        return schema;
+    }
+
+
+    /*
+     * Gets the compiled schema for the given schema public id.
+     *
+     * @param schemaPublicId The public id for which to get the schema
+     * (e.g., web-jsptaglibrary_2_0.xsd)
+     *
+     * @return The compiled schema
+     */
+    private Schema getTaglibSchema(String schemaPublicId) throws SAXException {
+
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(
+            XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setResourceResolver(new MyLSResourceResolver());
+        schemaFactory.setErrorHandler(new MyErrorHandler());
+
+        return schemaFactory.newSchema(new StreamSource(
+            this.getClass().getResourceAsStream(
+                schemaResourcePrefix + schemaPublicId)));
+    }
+
 }
 
 
@@ -311,5 +439,106 @@ class MyErrorHandler implements ErrorHandler {
 	throws SAXException
     {
 	throw ex;
+    }
+}
+
+class MyLSResourceResolver implements LSResourceResolver {
+
+    public LSInput resolveResource(String type, 
+                                   String namespaceURI, 
+                                   String publicId, 
+                                   String systemId, 
+                                   String baseURI) {
+
+        InputStream is = null;
+
+        String resourceName = systemId;
+        int index = systemId.lastIndexOf('/');
+        if (index != -1) {
+            resourceName = systemId.substring(index+1);
+        }
+        String resourcePath = ParserUtils.schemaResourcePrefix + resourceName;
+        is = this.getClass().getResourceAsStream(resourcePath);
+
+        MyLSInput ls = new MyLSInput();
+        ls.setByteStream(is);
+
+        return ls;
+    }
+}
+
+class MyLSInput implements LSInput {
+
+    private Reader charStream;
+    private InputStream byteStream;
+    private String stringData;
+    private String systemId;
+    private String publicId;
+    private String baseURI;
+    private String encoding;
+    private boolean certifiedText;
+
+    public Reader getCharacterStream() {
+        return charStream;
+    }
+
+    public void setCharacterStream(Reader charStream) {
+        this.charStream = charStream;
+    }
+
+    public InputStream getByteStream() {
+        return byteStream;
+    }
+
+    public void setByteStream(InputStream byteStream) {
+        this.byteStream = byteStream;
+    }
+
+    public String getStringData() {
+        return stringData;
+    }
+
+    public void setStringData(String stringData) {
+        this.stringData = stringData;
+    }
+
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
+    public String getBaseURI() {
+        return baseURI;
+    }
+
+    public void setBaseURI(String baseURI) {
+        this.baseURI = baseURI;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public boolean getCertifiedText() {
+        return certifiedText;
+    }
+
+    public void setCertifiedText(boolean certifiedText) {
+        this.certifiedText = certifiedText;
     }
 }

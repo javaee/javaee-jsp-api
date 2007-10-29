@@ -206,4 +206,8 @@ public interface Options {
     public int getInitialCapacity();
     // END SJSWS 
 
+    // START SJSAS 6384538
+    public boolean isTldValidationEnabled();
+    // END SJSAS 6384538
+
 }

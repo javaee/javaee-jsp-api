@@ -194,6 +194,10 @@ public final class EmbeddedServletOptions implements Options {
     private boolean usePrecompiled;
     // END S1AS 6181923
 
+    // START SJSAS 6384538
+    private boolean isTldValidationEnabled;
+    // END SJSAS 6384538
+
     // START SJSWS
     /*
      * Initial capacity of HashMap which maps JSPs to their corresponding
@@ -407,6 +411,12 @@ public final class EmbeddedServletOptions implements Options {
     // END S1AS 6181923
 
 
+    // START SJSAS 6384538
+    public boolean isTldValidationEnabled() {
+        return isTldValidationEnabled;
+    }
+    // END SJSAS 6384538
+
     /**
      * Create an EmbeddedServletOptions object using data available from
      * ServletConfig and ServletContext. 
@@ -432,10 +442,18 @@ public final class EmbeddedServletOptions implements Options {
             setProperty( k, v);
         }
 
+        /* SJSAS 6384538
         // quick hack
         String validating=config.getInitParameter( "validating");
         if( "false".equals( validating )) ParserUtils.validating=false;
-        
+        */
+        // START SJSAS 6384538
+        String validating=config.getInitParameter("validating");
+        if ("true".equals(validating)) {
+            isTldValidationEnabled = true;
+        }
+        // END SJSAS 6384538
+
         String keepgen = config.getInitParameter("keepgenerated");
         if (keepgen != null) {
             if (keepgen.equalsIgnoreCase("true")) {
@@ -774,7 +792,12 @@ public final class EmbeddedServletOptions implements Options {
 
 	// Setup the global Tag Libraries location cache for this
 	// web-application.
-	tldLocationsCache = new TldLocationsCache(context);
+        /* SJSAS 6384538
+        tldLocationsCache = new TldLocationsCache(context);
+        */
+        // START SJSAS 6384538
+        tldLocationsCache = new TldLocationsCache(context, this);
+        // END SJSAS 6384538
 
 	// Setup the jsp config info for this web app.
 	jspConfig = new JspConfig(context);
