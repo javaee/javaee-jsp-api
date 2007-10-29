@@ -77,9 +77,9 @@ public class SessionTracker implements SessionListener {
                     }
                 }
             }
-        }
 
-        session.removeSessionListener(this);
+            session.removeSessionListener(this);
+        }
     }
 
     /**
@@ -110,28 +110,36 @@ public class SessionTracker implements SessionListener {
      *
      * @param session The session to track
      */
-    public void track(Session session) {
+    public synchronized void track(Session session) {
 
-        synchronized (this) {
-            if (trackedSessionId == null) {
-                trackedSessionId = session.getIdInternal();
-            } else if (!trackedSessionId.equals(session.getIdInternal())) {
-                throw new IllegalArgumentException("Should never reach here");
-            }
-
-            count++;
+        if (trackedSessionId == null) {
+            trackedSessionId = session.getIdInternal();
+        } else if (!trackedSessionId.equals(session.getIdInternal())) {
+            throw new IllegalArgumentException("Should never reach here");
         }
+
+        count++;
 
         session.addSessionListener(this);
     }
 
-
-    public void setResponse(CoyoteResponse response) {
+    /**
+     * Associates the given response with this SessionTracker.
+     *
+     * If the number of tracked sessions drops to zero, this SessionTracker will remove
+     * the Set-Cookie from the given response.
+     *
+     * @param response The response from which to remove the Set-Cookie header if the
+     * number of tracked sessions drops to zero
+     */
+    public synchronized void setResponse(CoyoteResponse response) {
         this.response = response;
     }
 
-
-    void reset() {
+    /**
+     * Resets this session tracker.
+     */
+    public synchronized void reset() {
         count = 0;
         trackedSessionId = null;
         response = null;
