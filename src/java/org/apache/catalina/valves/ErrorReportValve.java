@@ -72,7 +72,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.5 $ $Date: 2006/03/03 17:26:41 $
+ * @version $Revision: 1.6 $ $Date: 2006/03/07 22:30:07 $
  */
 
 public class ErrorReportValve
@@ -286,6 +286,80 @@ public class ErrorReportValve
         if (report == null)
             return;
 
+        String errorPage = makeErrorPage(statusCode, message,
+                                         throwable, rootCause,
+                                         report);
+
+        /* PWC 6254469
+        // set the charset part of content type before getting the writer
+        */
+        try {
+            hres.setContentType("text/html");
+            /* PWC 6254469
+            hres.setCharacterEncoding("UTF-8");
+            */
+        } catch (Throwable t) {
+            if (debug >= 1)
+                log("status.setContentType", t);
+        }
+
+        try {
+            Writer writer = response.getReporter();
+            if (writer != null) {
+                // If writer is null, it's an indication that the response has
+                // been hard committed already, which should never happen
+                writer.write(errorPage);
+            }
+        } catch (IOException e) {
+            ;
+        } catch (IllegalStateException e) {
+            ;
+        }
+
+    }
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any).
+     *
+     * @param message Message to be logged
+     */
+    protected void log(String message) {
+
+        Logger logger = container.getLogger();
+        if (logger != null)
+            logger.log(this.toString() + ": " + message);
+        else
+            System.out.println(this.toString() + ": " + message);
+
+    }
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any).
+     *
+     * @param message Message to be logged
+     * @param throwable Associated exception
+     */
+    protected void log(String message, Throwable throwable) {
+
+        Logger logger = container.getLogger();
+        if (logger != null)
+            logger.log(this.toString() + ": " + message, throwable);
+        else {
+            System.out.println(this.toString() + ": " + message);
+            throwable.printStackTrace(System.out);
+        }
+
+    }
+
+
+    public static String makeErrorPage(int statusCode,
+                                       String message,
+                                       Throwable throwable,
+                                       Throwable rootCause,
+                                       String report) {
+
         StringBuffer sb = new StringBuffer();
 
         sb.append("<html><head><title>");
@@ -367,69 +441,7 @@ public class ErrorReportValve
         sb.append("<HR size=\"1\" noshade>");
         sb.append("<h3>").append(ServerInfo.getServerInfo()).append("</h3>");
         sb.append("</body></html>");
-
-        /* PWC 6254469
-        // set the charset part of content type before getting the writer
-        */
-        try {
-            hres.setContentType("text/html");
-            /* PWC 6254469
-            hres.setCharacterEncoding("UTF-8");
-            */
-        } catch (Throwable t) {
-            if (debug >= 1)
-                log("status.setContentType", t);
-        }
-
-        try {
-            Writer writer = response.getReporter();
-            if (writer != null) {
-                // If writer is null, it's an indication that the response has
-                // been hard committed already, which should never happen
-                writer.write(sb.toString());
-            }
-        } catch (IOException e) {
-            ;
-        } catch (IllegalStateException e) {
-            ;
-        }
-
+        return sb.toString();
     }
-
-
-    /**
-     * Log a message on the Logger associated with our Container (if any).
-     *
-     * @param message Message to be logged
-     */
-    protected void log(String message) {
-
-        Logger logger = container.getLogger();
-        if (logger != null)
-            logger.log(this.toString() + ": " + message);
-        else
-            System.out.println(this.toString() + ": " + message);
-
-    }
-
-
-    /**
-     * Log a message on the Logger associated with our Container (if any).
-     *
-     * @param message Message to be logged
-     * @param throwable Associated exception
-     */
-    protected void log(String message, Throwable throwable) {
-
-        Logger logger = container.getLogger();
-        if (logger != null)
-            logger.log(this.toString() + ": " + message, throwable);
-        else {
-            System.out.println(this.toString() + ": " + message);
-            throwable.printStackTrace(System.out);
-        }
-
-    }
-
 
 }

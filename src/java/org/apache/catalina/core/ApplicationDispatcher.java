@@ -77,7 +77,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.coyote.tomcat5.CoyoteRequest;
 import org.apache.coyote.tomcat5.CoyoteRequestFacade;
 
-
 /**
  * Standard implementation of <code>RequestDispatcher</code> that allows a
  * request to be forwarded to a different resource to create the ultimate
@@ -89,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/02/03 20:29:59 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/07 22:30:07 $
  */
 
 final class ApplicationDispatcher
@@ -338,6 +337,12 @@ final class ApplicationDispatcher
             try {
                 PrivilegedForward dp = new PrivilegedForward(request,response);
                 AccessController.doPrivileged(dp);
+                // START SJSAS 6374990
+                ApplicationDispatcherForward.commit(
+                    (HttpServletRequest) request,
+                    (HttpServletResponse) response,
+                    context, wrapper);
+                // END SJSAS 6374990
             } catch (PrivilegedActionException pe) {
                 Exception e = pe.getException();
                 if (e instanceof ServletException)
@@ -346,6 +351,12 @@ final class ApplicationDispatcher
             }
         } else {
             doForward(request,response);
+            // START SJSAS 6374990
+            ApplicationDispatcherForward.commit(
+                (HttpServletRequest) request,
+                (HttpServletResponse) response,
+                context, wrapper);
+            // END SJSAS 6374990
         }
     }
 
@@ -458,6 +469,7 @@ final class ApplicationDispatcher
 
         }
 
+        /* SJSAS 6374990
         // This is not a real close in order to support error processing
         if ( log.isDebugEnabled() )
             log.debug(" Disabling the response for futher output");
@@ -489,6 +501,7 @@ final class ApplicationDispatcher
                 ;
             }
         }
+        */
 
     }
 
@@ -1178,5 +1191,4 @@ final class ApplicationDispatcher
 
     }
     // END OF S1AS 4703023
-
 }
