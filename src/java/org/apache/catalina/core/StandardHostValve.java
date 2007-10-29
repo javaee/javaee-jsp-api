@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/08/18 02:30:13 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/22 16:13:19 $
  */
 
 final class StandardHostValve
@@ -354,7 +354,7 @@ final class StandardHostValve
             return (null);
         Class clazz = exception.getClass();
         String name = clazz.getName();
-        while (!"java.lang.Object".equals(clazz)) {
+        while (!Object.class.equals(clazz)) {
             ErrorPage errorPage = context.findErrorPage(name);
             if (errorPage != null)
                 return (errorPage);
