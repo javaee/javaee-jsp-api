@@ -1173,8 +1173,48 @@ class Generator {
             String type = n.getTextAttribute("type");
             Node.JspAttribute beanName = n.getBeanName();
 
-            if (type == null) // if unspecified, use class as type of bean 
-                type = klass;
+            // If "class" is specified, try an instantiation at compile time
+            boolean generateNew = false;
+            String canonicalName = null;    // Canonical name for klass
+            if (klass != null) {
+                try {
+                    Class bean = ctxt.getClassLoader().loadClass(klass);
+                    if (klass.indexOf('$') >= 0)  {
+                        // Obtain the canonical type name
+                        canonicalName = JspUtil.getCanonicalName(bean);
+                    } else {
+                        canonicalName = klass;
+                    }
+                    int modifiers = bean.getModifiers();
+                    if (!Modifier.isPublic(modifiers) ||
+                        Modifier.isInterface(modifiers) ||
+                        Modifier.isAbstract(modifiers)) {
+                        throw new Exception("Invalid bean class modifier");
+                    }
+                    // Check that there is a 0 arg constructor
+                    bean.getConstructor(new Class[] {});
+                    // At compile time, we have determined that the bean class
+                    // exists, with a public zero constructor, new() can be
+                    // used for bean instantiation.
+                    generateNew = true;
+                } catch (Exception e) {
+                    // Cannot instantiate the specified class, either a
+                    // compilation error or a runtime error will be raised,
+                    // depending on a compiler flag.
+                    if (ctxt.getOptions().getErrorOnUseBeanInvalidClassAttribute()) {
+                        err.jspError(n, "jsp.error.invalid.bean", klass);
+                    }
+                    if (canonicalName == null) {
+                        // Doing our best here to get a canonical name
+                        // from the binary name, should work 99.99% of time.
+                        canonicalName = klass.replace('$','.');
+                    }
+                }
+                if (type == null) {
+                    // if type is unspecified, use "class" as type of bean
+                    type = canonicalName;
+                }
+            }
 
             String scopename = "PageContext.PAGE_SCOPE"; // Default to page
             String lock = "_jspx_page_context";
@@ -1244,43 +1284,23 @@ class Generator {
                 /*
                  * Instantiate the bean if it is not in the specified scope.
                  */
-                boolean generateNew = false;
-                if (beanName == null) {
-                    try {
-                        Class bean = ctxt.getClassLoader().loadClass(klass);
-                        int modifiers = bean.getModifiers();
-                        if (!Modifier.isPublic(modifiers) ||
-                            Modifier.isInterface(modifiers) ||
-                            Modifier.isAbstract(modifiers)) {
-                            throw new Exception("Invalid bean class modifier");
-                        }
-                        // Check that there is a 0 arg constructor
-                        bean.getConstructor(new Class[] {});
-                        generateNew = true;
-                    } catch (Exception e) {
-                        // Cannot instantiate the specified class
-                        if (ctxt.getOptions().getErrorOnUseBeanInvalidClassAttribute()) {
-                            err.jspError(n, "jsp.error.invalid.bean", klass);
-                        }
-                    }
-                }
                 if (!generateNew) {
-                    String className;
+                    String binaryName;
                     if (beanName != null) {
                         if (beanName.isNamedAttribute()) {
                             // If the value for beanName was specified via
                             // jsp:attribute, first generate code to evaluate
                             // that body.
-                            className =
+                            binaryName =
                                 generateNamedAttributeValue(
                                     beanName.getNamedAttributeNode());
                         } else {
-                            className =
+                            binaryName =
                                 attributeValue(beanName, false, String.class);
                         }
                     } else {
                         // Implies klass is not null
-                        className = quote(klass);
+                        binaryName = quote(klass);
                     }
                     out.printil("try {");
                     out.pushIndent();
@@ -1289,7 +1309,7 @@ class Generator {
                     out.print(type);
                     out.print(") java.beans.Beans.instantiate(");
                     out.print("this.getClass().getClassLoader(), ");
-                    out.print(className);
+                    out.print(binaryName);
                     out.println(");");
                     out.popIndent();
                     /*
@@ -1305,7 +1325,7 @@ class Generator {
                     out.pushIndent();
                     out.printin("throw new ServletException(");
                     out.print("\"Cannot create bean of class \" + ");
-                    out.print(className);
+                    out.print(binaryName);
                     out.println(", exc);");
                     out.popIndent();
                     out.printil("}"); // close of try
@@ -1314,7 +1334,7 @@ class Generator {
                     // Generate codes to instantiate the bean class
                     out.printin(name);
                     out.print(" = new ");
-                    out.print(klass);
+                    out.print(canonicalName);
                     out.println("();");
                 }
                 /*
