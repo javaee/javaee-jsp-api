@@ -44,7 +44,7 @@ import org.apache.naming.StringManager;
  * Proxy Directory Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2004/07/14 18:15:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/14 22:50:47 $
  */
 
 public class ProxyDirContext implements DirContext {
@@ -690,7 +690,7 @@ public class ProxyDirContext implements DirContext {
      */
     public Name composeName(Name name, Name prefix)
         throws NamingException {
-        prefix = (Name) name.clone();
+        prefix = (Name) prefix.clone();
 	return prefix.addAll(name);
     }
 
