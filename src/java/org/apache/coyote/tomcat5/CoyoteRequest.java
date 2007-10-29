@@ -99,6 +99,7 @@ import org.apache.catalina.ValveContext;
 import org.apache.catalina.Wrapper;
 
 import org.apache.catalina.core.ApplicationFilterFactory;
+import org.apache.catalina.session.StandardSession;
 import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
@@ -119,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.46 $ $Date: 2006/12/11 18:28:59 $
+ * @version $Revision: 1.47 $ $Date: 2006/12/12 17:41:24 $
  */
 
 public class CoyoteRequest
@@ -2624,6 +2625,8 @@ public class CoyoteRequest
                     if (manager.isSessionVersioningSupported()) {
                         session = manager.findSession(requestedSessionId,
                                                       requestedSessionVersion);
+                        incrementSessionVersion((StandardSession) session,
+                                                context);
                     } else {
                         session = manager.findSession(requestedSessionId);
                     }
@@ -2679,13 +2682,17 @@ public class CoyoteRequest
         sessionTracker.track(session);
         // END GlassFish 896
 
-        // Creating a new session cookie based on that session
+        // Creating a new session cookie based on the newly created session
         if ((session != null) && (getContext() != null)
                 && getContext().getCookies()) {
             Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
                                        session.getIdInternal());
             configureSessionCookie(cookie);
             ((HttpServletResponse) response).addCookie(cookie);
+
+            if (manager.isSessionVersioningSupported()) {
+                incrementSessionVersion((StandardSession) session, context);
+            }
         }
 
         if (session != null) {
@@ -3515,4 +3522,29 @@ public class CoyoteRequest
         attributes.put(Globals.SESSION_TRACKER, sessionTracker);
     }
     // END GlassFish 896
+
+
+    /**
+     * Increments the version of the given session, and stores it as a
+     * request attribute, so it can later be included in a response cookie.
+     */
+    private void incrementSessionVersion(StandardSession ss,
+                                         Context context) {
+
+        if (ss == null || context == null) {
+            return;
+        }
+
+        ss.incrementVersion();
+        String versionString = Long.toString(ss.getVersion());
+
+        HashMap<String, String> sessionVersions = (HashMap<String, String>)
+            getAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+        if (sessionVersions == null) {
+            sessionVersions = new HashMap<String, String>();
+            setAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                         sessionVersions);
+        }
+        sessionVersions.put(context.getPath(), versionString);
+    }
 }

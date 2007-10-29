@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.26 $ $Date: 2006/11/21 23:45:35 $
+ * @version $Revision: 1.27 $ $Date: 2007/01/11 21:00:26 $
  */
 
 public class StandardSession
@@ -312,6 +312,13 @@ public class StandardSession
      * The access count for this session.
      */
     protected transient int accessCount = 0;
+
+
+    /**
+     * The session version, incremented and used by in-memory-replicating
+     * session managers
+     */
+    protected long version = -1;
 
 
     // ----------------------------------------------------- Session Properties
@@ -974,6 +981,30 @@ public class StandardSession
         }
     }
     // END SJSAS 6329289
+
+
+    /** 
+     * Increments the version number
+     */    
+    public void incrementVersion() {
+        version++;
+    } 
+
+    
+    /** 
+     * Gets the version number
+     */    
+    public long getVersion() {
+        return version;
+    }
+    
+
+    /** 
+     * Sets the version number
+     */    
+    public void setVersion(long value) {
+        version = value;
+    }    
 
 
     /**
