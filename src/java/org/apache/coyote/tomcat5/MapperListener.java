@@ -236,6 +236,12 @@ public class MapperListener
         if (notification instanceof MBeanServerNotification) {
             ObjectName objectName = 
                 ((MBeanServerNotification) notification).getMBeanName();
+
+            String otherDomain = objectName.getDomain();
+            if (this.domain != null && !(this.domain.equals(otherDomain))) {
+                return false;
+            }
+
             String otherInstance = objectName.getKeyProperty("J2EEServer");
             if (myInstance != null && otherInstance != null
                     && !otherInstance.equals(myInstance)) {

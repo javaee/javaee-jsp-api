@@ -240,16 +240,14 @@ public final class Mapper {
                 newContext.resources = resources;
                 if (insertMap(contexts, newContexts, newContext)) {
                     host.contextList.contexts = newContexts;
+                    // START GlassFish 1024
+                    if (path.equals(host.defaultContextPaths[0])) {
+                        host.defaultContexts[0] = newContext;
+                    }
+                    // END GlassFish 1024
                 }
-
-                // START GlassFish 1024
-                if (path.equals(host.defaultContextPaths[0])) {
-                    host.defaultContexts[0] = newContext;
-                }
-                // END GlassFish 1024
             }
         }
-
     }
 
 
