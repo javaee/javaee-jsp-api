@@ -660,4 +660,18 @@ public class OutputBuffer extends Writer
                                coyoteResponse.getCookieString(cookie));
         }
     }
+
+
+    // START PWC 6512276
+    /**
+     * Are there any pending writes waiting to be flushed?
+     */
+    public boolean hasData() {
+        if (!suspended && (initial || (bb.getLength() > 0))) {
+            return true;
+        }
+
+        return false;
+    }
+    // END PWC 6512276
 }
