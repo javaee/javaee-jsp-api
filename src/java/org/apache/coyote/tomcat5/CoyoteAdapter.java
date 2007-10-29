@@ -58,7 +58,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/08/12 23:31:08 $
+ * @version $Revision: 1.4 $ $Date: 2005/08/23 00:05:44 $
  */
 
 public class CoyoteAdapter
@@ -163,7 +163,7 @@ public class CoyoteAdapter
         }
 
         if (connector.isXpoweredBy()) {
-            response.addHeader("X-Powered-By", "Servlet/2.4");
+            response.addHeader("X-Powered-By", "Servlet/2.5");
         }
 
         try {
