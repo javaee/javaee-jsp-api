@@ -2330,14 +2330,26 @@ class Generator {
             out.printin("if (");
             out.print(tagHandlerVar);
             out.println(
-                ".doEndTag() == javax.servlet.jsp.tagext.Tag.SKIP_PAGE)");
+                ".doEndTag() == javax.servlet.jsp.tagext.Tag.SKIP_PAGE) {");
             out.pushIndent();
+            if (!n.implementsTryCatchFinally()) {
+                if (isPoolingEnabled) {
+                    out.printin(n.getTagHandlerPoolName());
+                    out.print(".reuse(");
+                    out.print(tagHandlerVar);
+                    out.println(");");
+                } else {
+                    out.printin(tagHandlerVar);
+                    out.println(".release();");
+                }
+            }
             if (isTagFile || isFragment) {
                 out.printil("throw new SkipPageException();");
             } else {
                 out.printil((methodNesting > 0) ? "return true;" : "return;");
             }
             out.popIndent();
+            out.printil("}");
 
             // Synchronize AT_BEGIN scripting variables
             syncScriptingVars(n, VariableInfo.AT_BEGIN);
@@ -2369,6 +2381,9 @@ class Generator {
                 out.print(".reuse(");
                 out.print(tagHandlerVar);
                 out.println(");");
+            } else {
+                out.printin(tagHandlerVar);
+                out.println(".release();");
             }
 
             if (n.implementsTryCatchFinally()) {
