@@ -84,8 +84,11 @@ class ApplicationDispatcherForward {
         CoyoteResponseFacade responseFacade = getResponseFacade(response);
         int statusCode = responseFacade.getStatus();
         Object exception = request.getAttribute(Globals.EXCEPTION_ATTR);
+        String errorReportValveClass = 
+            ((StandardHost)(context.getParent())).getErrorReportValveClass();
 
-        if (statusCode >= 400 && exception == null) {
+        if (errorReportValveClass != null && statusCode >= 400
+                && exception == null) {
             boolean matchFound = status(request, response, responseFacade,
                                         context, wrapper, statusCode);
             if (!matchFound) {
@@ -97,7 +100,8 @@ class ApplicationDispatcherForward {
         /*
          * Commit the response only if no exception
          */
-        if (statusCode < 400 || exception == null) {
+        if (statusCode < 400
+                || (exception == null && errorReportValveClass != null)) {
             try {
                 PrintWriter writer = response.getWriter();
                 writer.flush();
