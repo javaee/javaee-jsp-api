@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.15 $ $Date: 2006/04/01 01:18:15 $
+ * @version $Revision: 1.16 $ $Date: 2006/04/24 21:51:47 $
  */
 
 public class StandardSession
@@ -1741,10 +1741,23 @@ public class StandardSession
         if (debug >= 2)
             log("readObject() loading session " + id);
 
+        // START PWC 6444754
+        obj = stream.readObject();
+        int n = 0;
+        if (obj instanceof String) {
+            authType = (String) obj;
+            n = ((Integer) stream.readObject()).intValue();
+        } else {
+            n = ((Integer) obj).intValue();
+        }
+        // END PWC 6444754
+
         // Deserialize the attribute count and attribute values
         if (attributes == null)
             attributes = new Hashtable();
+        /* PWC 6444754
         int n = ((Integer) stream.readObject()).intValue();
+        */
         boolean isValidSave = isValid;
         isValid = true;
         for (int i = 0; i < n; i++) {
@@ -1799,13 +1812,25 @@ public class StandardSession
         stream.writeObject(new Long(thisAccessedTime));
         // START SJSWS 6371339
         // If the principal is serializable, write it out
+        // START PWC 6444754
+        boolean serialPrincipal = false;
+        // END PWC 6444754
         if (principal instanceof java.io.Serializable) {
+            // START PWC 6444754
+            serialPrincipal = true;
+            // END PWC 6444754
             stream.writeObject(principal);
         }
         // END SJSWS 6371339
         stream.writeObject(id);
         if (debug >= 2)
             log("writeObject() storing session " + id);
+
+        // START PWC 6444754
+        if (serialPrincipal && authType != null) {
+            stream.writeObject(authType);
+        }
+        // END PWC 6444754
 
         // Accumulate the names of serializable and non-serializable attributes
         String keys[] = keys();
