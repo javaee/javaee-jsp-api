@@ -452,6 +452,10 @@ public final class EmbeddedServletOptions implements Options {
         if ("true".equals(validating)) {
             isTldValidationEnabled = true;
         }
+        validating = config.getInitParameter("enableTldValidation");
+        if ("true".equals(validating)) {
+            isTldValidationEnabled = true;
+        }
         // END SJSAS 6384538
 
         String keepgen = config.getInitParameter("keepgenerated");
