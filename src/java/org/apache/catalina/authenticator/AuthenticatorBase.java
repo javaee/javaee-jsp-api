@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.14 $ $Date: 2007/02/13 20:04:19 $
+ * @version $Revision: 1.15 $ $Date: 2007/03/08 22:41:46 $
  */
 
 
@@ -603,7 +603,7 @@ public abstract class AuthenticatorBase
         //START SJSAS 6202703
         int preAuthenticateCheckResult = realm.preAuthenticateCheck(
                 hrequest, hresponse, constraints, disableProxyCaching,
-                securePagesWithPragma);
+                securePagesWithPragma, (sso != null));
         
         if(preAuthenticateCheckResult == Realm.AUTHENTICATE_NOT_NEEDED) {
             return processSecurityCheck(hrequest,hresponse,config);

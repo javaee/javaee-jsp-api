@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/12/15 18:56:52 $
+ * @version $Revision: 1.13 $ $Date: 2007/01/22 21:10:08 $
  */
 
 public abstract class RealmBase
@@ -1006,13 +1006,15 @@ public abstract class RealmBase
      * @param securePagesWithPragma true if we add headers which 
      * are incompatible with downloading office documents in IE under SSL but
      * which fix a caching problem in Mozilla.
+     * @param ssoEnabled true if sso is enabled
      * @exception IOException if an input/output error occurs
      */
     public int preAuthenticateCheck(HttpRequest request,
                                     HttpResponse response,
                                     SecurityConstraint[] constraints,
                                     boolean disableProxyCaching,
-                                    boolean securePagesWithPragma)
+                                    boolean securePagesWithPragma,
+                                    boolean ssoEnabled)
                                     throws IOException {
         for(int i=0; i < constraints.length; i++) {
             if (constraints[i].getAuthConstraint()) {

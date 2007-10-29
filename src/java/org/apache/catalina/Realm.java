@@ -43,7 +43,7 @@ import org.apache.catalina.deploy.SecurityConstraint;
  * Container.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2006/01/18 19:23:47 $
+ * @version $Revision: 1.5 $ $Date: 2007/01/22 21:10:07 $
  */
 
 public interface Realm {
@@ -225,13 +225,15 @@ public interface Realm {
      * @param securePagesWithPragma true if we add headers which 
      * are incompatible with downloading office documents in IE under SSL but
      * which fix a caching problem in Mozill
+     * @param ssoEnabled true if sso is enabled
      * @exception IOException if an input/output error occurs
      */
     public int preAuthenticateCheck(HttpRequest request,
                                     HttpResponse response,
                                     SecurityConstraint[] constraints,
                                     boolean disableProxyCaching,
-                                    boolean securePagesWithPragma)
+                                    boolean securePagesWithPragma,
+                                    boolean ssoEnabled)
         throws IOException;    
     
     
