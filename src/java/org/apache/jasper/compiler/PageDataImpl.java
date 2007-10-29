@@ -74,8 +74,10 @@ class PageDataImpl extends PageData implements TagConstants {
 	        throws JasperException {
 
 	// First pass
-	FirstPassVisitor firstPass = new FirstPassVisitor(page.getRoot(),
-							  compiler.getPageInfo());
+	FirstPassVisitor firstPass = new FirstPassVisitor(
+                                            page.getRoot(),
+                                            compiler.getPageInfo(),
+                                            compiler.getErrorDispatcher());
 	page.visit(firstPass);
 
 	// Second pass
@@ -121,12 +123,16 @@ class PageDataImpl extends PageData implements TagConstants {
 	// Prefix for the 'id' attribute
 	private String jspIdPrefix;
 
+        private ErrorDispatcher err;
+ 
 	/*
 	 * Constructor
 	 */
-	public FirstPassVisitor(Node.Root root, PageInfo pageInfo) {
+	public FirstPassVisitor(Node.Root root, PageInfo pageInfo,
+                                ErrorDispatcher err) {
 	    this.root = root;
 	    this.pageInfo = pageInfo;
+            this.err = err;
 	    this.rootAttrs = new AttributesImpl();
 	    this.rootAttrs.addAttribute("", "", "version", "CDATA",
 					JSP_VERSION);
@@ -170,9 +176,9 @@ class PageDataImpl extends PageData implements TagConstants {
 	}
 
 	public void visit(Node.JspRoot n) throws JasperException {
-	    addAttributes(n.getTaglibAttributes());
-            addAttributes(n.getNonTaglibXmlnsAttributes());
-	    addAttributes(n.getAttributes());
+            addRootAttributes(n.getTaglibAttributes());
+            addRootAttributes(n.getNonTaglibXmlnsAttributes());
+            addRootAttributes(n.getAttributes());
 
 	    visitBody(n);
 	}
@@ -212,18 +218,31 @@ class PageDataImpl extends PageData implements TagConstants {
 	    return jspIdPrefix;
 	}
 
-	private void addAttributes(Attributes attrs) {
+	private void addRootAttributes(Attributes attrs)
+                throws JasperException {
 	    if (attrs != null) {
 		int len = attrs.getLength();
 		for (int i=0; i<len; i++) {
 		    if ("version".equals(attrs.getQName(i))) {
 			continue;
 		    }
-		    rootAttrs.addAttribute(attrs.getURI(i),
-					   attrs.getLocalName(i),
-					   attrs.getQName(i),
-					   attrs.getType(i),
-					   attrs.getValue(i));
+                    String qname = attrs.getQName(i);
+                    String value = attrs.getValue(i);
+                    int index = rootAttrs.getIndex(qname);
+                    if (index == -1) {
+                        rootAttrs.addAttribute(attrs.getURI(i),
+                                               attrs.getLocalName(i),
+                                               qname,
+                                               attrs.getType(i),
+                                               value);
+                    } else {
+                        String rootValue = rootAttrs.getValue(index);
+                        if (rootValue != null && !rootValue.equals(value)) {
+                            err.jspError(
+                                "jsp.error.xmlview.attribute.redefined",
+                                qname, rootValue, value);
+                        }
+                    }
 		}
 	    }
 	}
