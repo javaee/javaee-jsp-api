@@ -31,6 +31,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -266,6 +267,7 @@ public class Compiler {
 
         // Initializing classpath
         ArrayList<File> cpath = new ArrayList<File>();
+        HashSet<String> paths = new HashSet<String>();
 
         // Process classpath, which includes system classpath from compiler
         // options, plus the context classpath from the classloader
@@ -273,13 +275,20 @@ public class Compiler {
         if (sysClassPath != null) {
             StringTokenizer tokenizer = new StringTokenizer(sysClassPath, sep);
             while (tokenizer.hasMoreElements()) {
-                cpath.add(new File(tokenizer.nextToken()));
+                String path = tokenizer.nextToken();
+                if (! paths.contains(path)) {
+                    paths.add(path);
+                    cpath.add(new File(path));
+                }
             }
         }
         StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
         while (tokenizer.hasMoreElements()) {
-            File repository = new File(tokenizer.nextToken());
-            cpath.add(repository);
+            String path = tokenizer.nextToken();
+            if (! paths.contains(path)) {
+                paths.add(path);
+                cpath.add(new File(path));
+            }
         }
         if(log.isDebugEnabled()) {
             log.debug("Using classpath: " + sysClassPath + sep + classpath);
