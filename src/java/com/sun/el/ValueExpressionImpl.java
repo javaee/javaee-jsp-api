@@ -205,7 +205,11 @@ public final class ValueExpressionImpl extends ValueExpression implements
                 this.varMapper);
         Object value = this.getNode().getValue(ctx);
         if (this.expectedType != null) {
-            return ELSupport.coerceToType(value, this.expectedType);
+            try {
+                value = ELSupport.coerceToType(value, this.expectedType);
+            } catch (IllegalArgumentException ex) {
+                throw new ELException(ex);
+            }
         }
         return value;
     }

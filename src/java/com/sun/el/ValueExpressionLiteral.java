@@ -38,6 +38,7 @@ package com.sun.el;
 import java.io.Externalizable;
 import java.io.IOException;
 import javax.el.ELContext;
+import javax.el.ELException;
 import javax.el.PropertyNotWritableException;
 
 import java.io.ObjectInput;
@@ -69,7 +70,11 @@ public final class ValueExpressionLiteral extends ValueExpression implements
 
     public Object getValue(ELContext context) {
         if (this.expectedType != null) {
-            return ELSupport.coerceToType(this.value, this.expectedType);
+            try {
+                return ELSupport.coerceToType(this.value, this.expectedType);
+            } catch (IllegalArgumentException ex) {
+                throw new ELException(ex);
+            }
         }
         return this.value;
     }
