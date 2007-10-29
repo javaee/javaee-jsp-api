@@ -603,7 +603,11 @@ public class JspC implements Options {
      * @return The system class path
      */
     public String getSystemClassPath() {
-        return sysClassPath;
+        if (sysClassPath != null) {
+            return sysClassPath;
+        } else {
+            return System.getProperty("java.class.path");
+        }
     }
 
     /**
