@@ -81,11 +81,13 @@ public class JspConfig {
 
             ParserUtils pu = new ParserUtils();
             TreeNode webApp = pu.parseXMLDocument(WEB_XML, ip);
-            if (webApp == null
-                    || !"2.4".equals(webApp.findAttribute("version"))) {
+            if (webApp == null ||
+                webApp.findAttribute("version") == null ||
+                Double.valueOf(webApp.findAttribute("version")).doubleValue() < 2.4) {
                 defaultIsELIgnored = "true";
                 return;
             }
+
             TreeNode jspConfig = webApp.findChild("jsp-config");
             if (jspConfig == null) {
                 return;
