@@ -142,9 +142,14 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
 
         kms = kmf.getKeyManagers();
         if (keyAlias != null) {
+            // START SJSAS 6266949
+            /*
             if (JSSESocketFactory.defaultKeystoreType.equals(keystoreType)) {
                 keyAlias = keyAlias.toLowerCase();
             }
+            */
+            //END SJSAS 6266949
+            
             for(int i=0; i<kms.length; i++) {
                 kms[i] = new JSSEKeyManager((X509KeyManager)kms[i], keyAlias);
             }
