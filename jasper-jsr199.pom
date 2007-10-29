@@ -1,6 +1,6 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>glassfish.jasper</groupId>
+  <groupId>jasper-jsr199</groupId>
   <artifactId>jasper-jsr199</artifactId>
   <version>@VERSION@</version>
   <name>Jasper JSR199 Bridge</name>
