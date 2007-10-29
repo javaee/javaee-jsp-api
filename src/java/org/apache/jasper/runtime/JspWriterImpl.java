@@ -131,6 +131,7 @@ public class JspWriterImpl extends JspWriter {
 	flushed = false;
         closed = false;
         out = null;
+        byteOut = null;
 	nextChar = 0;
         response = null;
     }
@@ -226,6 +227,7 @@ public class JspWriterImpl extends JspWriter {
         if (out != null)
             out.close();
         out = null;
+        byteOut = null;
         closed = true;
     }
 
