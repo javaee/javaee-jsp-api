@@ -17,13 +17,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
+
 package org.apache.jasper.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Hashtable;
 
 
 /**
@@ -59,13 +59,13 @@ public class SystemLogHandler extends PrintStream {
     /**
      * Thread <-> PrintStream associations.
      */
-    protected static Hashtable streams = new Hashtable();
+    protected static ThreadLocal streams = new ThreadLocal();
 
 
     /**
      * Thread <-> ByteArrayOutputStream associations.
      */
-    protected static Hashtable data = new Hashtable();
+    protected static ThreadLocal data = new ThreadLocal();
 
 
     // --------------------------------------------------------- Public Methods
@@ -80,9 +80,8 @@ public class SystemLogHandler extends PrintStream {
      */
     public static void setThread() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        data.put(Thread.currentThread(), baos);
-        streams.put(Thread.currentThread(), ps);
+        data.set(baos);
+        streams.set(new PrintStream(baos));
     }
 
 
@@ -91,12 +90,12 @@ public class SystemLogHandler extends PrintStream {
      */
     public static String unsetThread() {
         ByteArrayOutputStream baos = 
-            (ByteArrayOutputStream) data.get(Thread.currentThread());
+            (ByteArrayOutputStream) data.get();
         if (baos == null) {
             return null;
         }
-        streams.remove(Thread.currentThread());
-        data.remove(Thread.currentThread());
+        streams.set(null);
+        data.set(null);
         return baos.toString();
     }
 
@@ -108,7 +107,7 @@ public class SystemLogHandler extends PrintStream {
      * Find PrintStream to which the output must be written to.
      */
     protected PrintStream findStream() {
-        PrintStream ps = (PrintStream) streams.get(Thread.currentThread());
+        PrintStream ps = (PrintStream) streams.get();
         if (ps == null) {
             ps = wrapped;
         }

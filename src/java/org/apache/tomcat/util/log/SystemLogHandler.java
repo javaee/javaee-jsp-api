@@ -4,34 +4,28 @@
  */
 
 /*
- * Copyright 1999,2004 The Apache Software Foundation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
+ *  Copyright 1999-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */ 
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.apache.tomcat.util.log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Writer;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.OutputStreamWriter;
 import java.io.IOException;
-import java.io.StringWriter;
-
+import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Stack;
+import java.util.EmptyStackException;
 
 /**
  * This helper class may be used to do sophisticated redirection of 
@@ -70,7 +64,7 @@ public class SystemLogHandler extends PrintStream {
     /**
      * Thread <-> CaptureLog associations.
      */
-    protected static Hashtable logs = new Hashtable();
+    protected static ThreadLocal logs = new ThreadLocal();
 
 
     /**
@@ -88,15 +82,18 @@ public class SystemLogHandler extends PrintStream {
     public static void startCapture() {
         CaptureLog log = null;
         if (!reuse.isEmpty()) {
-            log = (CaptureLog)reuse.pop();
+            try {
+                log = (CaptureLog)reuse.pop();
+            } catch (EmptyStackException e) {
+                log = new CaptureLog();
+            }
         } else {
             log = new CaptureLog();
         }
-        Thread thread = Thread.currentThread();
-        Stack stack = (Stack)logs.get(thread);
+        Stack stack = (Stack)logs.get();
         if (stack == null) {
             stack = new Stack();
-            logs.put(thread, stack);
+            logs.set(stack);
         }
         stack.push(log);
     }
@@ -106,7 +103,7 @@ public class SystemLogHandler extends PrintStream {
      * Stop capturing thread's output and return captured data as a String.
      */
     public static String stopCapture() {
-        Stack stack = (Stack)logs.get(Thread.currentThread());
+        Stack stack = (Stack)logs.get();
         if (stack == null || stack.isEmpty()) {
             return null;
         }
@@ -128,7 +125,7 @@ public class SystemLogHandler extends PrintStream {
      * Find PrintStream to which the output must be written to.
      */
     protected PrintStream findStream() {
-        Stack stack = (Stack)logs.get(Thread.currentThread());
+        Stack stack = (Stack)logs.get();
         if (stack != null && !stack.isEmpty()) {
             CaptureLog log = (CaptureLog)stack.peek();
             if (log != null) {
