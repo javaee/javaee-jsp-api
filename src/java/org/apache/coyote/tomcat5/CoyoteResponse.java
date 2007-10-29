@@ -77,7 +77,7 @@ import org.apache.catalina.Globals;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/08/14 20:46:53 $
+ * @version $Revision: 1.9 $ $Date: 2006/08/17 16:19:08 $
  */
 
 public class CoyoteResponse
@@ -99,6 +99,9 @@ public class CoyoteResponse
         writer = new CoyoteWriter(outputBuffer);
         // END OF SJSAS 6231069
         urlEncoder.addSafeCharacter('/');
+        // START GlassFish 896
+        outputBuffer.setCoyoteResponse(this);
+        // END GlassFish 896
     }
     
     // START OF SJSAS 6231069
@@ -107,6 +110,9 @@ public class CoyoteResponse
         outputStream = new CoyoteOutputStream(outputBuffer);
         writer = new CoyoteWriter(outputBuffer);
         urlEncoder.addSafeCharacter('/');
+        // START GlassFish 896
+        outputBuffer.setCoyoteResponse(this);
+        // END GlassFish 896
     }
     // END OF SJSAS 6231069
 
@@ -545,18 +551,6 @@ public class CoyoteResponse
      */
     public void finishResponse() 
         throws IOException {
-
-        // START GlassFish 896
-        if (getContext().getCookies()) {
-            SessionTracker sc = request.getSessionTracker();
-            if (sc != null && sc.getActiveSessions() > 0) {
-                Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
-                                           sc.getSessionId());
-                request.configureSessionCookie(cookie);
-                addCookie(cookie);
-            }
-        }
-        // END GlassFish 896
 
         // Writing leftover bytes
         try {
@@ -1710,5 +1704,21 @@ public class CoyoteResponse
         return cookieValue;
     }
     // END GlassFish 898
+
+
+    // START GlassFish 896
+    void addCookieIfNecessary() {
+        if (getContext().getCookies()) {
+            SessionTracker sc = request.getSessionTracker();
+            if (sc != null && sc.getActiveSessions() > 0) {
+                Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
+                                           sc.getSessionId());
+                request.configureSessionCookie(cookie);
+                addCookie(cookie);
+            }
+        }
+    }
+    // END GlassFish 896
+
 }
 
