@@ -89,7 +89,7 @@ import org.apache.catalina.Wrapper;
      * </p>
      *
      * @author    Martin Dengler [root@martindengler.com]
-     * @version   $Revision: 1.2 $, $Date: 2005/12/08 01:28:19 $
+     * @version   $Revision: 1.3 $, $Date: 2006/03/12 01:27:08 $
      */
 public class ProcessHelper {
 
@@ -344,7 +344,7 @@ public void run() throws IOException {
     int contentLength = (postIn.length()
             + System.getProperty("line.separator").length());
     if ("POST".equals(env.get("REQUEST_METHOD"))) {
-        env.put("CONTENT_LENGTH", new Integer(contentLength));
+        env.put("CONTENT_LENGTH", Integer.valueOf(contentLength));
     }
 
     rt = Runtime.getRuntime();

@@ -240,7 +240,7 @@ public class StringCache {
                         while (entries.hasNext()) {
                             ByteEntry entry = (ByteEntry) entries.next();
                             int[] countA = (int[]) bcStats.get(entry);
-                            Integer count = new Integer(countA[0]);
+                            Integer count = Integer.valueOf(countA[0]);
                             // Add to the list for that count
                             ArrayList list = (ArrayList) tempMap.get(count);
                             if (list == null) {
@@ -354,7 +354,7 @@ public class StringCache {
                         while (entries.hasNext()) {
                             CharEntry entry = (CharEntry) entries.next();
                             int[] countA = (int[]) ccStats.get(entry);
-                            Integer count = new Integer(countA[0]);
+                            Integer count = Integer.valueOf(countA[0]);
                             // Add to the list for that count
                             ArrayList list = (ArrayList) tempMap.get(count);
                             if (list == null) {

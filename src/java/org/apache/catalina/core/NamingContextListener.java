@@ -73,7 +73,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * with each context and server.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:00 $
+ * @version $Revision: 1.6 $ $Date: 2006/10/03 17:51:03 $
  */
 
 public class NamingContextListener
@@ -764,13 +764,13 @@ public class NamingContextListener
                 value = env.getValue();
             } else if (type.equals("java.lang.Byte")) {
                 if (env.getValue() == null) {
-                    value = new Byte((byte) 0);
+                    value = Byte.valueOf((byte) 0);
                 } else {
                     value = Byte.decode(env.getValue());
                 }
             } else if (type.equals("java.lang.Short")) {
                 if (env.getValue() == null) {
-                    value = new Short((short) 0);
+                    value = Short.valueOf((short) 0);
                 } else {
                     value = Short.decode(env.getValue());
                 }
@@ -782,7 +782,7 @@ public class NamingContextListener
                 }
             } else if (type.equals("java.lang.Long")) {
                 if (env.getValue() == null) {
-                    value = new Long(0);
+                    value = Long.valueOf(0);
                 } else {
                     value = Long.decode(env.getValue());
                 }
@@ -790,22 +790,22 @@ public class NamingContextListener
                 value = Boolean.valueOf(env.getValue());
             } else if (type.equals("java.lang.Double")) {
                 if (env.getValue() == null) {
-                    value = new Double(0);
+                    value = Double.valueOf(0);
                 } else {
                     value = Double.valueOf(env.getValue());
                 }
             } else if (type.equals("java.lang.Float")) {
                 if (env.getValue() == null) {
-                    value = new Float(0);
+                    value = Float.valueOf(0);
                 } else {
                     value = Float.valueOf(env.getValue());
                 }
             } else if (type.equals("java.lang.Character")) {
                 if (env.getValue() == null) {
-                    value = new Character((char) 0);
+                    value = Character.valueOf((char) 0);
                 } else {
                     if (env.getValue().length() == 1) {
-                        value = new Character(env.getValue().charAt(0));
+                        value = Character.valueOf(env.getValue().charAt(0));
                     } else {
                         throw new IllegalArgumentException();
                     }

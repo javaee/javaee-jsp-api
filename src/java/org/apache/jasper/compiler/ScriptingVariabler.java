@@ -56,7 +56,7 @@ class ScriptingVariabler {
 	    parent = n;
 	    visitBody(n);
 	    parent = tmpParent;
-	    n.setNumCount(new Integer(count++));
+	    n.setNumCount(Integer.valueOf(count++));
 	}
     }
 

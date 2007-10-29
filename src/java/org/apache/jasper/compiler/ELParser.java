@@ -361,7 +361,7 @@ public class ELParser {
 	}
 
 	public String toString() {
-	    return (new Character(ch)).toString();
+	    return (Character.valueOf(ch)).toString();
 	}
     }
 

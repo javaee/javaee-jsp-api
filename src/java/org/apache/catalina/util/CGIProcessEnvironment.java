@@ -71,7 +71,7 @@ import org.apache.catalina.Wrapper;
  * Encapsulates the CGI Process' environment and rules to derive
  * that environment from the servlet container and request information.
  * @author   Martin Dengler [root@martindengler.com]
- * @version  $Revision: 1.2 $, $Date: 2005/12/08 01:28:14 $
+ * @version  $Revision: 1.3 $, $Date: 2006/03/12 01:27:08 $
  * @since    Tomcat 4.0
  */
 
@@ -221,7 +221,7 @@ public class CGIProcessEnvironment extends ProcessEnvironment {
         envp.put("GATEWAY_INTERFACE", "CGI/1.1");
         envp.put("SERVER_PROTOCOL", nullsToBlanks(req.getProtocol()));
         int port = req.getServerPort();
-        Integer iPort = (port == 0 ? new Integer(-1) : new Integer(port));
+        Integer iPort = (port == 0 ? Integer.valueOf(-1) : Integer.valueOf(port));
         envp.put("SERVER_PORT", iPort.toString());
         envp.put("REQUEST_METHOD", nullsToBlanks(req.getMethod()));
 
@@ -290,8 +290,7 @@ public class CGIProcessEnvironment extends ProcessEnvironment {
         */
 
         int contentLength = req.getContentLength();
-        String sContentLength = (contentLength <= 0 ? "" : (
-            new Integer(contentLength)).toString());
+        String sContentLength = (contentLength <= 0 ? "" : (Integer.valueOf(contentLength)).toString());
         envp.put("CONTENT_LENGTH", sContentLength);
         Enumeration headers = req.getHeaderNames();
         String header = null;

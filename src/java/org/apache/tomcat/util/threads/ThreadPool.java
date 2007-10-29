@@ -342,8 +342,8 @@ public class ThreadPool  {
                                 int maxThreads) {
 	if( logfull ) {
             log.error(sm.getString("threadpool.busy",
-                                   new Integer(currentThreadCount),
-                                   new Integer(maxThreads)));
+                                   Integer.valueOf(currentThreadCount),
+                                   Integer.valueOf(maxThreads)));
             logfull=false;
         } else if( log.isDebugEnabled() ) {
             log.debug("All threads are busy " + currentThreadCount + " " +
@@ -442,8 +442,8 @@ public class ThreadPool  {
             maxThreads = MAX_THREADS;
         } else if (maxThreads < MAX_THREADS_MIN) {
             log.warn(sm.getString("threadpool.max_threads_too_low",
-                                  new Integer(maxThreads),
-                                  new Integer(MAX_THREADS_MIN)));
+                                  Integer.valueOf(maxThreads),
+                                  Integer.valueOf(MAX_THREADS_MIN)));
             maxThreads = MAX_THREADS_MIN;
         }
 

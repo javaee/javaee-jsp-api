@@ -429,7 +429,7 @@ public class PageContextImpl extends PageContext {
         if (SecurityUtil.isPackageProtectionEnabled()){
             return ((Integer)AccessController.doPrivileged(new PrivilegedAction(){
                 public Object run(){
-                    return new Integer(doGetAttributeScope(name));
+                    return Integer.valueOf(doGetAttributeScope(name));
                 }
             })).intValue();
         } else {

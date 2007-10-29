@@ -191,13 +191,14 @@ class JSSESupport implements SSLSupport {
         if (keySize == null) {
             int size = 0;
             String cipherSuite = session.getCipherSuite();
+
             for (int i = 0; i < c_aux.length; i++) {
                 if (cipherSuite.indexOf(c_aux[i].phrase) >= 0) {
                     size = c_aux[i].keySize;
                     break;
                 }
             }
-            keySize = new Integer(size);
+            keySize = Integer.valueOf(size);
             session.putValue(KEY_SIZE_KEY, keySize);
         }
         return keySize;

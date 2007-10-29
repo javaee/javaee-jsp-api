@@ -92,12 +92,13 @@ public class DynamicMBeanProxy implements DynamicMBean {
         name=name.substring( name.lastIndexOf( ".") + 1 );
         Integer iInt=(Integer)instances.get(name );
         int seq=0;
-        if( iInt!= null ) {
-            seq=iInt.intValue();
+        if (iInt != null) {
+            seq = iInt.intValue();
             seq++;
-            instances.put( name, new Integer( seq ));
-        } else {
-            instances.put( name, new Integer( 0 ));
+            instances.put(name, Integer.valueOf(seq));
+        }
+        else {
+            instances.put(name, Integer.valueOf(0));
         }
         return "name=" + name + ",seq=" + seq;
     }

@@ -178,25 +178,25 @@ public class BeanFactory
                                 valueArray[0] = value;
                             } else if (propType.equals(Character.class) 
                                        || propType.equals(char.class)) {
-                                valueArray[0] = new Character(value.charAt(0));
+                                valueArray[0] = Character.valueOf(value.charAt(0));
                             } else if (propType.equals(Byte.class) 
                                        || propType.equals(byte.class)) {
-                                valueArray[0] = new Byte(value);
+                                valueArray[0] = Byte.valueOf(value);
                             } else if (propType.equals(Short.class) 
                                        || propType.equals(short.class)) {
-                                valueArray[0] = new Short(value);
+                                valueArray[0] = Short.valueOf(value);
                             } else if (propType.equals(Integer.class) 
                                        || propType.equals(int.class)) {
-                                valueArray[0] = new Integer(value);
+                                valueArray[0] = Integer.valueOf(value);
                             } else if (propType.equals(Long.class) 
                                        || propType.equals(long.class)) {
-                                valueArray[0] = new Long(value);
+                                valueArray[0] = Long.valueOf(value);
                             } else if (propType.equals(Float.class) 
                                        || propType.equals(float.class)) {
-                                valueArray[0] = new Float(value);
+                                valueArray[0] = Float.valueOf(value);
                             } else if (propType.equals(Double.class) 
                                        || propType.equals(double.class)) {
-                                valueArray[0] = new Double(value);
+                                valueArray[0] = Double.valueOf(value);
                             } else {
                                 throw new NamingException
                                     ("String conversion for property type '"

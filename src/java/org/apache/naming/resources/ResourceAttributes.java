@@ -44,7 +44,7 @@ import javax.naming.directory.BasicAttribute;
  * Attributes implementation.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ResourceAttributes implements Attributes {
     
@@ -335,7 +335,7 @@ public class ResourceAttributes implements Attributes {
     public void setContentLength(long contentLength) {
         this.contentLength = contentLength;
         if (attributes != null)
-            attributes.put(CONTENT_LENGTH, new Long(contentLength));
+            attributes.put(CONTENT_LENGTH, Long.valueOf(contentLength));
     }
     
     
@@ -791,10 +791,10 @@ public class ResourceAttributes implements Attributes {
                 return new BasicAttribute(ALTERNATE_TYPE, getResourceType());
             } else if (attrID.equals(CONTENT_LENGTH)) {
                 return new BasicAttribute(CONTENT_LENGTH, 
-                                          new Long(getContentLength()));
+                                          Long.valueOf(getContentLength()));
             } else if (attrID.equals(ALTERNATE_CONTENT_LENGTH)) {
                 return new BasicAttribute(ALTERNATE_CONTENT_LENGTH, 
-                                          new Long(getContentLength()));
+                                          Long.valueOf(getContentLength()));
             }
         } else {
             return attributes.get(attrID);
@@ -857,7 +857,7 @@ public class ResourceAttributes implements Attributes {
             attributes.addElement(new BasicAttribute(TYPE, getResourceType()));
             attributes.addElement
                 (new BasicAttribute(CONTENT_LENGTH, 
-                                    new Long(getContentLength())));
+                                    Long.valueOf(getContentLength())));
             return new RecyclableNamingEnumeration(attributes);
         } else {
             return attributes.getAll();

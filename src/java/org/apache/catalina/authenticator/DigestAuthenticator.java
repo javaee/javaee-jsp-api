@@ -52,7 +52,7 @@ import org.apache.catalina.util.MD5Encoder;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2006/03/09 17:51:37 $
+ * @version $Revision: 1.4 $ $Date: 2006/10/19 22:48:17 $
  */
 
 public class DigestAuthenticator
@@ -389,7 +389,7 @@ public class DigestAuthenticator
         nOnceValue = md5Encoder.encode(buffer);
 
         // Updating the value in the no once hashtable
-        nOnceTokens.put(nOnceValue, new Long(currentTime + nOnceTimeout));
+        nOnceTokens.put(nOnceValue, Long.valueOf(currentTime + nOnceTimeout));
 
         return nOnceValue;
     }

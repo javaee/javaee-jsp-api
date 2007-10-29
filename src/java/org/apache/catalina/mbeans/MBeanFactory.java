@@ -79,7 +79,7 @@ import org.apache.coyote.tomcat5.CoyoteConnector;
  * <code>org.apache.catalina.core.StandardServer</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
+ * @version $Revision: 1.4 $ $Date: 2006/10/05 16:21:36 $
  */
 
 public class MBeanFactory extends BaseModelMBean {
@@ -299,14 +299,14 @@ public class MBeanFactory extends BaseModelMBean {
             partypes2[0] = Integer.TYPE;
             Method meth2 = cls.getMethod("setPort", partypes2);
             Object arglist2[] = new Object[1];
-            arglist2[0] = new Integer(port);
+            arglist2[0] = Integer.valueOf(port);
             meth2.invoke(retobj, arglist2);
             // set protocolHandlerClassName for AJP
             Class partypes3 [] = new Class[1];
             partypes3[0] = str.getClass();
             Method meth3 = cls.getMethod("setProtocolHandlerClassName", partypes3);
             Object arglist3[] = new Object[1];
-            arglist3[0] = new String("org.apache.jk.server.JkCoyoteHandler");
+            arglist3[0] = "org.apache.jk.server.JkCoyoteHandler";
             meth3.invoke(retobj, arglist3);
 
             // Add the new instance to its parent component
@@ -423,7 +423,7 @@ public class MBeanFactory extends BaseModelMBean {
             partypes2[0] = Integer.TYPE;
             Method meth2 = cls.getMethod("setPort", partypes2);
             Object arglist2[] = new Object[1];
-            arglist2[0] = new Integer(port);
+            arglist2[0] = Integer.valueOf(port);
             meth2.invoke(retobj, arglist2);
             // Add the new instance to its parent component
             ObjectName pname = new ObjectName(parent);
@@ -477,14 +477,14 @@ public class MBeanFactory extends BaseModelMBean {
             partypes2[0] = Integer.TYPE;
             Method meth2 = cls.getMethod("setPort", partypes2);
             Object arglist2[] = new Object[1];
-            arglist2[0] = new Integer(port);
+            arglist2[0] = Integer.valueOf(port);
             meth2.invoke(retobj, arglist2);
             // Set scheme
             Class partypes3 [] = new Class[1];
             partypes3[0] = str.getClass();
             Method meth3 = cls.getMethod("setScheme", partypes3);
             Object arglist3[] = new Object[1];
-            arglist3[0] = new String("https");
+            arglist3[0] = "https";
             meth3.invoke(retobj, arglist3);
             // Set secure
             Class partypes4 [] = new Class[1];

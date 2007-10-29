@@ -39,7 +39,7 @@ import javax.management.Notification;
  * Implementation of the NamingService JMX MBean.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision: 1.2 $
  */
 
 public final class NamingService
@@ -144,7 +144,7 @@ public final class NamingService
         notification = new AttributeChangeNotification
             (this, sequenceNumber++, System.currentTimeMillis(), 
              "Starting " + NAME, "State", "java.lang.Integer", 
-             new Integer(STOPPED), new Integer(STARTING));
+             Integer.valueOf(STOPPED), Integer.valueOf(STARTING));
         sendNotification(notification);
         
         try {
@@ -171,7 +171,7 @@ public final class NamingService
             notification = new AttributeChangeNotification
                 (this, sequenceNumber++, System.currentTimeMillis(), 
                  "Stopped " + NAME, "State", "java.lang.Integer", 
-                 new Integer(STARTING), new Integer(STOPPED));
+                 Integer.valueOf(STARTING), Integer.valueOf(STOPPED));
             sendNotification(notification);
         }
         
@@ -179,7 +179,7 @@ public final class NamingService
         notification = new AttributeChangeNotification
             (this, sequenceNumber++, System.currentTimeMillis(), 
              "Started " + NAME, "State", "java.lang.Integer", 
-             new Integer(STARTING), new Integer(STARTED));
+             Integer.valueOf(STARTING), Integer.valueOf(STARTED));
         sendNotification(notification);
         
     }
@@ -200,7 +200,7 @@ public final class NamingService
         notification = new AttributeChangeNotification
             (this, sequenceNumber++, System.currentTimeMillis(), 
              "Stopping " + NAME, "State", "java.lang.Integer", 
-             new Integer(STARTED), new Integer(STOPPING));
+             Integer.valueOf(STARTED), Integer.valueOf(STOPPING));
         sendNotification(notification);
         
         try {
@@ -220,7 +220,7 @@ public final class NamingService
         notification = new AttributeChangeNotification
             (this, sequenceNumber++, System.currentTimeMillis(), 
              "Stopped " + NAME, "State", "java.lang.Integer", 
-             new Integer(STOPPING), new Integer(STOPPED));
+             Integer.valueOf(STOPPING), Integer.valueOf(STOPPED));
         sendNotification(notification);
         
     }

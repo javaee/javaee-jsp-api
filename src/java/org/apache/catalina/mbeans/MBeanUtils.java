@@ -76,7 +76,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Amy Roh
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:48 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
  */
 
 public class MBeanUtils {
@@ -1727,7 +1727,7 @@ public class MBeanUtils {
         mserver.createMBean(namingProviderClassName, naming, null);
         if (delay) {
             mserver.setAttribute(naming, new Attribute
-                                 ("Delay", new Integer(5000)));
+                                 ("Delay", Integer.valueOf(5000)));
         }
         mserver.invoke(naming, "start", null, null);
 
