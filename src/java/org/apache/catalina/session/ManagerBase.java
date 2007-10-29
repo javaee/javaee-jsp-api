@@ -87,7 +87,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/04/01 01:18:14 $
+ * @version $Revision: 1.9 $ $Date: 2006/04/24 21:51:47 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -476,8 +476,8 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         boolean oldDistributable = this.distributable;
         this.distributable = distributable;
         support.firePropertyChange("distributable",
-                                   new Boolean(oldDistributable),
-                                   new Boolean(this.distributable));
+                                   Boolean.valueOf(oldDistributable),
+                                   Boolean.valueOf(this.distributable));
 
     }
 
@@ -561,8 +561,8 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         int oldMaxInactiveInterval = this.maxInactiveInterval;
         this.maxInactiveInterval = interval;
         support.firePropertyChange("maxInactiveInterval",
-                                   new Integer(oldMaxInactiveInterval),
-                                   new Integer(this.maxInactiveInterval));
+                                   Integer.valueOf(oldMaxInactiveInterval),
+                                   Integer.valueOf(this.maxInactiveInterval));
 
     }
 
@@ -591,8 +591,8 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         int oldSessionIdLength = this.sessionIdLength;
         this.sessionIdLength = idLength;
         support.firePropertyChange("sessionIdLength",
-                                   new Integer(oldSessionIdLength),
-                                   new Integer(this.sessionIdLength));
+                                   Integer.valueOf(oldSessionIdLength),
+                                   Integer.valueOf(this.sessionIdLength));
 
     }
 

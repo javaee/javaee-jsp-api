@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.18 $ $Date: 2006/08/10 21:35:19 $
+ * @version $Revision: 1.19 $ $Date: 2006/09/29 21:41:26 $
  */
 
 public class StandardSession
@@ -1807,12 +1807,12 @@ public class StandardSession
     private void writeObject(ObjectOutputStream stream) throws IOException {
 
         // Write the scalar instance variables (except Manager)
-        stream.writeObject(new Long(creationTime));
-        stream.writeObject(new Long(lastAccessedTime));
-        stream.writeObject(new Integer(maxInactiveInterval));
-        stream.writeObject(new Boolean(isNew));
-        stream.writeObject(new Boolean(isValid));
-        stream.writeObject(new Long(thisAccessedTime));
+        stream.writeObject(Long.valueOf(creationTime));
+        stream.writeObject(Long.valueOf(lastAccessedTime));
+        stream.writeObject(Integer.valueOf(maxInactiveInterval));
+        stream.writeObject(Boolean.valueOf(isNew));
+        stream.writeObject(Boolean.valueOf(isValid));
+        stream.writeObject(Long.valueOf(thisAccessedTime));
         // START SJSWS 6371339
         // If the principal is serializable, write it out
         // START PWC 6444754
@@ -1867,7 +1867,7 @@ public class StandardSession
 
         // Serialize the attribute count and the Serializable attributes
         int n = saveNames.size();
-        stream.writeObject(new Integer(n));
+        stream.writeObject(Integer.valueOf(n));
         for (int i = 0; i < n; i++) {
             stream.writeObject((String) saveNames.get(i));
             //HERCULES:mod

@@ -59,7 +59,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:05 $
+ * @version $Revision: 1.9 $ $Date: 2006/04/01 01:18:15 $
  */
 
 public abstract class PersistentManagerBase
@@ -263,8 +263,8 @@ public abstract class PersistentManagerBase
         int oldBackup = this.maxIdleBackup;
         this.maxIdleBackup = backup;
         support.firePropertyChange("maxIdleBackup",
-                                   new Integer(oldBackup),
-                                   new Integer(this.maxIdleBackup));
+                                   Integer.valueOf(oldBackup),
+                                   Integer.valueOf(this.maxIdleBackup));
 
     }
 
@@ -291,8 +291,8 @@ public abstract class PersistentManagerBase
         int oldMaxIdleSwap = this.maxIdleSwap;
         this.maxIdleSwap = max;
         support.firePropertyChange("maxIdleSwap",
-                                   new Integer(oldMaxIdleSwap),
-                                   new Integer(this.maxIdleSwap));
+                                   Integer.valueOf(oldMaxIdleSwap),
+                                   Integer.valueOf(this.maxIdleSwap));
 
     }
 
@@ -321,8 +321,8 @@ public abstract class PersistentManagerBase
         int oldMinIdleSwap = this.minIdleSwap;
         this.minIdleSwap = min;
         support.firePropertyChange("minIdleSwap",
-                                   new Integer(oldMinIdleSwap),
-                                   new Integer(this.minIdleSwap));
+                                   Integer.valueOf(oldMinIdleSwap),
+                                   Integer.valueOf(this.minIdleSwap));
 
     }
 
@@ -407,8 +407,8 @@ public abstract class PersistentManagerBase
         int oldMaxActiveSessions = this.maxActiveSessions;
         this.maxActiveSessions = max;
         support.firePropertyChange("maxActiveSessions",
-                                   new Integer(oldMaxActiveSessions),
-                                   new Integer(this.maxActiveSessions));
+                                   Integer.valueOf(oldMaxActiveSessions),
+                                   Integer.valueOf(this.maxActiveSessions));
 
     }
 
@@ -518,8 +518,8 @@ public abstract class PersistentManagerBase
         boolean oldSaveOnRestart = this.saveOnRestart;
         this.saveOnRestart = saveOnRestart;
         support.firePropertyChange("saveOnRestart",
-                                   new Boolean(oldSaveOnRestart),
-                                   new Boolean(this.saveOnRestart));
+                                   Boolean.valueOf(oldSaveOnRestart),
+                                   Boolean.valueOf(this.saveOnRestart));
 
     }
 
@@ -1143,7 +1143,8 @@ public abstract class PersistentManagerBase
                     if (log.isDebugEnabled())
                         log.debug(sm.getString
                             ("persistentManager.swapMaxIdle",
-                             session.getIdInternal(), new Integer(timeIdle)));
+                             session.getIdInternal(),
+                             Integer.valueOf(timeIdle)));
                     try {
                         swapOut(session);
                     } catch (IOException e) {
@@ -1174,7 +1175,7 @@ public abstract class PersistentManagerBase
         if(log.isDebugEnabled())
             log.debug(sm.getString
                 ("persistentManager.tooManyActive",
-                 new Integer(sessions.length)));        
+                 Integer.valueOf(sessions.length)));        
 
         int toswap = sessions.length - getMaxActiveSessions();
         long timeNow = System.currentTimeMillis();
@@ -1190,7 +1191,7 @@ public abstract class PersistentManagerBase
                         log.debug(sm.getString
                             ("persistentManager.swapTooManyActive",
                             sessions[i].getIdInternal(),
-                            new Integer(timeIdle)));                    
+                            Integer.valueOf(timeIdle)));                    
                     try {
                         swapOut(sessions[i]);
                     } catch (java.util.ConcurrentModificationException e1) {
@@ -1237,7 +1238,7 @@ public abstract class PersistentManagerBase
                             log.debug(sm.getString
                                 ("persistentManager.backupMaxIdle",
                                 session.getIdInternal(),
-                                new Integer(timeIdle))); 
+                                Integer.valueOf(timeIdle))); 
                         try {
                             writeSession(session);
                         } catch (java.util.ConcurrentModificationException e1) {

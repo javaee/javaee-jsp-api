@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.8 $ $Date: 2006/07/26 22:42:49 $
+ * @version $Revision: 1.9 $ $Date: 2006/08/02 01:34:58 $
  */
 
 public class StandardManager
@@ -242,8 +242,8 @@ public class StandardManager
         int oldMaxActiveSessions = this.maxActiveSessions;
         this.maxActiveSessions = max;
         support.firePropertyChange("maxActiveSessions",
-                                   new Integer(oldMaxActiveSessions),
-                                   new Integer(this.maxActiveSessions));
+                                   Integer.valueOf(oldMaxActiveSessions),
+                                   Integer.valueOf(this.maxActiveSessions));
 
     }
 
@@ -568,7 +568,7 @@ public class StandardManager
                     }
                 }
                 // END SJSAS 6375689
-                oos.writeObject(new Integer(sessions.size()));
+                oos.writeObject(Integer.valueOf(sessions.size()));
                 Iterator elements = sessions.values().iterator();
                 while (elements.hasNext()) {
                     StandardSession session =
