@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2006/11/16 21:01:25 $
+ * @version $Revision: 1.12 $ $Date: 2007/01/22 21:10:07 $
  */
 
 
@@ -980,6 +980,7 @@ public abstract class AuthenticatorBase
         Cookie cookie = new Cookie(Constants.SINGLE_SIGN_ON_COOKIE, value);
         cookie.setMaxAge(-1);
         cookie.setPath("/");
+        cookie.setSecure(request.isSecure());
         hres.addCookie(cookie);
         
         // Register this principal with our SSO valve
