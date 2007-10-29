@@ -76,7 +76,7 @@ import org.apache.catalina.security.SecurityUtil;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.5 $ $Date: 2006/11/21 17:39:40 $
+ * @version $Revision: 1.6 $ $Date: 2007/05/05 05:32:43 $
  */
 public class CoyoteRequestFacade 
     extends RequestFacade
@@ -249,6 +249,10 @@ public class CoyoteRequestFacade
 
     // ----------------------------------------------- Class/Instance Variables
 
+
+    private static final SecurityPermission
+        GET_UNWRAPPED_COYOTE_REQUEST_PERMISSION =
+            new SecurityPermission("getUnwrappedCoyoteRequest");
 
     /**
      * The string manager for this package.
@@ -933,9 +937,8 @@ public class CoyoteRequestFacade
         // tomcat does not have any Permission types so instead of
         // creating a TomcatPermission for this, use SecurityPermission.
         if (Globals.IS_SECURITY_ENABLED) {
-            Permission perm =
-                new SecurityPermission("getUnwrappedCoyoteRequest");
-            AccessController.checkPermission(perm);
+            AccessController.checkPermission(
+                GET_UNWRAPPED_COYOTE_REQUEST_PERMISSION);
         }
 
         return request;
