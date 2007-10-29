@@ -136,6 +136,8 @@ public class JDTJavaCompiler implements JavaCompiler {
             errDispatcher.jspError("jsp.error.needAlternateJavaEncoding",
                                    javaEncoding);
         } catch (IOException ex) {
+            errDispatcher.jspError("jsp.error.unableToCreateOutputWriter",
+                                   javaFileName, ex);
         }
         return writer;
     }

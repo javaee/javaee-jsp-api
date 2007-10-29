@@ -97,7 +97,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
     private ErrorDispatcher errDispatcher;
 
     public void init(JspCompilationContext ctxt,
-                     ErrorDispatcher err,
+                     ErrorDispatcher errDispatcher,
                      boolean suppressLogging) {
         this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;

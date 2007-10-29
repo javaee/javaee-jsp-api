@@ -99,7 +99,8 @@ public class Compiler {
         this.options = ctxt.getOptions();
         this.log = commonsLog;
         this.smapUtil = new SmapUtil(ctxt);
-        javaCompiler = new AntJavaCompiler();
+        this.errDispatcher = new ErrorDispatcher(jspcMode);
+        this.javaCompiler = new AntJavaCompiler();
         javaCompiler.init(ctxt, errDispatcher, jspcMode);
     }
 
@@ -111,6 +112,7 @@ public class Compiler {
         this.options = ctxt.getOptions();
         this.log = jspcMode? noOpLog: commonsLog;
         this.smapUtil = new SmapUtil(ctxt);
+        this.errDispatcher = new ErrorDispatcher(jspcMode);
         initJavaCompiler();
     }
 
@@ -387,10 +389,6 @@ public class Compiler {
     public void compile(boolean compileClass)
         throws FileNotFoundException, JasperException, Exception
     {
-        if (errDispatcher == null) {
-            this.errDispatcher = new ErrorDispatcher(jspcMode);
-        }
-
         try {
             // Create the output directory for the generated files
             // Always try and create the directory tree, in case the generated
