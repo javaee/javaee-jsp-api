@@ -31,8 +31,10 @@ import java.io.FileNotFoundException;
 import java.io.FilePermission;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.security.PermissionCollection;
@@ -68,7 +70,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public final class JspRuntimeContext implements Runnable {
 
@@ -438,6 +440,16 @@ public final class JspRuntimeContext implements Runnable {
         }
 
         classpath = cpath.toString() + cp;
+
+        // START GlassFish Issue 845
+        try {
+            classpath = URLDecoder.decode(classpath, "UTF-8");
+
+        } catch (UnsupportedEncodingException e) {
+            if (log.isDebugEnabled())
+                log.debug("Exception decoding classpath : " + classpath, e);
+        }
+        // END GlassFish Issue 845
     }
 
     /**
