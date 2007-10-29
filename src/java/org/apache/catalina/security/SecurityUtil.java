@@ -92,8 +92,9 @@ public final class SecurityUtil{
     
     private static String PACKAGE = "org.apache.catalina.security";
     
-    private static boolean packageDefinitionEnabled =  
-         System.getProperty("package.definition") == null ? false : true;
+    private static boolean packageDefinitionEnabled = (
+         System.getProperty("package.definition") == null ||
+         System.getProperty("package.definition").equals("")) ? false : true;
     
     /**
      * The string resources for this package.

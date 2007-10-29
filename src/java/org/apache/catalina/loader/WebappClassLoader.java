@@ -84,6 +84,7 @@ import javax.naming.directory.DirContext;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.security.SecurityUtil;
 import org.apache.catalina.util.StringManager;
 import org.apache.naming.JndiPermission;
 import org.apache.naming.resources.Resource;
@@ -142,7 +143,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.32 $ $Date: 2007/04/20 18:13:45 $
+ * @version $Revision: 1.33 $ $Date: 2007/05/05 05:32:09 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -250,14 +251,6 @@ public class WebappClassLoader
 
     // ----------------------------------------------------- Instance Variables
 
-    // START PE 4989455
-    /**
-     * Use this variable to invoke the security manager when a resource is 
-     * loaded by this classloader.
-     */
-    private boolean packageDefinitionEnabled =  
-         System.getProperty("package.definition") == null ? false : true;
-    // END OF PE 4989455 
 
     /**
      * Associated directory context giving access to the resources in this
@@ -916,7 +909,7 @@ public class WebappClassLoader
         // (1) Permission to define this class when using a SecurityManager
         // START PE 4989455
         //if (securityManager != null) {
-        if ( securityManager != null && packageDefinitionEnabled ){    
+        if (SecurityUtil.isPackageProtectionEnabled()){    
         // END PE 4989455
             int i = name.lastIndexOf('.');
             if (i >= 0) {
@@ -1376,7 +1369,7 @@ public class WebappClassLoader
         // (0.5) Permission to access this class when using a SecurityManager
         // START PE 4989455
         //if (securityManager != null) {
-        if ( securityManager != null && packageDefinitionEnabled){    
+        if (SecurityUtil.isPackageProtectionEnabled()){    
         // END PE 4989455
             int i = name.lastIndexOf('.');
             if (i >= 0) {
