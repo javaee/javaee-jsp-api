@@ -106,6 +106,22 @@ public class StringManager {
         }
     }
 
+
+    // START SJSAS 6412710
+    /**
+     * Returns the locale of the resource bundle from which this 
+     * StringManager is retrieving localized messages
+     */
+    public Locale getLocale() {
+        if (bundle != null) {
+            return bundle.getLocale();
+        } else {
+            return Locale.getDefault();
+        }
+    }
+    // END SJSAS 6412710
+
+
     /**
      * Get a string from the underlying resource bundle.
      *

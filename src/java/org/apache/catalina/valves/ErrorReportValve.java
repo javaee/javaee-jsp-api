@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:08 $
+ * @version $Revision: 1.9 $ $Date: 2006/03/13 17:33:34 $
  */
 
 public class ErrorReportValve
@@ -193,7 +193,11 @@ public class ErrorReportValve
             // START GlassFish 6386229
             ((HttpServletResponse) sresponse).sendError
                 (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            // END GlassFish 6386229               
+            // END GlassFish 6386229
+        // START SJSAS 6412710
+        } else {
+            sresp.setLocale(sm.getLocale());
+        // END SJJAS 6412710
         }
 
         response.setSuspended(false);
