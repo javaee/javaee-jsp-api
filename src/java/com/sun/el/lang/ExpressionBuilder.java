@@ -45,7 +45,7 @@ import com.sun.el.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: ja120114 $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public final class ExpressionBuilder implements NodeVisitor {
 
@@ -190,8 +190,8 @@ public final class ExpressionBuilder implements NodeVisitor {
     public MethodExpression createMethodExpression(Class expectedReturnType,
             Class[] expectedParamTypes) throws ELException {
         Node n = this.build();
-        if (n instanceof AstValue) {
-            return new MethodExpressionImpl(expression, (AstValue) n,
+        if (n instanceof AstValue || n instanceof AstIdentifier) {
+            return new MethodExpressionImpl(expression, n,
                     this.fnMapper, this.varMapper, expectedReturnType,
                     expectedParamTypes);
         } else if (n instanceof AstLiteralExpression) {

@@ -3,6 +3,7 @@
 package com.sun.el.parser;
 
 import javax.el.ELException;
+import javax.el.MethodInfo;
 
 import com.sun.el.lang.EvaluationContext;
 
@@ -12,7 +13,7 @@ import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: ja120114 $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public interface Node {
 
@@ -47,4 +48,6 @@ public interface Node {
   public Class getType(EvaluationContext ctx) throws ELException;
   public boolean isReadOnly(EvaluationContext ctx) throws ELException;
   public void accept(NodeVisitor visitor) throws ELException;
+  public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes) throws ELException;
+  public Object invoke(EvaluationContext ctx, Class[] paramTypes, Object[] paramValues) throws ELException;
 }
