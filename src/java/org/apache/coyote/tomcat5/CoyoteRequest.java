@@ -93,7 +93,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:43:02 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/17 16:29:04 $
  */
 
 public class CoyoteRequest
@@ -1564,10 +1564,12 @@ public class CoyoteRequest
     public void setCharacterEncoding(String enc)
         throws UnsupportedEncodingException {
 
+/*
         if (requestParametersParsed || usingReader) {
             throw new IllegalStateException
               (sm.getString("coyoteRequest.setCharacterEncoding.ise"));
         }
+*/
 
         // Ensure that the specified encoding is valid
         byte buffer[] = new byte[1];
