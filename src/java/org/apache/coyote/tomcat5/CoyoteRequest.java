@@ -56,6 +56,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.tomcat.util.buf.B2CConverter;
+// START CR 6309511
+import org.apache.tomcat.util.buf.ByteChunk;
+import org.apache.tomcat.util.buf.CharChunk;
+// END CR 6309511
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.Cookies;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
@@ -87,13 +91,16 @@ import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.StringParser;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.commons.logging.Log;
+// START CR 6309511
+import org.apache.commons.logging.LogFactory;
+// END CR 6309511
 
 /**
  * Wrapper object for the Coyote request.
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2005/08/18 02:23:45 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/11 03:43:02 $
  */
 
 public class CoyoteRequest
@@ -148,6 +155,9 @@ public class CoyoteRequest
     protected static StringManager sm =
         StringManager.getManager(Constants.Package);
 
+    // START CR 6309511
+    private static final Log log = LogFactory.getLog(CoyoteRequest.class);
+    // END CR 6309511
 
     /**
      * The set of cookies associated with this Request.
@@ -384,9 +394,10 @@ public class CoyoteRequest
     
     /** After the request is mapped to a ServletContext, we can also
      * map it to a logger.
-     */ 
+     */
+    /* CR 6309511
     protected Log log=null;
-    
+    */
 
     // START S1AS 4703023
     /**
@@ -400,6 +411,21 @@ public class CoyoteRequest
      */
     private static int maxDispatchDepth = Constants.DEFAULT_MAX_DISPATCH_DEPTH;
     // END S1AS 4703023
+
+
+    // START CR 6309511
+    /**
+     * The match string for identifying a session ID parameter.
+     */
+    private static final String match =
+        ";" + Globals.SESSION_PARAMETER_NAME + "=";
+
+
+    /**
+     * The match string for identifying a session ID parameter.
+     */
+    private static final char[] SESSION_ID = match.toCharArray();
+    // END CR 6309511
 
 
     // --------------------------------------------------------- Public Methods
@@ -446,7 +472,9 @@ public class CoyoteRequest
         requestedSessionCookie = false;
         requestedSessionId = null;
         requestedSessionURL = false;
+        /* CR 6309511
         log = null;
+        */
         dispatchDepth = 0; // S1AS 4703023
 
         parameterMap.setLocked(false);
@@ -2738,6 +2766,157 @@ public class CoyoteRequest
         }
 
     }
+
+
+    // START CR 6309511
+    /**
+     * Parse session id in URL.
+     */
+    protected void parseSessionId() {
+
+        CharChunk uriCC = coyoteRequest.decodedURI().getCharChunk();
+        int semicolon = uriCC.indexOf(match, 0, match.length(), 0);
+
+        if (semicolon > 0) {
+
+            // Parse session ID, and extract it from the decoded request URI
+            int start = uriCC.getStart();
+            int end = uriCC.getEnd();
+
+            int sessionIdStart = start + semicolon + match.length();
+            int semicolon2 = uriCC.indexOf(';', sessionIdStart);
+            if (semicolon2 >= 0) {
+                setRequestedSessionId
+                    (new String(uriCC.getBuffer(), sessionIdStart, 
+                                semicolon2 - semicolon - match.length()));
+            } else {
+                setRequestedSessionId
+                    (new String(uriCC.getBuffer(), sessionIdStart, 
+                                end - sessionIdStart));
+            }
+            setRequestedSessionURL(true);
+
+            // Extract session ID from request URI
+            ByteChunk uriBC = coyoteRequest.requestURI().getByteChunk();
+            start = uriBC.getStart();
+            end = uriBC.getEnd();
+            semicolon = uriBC.indexOf(match, 0, match.length(), 0);
+
+            if (semicolon > 0) {
+                sessionIdStart = start + semicolon;
+                semicolon2 = uriCC.indexOf
+                    (';', start + semicolon + match.length());
+                uriBC.setEnd(start + semicolon);
+                byte[] buf = uriBC.getBuffer();
+                if (semicolon2 >= 0) {
+                    for (int i = 0; i < end - start - semicolon2; i++) {
+                        buf[start + semicolon + i] 
+                            = buf[start + i + semicolon2];
+                    }
+                    uriBC.setBytes(buf, start, semicolon 
+                                   + (end - start - semicolon2));
+                }
+            }
+
+        } else {
+            setRequestedSessionId(null);
+            setRequestedSessionURL(false);
+        }
+
+    }
+    // END CR 6309511
+
+    // START CR 6309511
+    /**
+     * Parse session id in URL.
+     */
+    protected void parseSessionCookiesId() {
+
+        // Parse session id from cookies
+        Cookies serverCookies = coyoteRequest.getCookies();
+        int count = serverCookies.getCookieCount();
+        if (count <= 0)
+            return;
+
+        for (int i = 0; i < count; i++) {
+            ServerCookie scookie = serverCookies.getCookie(i);
+            if (scookie.getName().equals(Globals.SESSION_COOKIE_NAME)) {
+                // Override anything requested in the URL
+                if (!isRequestedSessionIdFromCookie()) {
+                    // Accept only the first session id cookie
+                    B2CConverter.convertASCII(scookie.getValue());
+                    setRequestedSessionId
+                        (scookie.getValue().toString());
+                    setRequestedSessionCookie(true);
+                    setRequestedSessionURL(false);
+                    if (log.isDebugEnabled())
+                        log.debug(" Requested cookie session id is " +
+                            ((HttpServletRequest) getRequest())
+                            .getRequestedSessionId());
+                } else {
+                    if (!isRequestedSessionIdValid()) {
+                        // Replace the session id until one is valid
+                        B2CConverter.convertASCII(scookie.getValue());
+                        setRequestedSessionId
+                            (scookie.getValue().toString());
+                    }
+                }
+            }
+        }
+
+    }
+    // END CR 6309511
+
+    // START CR 6309511
+    /**
+     * Character conversion of the URI.
+     */
+    protected void convertURI(MessageBytes uri) 
+        throws Exception {
+
+        ByteChunk bc = uri.getByteChunk();
+        CharChunk cc = uri.getCharChunk();
+        cc.allocate(bc.getLength(), -1);
+
+        String enc = connector.getURIEncoding();
+        if (enc != null) {
+            B2CConverter conv = getURIConverter();
+            try {
+                if (conv == null) {
+                    conv = new B2CConverter(enc);
+                    setURIConverter(conv);
+                } else {
+                    conv.recycle();
+                }
+            } catch (IOException e) {
+                // Ignore
+                log.error("Invalid URI encoding; using HTTP default");
+                connector.setURIEncoding(null);
+            }
+            if (conv != null) {
+                try {
+                    conv.convert(bc, cc);
+                    uri.setChars(cc.getBuffer(), cc.getStart(), 
+                                 cc.getLength());
+                    return;
+                } catch (IOException e) {
+                    log.error("Invalid URI character encoding; trying ascii");
+                    cc.recycle();
+                }
+            }
+        }
+
+        // Default encoding: fast conversion
+        byte[] bbuf = bc.getBuffer();
+        char[] cbuf = cc.getBuffer();
+        int start = bc.getStart();
+        for (int i = 0; i < bc.getLength(); i++) {
+            cbuf[i] = (char) (bbuf[i + start] & 0xff);
+        }
+        uri.setChars(cbuf, 0, bc.getLength());
+
+    }
+    // END CR 6309511
 
 
     /**
