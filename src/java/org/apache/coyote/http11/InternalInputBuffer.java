@@ -320,11 +320,6 @@ public class InternalInputBuffer implements InputBuffer {
         lastActiveFilter = -1;
         parsingHeader = true;
         swallowInput = true;
-        
-        // START OF SJSAS 6231069
-        stage = 0;
-        // END OF SJSAS 6231069
-
     }
 
 
@@ -364,10 +359,6 @@ public class InternalInputBuffer implements InputBuffer {
         lastActiveFilter = -1;
         parsingHeader = true;
         swallowInput = true;
-
-        // START OF SJSAS 6231069
-        stage = 0;
-        // END OF SJSAS 6231069
     }
 
 
@@ -398,40 +389,22 @@ public class InternalInputBuffer implements InputBuffer {
      */
     public void parseRequestLine()
         throws IOException {
-
-        // START OF SJSAS 6231069
-        // Already parsed.
-        if (stage > 3)
-            return;
-        // END OF SJSAS 6231069
-           
+        
         int start = 0;
-
-        //
-        // Skipping blank lines
-        //
-
-        // START OF SJSAS 6231069
-        if (stage == 0){
         // END OF SJSAS 6231069
             
-            byte chr = 0;
-            do {
+        byte chr = 0;
+        do {
 
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
+            }
 
-                chr = buf[pos++];
+            chr = buf[pos++];
 
-            } while ((chr == Constants.CR) || (chr == Constants.LF));
-            
-        // START OF SJSAS 6231069           
-            stage = 1;
-        } 
-        // END OF SJSAS 6231069
+        } while ((chr == Constants.CR) || (chr == Constants.LF));
 
         pos--;
 
@@ -445,30 +418,23 @@ public class InternalInputBuffer implements InputBuffer {
 
         boolean space = false;
 
-        // START OF SJSAS 6231069
-        if (stage == 1){
-        // END OF SJSAS 6231069
-            while (!space) {
+        while (!space) {
 
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
-
-                if (buf[pos] == Constants.SP) {
-                    space = true;
-                    request.method().setBytes(buf, start, pos - start);
-                }
-
-                pos++;
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
             }
-        // START OF SJSAS 6231069           
-            stage = 2;
-        } 
-        // END OF SJSAS 6231069
-        
 
+            if (buf[pos] == Constants.SP) {
+                space = true;
+                request.method().setBytes(buf, start, pos - start);
+            }
+
+            pos++;
+        }
+
+       
         // Mark the current buffer position
         start = pos;
         int end = 0;
@@ -480,50 +446,40 @@ public class InternalInputBuffer implements InputBuffer {
 
         space = false;
         boolean eol = false;
+        while (!space) {
 
-        // START OF SJSAS 6231069
-        if (stage == 2){
-        // END OF SJSAS 6231069
-            while (!space) {
-
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
-
-                if (buf[pos] == Constants.SP) {
-                    space = true;
-                    end = pos;
-                } else if ((buf[pos] == Constants.CR) 
-                           || (buf[pos] == Constants.LF)) {
-                    // HTTP/0.9 style request
-                    eol = true;
-                    space = true;
-                    end = pos;
-                } else if ((buf[pos] == Constants.QUESTION) 
-                           && (questionPos == -1)) {
-                    questionPos = pos;
-                }
-
-                pos++;
-
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
             }
-            // START OF SJSAS 6231069
-            stage = 3;
-            // END OF SJSAS 6231069
+
+            if (buf[pos] == Constants.SP) {
+                space = true;
+                end = pos;
+            } else if ((buf[pos] == Constants.CR) 
+                       || (buf[pos] == Constants.LF)) {
+                // HTTP/0.9 style request
+                eol = true;
+                space = true;
+                end = pos;
+            } else if ((buf[pos] == Constants.QUESTION) 
+                       && (questionPos == -1)) {
+                questionPos = pos;
+            }
+
+            pos++;
+
+        }
         
-            request.unparsedURI().setBytes(buf, start, end - start);
-            if (questionPos >= 0) {
-                request.queryString().setBytes(buf, questionPos + 1, 
-                                               end - questionPos - 1);
-                request.requestURI().setBytes(buf, start, questionPos - start);
-            } else {
-                request.requestURI().setBytes(buf, start, end - start);
-            }
-        // START OF SJSAS 6231069           
-        } 
-        // END OF SJSAS 6231069
+        request.unparsedURI().setBytes(buf, start, end - start);
+        if (questionPos >= 0) {
+            request.queryString().setBytes(buf, questionPos + 1, 
+                                           end - questionPos - 1);
+            request.requestURI().setBytes(buf, start, questionPos - start);
+        } else {
+            request.requestURI().setBytes(buf, start, end - start);
+        }
 
         // Mark the current buffer position
         start = pos;
@@ -532,42 +488,32 @@ public class InternalInputBuffer implements InputBuffer {
         //
         // Reading the protocol
         // Protocol is always US-ASCII
-        //
-        // START OF SJSAS 6231069
-        if ( stage == 3 ) {
-        // END OF SJSAS 6231069    
-            while (!eol) {
+        //   
+        while (!eol) {
 
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
+            }
 
-                if (buf[pos] == Constants.CR) {
+            if (buf[pos] == Constants.CR) {
+                end = pos;
+            } else if (buf[pos] == Constants.LF) {
+                if (end == 0)
                     end = pos;
-                } else if (buf[pos] == Constants.LF) {
-                    if (end == 0)
-                        end = pos;
-                    eol = true;
-                }
-
-                pos++;
-
+                eol = true;
             }
-            // START OF SJSAS 6231069
-            stage = 4;
-            // END OF SJSAS 6231069
-            
-            if ((end - start) > 0) {
-                request.protocol().setBytes(buf, start, end - start);
-            } else {
-                request.protocol().setString("");
-            }
-        // START OF SJSAS 6231069           
-        } 
-        // END OF SJSAS 6231069
 
+            pos++;
+
+        }
+           
+        if ((end - start) > 0) {
+            request.protocol().setBytes(buf, start, end - start);
+        } else {
+            request.protocol().setString("");
+        }
     }
 
 
@@ -598,40 +544,29 @@ public class InternalInputBuffer implements InputBuffer {
         // Check for blank line
         //
 
-        byte chr = 0;
-        // START OF SJSAS 6231069           
-        if (stage == 4) {
-        // END OF SJSAS 6231069           
-             
-            while (true) {
+        byte chr = 0;             
+        while (true) {
 
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
-
-                chr = buf[pos];
-
-                if ((chr == Constants.CR) || (chr == Constants.LF)) {
-                    if (chr == Constants.LF) {
-                        pos++;
-                        // START OF SJSAS 6231069           
-                        stage = 4;
-                        // END OF SJSAS 6231069           
-                        return false;
-                    }
-                } else {
-                    break;
-                }
-
-                pos++;
-
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
             }
-        // START OF SJSAS 6231069     
-            stage = 5;
+
+            chr = buf[pos];
+
+            if ((chr == Constants.CR) || (chr == Constants.LF)) {
+                if (chr == Constants.LF) {
+                    pos++;        
+                    return false;
+                }
+            } else {
+                break;
+            }
+
+            pos++;
+
         }
-        // END OF SJSAS 6231069 
         
         // Mark the current buffer position
         int start = pos;
@@ -643,34 +578,27 @@ public class InternalInputBuffer implements InputBuffer {
 
         boolean colon = false;
         //MessageBytes headerValue = null;
+   
+        while (!colon) {
 
-        // START OF SJSAS 6231069 
-        if ( stage == 5) {
-        // END OF SJSAS 6231069     
-            while (!colon) {
-
-                // Read new bytes if needed
-                if (pos >= lastValid) {
-                    if (!fill())
-                        throw new EOFException(sm.getString("iib.eof.error"));
-                }
-
-                if (buf[pos] == Constants.COLON) {
-                    colon = true;
-                    headerValue = headers.addValue(buf, start, pos - start);
-                }
-                chr = buf[pos];
-                if ((chr >= Constants.A) && (chr <= Constants.Z)) {
-                    buf[pos] = (byte) (chr - Constants.LC_OFFSET);
-                }
-
-                pos++;
-
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
             }
-        // START OF SJSAS 6231069     
-            stage = 6;
-        }
-        // END OF SJSAS 6231069 
+
+            if (buf[pos] == Constants.COLON) {
+                colon = true;
+                headerValue = headers.addValue(buf, start, pos - start);
+            }
+            chr = buf[pos];
+            if ((chr >= Constants.A) && (chr <= Constants.Z)) {
+                buf[pos] = (byte) (chr - Constants.LC_OFFSET);
+            }
+
+            pos++;
+
+        } 
         
         // Mark the current buffer position
         start = pos;
@@ -685,94 +613,70 @@ public class InternalInputBuffer implements InputBuffer {
 
         while (validLine) {
 
-            boolean space = true;
+            boolean space = true;  
+            // Skipping spaces
+            while (space) {
 
-            // START OF SJSAS 6231069 
-            if ( stage == 6) {
-            // END OF SJSAS 6231069     
-                // Skipping spaces
-                while (space) {
-
-                    // Read new bytes if needed
-                    if (pos >= lastValid) {
-                        if (!fill())
-                            throw new EOFException(sm.getString("iib.eof.error"));
-                    }
-
-                    if ((buf[pos] == Constants.SP) || (buf[pos] == Constants.HT)) {
-                        pos++;
-                    } else {
-                        space = false;
-                    }
-
-                }
-            // START OF SJSAS 6231069                 
-                stage = 7;
-            }
-            // END OF SJSAS 6231069 
-            
-            int lastSignificantChar = realPos;
-
-            // START OF SJSAS 6231069             
-            if ( stage == 7){
-            // END OF SJSAS 6231069                 
-                // Reading bytes until the end of the line
-                while (!eol) {
-
-                    // Read new bytes if needed
-                    if (pos >= lastValid) {
-                        if (!fill())
-                            throw new EOFException(sm.getString("iib.eof.error"));
-                    }
-
-                    if (buf[pos] == Constants.CR) {
-                    } else if (buf[pos] == Constants.LF) {
-                        eol = true;
-                    } else if (buf[pos] == Constants.SP) {
-                        buf[realPos] = buf[pos];
-                        realPos++;
-                    } else {
-                        buf[realPos] = buf[pos];
-                        realPos++;
-                        lastSignificantChar = realPos;
-                    }
-
-                    pos++;
-
-                }
-
-                realPos = lastSignificantChar;
-            // START OF SJSAS 6231069                 
-                stage = 8;
-            }
-            // END OF SJSAS 6231069            
-
-            // Checking the first character of the new line. If the character
-            // is a LWS, then it's a multiline header
-            // START OF SJSAS 6231069 
-            if ( stage == 8 ) {
-            // END OF SJSAS 6231069     
                 // Read new bytes if needed
                 if (pos >= lastValid) {
                     if (!fill())
                         throw new EOFException(sm.getString("iib.eof.error"));
                 }
 
-                chr = buf[pos];
-                if ((chr != Constants.SP) && (chr != Constants.HT)) {
-                    validLine = false;
+                if ((buf[pos] == Constants.SP) || (buf[pos] == Constants.HT)) {
+                    pos++;
                 } else {
-                    eol = false;
-                    // Copying one extra space in the buffer (since there must
-                    // be at least one space inserted between the lines)
-                    buf[realPos] = chr;
-                    realPos++;
+                    space = false;
                 }
-            // START OF SJSAS 6231069     
-                stage = 4;
-            }
-            // END OF SJSAS 6231069 
 
+            }
+            
+            int lastSignificantChar = realPos;                 
+            // Reading bytes until the end of the line
+            while (!eol) {
+
+                // Read new bytes if needed
+                if (pos >= lastValid) {
+                    if (!fill())
+                        throw new EOFException(sm.getString("iib.eof.error"));
+                }
+
+                if (buf[pos] == Constants.CR) {
+                } else if (buf[pos] == Constants.LF) {
+                    eol = true;
+                } else if (buf[pos] == Constants.SP) {
+                    buf[realPos] = buf[pos];
+                    realPos++;
+                } else {
+                    buf[realPos] = buf[pos];
+                    realPos++;
+                    lastSignificantChar = realPos;
+                }
+
+                pos++;
+
+            }
+
+            realPos = lastSignificantChar;        
+
+            // Checking the first character of the new line. If the character
+            // is a LWS, then it's a multiline header
+            // Read new bytes if needed
+            if (pos >= lastValid) {
+                if (!fill())
+                    throw new EOFException(sm.getString("iib.eof.error"));
+            }
+
+            chr = buf[pos];
+            if ((chr != Constants.SP) && (chr != Constants.HT)) {
+                validLine = false;
+            } else {
+                eol = false;
+                // Copying one extra space in the buffer (since there must
+                // be at least one space inserted between the lines)
+                buf[realPos] = chr;
+                realPos++;
+            }
         }
 
         // Set the header value

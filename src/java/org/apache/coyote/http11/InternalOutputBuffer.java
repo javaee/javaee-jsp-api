@@ -473,9 +473,14 @@ public class InternalOutputBuffer
     public void sendAck()
         throws IOException {
 
-        if (!committed)
-            outputStream.write(Constants.ACK_BYTES);
-
+        if (!committed){
+            if (useSocketBuffer) {
+                socketBuffer.append(Constants.ACK_BYTES,0,
+                        Constants.ACK_BYTES.length);
+            } else {
+                outputStream.write(Constants.ACK_BYTES);
+            } 
+        }
     }
 
 
@@ -695,12 +700,15 @@ public class InternalOutputBuffer
      * @param bc data to be written
      */
     protected void write(ByteChunk bc) {
-
-        // Writing the byte chunk to the output buffer
-        System.arraycopy(bc.getBytes(), bc.getStart(), buf, pos,
-                         bc.getLength());
-        pos = pos + bc.getLength();
-
+        try{
+            if (useSocketBuffer) {
+                socketBuffer.append(bc.getBytes(),bc.getStart(),bc.getLength());
+            } else {
+                outputStream.write(bc.getBytes(),bc.getStart(),bc.getLength());
+            }
+        } catch (IOException ex){
+            ;
+        }
     }
 
 
@@ -718,15 +726,6 @@ public class InternalOutputBuffer
         char[] cbuf = cc.getBuffer();
         for (int i = start; i < end; i++) {
             char c = cbuf[i];
-            // Note:  This is clearly incorrect for many strings,
-            // but is the only consistent approach within the current
-            // servlet framework.  It must suffice until servlet output
-            // streams properly encode their output.
-            if ((c & 0xff00) != 0) {
-                // High order byte must be zero
-                //log("Header character is not iso8859_1, " +
-                //"not supported yet: " + c, Log.ERROR ) ;
-            }
             if (c != 9) {
                 if ((c >= 0) && (c <= 31)) {
                     c = ' ';
@@ -735,19 +734,18 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
-            
-            // START GlassFish Issue 646
-            if ( pos >= buf.length ) {
-                try{
-                    flush(true);
-                }catch(IOException ex){
-                    log.warn(ex);
-                }
-            }
-            // END GlassFish Issue 646
-            buf[pos++] = (byte) c;
+             buf[pos++] = (byte) c;
         }
-
+        try{
+            if (useSocketBuffer) {
+                socketBuffer.append(buf,0,pos);
+            } else {
+                outputStream.write(buf,0,pos);
+            }
+        } catch (IOException ex){
+            ;
+        }    
+        pos = 0;
     }
 
 
@@ -759,20 +757,15 @@ public class InternalOutputBuffer
      * @param b data to be written
      */
     protected void write(byte[] b) {
-        // START GlassFish Issue 646
-        if ( b.length + pos >= buf.length){
-            try{
-                flush(true);
-            }catch(IOException ex){
-                log.warn(ex);
+        try{
+            if (useSocketBuffer) {
+                socketBuffer.append(b,0,b.length);
+            } else {
+                outputStream.write(b,0,b.length);
             }
-        }        
-        // END GlassFish Issue 646
-        
-        // Writing the byte chunk to the output buffer
-        System.arraycopy(b, 0, buf, pos, b.length);
-        pos = pos + b.length;
-
+        } catch (IOException ex){
+            ;
+        }
     }
 
 
@@ -792,15 +785,6 @@ public class InternalOutputBuffer
         int len = s.length();
         for (int i = 0; i < len; i++) {
             char c = s.charAt (i);
-            // Note:  This is clearly incorrect for many strings,
-            // but is the only consistent approach within the current
-            // servlet framework.  It must suffice until servlet output
-            // streams properly encode their output.
-            if ((c & 0xff00) != 0) {
-                // High order byte must be zero
-                //log("Header character is not iso8859_1, " +
-                //"not supported yet: " + c, Log.ERROR ) ;
-            }
             if (c != 9) {
                 if ((c >= 0) && (c <= 31)) {
                     c = ' ';
@@ -809,19 +793,19 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
-                
-            // START GlassFish Issue 646
-            if ( pos >= buf.length ) {
-                try{
-                    flush(true);
-                }catch(IOException ex){
-                    log.warn(ex);
-                }
-            }
-            // END GlassFish Issue 646
             buf[pos++] = (byte) c;
         }
-
+        
+        try{
+            if (useSocketBuffer) {
+                socketBuffer.append(buf,0,pos);
+            } else {
+                outputStream.write(buf,0,pos);
+            }
+        } catch (IOException ex){
+            ;
+        }    
+        pos = 0;
     }
 
 
@@ -845,7 +829,11 @@ public class InternalOutputBuffer
     public void realWriteBytes(byte cbuf[], int off, int len)
         throws IOException {
         if (len > 0) {
-            outputStream.write(cbuf, off, len);
+            if (useSocketBuffer) {
+                socketBuffer.append(cbuf, off, len);
+            } else {
+                outputStream.write(cbuf, off, len);
+            }
         }
     }
     
