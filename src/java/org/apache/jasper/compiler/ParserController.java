@@ -292,8 +292,7 @@ class ParserController implements TagConstants {
             throws JasperException {
 
 	JspConfig jspConfig = ctxt.getOptions().getJspConfig();
-	JspConfig.JspProperty jspProperty
-	    = jspConfig.findJspProperty(absFileName);
+	JspProperty jspProperty = jspConfig.findJspProperty(absFileName);
 	return jspProperty.getPageEncoding();
     }
 
@@ -323,8 +322,7 @@ class ParserController implements TagConstants {
 	boolean revert = false;
 
         JspConfig jspConfig = ctxt.getOptions().getJspConfig();
-        JspConfig.JspProperty jspProperty = jspConfig.findJspProperty(
-                                                                absFileName);
+        JspProperty jspProperty = jspConfig.findJspProperty(absFileName);
         if (jspProperty.isXml() != null) {
             // If <is-xml> is specified in a <jsp-property-group>, it is used.
             isXml = JspUtil.booleanValue(jspProperty.isXml());

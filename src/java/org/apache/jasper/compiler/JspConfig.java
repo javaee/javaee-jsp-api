@@ -36,6 +36,7 @@ import javax.servlet.ServletContext;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+import org.apache.catalina.Globals;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
@@ -216,7 +217,25 @@ public class JspConfig {
     private void init() throws JasperException {
 
 	if (!initialized) {
-	    processWebDotXml(ctxt);
+            /* GlassFish 740
+            processWebDotXml(ctxt);
+            */
+            // START GlassFish 740
+            jspProperties = (Vector) ctxt.getAttribute(
+                Globals.JSP_PROPERTY_GROUPS_CONTEXT_ATTRIBUTE);
+            if (jspProperties == null) {
+                processWebDotXml(ctxt);
+            }
+
+            String version = (String) ctxt.getAttribute(
+                Globals.WEB_XML_VERSION_CONTEXT_ATTRIBUTE);
+            if (version != null) {
+                if (Double.valueOf(version).doubleValue() < 2.4) {
+                    defaultIsELIgnored = "true";
+                }
+            }
+            // END GlassFish 740
+
 	    defaultJspProperty = new JspProperty(defaultIsXml,
 						 defaultIsELIgnored,
 						 defaultIsScriptingInvalid,
@@ -438,93 +457,5 @@ public class JspConfig {
             }
         }
         return false;
-    }
-
-    static class JspPropertyGroup {
-	private String path;
-	private String extension;
-	private JspProperty jspProperty;
-
-	JspPropertyGroup(String path, String extension,
-			 JspProperty jspProperty) {
-	    this.path = path;
-	    this.extension = extension;
-	    this.jspProperty = jspProperty;
-	}
-
-	public String getPath() {
-	    return path;
-	}
-
-	public String getExtension() {
-	    return extension;
-	}
-
-	public JspProperty getJspProperty() {
-	    return jspProperty;
-	}
-    }
-
-    static public class JspProperty {
-
-	private String isXml;
-	private String elIgnored;
-	private String scriptingInvalid;
-	private String pageEncoding;
-	private String trimSpaces;
-	private String poundAllowed;
-	private Vector includePrelude;
-	private Vector includeCoda;
-
-	public JspProperty(String isXml,
-                           String elIgnored,
-                           String scriptingInvalid,
-                           String trimSpaces,
-                           String poundAllowed,
-		           String pageEncoding,
-		           Vector includePrelude,
-                           Vector includeCoda) {
-
-	    this.isXml = isXml;
-	    this.elIgnored = elIgnored;
-	    this.scriptingInvalid = scriptingInvalid;
-            this.trimSpaces = trimSpaces;
-            this.poundAllowed = poundAllowed;
-	    this.pageEncoding = pageEncoding;
-	    this.includePrelude = includePrelude;
-	    this.includeCoda = includeCoda;
-	}
-
-	public String isXml() {
-	    return isXml;
-	}
-
-	public String isELIgnored() {
-	    return elIgnored;
-	}
-
-	public String isScriptingInvalid() {
-	    return scriptingInvalid;
-	}
-
-	public String getPageEncoding() {
-	    return pageEncoding;
-	}
-
-	public String getTrimSpaces() {
-	    return trimSpaces;
-	}
-
-	public String getPoundAllowed() {
-	    return poundAllowed;
-	}
-
-	public Vector getIncludePrelude() {
-	    return includePrelude;
-	}
-
-	public Vector getIncludeCoda() {
-	    return includeCoda;
-	}
     }
 }

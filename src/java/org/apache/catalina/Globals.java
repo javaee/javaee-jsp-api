@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:16 $
  */
 
 public final class Globals {
@@ -329,4 +329,13 @@ public final class Globals {
     public static final String DEFAULT_SERVLET_CLASS_NAME =
         DefaultServlet.class.getName();
     // END SJSAS
+
+
+    // START GlassFish 740
+    public static final String JSP_PROPERTY_GROUPS_CONTEXT_ATTRIBUTE =
+        "com.sun.jsp.propertyGroups";
+
+    public static final String WEB_XML_VERSION_CONTEXT_ATTRIBUTE =
+        "com.sun.servlet.webxml.version";
+    // END GlassFish 740
 }

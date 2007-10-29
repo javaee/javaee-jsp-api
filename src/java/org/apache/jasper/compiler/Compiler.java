@@ -172,7 +172,7 @@ public class Compiler {
                                 ctxt.getJspFile());
 
         JspConfig jspConfig = options.getJspConfig();
-        JspConfig.JspProperty jspProperty =
+        JspProperty jspProperty =
             jspConfig.findJspProperty(ctxt.getJspFile());
 
         /*
