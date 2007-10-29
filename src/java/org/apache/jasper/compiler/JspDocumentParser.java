@@ -531,12 +531,12 @@ class JspDocumentParser
                             startMark,
                             current);
                         ttext = new CharArrayWriter();
-                        ttext.write('$');
-                        ttext.write('{');
                         //We subtract two from the column number to
                         //account for the '${' that we've already parsed
                         startMark = new Mark(ctxt, path, line, column - 2);
                     }
+                    ttext.write('$');
+                    ttext.write('{');
                     // following "${" to first unquoted "}"
                     i++;
                     boolean singleQ = false;
