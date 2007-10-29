@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/18 02:30:13 $
  */
 
 final class StandardHostValve
@@ -212,10 +212,11 @@ final class StandardHostValve
 
         // If this is an aborted request from a client just log it and return
         if (realError instanceof ClientAbortException ) {
-            log.debug
-                (sm.getString("standardHost.clientAbort",
-                              ((ClientAbortException) realError).getThrowable()
-                              .getMessage()));
+            if (log.isDebugEnabled()) {
+                log.debug
+                    (sm.getString("standardHost.clientAbort",
+                                  realError.getCause().getMessage()));
+            }
             return;
         }
 
