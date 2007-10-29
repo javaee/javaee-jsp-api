@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.29 $ $Date: 2006/11/13 19:26:30 $
+ * @version $Revision: 1.30 $ $Date: 2006/11/16 21:01:25 $
  */
 
 public class StandardContext
@@ -5493,13 +5493,8 @@ public class StandardContext
         ClassLoader oldContextClassLoader =
             Thread.currentThread().getContextClassLoader();
 
-        if (getResources() == null)
-            return oldContextClassLoader;
-
         Thread.currentThread().setContextClassLoader
             (getLoader().getClassLoader());
-
-        DirContextURLStreamHandler.bind(getResources());
 
         if (isUseNaming()) {
             try {
@@ -5522,14 +5517,9 @@ public class StandardContext
 
         Thread.currentThread().setContextClassLoader(oldContextClassLoader);
 
-        oldContextClassLoader = null;
-
         if (isUseNaming()) {
             ContextBindings.unbindThread(this, this);
         }
-
-        DirContextURLStreamHandler.unbind();
-
     }
 
 
