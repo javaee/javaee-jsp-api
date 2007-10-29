@@ -116,7 +116,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.22 $ $Date: 2006/04/24 16:36:13 $
+ * @version $Revision: 1.23 $ $Date: 2006/04/24 22:02:59 $
  */
 
 public class CoyoteRequest
@@ -152,6 +152,10 @@ public class CoyoteRequest
     public void setCoyoteRequest(Request coyoteRequest) {
         this.coyoteRequest = coyoteRequest;
         inputBuffer.setRequest(coyoteRequest);
+
+        // START SJSAS 6419950
+        populateSSLAttributes();
+        // END SJSAS 6419950
     }
 
     /**
@@ -1067,6 +1071,7 @@ public class CoyoteRequest
             if(attr != null)
                 attributes.put(name, attr);
         } else if( isSSLAttribute(name) ) {
+            /* SJSAS 6419950
             coyoteRequest.action(ActionCode.ACTION_REQ_SSL_ATTRIBUTE, 
                                  coyoteRequest);
             attr = coyoteRequest.getAttribute(Globals.CERTIFICATES_ATTR);
@@ -1081,6 +1086,10 @@ public class CoyoteRequest
             if(attr != null) {
                 attributes.put(Globals.KEY_SIZE_ATTR, attr);
             }
+            */
+            // START SJSAS 6419950
+            populateSSLAttributes();
+            // END SJSAS 6419950
             attr = attributes.get(name);
         }
         return attr;
@@ -3197,4 +3206,23 @@ public class CoyoteRequest
 
     }
 
+
+    // START SJSAS 6419950
+    private void populateSSLAttributes() {
+        coyoteRequest.action(ActionCode.ACTION_REQ_SSL_ATTRIBUTE, 
+                             coyoteRequest);
+        Object attr = coyoteRequest.getAttribute(Globals.CERTIFICATES_ATTR);
+        if( attr != null) {
+            attributes.put(Globals.CERTIFICATES_ATTR, attr);
+        }
+        attr = coyoteRequest.getAttribute(Globals.CIPHER_SUITE_ATTR);
+        if(attr != null) {
+            attributes.put(Globals.CIPHER_SUITE_ATTR, attr);
+        }
+        attr = coyoteRequest.getAttribute(Globals.KEY_SIZE_ATTR);
+        if(attr != null) {
+            attributes.put(Globals.KEY_SIZE_ATTR, attr);
+        }
+    }
+    // END SJSAS 6419950
 }
