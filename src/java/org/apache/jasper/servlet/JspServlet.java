@@ -386,6 +386,9 @@ public class JspServlet extends HttpServlet {
                         */
                         // START PWC 6282167, 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        log.error(Localizer.getMessage(
+                            "jsp.error.file.not.found",
+                            context.getRealPath(jspUri)));
                         // END PWC 6282167, 4878272
                         return;
                     }
