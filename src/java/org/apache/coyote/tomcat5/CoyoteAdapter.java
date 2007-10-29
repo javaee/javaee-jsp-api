@@ -87,7 +87,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.32 $ $Date: 2007/07/06 22:13:29 $
+ * @version $Revision: 1.33 $ $Date: 2007/08/14 23:04:37 $
  */
 
 public class CoyoteAdapter
@@ -501,6 +501,20 @@ public class CoyoteAdapter
                 // shouldn't matter
                 redirectPath = redirectPath + "?" + query;
             }
+
+            // START CR 6590921
+            boolean authPassthroughEnabled = 
+                connector.getAuthPassthroughEnabled();
+            ProxyHandler proxyHandler = connector.getProxyHandler();
+            if (authPassthroughEnabled && proxyHandler != null) {
+
+                if (proxyHandler.getSSLKeysize(
+                        (HttpServletRequest)request.getRequest()) > 0) {
+                    request.setSecure(true);
+                }
+            }
+            // END CR 6590921
+
             response.sendRedirect(redirectPath);
             return false;
         }
