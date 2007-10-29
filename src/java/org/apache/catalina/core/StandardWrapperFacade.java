@@ -47,7 +47,7 @@ import javax.servlet.http.HttpServletResponse;
  * Facade for the <b>StandardWrapper</b> object.
  *
  * @author Remy Maucharat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:38 $
  */
 
 public final class StandardWrapperFacade
@@ -64,7 +64,6 @@ public final class StandardWrapperFacade
 
         super();
         this.config = (ServletConfig) config;
-
     }
 
 
@@ -77,6 +76,12 @@ public final class StandardWrapperFacade
     private ServletConfig config = null;
 
 
+    /**
+     * The context facade object for this wrapper.
+     */
+    private ServletContext context = null;
+
+
     // -------------------------------------------------- ServletConfig Methods
 
 
@@ -86,11 +91,15 @@ public final class StandardWrapperFacade
 
 
     public ServletContext getServletContext() {
-        ServletContext theContext = config.getServletContext();
-        if ((theContext != null) &&
-            (theContext instanceof ApplicationContext))
-            theContext = ((ApplicationContext) theContext).getFacade();
-        return (theContext);
+
+        if (context == null) {
+            context = config.getServletContext();
+            if ((context != null) && (context instanceof ApplicationContext)) {
+                context = ((ApplicationContext) context).getFacade();
+            }
+        }
+
+        return context;
     }
 
 

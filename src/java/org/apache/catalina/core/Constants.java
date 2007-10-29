@@ -38,10 +38,4 @@ public class Constants {
     public static final String JSP_SERVLET_CLASS =
         "org.apache.jasper.servlet.JspServlet";
     public static final String JSP_SERVLET_NAME = "jsp";
-
-    //PWC Extension
-    //START OF RIMOD 4820359
-    public static final String IWS_SERVLET_CLASSLOADER = "com.iplanet.server.http.servlet.classloader";
-    //END OF RIMOD 4820359
-
 }

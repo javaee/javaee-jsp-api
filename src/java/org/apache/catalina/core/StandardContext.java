@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.27 $ $Date: 2006/10/26 18:17:41 $
+ * @version $Revision: 1.28 $ $Date: 2006/11/10 18:12:34 $
  */
 
 public class StandardContext
@@ -1718,35 +1718,6 @@ public class StandardContext
                 context.setAttributeReadOnly(Globals.ALT_DD_ATTR);
             }
         }
-
-        //PWC Extension
-        //START OF RIMOD 4820359
-
-        // Add the classloader, if any as a context attribute,
-        // where the attribute name is the same as
-        // Constants.IWS_SERVLET_CLASSLOADER.
-        // Constants.IWS_SERVLET_CLASSLOADER value was copied from 
-        // com.iplanet.server.http.session.SessionDataStore.
-        // This is needed to support IWS 6.0 style persistent sessions
-
-        // Check if the attribute is already set (IMPORTANT)
-        // If we call setAttribute without any checking for prior existance,
-        // it will lead to infinite recursion, since setAttribute inturn
-        // makes a call to this function.
-        Object obj =
-                context.getAttribute(Constants.IWS_SERVLET_CLASSLOADER);
-        if (getLoader() != null 
-                && getLoader().getClassLoader() != null 
-                
-                
-                && obj == null) {
-            context.setAttribute(
-                        Constants.IWS_SERVLET_CLASSLOADER,
-                        getLoader().getClassLoader());
-            context.setAttributeReadOnly(Constants.IWS_SERVLET_CLASSLOADER);            
-        }
-
-        // END OF RIMOD 4820359
 
         return (context.getFacade());
 
