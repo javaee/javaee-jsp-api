@@ -56,10 +56,6 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
 
-// START GlassFish 747
-import org.apache.catalina.Globals;
-// END GlassFish 747
-
 import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
@@ -375,7 +371,7 @@ public class JspServlet extends HttpServlet {
 
         // START GlassFish 747
         HashMap tldUriToLocationMap = (HashMap) context.getAttribute(
-            Globals.JSP_TLD_URI_TO_LOCATION_MAP);
+            Constants.JSP_TLD_URI_TO_LOCATION_MAP);
         if (tldUriToLocationMap != null) {
             tldUriToLocationMap.clear();
         }

@@ -36,8 +36,10 @@ import javax.servlet.ServletContext;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
-import org.apache.catalina.Globals;
 import org.apache.jasper.JasperException;
+// START GlassFish 740
+import org.apache.jasper.Constants;
+// END GlassFish 740
 // START SJSAS 6384538
 import org.apache.jasper.Options;
 // END SJSAS 6384538
@@ -275,13 +277,13 @@ public class JspConfig {
             */
             // START GlassFish 740
             jspProperties = (Vector) ctxt.getAttribute(
-                Globals.JSP_PROPERTY_GROUPS_CONTEXT_ATTRIBUTE);
+                Constants.JSP_PROPERTY_GROUPS_CONTEXT_ATTRIBUTE);
             if (jspProperties == null) {
                 processWebDotXml(ctxt);
             }
 
             String version = (String) ctxt.getAttribute(
-                Globals.WEB_XML_VERSION_CONTEXT_ATTRIBUTE);
+                Constants.WEB_XML_VERSION_CONTEXT_ATTRIBUTE);
             if (version != null) {
                 if (Double.valueOf(version).doubleValue() < 2.4) {
                     defaultIsELIgnored = "true";

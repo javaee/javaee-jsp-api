@@ -260,5 +260,21 @@ public class Constants {
     // START GlassFish 750
     public static final String JSP_TAGLIBRARY_CACHE = "com.sun.jsp.taglibraryCache";
     // END GlassFish 750
+
+    // START GlassFish 740
+    // Must be kept in sync with org.apache.catalina.Globals
+    public static final String JSP_PROPERTY_GROUPS_CONTEXT_ATTRIBUTE =
+        "com.sun.jsp.propertyGroups";
+
+    public static final String WEB_XML_VERSION_CONTEXT_ATTRIBUTE =
+        "com.sun.servlet.webxml.version";
+    // END GlassFish 740
+
+    // START GlassFish 747
+    // Must be kept in sync with org.apache.catalina.Globals
+    public static final String JSP_TLD_URI_TO_LOCATION_MAP =
+        "com.sun.jsp.tldUriToLocationMap";
+    // END GlassFish 747
+
 }
 

@@ -51,9 +51,6 @@ import javax.servlet.ServletContext;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
-// START GlassFish 747
-import org.apache.catalina.Globals;
-// END GlassFish 747
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 // START SJSAS 6384538
@@ -319,7 +316,7 @@ public class TldLocationsCache {
 
         // START GlassFish 747
         HashMap tldUriToLocationMap = (HashMap) ctxt.getAttribute(
-            Globals.JSP_TLD_URI_TO_LOCATION_MAP);
+            Constants.JSP_TLD_URI_TO_LOCATION_MAP);
         if (tldUriToLocationMap != null) {
             localTldsProcessed = true;
             mappings = tldUriToLocationMap;
