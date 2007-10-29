@@ -86,7 +86,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.7 $ $Date: 2005/09/23 18:08:49 $
+ * @version $Revision: 1.8 $ $Date: 2005/11/14 23:12:39 $
  */
 
 public class StandardSession
@@ -604,11 +604,12 @@ public class StandardSession
         if (!this.isValid ) {
             return false;
         }
-        
+
         if (accessCount > 0) {
             return true;
         }
 
+        /* SJSAS 6329289
         if (maxInactiveInterval >= 0) { 
             long timeNow = System.currentTimeMillis();
             int timeIdle = (int) ((timeNow - thisAccessedTime) / 1000L);
@@ -616,6 +617,12 @@ public class StandardSession
                 expire(true);
             }
         }
+        */
+        // START SJSAS 6329289
+        if (hasExpired()) {
+            expire(true);
+        }
+        // END SJSAS 6329289
 
         return (this.isValid);
     }
@@ -916,9 +923,10 @@ public class StandardSession
      * @return true if this Session has expired, false otherwise
      */
     public boolean hasExpired() {
-        if (getMaxInactiveInterval() > 0
-                && (System.currentTimeMillis() - lastAccessedTime >=
-                    getMaxInactiveInterval() * 1000)) {
+
+        if (maxInactiveInterval >= 0
+                && (System.currentTimeMillis() - thisAccessedTime >=
+                    maxInactiveInterval * 1000)) {
             return true;
         } else {
             return false;
