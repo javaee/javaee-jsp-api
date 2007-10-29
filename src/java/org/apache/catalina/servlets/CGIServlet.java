@@ -1,22 +1,28 @@
-/*
- * Copyright 2004 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
+
 
 /*
- * Copyright 1999,2004 The Apache Software Foundation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * The contents of this file are subject to the terms
+ * of the Common Development and Distribution License
+ * (the "License").  You may not use this file except
+ * in compliance with the License.
+ *
+ * You can obtain a copy of the license at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt or
+ * https://glassfish.dev.java.net/public/CDDLv1.0.html.
+ * See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL
+ * HEADER in each file and include the License file at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt.  If applicable,
+ * add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your
+ * own identifying information: Portions Copyright [yyyy]
+ * [name of copyright owner]
+ *
+ * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
+ *
+ * Portions Copyright Apache Software Foundation.
  */
 
 
@@ -243,7 +249,7 @@ import org.apache.catalina.Wrapper;
  *
  * @author Martin T Dengler [root@martindengler.com]
  * @author Amy Roh
- * @version $Revision: 1.2 $, $Date: 2005/04/29 01:27:51 $
+ * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
  * @since Tomcat 4.0
  *
  */
@@ -602,7 +608,7 @@ public final class CGIServlet extends HttpServlet {
             try {
                 ServletOutputStream out = res.getOutputStream();
                 out.println("<HTML><HEAD><TITLE>$Name:  $</TITLE></HEAD>");
-                out.println("<BODY>$Header: /m/jws/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.2 2005/04/29 01:27:51 ja120114 Exp $<p>");
+                out.println("<BODY>$Header: /cvs/glassfish/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.1.1.1 2005/05/27 22:55:07 dpatil Exp $<p>");
 
                 if (cgiEnv.isValid()) {
                     out.println(cgiEnv.toString());
@@ -645,7 +651,7 @@ public final class CGIServlet extends HttpServlet {
 
     /** For future testing use only; does nothing right now */
     public static void main(String[] args) {
-        System.out.println("$Header: /m/jws/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.2 2005/04/29 01:27:51 ja120114 Exp $");
+        System.out.println("$Header: /cvs/glassfish/appserv-webtier/src/java/org/apache/catalina/servlets/CGIServlet.java,v 1.1.1.1 2005/05/27 22:55:07 dpatil Exp $");
     }
 
 
@@ -661,7 +667,7 @@ public final class CGIServlet extends HttpServlet {
      * </p>
      *
      * @author   Martin Dengler [root@martindengler.com]
-     * @version  $Revision: 1.2 $, $Date: 2005/04/29 01:27:51 $
+     * @version  $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
      * @since    Tomcat 4.0
      *
      */
@@ -1283,7 +1289,7 @@ public final class CGIServlet extends HttpServlet {
      * </p>
      *
      * @author    Martin Dengler [root@martindengler.com]
-     * @version   $Revision: 1.2 $, $Date: 2005/04/29 01:27:51 $
+     * @version   $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
      */
 
     protected class CGIRunner {

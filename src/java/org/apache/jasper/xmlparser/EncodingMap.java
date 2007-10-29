@@ -1,30 +1,28 @@
-/*
- * Copyright 2004 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
+
 
 /*
- * Copyright 1999,2004 The Apache Software Foundation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ====================================================================
+ * The contents of this file are subject to the terms
+ * of the Common Development and Distribution License
+ * (the "License").  You may not use this file except
+ * in compliance with the License.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation and was
- * originally based on software copyright (c) 1999, International
- * Business Machines, Inc., http://www.apache.org.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * You can obtain a copy of the license at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt or
+ * https://glassfish.dev.java.net/public/CDDLv1.0.html.
+ * See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL
+ * HEADER in each file and include the License file at
+ * glassfish/bootstrap/legal/CDDLv1.0.txt.  If applicable,
+ * add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your
+ * own identifying information: Portions Copyright [yyyy]
+ * [name of copyright owner]
+ *
+ * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
+ *
+ * Portions Copyright Apache Software Foundation.
  */
 
 package org.apache.jasper.xmlparser;
@@ -478,7 +476,7 @@ import java.util.Hashtable;
  * @author TAMURA Kent, IBM
  * @author Andy Clark, IBM
  *
- * @version $Id: EncodingMap.java,v 1.2 2005/04/29 01:29:39 ja120114 Exp $
+ * @version $Id: EncodingMap.java,v 1.1.1.1 2005/05/27 22:55:14 dpatil Exp $
  */
 public class EncodingMap {
 
