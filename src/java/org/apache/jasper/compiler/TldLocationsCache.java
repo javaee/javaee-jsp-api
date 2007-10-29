@@ -106,6 +106,9 @@ public class TldLocationsCache {
     // Names of system jar files that are ignored if placed under WEB-INF
     private static HashSet systemJars;
 
+    // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
+    private static HashSet<String> systemUris;
+
     /**
      * The mapping of the 'global' tag library URI to the location (resource
      * path) of the TLD associated with that tag library. The location is
@@ -182,6 +185,13 @@ public class TldLocationsCache {
         systemJars.add("standard.jar");
         systemJars.add("appserv-jstl.jar");
         systemJars.add("jsf-impl.jar");
+    }
+
+    static {
+        systemUris = new HashSet();
+        systemUris.add("http://java.sun.com/jsf/core");
+        systemUris.add("http://java.sun.com/jsf/html");
+        systemUris.add("http://java.sun.com/jsp/jstl/core");
     }
 
     public TldLocationsCache(ServletContext ctxt) {
@@ -331,6 +341,10 @@ public class TldLocationsCache {
                 TreeNode child = taglib.findChild("taglib-uri");
                 if (child != null)
                     tagUri = child.getBody();
+                // Ignore system tlds in web.xml, for backward compatibility
+                if (systemUris.contains(tagUri)) {
+                    continue;
+                }
                 child = taglib.findChild("taglib-location");
                 if (child != null)
                     tagLoc = child.getBody();
