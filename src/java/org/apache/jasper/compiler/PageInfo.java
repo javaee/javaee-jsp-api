@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -38,7 +36,7 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
  * @author Kin-man Chung
  */
 
-public class PageInfo {
+class PageInfo {
 
     private Vector imports;
     private Vector dependants;

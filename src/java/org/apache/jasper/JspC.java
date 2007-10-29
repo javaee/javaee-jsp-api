@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -42,10 +40,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -58,7 +53,6 @@ import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.Localizer;
-import org.apache.jasper.compiler.PageInfo;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.servlet.JspCServletContext;
@@ -158,10 +152,6 @@ public class JspC implements Options {
     // START PWC 6385018
     private static final String SWITCH_VALIDATE = "-validate";
     // END PWC 6385018
-    // START SJSAS
-    private static final String SWITCH_IGNORE_JSP_FRAGMENTS
-        = "-ignoreJspFragmentErrors";
-    // END SJSAS
 
     private static final String SHOW_SUCCESS ="-s";
     private static final String LIST_ERRORS = "-l";
@@ -258,19 +248,12 @@ public class JspC implements Options {
     // END SJSAS 6384538
 
     // START SJSAS 6329723
-    private HashMap<String,JasperException> jspErrors
-        = new HashMap<String,JasperException>();
+    private List<JasperException> jspErrors = new ArrayList<JasperException>();
     // END SJSAS 6329723
 
     // START SJSAS 6403017
     private static String myJavaVersion;
     // END SJSAS 6403017
-
-    // START SJSAS 6393940
-    private boolean ignoreJspFragmentErrors = false;
-    private HashMap<String,List<String>> dependents
-        = new HashMap<String,List<String>>();
-    // END SJSAS 6393940
 
     // START SJSAS 6403017
     static {
@@ -398,10 +381,6 @@ public class JspC implements Options {
             } else if (tok.equals(SWITCH_VALIDATE)) {
                 setValidateXml(true);
             // END PWC 6385018
-            // START SJSAS 
-            } else if (tok.equals(SWITCH_IGNORE_JSP_FRAGMENTS)) {
-                setIgnoreJspFragmentErrors(true);
-            // END SJSAS 
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -876,12 +855,6 @@ public class JspC implements Options {
         return failOnError;
     }
 
-    // START SJSAS
-    public void setIgnoreJspFragmentErrors(boolean ignore) {
-        ignoreJspFragmentErrors = ignore;
-    }
-    // END SJSAS
-
     /**
      * Obtain JSP configuration informantion specified in web.xml.
      */
@@ -939,19 +912,7 @@ public class JspC implements Options {
      * property was set to TRUE
      */
     public List<JasperException> getJSPCompilationErrors() {
-
-        ArrayList<JasperException> errorList = null;
-
-        Collection c = jspErrors.values();
-        if (c != null) {
-            errorList = new ArrayList<JasperException>();
-            Iterator<JasperException> it = c.iterator();
-            while (it.hasNext()) {
-                errorList.add(it.next());
-            }
-        }
-
-        return errorList;
+        return jspErrors;
     }
     // END SJSAS 6329723
 
@@ -1064,8 +1025,6 @@ public class JspC implements Options {
         throws JasperException
     {
         ClassLoader originalClassLoader = null;
-        String jspUri=file.replace('\\','/');
-System.out.println("PROCESSING file=" + file);
 
         try {
             // set up a scratch/output dir if none is provided
@@ -1077,6 +1036,7 @@ System.out.println("PROCESSING file=" + file);
                 scratchDir = new File(new File(temp).getAbsolutePath());
             }
 
+            String jspUri=file.replace('\\','/');
             JspCompilationContext clctxt = new JspCompilationContext
                 ( jspUri, false,  this, context, null, rctxt );
 
@@ -1108,19 +1068,6 @@ System.out.println("PROCESSING file=" + file);
                 clc.compile(compile, true);
             }
 
-            // START SJSAS 6393940
-            if (ignoreJspFragmentErrors) {
-                PageInfo pi = clc.getPageInfo();
-                if (pi != null) {
-                    List<String> deps = pi.getDependants();
-                    if (deps != null) {
-                        dependents.put(jspUri, deps);
-                    }
-                    clc.setPageInfo(null);
-                }
-	    }
-            // END SJSAS 6393940
-
             // Generate mapping
             generateWebMapping( file, clctxt );
             if ( showSuccess ) {
@@ -1140,14 +1087,12 @@ System.out.println("PROCESSING file=" + file);
             }
 
             // Bugzilla 35114.
-            if (getFailOnError() && !ignoreJspFragmentErrors) {
+            if(getFailOnError()) {
                 throw je;
             } else {
-                if (!ignoreJspFragmentErrors) {
-                    log.error(je.getMessage());
-                }
+                log.error(je.getMessage());
                 // START SJAS 6329723
-                jspErrors.put(jspUri, je);
+                jspErrors.add(je);
                 // END SJSAS 6329723
             }
 
@@ -1206,9 +1151,6 @@ System.out.println("PROCESSING file=" + file);
         // START SJSAS 6329723
         jspErrors.clear();
         // END SJSAS 6329723
-        // START SJSAS 
-        dependents.clear();
-        // END SJSAS
 
         try {
 	    if (uriRoot == null) {
@@ -1271,15 +1213,6 @@ System.out.println("PROCESSING file=" + file);
                 }
 		processFile(nextjsp);
 	    }
-
-            // START SJSAS 6393940
-            if (ignoreJspFragmentErrors) {
-                purgeJspFragmentErrors();
-            }
-            if (getFailOnError() && !jspErrors.isEmpty()) {
-                throw (JasperException) jspErrors.values().iterator().next();
-            }
-            // END SJJAS 6393940
 
 	    completeWebXml();
 	    
@@ -1576,23 +1509,4 @@ System.out.println("PROCESSING file=" + file);
         return new URLClassLoader(urlsArray, this.getClass().getClassLoader());
     }
     // END SJAS 6327357
-
-
-    // START SJSAS 6393940
-    private void purgeJspFragmentErrors() {
-
-        Collection c = dependents.values();
-        if (c != null) {
-            Iterator<List> it1 = c.iterator();
-            while (it1.hasNext()) {
-                List li = it1.next();
-                Iterator<String> it2 = li.iterator();
-                while (it2.hasNext()) {
-                    String dependent = it2.next();
-                    jspErrors.remove(dependent);                    
-                }
-            }
-        }
-    }
-    // END SJSAS 6393940
 }

@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -184,7 +182,6 @@ class ParserController implements TagConstants {
 
 	if (parent != null) {
 	    // Included resource, add to dependent list
-System.out.println("XXX: ADD DEPENDENT=" + absFileName);
 	    compiler.getPageInfo().addDependant(absFileName);
 	}
 
