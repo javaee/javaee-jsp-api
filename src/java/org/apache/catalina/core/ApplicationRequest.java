@@ -32,6 +32,7 @@ package org.apache.catalina.core;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestWrapper;
 import org.apache.catalina.Globals;
@@ -54,7 +55,7 @@ import org.apache.catalina.util.StringManager;
  * keep these two classes in synchronization when making changes!
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:01 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:32 $
  */
 
 public class ApplicationRequest extends ServletRequestWrapper {
@@ -66,12 +67,21 @@ public class ApplicationRequest extends ServletRequestWrapper {
     /**
      * The set of attribute names that are special for request dispatchers.
      */
-    protected static final String specials[] =
-    { Globals.INCLUDE_REQUEST_URI_ATTR, Globals.INCLUDE_CONTEXT_PATH_ATTR,
-      Globals.INCLUDE_SERVLET_PATH_ATTR, Globals.INCLUDE_PATH_INFO_ATTR,
-      Globals.INCLUDE_QUERY_STRING_ATTR, Globals.FORWARD_REQUEST_URI_ATTR, 
-      Globals.FORWARD_CONTEXT_PATH_ATTR, Globals.FORWARD_SERVLET_PATH_ATTR, 
-      Globals.FORWARD_PATH_INFO_ATTR, Globals.FORWARD_QUERY_STRING_ATTR };
+    private static final HashSet specials = new HashSet(10);
+
+
+    static {
+        specials.add(Globals.INCLUDE_REQUEST_URI_ATTR);
+        specials.add(Globals.INCLUDE_CONTEXT_PATH_ATTR);
+        specials.add(Globals.INCLUDE_SERVLET_PATH_ATTR);
+        specials.add(Globals.INCLUDE_PATH_INFO_ATTR);
+        specials.add(Globals.INCLUDE_QUERY_STRING_ATTR);
+        specials.add(Globals.FORWARD_REQUEST_URI_ATTR);
+        specials.add(Globals.FORWARD_CONTEXT_PATH_ATTR);
+        specials.add(Globals.FORWARD_SERVLET_PATH_ATTR);
+        specials.add(Globals.FORWARD_PATH_INFO_ATTR);
+        specials.add(Globals.FORWARD_QUERY_STRING_ATTR);
+    }
 
 
     // ----------------------------------------------------------- Constructors
@@ -209,13 +219,7 @@ public class ApplicationRequest extends ServletRequestWrapper {
      */
     protected boolean isSpecial(String name) {
 
-        for (int i = 0; i < specials.length; i++) {
-            if (specials[i].equals(name))
-                return (true);
-        }
-        return (false);
-
+        return specials.contains(name);
     }
-
 
 }
