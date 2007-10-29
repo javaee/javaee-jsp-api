@@ -39,7 +39,7 @@ import javax.servlet.ServletRequest;
  * produce the corresponding <code>Response</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:42 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public interface Request {
@@ -346,5 +346,17 @@ public interface Request {
      */
     public void setServerPort(int port);
 
+
+    // START SJSAS 6346226
+    /**
+     * Gets the jroute id of this request, which may have been 
+     * sent as a separate <code>JROUTE</code> cookie or appended to the
+     * session identifier encoded in the URI (if cookies have been disabled).
+     * 
+     * @return The jroute id of this request, or null if this request does not
+     * carry any jroute id
+     */
+    public String getJrouteId();
+    // END SJSAS 6346226
 
 }

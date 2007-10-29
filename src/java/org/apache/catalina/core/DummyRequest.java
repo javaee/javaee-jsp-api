@@ -87,7 +87,7 @@ import org.apache.catalina.util.StringManager;
  * JSP precompilation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/19 16:42:13 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 public class DummyRequest
@@ -326,6 +326,20 @@ public class DummyRequest
     public String getLocalName() { return null; }
     public int getLocalPort() { return -1; }
     public int getRemotePort() { return -1; }
+
+    // START SJSAS 6346226
+    /**
+     * Gets the jroute id of this request, which may have been 
+     * sent as a separate <code>JROUTE</code> cookie or appended to the
+     * session identifier encoded in the URI (if cookies have been disabled).
+     * 
+     * @return The jroute id of this request, or null if this request does not
+     * carry any jroute id
+     */
+    public String getJrouteId() {
+        return null;
+    }
+    // END SJSAS 6346226
     
 }
 

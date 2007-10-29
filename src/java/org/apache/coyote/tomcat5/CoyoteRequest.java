@@ -104,7 +104,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2005/10/17 19:44:13 $
+ * @version $Revision: 1.13 $ $Date: 2005/10/18 00:56:11 $
  */
 
 public class CoyoteRequest
@@ -409,7 +409,6 @@ public class CoyoteRequest
      */
     private int dispatchDepth = 0;
 
-
     /**
      * The maximum allowed application dispatch depth.
      */
@@ -424,12 +423,16 @@ public class CoyoteRequest
     private static final String match =
         ";" + Globals.SESSION_PARAMETER_NAME + "=";
 
-
     /**
      * The match string for identifying a session ID parameter.
      */
     private static final char[] SESSION_ID = match.toCharArray();
     // END CR 6309511
+
+
+    // START SJSAS 6346226
+    private String jrouteId;
+    // END SJSAS 6346226
 
 
     // --------------------------------------------------------- Public Methods
@@ -2821,6 +2824,7 @@ public class CoyoteRequest
 
             int sessionIdStart = start + semicolon + match.length();
             int semicolon2 = uriCC.indexOf(';', sessionIdStart);
+            /* SJSAS 6346226
             if (semicolon2 >= 0) {
                 setRequestedSessionId
                     (new String(uriCC.getBuffer(), sessionIdStart, 
@@ -2830,6 +2834,27 @@ public class CoyoteRequest
                     (new String(uriCC.getBuffer(), sessionIdStart, 
                                 end - sessionIdStart));
             }
+            */
+            // START SJSAS 6346226
+            String sessionId = null;
+            if (semicolon2 >= 0) {
+                sessionId = new String(uriCC.getBuffer(), sessionIdStart, 
+                                       semicolon2 - semicolon - match.length());
+            } else {
+                sessionId = new String(uriCC.getBuffer(), sessionIdStart, 
+                                       end - sessionIdStart);
+            }
+            int jrouteIndex = sessionId.lastIndexOf(':');
+            if (jrouteIndex > 0) {
+                setRequestedSessionId(sessionId.substring(0, jrouteIndex));
+                if (jrouteIndex < (sessionId.length()-1)) {
+		    setJrouteId(sessionId.substring(jrouteIndex+1));
+                }
+	    } else {
+                setRequestedSessionId(sessionId);
+            }
+            // END SJSAS 6346226
+
             setRequestedSessionURL(true);
 
             // Extract session ID from request URI
@@ -2861,6 +2886,51 @@ public class CoyoteRequest
 
     }
     // END CR 6309511
+
+
+    // START SJSAS 6346226
+    /**
+     * Parses the value of the JROUTE cookie, if present.
+     */
+    void parseJrouteCookie() {
+
+        Cookies serverCookies = coyoteRequest.getCookies();
+        int count = serverCookies.getCookieCount();
+        if (count <= 0) {
+            return;
+        }
+
+        for (int i=0; i<count; i++) {
+            ServerCookie scookie = serverCookies.getCookie(i);
+            if (scookie.getName().equals(Constants.JROUTE_COOKIE)) {
+                setJrouteId(scookie.getValue().toString());
+                break;
+            }
+        }
+    }
+
+    /**
+     * Sets the jroute id of this request.
+     * 
+     * @param jrouteId The jroute id
+     */
+    void setJrouteId(String jrouteId) {
+        this.jrouteId = jrouteId;
+    }
+
+    /**
+     * Gets the jroute id of this request, which may have been 
+     * sent as a separate <code>JROUTE</code> cookie or appended to the
+     * session identifier encoded in the URI (if cookies have been disabled).
+     * 
+     * @return The jroute id of this request, or null if this request does not
+     * carry any jroute id
+     */
+    public String getJrouteId() {
+        return jrouteId;
+    }
+    // END SJSAS 6346226
+
 
     // START CR 6309511
     /**

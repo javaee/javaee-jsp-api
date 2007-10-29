@@ -80,5 +80,9 @@ public final class Constants {
     // START SJSAS 6337561
     public final static String PROXY_JROUTE = "proxy-jroute";
     // END SJSAS 6337561
+
+    // START SJSAS 6346226
+    public final static String JROUTE_COOKIE = "JROUTE";
+    // END SJSAS 6346226
     
 }
