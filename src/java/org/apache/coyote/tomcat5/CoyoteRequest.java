@@ -113,7 +113,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.16 $ $Date: 2005/11/10 17:45:07 $
+ * @version $Revision: 1.17 $ $Date: 2005/12/08 01:28:35 $
  */
 
 public class CoyoteRequest
@@ -2196,13 +2196,7 @@ public class CoyoteRequest
      * Return the query string associated with this request.
      */
     public String getQueryString() {
-        String queryString = coyoteRequest.queryString().toString();
-
-       if (queryString == null || queryString.equals("")) {
-            return (null);
-        } else {
-            return queryString;
-        }
+        return coyoteRequest.queryString().toString();
     }
 
 

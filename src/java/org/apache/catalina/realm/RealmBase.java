@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/01/18 19:23:47 $
+ * @version $Revision: 1.8 $ $Date: 2006/01/24 15:09:39 $
  */
 
 public abstract class RealmBase
@@ -1144,9 +1144,11 @@ public abstract class RealmBase
         String protocol = "https";
         String host = hrequest.getServerName();
         // Protocol
-        file.append(protocol).append("://");
+        file.append(protocol).append("://").append(host);
         // Host with port
-        file.append(host).append(":").append(redirectPort);
+        if(redirectPort != 443) {
+            file.append(":").append(redirectPort);
+        }
         // URI
         file.append(hrequest.getRequestURI());
         String requestedSessionId = hrequest.getRequestedSessionId();

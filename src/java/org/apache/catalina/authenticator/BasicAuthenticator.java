@@ -48,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * and Digest Access Authentication."
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:26 $
  */
 
 public class BasicAuthenticator
@@ -162,7 +162,7 @@ public class BasicAuthenticator
     //            log("Challenging for realm '" + realmName + "'");
         hres.setHeader("WWW-Authenticate",
                        "Basic realm=\"" + realmName + "\"");
-        hres.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        hres.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         //      hres.flushBuffer();
         return (false);
 

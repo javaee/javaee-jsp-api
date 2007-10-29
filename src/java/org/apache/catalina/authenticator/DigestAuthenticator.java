@@ -52,7 +52,7 @@ import org.apache.catalina.util.MD5Encoder;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:27 $
  */
 
 public class DigestAuthenticator
@@ -209,7 +209,7 @@ public class DigestAuthenticator
         String nOnce = generateNOnce(hreq);
 
         setAuthenticateHeader(hreq, hres, config, nOnce);
-        hres.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        hres.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         //      hres.flushBuffer();
         return (false);
 

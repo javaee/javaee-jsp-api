@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2005/12/12 19:11:32 $
+ * @version $Revision: 1.12 $ $Date: 2006/02/23 02:08:55 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1793,11 +1793,26 @@ public class WebappClassLoader
                     // Doing something recursively is too risky
                     continue;
                 } else {
-                    field.set(instance, null);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Set field " + field.getName() 
-                                + " to null in class " + instance.getClass().getName());
+                    Object value = field.get(instance);
+                    if (null != value) {
+                        Class valueClass = value.getClass();
+                        if (!loadedByThisOrChild(valueClass)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Not setting field " + field.getName() +
+                                        " to null in object of class " + 
+                                        instance.getClass().getName() +
+                                        " because the referenced object was of type " +
+                                        valueClass.getName() + 
+                                        " which was not loaded by this WebappClassLoader.");
+                            }
+                        } else {
+                            field.set(instance, null);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Set field " + field.getName() 
+                                        + " to null in class " + instance.getClass().getName());
+                        }
                     }
+                }
                 }
             } catch (Throwable t) {
                 if (log.isDebugEnabled()) {
@@ -1809,6 +1824,22 @@ public class WebappClassLoader
         }
     }
     
+
+    /**
+     * Determine whether a class was loaded by this class loader or one of
+     * its child class loaders.
+     */
+    protected boolean loadedByThisOrChild(Class clazz) {
+        boolean result = false;
+        for (ClassLoader classLoader = clazz.getClassLoader();
+                null != classLoader; classLoader = classLoader.getParent()) {
+            if (classLoader.equals(this)) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }  
     // ------------------------------------------------------ Protected Methods
 
 
