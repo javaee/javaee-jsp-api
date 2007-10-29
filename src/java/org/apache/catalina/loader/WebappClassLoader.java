@@ -126,7 +126,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.24 $ $Date: 2006/11/13 17:11:05 $
+ * @version $Revision: 1.25 $ $Date: 2006/11/30 19:45:22 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -221,21 +221,8 @@ public class WebappClassLoader
      * parent ClassLoader.
      */
     public WebappClassLoader() {
-
         super(new URL[0]);
-        this.parent = getParent();
-        /* SJSAS 6317864
-        system = getSystemClassLoader();
-        */
-        // START SJSAS 6317864
-        system = this.getClass().getClassLoader();
-        // END SJSAS 6317864
-        securityManager = System.getSecurityManager();
-
-        if (securityManager != null) {
-            refreshPolicy();
-        }
-
+        init();
     }
 
 
@@ -244,23 +231,8 @@ public class WebappClassLoader
      * parent ClassLoader.
      */
     public WebappClassLoader(ClassLoader parent) {
-
         super(new URL[0], parent);
-                
-        this.parent = getParent();
-
-        /* SJSAS 6317864
-        system = getSystemClassLoader();
-        */
-        // START SJSAS 6317864
-        system = this.getClass().getClassLoader();
-        // END SJSAS 6317864
-        securityManager = System.getSecurityManager();
-
-        if (securityManager != null) {
-            refreshPolicy();
-        }
-        
+        init();
     }
 
 
@@ -1622,6 +1594,24 @@ public class WebappClassLoader
 
 
     // ------------------------------------------------------ Lifecycle Methods
+
+
+    private void init() {
+
+        this.parent = getParent();
+
+        /* SJSAS 6317864
+        system = getSystemClassLoader();
+        */
+        // START SJSAS 6317864
+        system = this.getClass().getClassLoader();
+        // END SJSAS 6317864
+        securityManager = System.getSecurityManager();
+
+        if (securityManager != null) {
+            refreshPolicy();
+        }
+    }
 
 
     /**
