@@ -72,9 +72,6 @@ import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Session;
 import org.apache.catalina.Valve;
-// START GlassFish 247
-import org.apache.catalina.Wrapper;
-// END GlassFish 247
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 /** CR 6411114 (Lifecycle implementation moved to ValveBase)
@@ -110,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/12 01:27:00 $
+ * @version $Revision: 1.8 $ $Date: 2006/04/17 16:44:47 $
  */
 
 
@@ -475,12 +472,10 @@ public abstract class AuthenticatorBase
         // END OF IASRI 4665318
                 
         // START GlassFish 247
-        // Select the Wrapper to be used for this Request
-        Wrapper wrapper = request.getWrapper();
-        if (wrapper == null) {
-            try {
+        if (!context.getAvailable()) {
+            try {    
                 ((HttpServletResponse) response.getResponse())
-                    .sendError(HttpServletResponse.SC_NOT_FOUND);
+                    .sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } catch (IllegalStateException e) {
                 ;
             } catch (IOException e) {
