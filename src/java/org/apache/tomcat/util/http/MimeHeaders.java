@@ -434,10 +434,6 @@ class ValuesEnumerator implements Enumeration {
 }
 
 class MimeHeaderField {
-    // multiple headers with same name - a linked list will
-    // speed up name enumerations and search ( both cpu and
-    // GC)
-    MimeHeaderField next;
     
     protected final MessageBytes nameB = MessageBytes.newInstance();
     protected final MessageBytes valueB = MessageBytes.newInstance();
@@ -451,7 +447,6 @@ class MimeHeaderField {
     public void recycle() {
 	nameB.recycle();
 	valueB.recycle();
-	next=null;
     }
 
     public MessageBytes getName() {

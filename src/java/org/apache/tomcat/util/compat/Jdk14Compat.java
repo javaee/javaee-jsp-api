@@ -44,10 +44,6 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * @author Remy Maucherat
  */
 public class Jdk14Compat extends JdkCompat {
-    // -------------------------------------------------------------- Constants
-
-    // ------------------------------------------------------- Static Variables
-    static Log logger = LogFactory.getLog(Jdk14Compat.class);
 
     // ----------------------------------------------------------- Constructors
     /**

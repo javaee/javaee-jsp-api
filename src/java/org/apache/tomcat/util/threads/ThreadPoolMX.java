@@ -41,7 +41,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * super().  
  */
 public class ThreadPoolMX extends ThreadPool {
-    static Log log = LogFactory.getLog(ThreadPoolMX.class);
+
     protected String domain; // not used 
 
     protected String name; // not used

@@ -58,10 +58,6 @@ public class JdkCompat {
      */
     static final String JAVA14_SUPPORT =
         "org.apache.tomcat.util.compat.Jdk14Compat";
-    /**
-     *  Commons logger wrapper
-     */
-    static Log logger = LogFactory.getLog(JdkCompat.class);
 
     /** Return java version as a string
      */
