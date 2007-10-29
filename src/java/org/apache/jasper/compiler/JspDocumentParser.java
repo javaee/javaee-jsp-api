@@ -1251,10 +1251,7 @@ class JspDocumentParser
         } else {
             // uri references TLD file
             boolean isPlainUri = false;
-            if (uri.startsWith(URN_JSPTLD)) {
-                // uri is of the form "urn:jsptld:path"
-                uri = uri.substring(URN_JSPTLD.length());
-            } else {
+            if (!uri.startsWith(URN_JSPTLD)) {
                 isPlainUri = true;
             }
 
