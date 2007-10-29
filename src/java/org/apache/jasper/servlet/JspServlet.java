@@ -280,6 +280,7 @@ public class JspServlet extends HttpServlet {
         if (jspFile != null) {
             // JSP is specified via <jsp-file> in <servlet> declaration
             jspUri = jspFile;
+            request.removeAttribute(Constants.JSP_FILE);
         } else {
             /*
              * Check to see if the requested JSP has been the target of a

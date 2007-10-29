@@ -62,7 +62,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/03/12 01:27:01 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/17 00:18:38 $
  */
 
 final class StandardWrapperValve
@@ -228,7 +228,6 @@ final class StandardWrapperValve
         try {
             response.sendAcknowledgement();
         } catch (IOException e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             log(sm.getString("standardWrapper.acknowledgeException",
                              wrapper.getName()), e);
             throwable = e;
@@ -261,10 +260,9 @@ final class StandardWrapperValve
         // NOTE: This also calls the servlet's service() method
         try {
             String jspFile = wrapper.getJspFile();
-            if (jspFile != null)
+            if (jspFile != null) {
                 hreq.setAttribute(Globals.JSP_FILE_ATTR, jspFile);
-            else
-                hreq.removeAttribute(Globals.JSP_FILE_ATTR);
+            } 
             /* IASRI 4665318
             if ((servlet != null) && (filterChain != null)) {
                 filterChain.doFilter(hreq, hres);
@@ -283,19 +281,15 @@ final class StandardWrapperValve
                 }
             }
             // END IASRI 4665318
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
         } catch (ClientAbortException e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             throwable = e;
             exception(request, response, e);
         } catch (IOException e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             log(sm.getString("standardWrapper.serviceException",
                              wrapper.getName()), e);
             throwable = e;
             exception(request, response, e);
         } catch (UnavailableException e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             log(sm.getString("standardWrapper.serviceException",
                              wrapper.getName()), e);
             //            throwable = e;
@@ -331,7 +325,6 @@ final class StandardWrapperValve
             // Do not save exception in 'throwable', because we
             // do not want to do exception(request, response, e) processing
         } catch (ServletException e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             Throwable rootCause = StandardWrapper.getRootCause(e);
             if (!(rootCause instanceof ClientAbortException)) {
                 log(sm.getString("standardWrapper.serviceException",
@@ -340,7 +333,6 @@ final class StandardWrapperValve
             throwable = e;
             exception(request, response, e);
         } catch (Throwable e) {
-            hreq.removeAttribute(Globals.JSP_FILE_ATTR);
             log(sm.getString("standardWrapper.serviceException",
                              wrapper.getName()), e);
             throwable = e;

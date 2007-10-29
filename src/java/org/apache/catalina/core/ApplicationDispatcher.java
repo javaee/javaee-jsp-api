@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/03/12 01:27:00 $
+ * @version $Revision: 1.10 $ $Date: 2006/06/08 14:49:57 $
  */
 
 final class ApplicationDispatcher
@@ -816,10 +816,9 @@ final class ApplicationDispatcher
         // Call the service() method for the allocated servlet instance
         try {
             String jspFile = wrapper.getJspFile();
-            if (jspFile != null)
+            if (jspFile != null) {
                 request.setAttribute(Globals.JSP_FILE_ATTR, jspFile);
-            else
-                request.removeAttribute(Globals.JSP_FILE_ATTR);
+            } 
             support.fireInstanceEvent(InstanceEvent.BEFORE_DISPATCH_EVENT,
                                       servlet, request, response);
             // for includes/forwards
@@ -853,23 +852,19 @@ final class ApplicationDispatcher
                 // END IASRI 4665318
             }
             // Servlet Service Method is called by the FilterChain
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
         } catch (ClientAbortException e) {
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
             ioException = e;
         } catch (IOException e) {
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
             log(sm.getString("applicationDispatcher.serviceException",
                              wrapper.getName()), e);
             ioException = e;
         } catch (UnavailableException e) {
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
             log(sm.getString("applicationDispatcher.serviceException",
@@ -877,7 +872,6 @@ final class ApplicationDispatcher
             servletException = e;
             wrapper.unavailable(e);
         } catch (ServletException e) {
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
             Throwable rootCause = StandardWrapper.getRootCause(e);
@@ -887,7 +881,6 @@ final class ApplicationDispatcher
             }
             servletException = e;
         } catch (RuntimeException e) {
-            request.removeAttribute(Globals.JSP_FILE_ATTR);
             support.fireInstanceEvent(InstanceEvent.AFTER_DISPATCH_EVENT,
                                       servlet, request, response);
             log(sm.getString("applicationDispatcher.serviceException",
