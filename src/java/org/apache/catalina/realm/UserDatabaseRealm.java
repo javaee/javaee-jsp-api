@@ -51,7 +51,7 @@ import org.apache.catalina.UserDatabase;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Digester;
 
 
 /**
@@ -62,7 +62,7 @@ import org.apache.commons.digester.Digester;
  * of <code>UserDatabase</code> that we should consult.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:54 $
  * @since 4.1
  */
 

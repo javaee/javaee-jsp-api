@@ -41,8 +41,8 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Server;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.util.CatalinaDigester;
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Rule;
 import org.apache.tomcat.util.log.SystemLogHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -64,7 +64,7 @@ import org.xml.sax.InputSource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:05 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/12 19:11:35 $
  */
 
 public class Catalina extends Embedded {
@@ -648,8 +648,8 @@ public class Catalina extends Embedded {
     }
     
     
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( Catalina.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( Catalina.class );
 
 }
 

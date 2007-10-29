@@ -401,7 +401,7 @@ public class DynamicMBeanProxy implements DynamicMBean {
 	return new String(chars);
     }
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( DynamicMBeanProxy.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( DynamicMBeanProxy.class );
 
 }

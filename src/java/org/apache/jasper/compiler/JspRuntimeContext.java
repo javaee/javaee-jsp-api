@@ -43,8 +43,8 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -64,7 +64,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public final class JspRuntimeContext implements Runnable {
 

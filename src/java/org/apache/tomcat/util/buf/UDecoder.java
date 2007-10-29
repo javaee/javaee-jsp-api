@@ -42,8 +42,8 @@ import java.io.*;
  */
 public final class UDecoder {
     
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog(UDecoder.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog(UDecoder.class );
 
     public UDecoder() 
     {

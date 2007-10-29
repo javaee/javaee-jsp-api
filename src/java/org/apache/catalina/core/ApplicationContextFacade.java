@@ -64,7 +64,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:30 $
+ * @version $Revision: 1.4 $ $Date: 2006/02/08 23:05:12 $
  */
 
 public final class ApplicationContextFacade
@@ -100,8 +100,8 @@ public final class ApplicationContextFacade
     private HashMap objectCache;
     
     
-    private static org.apache.commons.logging.Log sysLog=
-        org.apache.commons.logging.LogFactory.getLog( ApplicationContextFacade.class );
+    private static com.sun.org.apache.commons.logging.Log sysLog=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( ApplicationContextFacade.class );
 
         
     // ----------------------------------------------------------- Constructors

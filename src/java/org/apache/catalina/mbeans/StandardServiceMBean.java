@@ -34,7 +34,7 @@ import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
 import org.apache.catalina.Connector;
 import org.apache.catalina.Service;
-import org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
 
 
 /**
@@ -42,7 +42,7 @@ import org.apache.commons.modeler.BaseModelMBean;
  * <code>org.apache.catalina.core.StandardService</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:51 $
  */
 
 public class StandardServiceMBean extends BaseModelMBean {

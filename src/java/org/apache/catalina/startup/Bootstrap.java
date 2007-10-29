@@ -49,7 +49,7 @@ import org.apache.catalina.security.SecurityClassLoad;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:05 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/12 19:11:34 $
  */
 
 public final class Bootstrap {
@@ -70,8 +70,8 @@ public final class Bootstrap {
      */
     private static Bootstrap daemon = null;
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( Bootstrap.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( Bootstrap.class );
 
     // -------------------------------------------------------------- Variables
 

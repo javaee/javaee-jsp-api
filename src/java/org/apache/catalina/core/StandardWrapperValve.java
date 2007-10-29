@@ -40,9 +40,9 @@ import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.beanutils.PropertyUtils;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 import org.apache.tomcat.util.buf.MessageBytes;
 
@@ -62,7 +62,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:38 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/07 22:30:07 $
  */
 
 final class StandardWrapperValve

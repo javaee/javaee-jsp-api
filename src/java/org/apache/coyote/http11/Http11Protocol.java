@@ -38,7 +38,7 @@ import org.apache.tomcat.util.res.StringManager;
 import org.apache.tomcat.util.threads.ThreadPool;
 import org.apache.tomcat.util.threads.ThreadWithAttributes;
 import org.apache.tomcat.util.net.*;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.Registry;
 import javax.management.ObjectName;
 import javax.management.MBeanServer;
 import javax.management.MBeanRegistration;
@@ -671,8 +671,8 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
         }
     }
 
-    protected static org.apache.commons.logging.Log log 
-        = org.apache.commons.logging.LogFactory.getLog(Http11Protocol.class);
+    protected static com.sun.org.apache.commons.logging.Log log 
+        = com.sun.org.apache.commons.logging.LogFactory.getLog(Http11Protocol.class);
 
     // -------------------- Various implementation classes --------------------
 

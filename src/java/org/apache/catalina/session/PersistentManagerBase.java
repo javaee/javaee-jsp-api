@@ -43,8 +43,8 @@ import org.apache.catalina.Session;
 import org.apache.catalina.Store;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.security.SecurityUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -59,7 +59,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:58 $
+ * @version $Revision: 1.7 $ $Date: 2006/01/18 00:26:25 $
  */
 
 public abstract class PersistentManagerBase

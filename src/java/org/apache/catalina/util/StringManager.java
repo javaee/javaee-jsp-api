@@ -60,8 +60,8 @@ import java.net.URLClassLoader;
 
 public class StringManager {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( StringManager.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( StringManager.class );
 
     /**
      * The ResourceBundle for this StringManager.

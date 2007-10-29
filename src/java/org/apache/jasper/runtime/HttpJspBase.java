@@ -52,8 +52,8 @@ public abstract class HttpJspBase
     implements HttpJspPage 
 {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( HttpJspBase.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( HttpJspBase.class );
 
     static {
         if( JspFactory.getDefaultFactory() == null ) {

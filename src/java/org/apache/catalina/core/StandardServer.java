@@ -87,10 +87,10 @@ import org.apache.catalina.session.PersistentManager;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.beanutils.PropertyUtils;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
 
 
 /**
@@ -98,7 +98,7 @@ import org.apache.commons.modeler.Registry;
  * (but not required) when deploying and starting Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:37 $
  */
 
 public final class StandardServer

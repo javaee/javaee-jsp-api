@@ -109,10 +109,10 @@ import org.apache.catalina.util.CharsetMapper;
 import org.apache.catalina.util.ExtensionValidator;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.URLEncoder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.modeler.ManagedBean;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.ManagedBean;
+import com.sun.org.apache.commons.modeler.Registry;
 import org.apache.naming.ContextBindings;
 import org.apache.naming.resources.BaseDirContext;
 import org.apache.naming.resources.DirContextURLStreamHandler;
@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.17 $ $Date: 2006/03/01 08:35:00 $
+ * @version $Revision: 1.18 $ $Date: 2006/03/09 16:51:19 $
  */
 
 public class StandardContext

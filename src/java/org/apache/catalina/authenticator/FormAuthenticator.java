@@ -52,8 +52,8 @@ import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Session;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 
@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/09/15 00:29:34 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:27 $
  */
 
 public class FormAuthenticator

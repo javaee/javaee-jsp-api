@@ -39,9 +39,9 @@ import org.apache.catalina.Group;
 import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.UserDatabase;
-import org.apache.commons.modeler.BaseModelMBean;
-import org.apache.commons.modeler.ManagedBean;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.ManagedBean;
+import com.sun.org.apache.commons.modeler.Registry;
 
 
 /**
@@ -49,7 +49,7 @@ import org.apache.commons.modeler.Registry;
  * <code>org.apache.catalina.Role</code> component.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:49 $
  */
 
 public class RoleMBean extends BaseModelMBean {

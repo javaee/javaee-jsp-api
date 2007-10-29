@@ -54,7 +54,7 @@ import org.apache.catalina.loader.StandardClassLoader;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:06 $
  */
 
 public final class ClassLoaderFactory {
@@ -63,8 +63,8 @@ public final class ClassLoaderFactory {
     // ------------------------------------------------------- Static Variables
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( ClassLoaderFactory.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( ClassLoaderFactory.class );
 
     /**
      * Debugging detail level for processing the startup.

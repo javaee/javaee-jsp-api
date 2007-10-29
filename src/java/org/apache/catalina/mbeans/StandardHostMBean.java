@@ -39,9 +39,9 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
-import org.apache.commons.modeler.BaseModelMBean;
-import org.apache.commons.modeler.Registry;
-import org.apache.commons.modeler.ManagedBean;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.ManagedBean;
 
 
 /**
@@ -49,7 +49,7 @@ import org.apache.commons.modeler.ManagedBean;
  * <code>org.apache.catalina.core.StandardHost</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:50 $
  */
 
 public class StandardHostMBean extends BaseModelMBean {

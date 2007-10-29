@@ -62,8 +62,8 @@ import org.apache.catalina.util.StringManager;
 // START SJSAS 6340446
 import org.apache.catalina.util.ServerInfo;
 // END SJSAS 6340446
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
 
 
@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/01/17 17:04:34 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/01 22:47:44 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {

@@ -45,8 +45,8 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Container;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -101,7 +101,7 @@ import org.apache.commons.logging.LogFactory;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:53 $
  */
 
 public class JAASRealm

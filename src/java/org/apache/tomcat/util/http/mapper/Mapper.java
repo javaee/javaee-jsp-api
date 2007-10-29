@@ -44,8 +44,8 @@ import java.util.ArrayList;
 public final class Mapper {
 
 
-    private static org.apache.commons.logging.Log logger =
-        org.apache.commons.logging.LogFactory.getLog(Mapper.class);
+    private static com.sun.org.apache.commons.logging.Log logger =
+        com.sun.org.apache.commons.logging.LogFactory.getLog(Mapper.class);
     // ----------------------------------------------------- Instance Variables
 
 

@@ -49,8 +49,8 @@ public class JSSEImplementation extends SSLImplementation
         "org.apache.tomcat.util.net.jsse.JSSE13Support";
     static final String SSLSocketClass = "javax.net.ssl.SSLSocket";
 
-    static org.apache.commons.logging.Log logger = 
-        org.apache.commons.logging.LogFactory.getLog(JSSEImplementation.class);
+    static com.sun.org.apache.commons.logging.Log logger = 
+        com.sun.org.apache.commons.logging.LogFactory.getLog(JSSEImplementation.class);
 
     private JSSEFactory factory;
 

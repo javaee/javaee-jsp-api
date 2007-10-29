@@ -29,9 +29,9 @@
 package org.apache.catalina.realm;
 
 
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
-import org.apache.commons.digester.RuleSetBase;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Rule;
+import com.sun.org.apache.commons.digester.RuleSetBase;
 import org.xml.sax.Attributes;
 
 
@@ -40,7 +40,7 @@ import org.xml.sax.Attributes;
  * XML file processed by <code>MemoryRealm</code>.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:54 $
  */
 
 public class MemoryRuleSet extends RuleSetBase {

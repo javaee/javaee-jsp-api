@@ -70,7 +70,7 @@ import org.apache.catalina.Logger;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.Registry;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 import org.apache.naming.resources.Resource;
@@ -91,7 +91,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/11/14 20:03:03 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:44 $
  */
 
 public class WebappLoader
@@ -1306,8 +1306,8 @@ public class WebappLoader
     }
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( WebappLoader.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( WebappLoader.class );
 
     private ObjectName oname;
     private MBeanServer mserver;

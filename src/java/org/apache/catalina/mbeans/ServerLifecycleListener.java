@@ -61,8 +61,8 @@ import org.apache.catalina.deploy.ContextEnvironment;
 import org.apache.catalina.deploy.ContextResource;
 import org.apache.catalina.deploy.ContextResourceLink;
 import org.apache.catalina.deploy.NamingResources;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -72,7 +72,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:49 $
  */
 
 public class ServerLifecycleListener

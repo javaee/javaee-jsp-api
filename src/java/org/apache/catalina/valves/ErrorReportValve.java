@@ -58,7 +58,7 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.catalina.util.StringManager;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import com.sun.org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * <p>Implementation of a Valve that outputs HTML error pages.</p>
@@ -72,7 +72,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.6 $ $Date: 2006/03/07 22:30:07 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/08 20:40:19 $
  */
 
 public class ErrorReportValve

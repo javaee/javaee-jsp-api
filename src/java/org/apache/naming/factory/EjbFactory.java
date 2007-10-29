@@ -42,15 +42,15 @@ import org.apache.naming.EjbRef;
  * Object factory for EJBs.
  * 
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:15 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:06 $
  */
 
 public class EjbFactory
     implements ObjectFactory {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( EjbFactory.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( EjbFactory.class );
 
     // ----------------------------------------------------------- Constructors
 

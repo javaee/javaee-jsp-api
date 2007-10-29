@@ -58,8 +58,8 @@ import java.security.cert.CertificateFactory;
 
 class JSSE14Support extends JSSESupport {
 
-    private static org.apache.commons.logging.Log logger =
-        org.apache.commons.logging.LogFactory.getLog(JSSE14Support.class);
+    private static com.sun.org.apache.commons.logging.Log logger =
+        com.sun.org.apache.commons.logging.LogFactory.getLog(JSSE14Support.class);
 
     Listener listener = new Listener();
 

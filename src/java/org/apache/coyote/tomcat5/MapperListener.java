@@ -43,10 +43,10 @@ import javax.management.NotificationFilter;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.Registry;
 
 import org.apache.tomcat.util.http.mapper.Mapper;
 

@@ -41,7 +41,7 @@ import javax.management.modelmbean.InvalidTargetObjectTypeException;
 import org.apache.catalina.deploy.ContextResource;
 import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.ResourceParams;
-import org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
 
 
 /**
@@ -49,7 +49,7 @@ import org.apache.commons.modeler.BaseModelMBean;
  * <code>org.apache.catalina.deploy.ContextResource</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:47 $
  */
 
 public class ContextResourceMBean extends BaseModelMBean {

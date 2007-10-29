@@ -48,9 +48,9 @@ import org.apache.catalina.core.StandardEngine;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.LifecycleSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
 
 
 /**
@@ -59,7 +59,7 @@ import org.apache.commons.modeler.Registry;
  * any property setting and lifecycle methods required for configuration.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:45 $
  */
 
 public class LoggerBase

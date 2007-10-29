@@ -64,8 +64,8 @@ import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.ResourceParams;
 import org.apache.catalina.util.StringManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -73,7 +73,7 @@ import org.apache.commons.logging.LogFactory;
  * with each context and server.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/11/14 19:54:33 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:34 $
  */
 
 public class NamingContextListener

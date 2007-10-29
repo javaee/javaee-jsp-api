@@ -62,8 +62,8 @@ import org.apache.catalina.deploy.ResourceParams;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.mbeans.MBeanUtils;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.modeler.ManagedBean;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.ManagedBean;
+import com.sun.org.apache.commons.modeler.Registry;
 import org.apache.naming.ContextAccessController;
 
 /**
@@ -73,7 +73,7 @@ import org.apache.naming.ContextAccessController;
  * <CODE>override="true"</CODE>.
  *
  * @author Glenn Nielsen
- * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:02 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:35 $
  */
 
 public class StandardDefaultContext 

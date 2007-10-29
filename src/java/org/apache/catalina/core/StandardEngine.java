@@ -42,10 +42,10 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Service;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.catalina.util.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.modeler.Registry;
-import org.apache.commons.modeler.modules.MbeansSource;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.modules.MbeansSource;
 import java.io.File;
 import java.util.List;
 
@@ -55,7 +55,7 @@ import java.util.List;
  * fully qualified host name of that virtual host.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:35 $
+ * @version $Revision: 1.4 $ $Date: 2006/01/12 20:09:48 $
  */
 
 public class StandardEngine

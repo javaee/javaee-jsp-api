@@ -35,7 +35,7 @@ import javax.management.RuntimeOperationsException;
 import org.apache.catalina.Server;
 import org.apache.catalina.ServerFactory;
 import org.apache.catalina.core.StandardServer;
-import org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
 
 
 /**
@@ -43,7 +43,7 @@ import org.apache.commons.modeler.BaseModelMBean;
  * <code>org.apache.catalina.core.StandardServer</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:50 $
  */
 
 public class StandardServerMBean extends BaseModelMBean {

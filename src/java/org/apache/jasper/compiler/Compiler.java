@@ -62,8 +62,8 @@ import org.apache.tools.ant.types.PatternSet;
  * @author Mark Roth
  */
 public class Compiler {
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( Compiler.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( Compiler.class );
 
     // ----------------------------------------------------------------- Static
 

@@ -64,9 +64,9 @@ import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.SchemaResolver;
-import org.apache.commons.digester.Digester;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.9 $ $Date: 2006/03/01 22:47:44 $
+ * @version $Revision: 1.10 $ $Date: 2006/03/09 22:09:57 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -1033,7 +1033,7 @@ class DigesterLogger implements Log {
     public String contextMsg = null;
 
     public DigesterLogger(String contextName) {
-        log = LogFactory.getLog("org.apache.commons.digester.Digester");
+        log = LogFactory.getLog("com.sun.org.apache.commons.digester.Digester");
         contextMsg = "In context [" + contextName + "]: ";
     }
     

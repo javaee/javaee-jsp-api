@@ -51,13 +51,13 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * is first started.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/07/01 00:27:51 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:31 $
  */
 
 final class ApplicationFilterConfig implements FilterConfig, Serializable {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( ApplicationFilterConfig.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( ApplicationFilterConfig.class );
  
     // ----------------------------------------------------------- Constructors
 

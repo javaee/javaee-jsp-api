@@ -42,8 +42,8 @@ import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.UserDatabase;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.ObjectCreationFactory;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.ObjectCreationFactory;
 import org.xml.sax.Attributes;
 
 
@@ -53,7 +53,7 @@ import org.xml.sax.Attributes;
  * and uses a specified XML file for its persistent storage.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:13 $
  * @since 4.1
  */
 

@@ -64,9 +64,9 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.RequestUtil;
-import org.apache.commons.digester.Digester;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 // START SJSWS 6324431
 import org.apache.catalina.core.StandardContext; 
 // END SJSWS 6324431
@@ -98,7 +98,7 @@ import org.apache.catalina.core.StandardContext;
  * the functionality required of a <code>Realm</code> implementation.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/07 02:01:36 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:53 $
  */
 
 public class JAASMemoryLoginModule extends MemoryRealm implements LoginModule, Realm {

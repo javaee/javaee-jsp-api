@@ -49,7 +49,7 @@ import javax.naming.spi.NamingManager;
  * Catalina JNDI Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/07/21 23:49:58 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:29:03 $
  */
 public class NamingContext implements Context {
 
@@ -63,8 +63,8 @@ public class NamingContext implements Context {
     protected static final NameParser nameParser = new NameParserImpl();
 
 
-    private static org.apache.commons.logging.Log log =
-        org.apache.commons.logging.LogFactory.getLog(NamingContext.class);
+    private static com.sun.org.apache.commons.logging.Log log =
+        com.sun.org.apache.commons.logging.LogFactory.getLog(NamingContext.class);
 
 
     // ----------------------------------------------------------- Constructors

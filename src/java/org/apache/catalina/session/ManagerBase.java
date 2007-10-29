@@ -70,9 +70,9 @@ import org.apache.catalina.SessionLocker;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
 
 //HERCULES:added
 import com.sun.enterprise.util.uuid.UuidGeneratorImpl;
@@ -86,7 +86,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/01/27 19:36:27 $
+ * @version $Revision: 1.6 $ $Date: 2006/02/03 20:27:50 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {

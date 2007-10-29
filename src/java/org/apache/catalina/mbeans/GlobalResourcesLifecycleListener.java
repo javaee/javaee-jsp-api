@@ -42,9 +42,9 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.UserDatabase;
-import org.apache.commons.modeler.Registry;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  * management.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:03 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:47 $
  * @since 4.1
  */
 

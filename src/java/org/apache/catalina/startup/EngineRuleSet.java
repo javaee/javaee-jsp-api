@@ -29,9 +29,9 @@
 package org.apache.catalina.startup;
 
 
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
-import org.apache.commons.digester.RuleSetBase;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Rule;
+import com.sun.org.apache.commons.digester.RuleSetBase;
 
 
 /**
@@ -42,7 +42,7 @@ import org.apache.commons.digester.RuleSetBase;
  * <code>ContextRuleSet</code>, respectively.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:07 $
  */
 
 public class EngineRuleSet extends RuleSetBase {

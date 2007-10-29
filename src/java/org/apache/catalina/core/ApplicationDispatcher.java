@@ -71,9 +71,9 @@ import org.apache.catalina.util.InstanceSupport;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.catalina.security.SecurityUtil;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.beanutils.PropertyUtils;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.coyote.tomcat5.CoyoteRequest;
 import org.apache.coyote.tomcat5.CoyoteRequestFacade;
 
@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/07 22:30:07 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/08 20:40:19 $
  */
 
 final class ApplicationDispatcher

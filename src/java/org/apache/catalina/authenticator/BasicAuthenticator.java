@@ -37,8 +37,8 @@ import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.util.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 
@@ -48,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * and Digest Access Authentication."
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:26 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/09 17:51:37 $
  */
 
 public class BasicAuthenticator

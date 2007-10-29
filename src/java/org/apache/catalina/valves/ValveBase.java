@@ -49,8 +49,8 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
  * management and lifecycle support.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:08 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:25 $
  */
 
 public abstract class ValveBase

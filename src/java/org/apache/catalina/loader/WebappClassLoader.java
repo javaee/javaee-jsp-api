@@ -74,9 +74,9 @@ import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.compat.JdkCompat;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.LogConfigurationException;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.LogConfigurationException;
 
 // START OF IASRI 4709374
 import com.sun.appserv.server.util.PreprocessorUtil;
@@ -125,15 +125,15 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/02/23 02:08:55 $
+ * @version $Revision: 1.13 $ $Date: 2006/03/09 17:51:37 $
  */
 public class WebappClassLoader
     extends URLClassLoader
     implements Reloader, Lifecycle
  {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( WebappClassLoader.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( WebappClassLoader.class );
 
     protected class PrivilegedFindResource
         implements PrivilegedAction {
@@ -189,7 +189,7 @@ public class WebappClassLoader
         "org.apache.taglibs.standard",               // JSTL (Java EE 5)
         "com.sun.faces",                             // JSF (Java EE 5)
         // START S1AS 6220818
-        "org.apache.commons.logging"                 // Commons logging
+        "com.sun.org.apache.commons.logging"         // Commons logging
         // END S1AS 6220818
     };
     
@@ -1764,7 +1764,7 @@ public class WebappClassLoader
         IntrospectionUtils.clear();
        
         // START S1AS 5032338
-        //org.apache.commons.logging.LogFactory.release(this);
+        //com.sun.org.apache.commons.logging.LogFactory.release(this);
         // Clear the classloader reference in commons-logging.
         LogFactory.release(this);
         // END S1AS 5032338

@@ -63,14 +63,14 @@ import org.apache.naming.resources.ResourceAttributes;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:08 $
  */
 
 public class HostConfig
     implements LifecycleListener {
     
-    private static org.apache.commons.logging.Log log=
-         org.apache.commons.logging.LogFactory.getLog( HostConfig.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+         com.sun.org.apache.commons.logging.LogFactory.getLog( HostConfig.class );
 
     // ----------------------------------------------------- Instance Variables
 

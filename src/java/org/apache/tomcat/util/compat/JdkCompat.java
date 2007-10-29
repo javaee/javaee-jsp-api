@@ -35,8 +35,8 @@ import java.util.Vector;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 /**
  *  General-purpose utility to provide backward-compatibility and JDK

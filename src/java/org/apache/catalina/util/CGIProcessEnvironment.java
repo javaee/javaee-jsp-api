@@ -71,15 +71,15 @@ import org.apache.catalina.Wrapper;
  * Encapsulates the CGI Process' environment and rules to derive
  * that environment from the servlet container and request information.
  * @author   Martin Dengler [root@martindengler.com]
- * @version  $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:09 $
+ * @version  $Revision: 1.2 $, $Date: 2005/12/08 01:28:14 $
  * @since    Tomcat 4.0
  */
 
 public class CGIProcessEnvironment extends ProcessEnvironment {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( CGIProcessEnvironment.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( CGIProcessEnvironment.class );
 
     /** cgi command's query parameters */
     private Hashtable queryParameters = null;

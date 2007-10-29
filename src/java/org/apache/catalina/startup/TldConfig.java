@@ -60,7 +60,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.SchemaResolver;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
 /**
@@ -79,8 +79,8 @@ public final class TldConfig  {
     // Names of system jar files that are ignored if placed under WEB-INF
     private static HashSet systemJars;
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( TldConfig.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( TldConfig.class );
 
     private static final String FILE_URL_PREFIX = "file:";
     private static final int FILE_URL_PREFIX_LEN = FILE_URL_PREFIX.length();

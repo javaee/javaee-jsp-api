@@ -44,8 +44,8 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.coyote.ActionCode;
 import org.apache.coyote.Adapter;
 import org.apache.coyote.Request;
@@ -71,7 +71,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2005/11/17 19:45:55 $
+ * @version $Revision: 1.10 $ $Date: 2005/12/08 01:28:33 $
  */
 
 public class CoyoteAdapter

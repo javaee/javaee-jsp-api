@@ -49,7 +49,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.deploy.ErrorPage;
 // END SJSAS 6324911
 import org.apache.catalina.valves.ValveBase;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.Registry;
 
 
 /**
@@ -59,7 +59,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2006/01/13 02:34:29 $
+ * @version $Revision: 1.7 $ $Date: 2006/01/24 21:17:03 $
  */
 
 public class StandardHost
@@ -68,8 +68,8 @@ public class StandardHost
  {
     /* Why do we implement deployer and delegate to deployer ??? */
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( StandardHost.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( StandardHost.class );
     
     // ----------------------------------------------------------- Constructors
 

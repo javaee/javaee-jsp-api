@@ -36,14 +36,14 @@ import org.apache.jasper.compiler.Localizer;
 /**
  * @author Andy Clark, IBM
  *
- * @version $Id: UTF8Reader.java,v 1.1.1.1 2005/05/27 22:55:14 dpatil Exp $
+ * @version $Id: UTF8Reader.java,v 1.2 2005/12/08 01:29:01 kchung Exp $
  */
 public class UTF8Reader
     extends Reader {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( UTF8Reader.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( UTF8Reader.class );
 
     //
     // Constants

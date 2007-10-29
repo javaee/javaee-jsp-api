@@ -47,9 +47,9 @@ import javax.management.MalformedObjectNameException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.modeler.Registry;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.http.mapper.Mapper;
@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2006/01/18 22:15:20 $
+ * @version $Revision: 1.9 $ $Date: 2006/03/07 18:36:37 $
  */
 
 

@@ -37,8 +37,8 @@ import java.net.*;
    @author EKR
 */
 abstract public class SSLImplementation {
-    private static org.apache.commons.logging.Log logger =
-        org.apache.commons.logging.LogFactory.getLog(SSLImplementation.class);
+    private static com.sun.org.apache.commons.logging.Log logger =
+        com.sun.org.apache.commons.logging.LogFactory.getLog(SSLImplementation.class);
 
     // The default implementations in our search path
     private static final String PureTLSImplementationClass=

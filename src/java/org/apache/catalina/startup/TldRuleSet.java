@@ -29,9 +29,9 @@
 package org.apache.catalina.startup;
 
 
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
-import org.apache.commons.digester.RuleSetBase;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Rule;
+import com.sun.org.apache.commons.digester.RuleSetBase;
 import org.xml.sax.Attributes;
 
 
@@ -40,7 +40,7 @@ import org.xml.sax.Attributes;
  * descriptor resource.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:10 $
+ * @version $Revision: 1.3 $ $Date: 2006/02/23 22:03:09 $
  */
 
 public class TldRuleSet extends RuleSetBase {

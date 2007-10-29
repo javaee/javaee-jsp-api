@@ -89,12 +89,12 @@ import org.apache.catalina.Wrapper;
      * </p>
      *
      * @author    Martin Dengler [root@martindengler.com]
-     * @version   $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:09 $
+     * @version   $Revision: 1.2 $, $Date: 2005/12/08 01:28:19 $
      */
 public class ProcessHelper {
 
-private static org.apache.commons.logging.Log log=
-    org.apache.commons.logging.LogFactory.getLog( ProcessHelper.class );
+private static com.sun.org.apache.commons.logging.Log log=
+    com.sun.org.apache.commons.logging.LogFactory.getLog( ProcessHelper.class );
 
 /** script/command to be executed */
 private String command = null;

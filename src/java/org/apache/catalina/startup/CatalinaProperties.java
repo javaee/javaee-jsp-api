@@ -39,7 +39,7 @@ import java.util.Properties;
  * Utility class to read the bootstrap Catalina configuration.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:06 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/12 19:11:35 $
  */
 
 public class CatalinaProperties {
@@ -47,8 +47,8 @@ public class CatalinaProperties {
 
     // ------------------------------------------------------- Static Variables
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( CatalinaProperties.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( CatalinaProperties.class );
 
     private static Properties properties = null;
 

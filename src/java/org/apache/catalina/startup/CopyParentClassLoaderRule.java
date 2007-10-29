@@ -31,8 +31,8 @@ package org.apache.catalina.startup;
 
 import java.lang.reflect.Method;
 import org.apache.catalina.Container;
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
+import com.sun.org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Rule;
 import org.xml.sax.Attributes;
 
 
@@ -43,7 +43,7 @@ import org.xml.sax.Attributes;
  * <code>Container</code>).</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:07 $
  */
 
 public class CopyParentClassLoaderRule extends Rule {

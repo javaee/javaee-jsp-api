@@ -38,8 +38,8 @@ import org.apache.tomcat.util.*;
  */
 public class Reaper extends Thread {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog(Reaper.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog(Reaper.class );
 
     private boolean daemon=false;
 

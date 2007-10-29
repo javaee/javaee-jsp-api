@@ -41,8 +41,8 @@ import java.util.jar.JarFile;
 
 import org.apache.catalina.Host;
 import org.apache.catalina.util.StringManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 /**
  * Expand out a WAR in a Host's appBase.
@@ -50,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Glenn L. Nielsen
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision: 1.2 $
  */
 
 public class ExpandWar {

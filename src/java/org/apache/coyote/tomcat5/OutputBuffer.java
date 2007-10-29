@@ -57,8 +57,8 @@ public class OutputBuffer extends Writer
     implements ByteChunk.ByteOutputChannel, CharChunk.CharOutputChannel {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( OutputBuffer.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( OutputBuffer.class );
 
     // -------------------------------------------------------------- Constants
 

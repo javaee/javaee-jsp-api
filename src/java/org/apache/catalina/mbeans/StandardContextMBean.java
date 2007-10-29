@@ -39,16 +39,16 @@ import org.apache.catalina.deploy.ContextResource;
 import org.apache.catalina.deploy.ContextResourceLink;
 import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.ResourceParams;
-import org.apache.commons.modeler.BaseModelMBean;
-import org.apache.commons.modeler.ManagedBean;
-import org.apache.commons.modeler.Registry;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.ManagedBean;
+import com.sun.org.apache.commons.modeler.Registry;
 
 /**
  * <p>A <strong>ModelMBean</strong> implementation for the
  * <code>org.apache.catalina.core.StandardContext</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:49 $
  */
 
 public class StandardContextMBean extends BaseModelMBean {

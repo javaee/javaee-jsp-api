@@ -30,7 +30,7 @@ package org.apache.catalina.mbeans;
 
 import javax.management.MBeanException;
 import javax.management.RuntimeOperationsException;
-import org.apache.commons.modeler.BaseModelMBean;
+import com.sun.org.apache.commons.modeler.BaseModelMBean;
 
 
 /**
@@ -43,7 +43,7 @@ import org.apache.commons.modeler.BaseModelMBean;
  * qualified class name of the managed object as its value.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:46 $
  */
 
 public class ClassNameMBean extends BaseModelMBean {

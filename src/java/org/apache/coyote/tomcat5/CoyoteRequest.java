@@ -99,9 +99,9 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.StringParser;
 import org.apache.catalina.security.SecurityUtil;
-import org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.Log;
 // START CR 6309511
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.LogFactory;
 // END CR 6309511
 
 // START S1AS 6170450
@@ -113,7 +113,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.18 $ $Date: 2006/03/09 17:51:38 $
+ * @version $Revision: 1.19 $ $Date: 2006/03/10 19:19:23 $
  */
 
 public class CoyoteRequest

@@ -28,8 +28,8 @@
 package org.apache.tomcat.util.threads;
 
 import java.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
@@ -140,7 +140,7 @@ public class ThreadPool  {
     public static ThreadPool createThreadPool(boolean jmx) {
 //        if( jmx ) {
 //            try {
-//                Class.forName( "org.apache.commons.modeler.Registry");
+//                Class.forName( "com.sun.org.apache.commons.modeler.Registry");
 //                Class tpc=Class.forName( "org.apache.tomcat.util.threads.ThreadPoolMX");
 //                ThreadPool res=(ThreadPool)tpc.newInstance();
 //                return res;

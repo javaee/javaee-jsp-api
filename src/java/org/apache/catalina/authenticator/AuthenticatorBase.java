@@ -80,8 +80,8 @@ import org.apache.catalina.util.StringManager;
 //import org.apache.catalina.util.DateTool;
 //END SJSAS 6202703
 import org.apache.catalina.valves.ValveBase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 import org.apache.catalina.realm.RealmBase;
 import org.apache.catalina.Auditor; // IASRI 4823322
@@ -104,7 +104,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/02/15 02:11:01 $
+ * @version $Revision: 1.6 $ $Date: 2006/03/07 22:30:06 $
  */
 
 

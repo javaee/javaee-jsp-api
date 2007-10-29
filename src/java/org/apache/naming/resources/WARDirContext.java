@@ -64,14 +64,14 @@ import org.apache.naming.NamingContextEnumeration;
  * WAR Directory Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:16 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:13 $
  */
 
 public class WARDirContext extends BaseDirContext {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( WARDirContext.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( WARDirContext.class );
 
     // ----------------------------------------------------------- Constructors
 

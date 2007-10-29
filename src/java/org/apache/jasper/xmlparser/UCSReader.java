@@ -37,13 +37,13 @@ import java.io.Reader;
  *
  * @author Neil Graham, IBM
  *
- * @version $Id: UCSReader.java,v 1.1.1.1 2005/05/27 22:55:14 dpatil Exp $
+ * @version $Id: UCSReader.java,v 1.2 2005/12/08 01:29:01 kchung Exp $
  */
 public class UCSReader extends Reader {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( UCSReader.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( UCSReader.class );
 
     //
     // Constants

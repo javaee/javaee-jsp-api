@@ -76,7 +76,7 @@ import org.apache.naming.JndiPermission;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:44 $
  */
 
 public class StandardClassLoader
@@ -84,8 +84,8 @@ public class StandardClassLoader
     implements Reloader {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( StandardClassLoader.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( StandardClassLoader.class );
 
     // ----------------------------------------------------------- Constructors
 

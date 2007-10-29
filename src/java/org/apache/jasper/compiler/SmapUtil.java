@@ -55,8 +55,8 @@ import org.apache.jasper.JspCompilationContext;
 public class SmapUtil {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( SmapUtil.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( SmapUtil.class );
 
 
     //*********************************************************************

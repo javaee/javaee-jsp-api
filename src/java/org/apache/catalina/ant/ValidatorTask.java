@@ -38,7 +38,7 @@ import java.net.URL;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import org.apache.commons.digester.Digester;
+import com.sun.org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
 import org.apache.catalina.startup.Constants;
@@ -50,7 +50,7 @@ import org.apache.catalina.startup.ContextConfig;
  * schema validation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:25 $
  * @since 5.0
  */
 

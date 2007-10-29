@@ -48,9 +48,9 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.LogConfigurationException;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.LogConfigurationException;
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.JspRuntimeContext;

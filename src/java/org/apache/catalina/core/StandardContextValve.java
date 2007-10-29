@@ -57,8 +57,8 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 import org.apache.tomcat.util.log.SystemLogHandler;
 
@@ -70,7 +70,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/02/15 00:44:47 $
+ * @version $Revision: 1.10 $ $Date: 2006/03/01 18:17:50 $
  */
 
 final class StandardContextValve

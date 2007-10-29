@@ -38,14 +38,14 @@ package org.apache.tomcat.util.buf;
  * This class is used by XML Schema binary format validation
  *
  * @author Jeffrey Rodriguez
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:16 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:16 $
  */
 
 public final class Base64 {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( Base64.class );
+    private static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( Base64.class );
 
     static private final int  BASELENGTH         = 255;
     static private final int  LOOKUPLENGTH       = 63;

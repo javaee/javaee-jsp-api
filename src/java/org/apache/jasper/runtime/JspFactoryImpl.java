@@ -39,8 +39,8 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspApplicationContext;
 
 import org.apache.jasper.util.SimplePool;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.org.apache.commons.logging.Log;
+import com.sun.org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of JspFactory.
