@@ -49,7 +49,7 @@ import java.util.List;
  * fully qualified host name of that virtual host.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/05/06 23:00:56 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 public class StandardEngine
@@ -475,13 +475,15 @@ public class StandardEngine
             init();
         }
 
-        // START PWC
+        /* PWC 6296256
         // Log our server identification information
-        // log.info( "Starting Servlet Engine: " + ServerInfo.getServerInfo());
-        // END PWC
-        // START PWC
-        log.info("Starting Servlet Engine");
-        // END PWC
+        log.info( "Starting Servlet Engine: " + ServerInfo.getServerInfo());
+        */
+        // START PWC 6296256
+        if (log.isDebugEnabled()) {
+            log.debug("Starting Servlet Engine");
+        }
+        // END PWC 6296256
 
         if( mbeans != null ) {
             try {
