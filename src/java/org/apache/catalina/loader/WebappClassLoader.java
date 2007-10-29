@@ -106,7 +106,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/08/31 01:44:43 $
+ * @version $Revision: 1.5 $ $Date: 2005/09/08 16:29:26 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1589,6 +1589,21 @@ public class WebappClassLoader
      */
     public void stop() throws LifecycleException {
 
+        /*
+         * Clear the IntrospectionUtils cache.
+         *
+         * Implementation note:
+         * Any reference to IntrospectionUtils which may cause the static
+         * initalizer of that class to be invoked must occur prior to setting
+         * the started flag to FALSE, because the static initializer of
+         * IntrospectionUtils makes a call to
+         * org.apache.commons.logging.LogFactory.getLog(), which ultimately
+         * calls the loadClass() method of the thread context classloader,
+         * which is the same as this classloader, whose impl throws a
+         * ThreadDeath if the started flag has been set to FALSE.
+         */
+        IntrospectionUtils.clear();
+
         started = false;
 
         int length = files.length;
@@ -1637,9 +1652,6 @@ public class WebappClassLoader
 
         // Clear the classloader reference in the VM's bean introspector
         java.beans.Introspector.flushCaches();
-        
-        // Clear the IntrospectionUtils cache
-        IntrospectionUtils.clear();
     }
 
 
