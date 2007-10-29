@@ -63,7 +63,7 @@ import org.apache.naming.resources.ResourceAttributes;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:08 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:06 $
  */
 
 public class HostConfig
@@ -737,7 +737,7 @@ public class HostConfig
                 Long lastModified = (Long) webXmlLastModified.get(contextName);
                 if (lastModified == null) {
                     webXmlLastModified.put
-                        (contextName, new Long(newLastModified));
+                        (contextName, Long.valueOf(newLastModified));
                 } else {
                     if (lastModified.longValue() != newLastModified) {
                         if (newLastModified > (webInfLastModified + 5000)) {
@@ -745,7 +745,7 @@ public class HostConfig
                             restartContext(context);
                         } else {
                             webXmlLastModified.put
-                                (contextName, new Long(newLastModified));
+                                (contextName, Long.valueOf(newLastModified));
                         }
                     }
                 }
@@ -765,7 +765,7 @@ public class HostConfig
                 long newLastModified = configFile.lastModified();
                 if (lastModified == null) {
                     contextXmlLastModified.put
-                        (contextName, new Long(newLastModified));
+                        (contextName, Long.valueOf(newLastModified));
                 } else {
                     if (lastModified.longValue() != newLastModified) {
                         contextXmlLastModified.remove(contextName);
@@ -805,7 +805,7 @@ public class HostConfig
                     long dirLastModified = dir.lastModified();
                     if (lastModified == null) {
                         warLastModified.put
-                            (files[i], new Long(dir.lastModified()));
+                            (files[i], Long.valueOf(dir.lastModified()));
                     } else if (dirLastModified > lastModified.longValue()) {
                         // The WAR has been modified: redeploy
                         String expandedDir = files[i];
@@ -838,7 +838,7 @@ public class HostConfig
                         if (host.findChild(contextPath) != null) {
                             webXmlLastModified.remove(contextPath);
                             warLastModified.put
-                                (files[i], new Long(dir.lastModified()));
+                                (files[i], Long.valueOf(dir.lastModified()));
                         }
                     }
                 }

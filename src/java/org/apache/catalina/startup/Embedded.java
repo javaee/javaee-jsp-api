@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:06 $
+ * @version $Revision: 1.9 $ $Date: 2006/09/29 22:10:16 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -257,8 +257,8 @@ public class Embedded  extends StandardService implements Lifecycle {
 
         boolean oldUseNaming = this.useNaming;
         this.useNaming = useNaming;
-        support.firePropertyChange("useNaming", new Boolean(oldUseNaming),
-                                   new Boolean(this.useNaming));
+        support.firePropertyChange("useNaming", Boolean.valueOf(oldUseNaming),
+                                   Boolean.valueOf(this.useNaming));
 
     }
 

@@ -91,7 +91,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:44 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:02 $
  */
 
 public class WebappLoader
@@ -341,8 +341,8 @@ public class WebappLoader
 
         int oldDebug = this.debug;
         this.debug = debug;
-        support.firePropertyChange("debug", new Integer(oldDebug),
-                                   new Integer(this.debug));
+        support.firePropertyChange("debug", Integer.valueOf(oldDebug),
+                                   Integer.valueOf(this.debug));
 
     }
 
@@ -368,8 +368,8 @@ public class WebappLoader
 
         boolean oldDelegate = this.delegate;
         this.delegate = delegate;
-        support.firePropertyChange("delegate", new Boolean(oldDelegate),
-                                   new Boolean(this.delegate));
+        support.firePropertyChange("delegate", Boolean.valueOf(oldDelegate),
+                                   Boolean.valueOf(this.delegate));
 
     }
 
@@ -429,8 +429,8 @@ public class WebappLoader
         boolean oldReloadable = this.reloadable;
         this.reloadable = reloadable;
         support.firePropertyChange("reloadable",
-                                   new Boolean(oldReloadable),
-                                   new Boolean(this.reloadable));
+                                   Boolean.valueOf(oldReloadable),
+                                   Boolean.valueOf(this.reloadable));
 
     }
 

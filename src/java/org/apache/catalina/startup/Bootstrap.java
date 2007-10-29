@@ -49,7 +49,7 @@ import org.apache.catalina.security.SecurityClassLoad;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/12/12 19:11:34 $
+ * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:05 $
  */
 
 public final class Bootstrap {
@@ -308,7 +308,7 @@ public final class Bootstrap {
         Class paramTypes[] = new Class[1];
         paramTypes[0] = Boolean.TYPE;
         Object paramValues[] = new Object[1];
-        paramValues[0] = new Boolean(await);
+        paramValues[0] = Boolean.valueOf(await);
         Method method = 
             catalinaDaemon.getClass().getMethod("setAwait", paramTypes);
         method.invoke(catalinaDaemon, paramValues);

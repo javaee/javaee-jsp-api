@@ -45,7 +45,7 @@ import org.apache.catalina.util.StringManager;
  * optional preceding timestamp.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:45 $
  */
 
 public class FileLogger
@@ -206,8 +206,8 @@ public class FileLogger
 
         boolean oldTimestamp = this.timestamp;
         this.timestamp = timestamp;
-        support.firePropertyChange("timestamp", new Boolean(oldTimestamp),
-                                   new Boolean(this.timestamp));
+        support.firePropertyChange("timestamp", Boolean.valueOf(oldTimestamp),
+                                   Boolean.valueOf(this.timestamp));
 
     }
 
