@@ -355,14 +355,7 @@ public class JspServlet extends HttpServlet {
             msg.append("] RealPath: [" + context.getRealPath(jspUri));
             msg.append("] RequestURI: [" + request.getRequestURI());
             msg.append("] QueryString: [" + request.getQueryString());
-            msg.append("] RequestParams: [");
-            Enumeration e = request.getParameterNames();
-            while (e.hasMoreElements()) {
-                String name = (String) e.nextElement();
-                msg.append(" " + name + "=" 
-                          + request.getParameter(name));
-            }
-            msg.append(" ]");
+            msg.append("]");
             log.debug(msg);
         }
 
