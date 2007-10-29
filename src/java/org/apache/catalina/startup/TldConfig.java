@@ -166,19 +166,19 @@ public final class TldConfig  {
      * The <code>Digester</code> we will use to process tag library
      * descriptor files.
      */
-    private static Digester tldDigester = null;
+    private Digester tldDigester = null;
 
 
     /**
      * Attribute value used to turn on/off TLD validation
      */
-     private static boolean tldValidation = false;
+     private boolean tldValidation = false;
 
      
     /**
      * Attribute value used to turn on/off TLD  namespace awarenes.
      */
-    private static boolean tldNamespaceAware = false;
+    private boolean tldNamespaceAware = false;
 
     
     private boolean rescan=true;
@@ -450,7 +450,7 @@ public final class TldConfig  {
      * library descriptor, looking for additional listener classes to be
      * registered.
      */
-    private static Digester createTldDigester() {
+    private Digester createTldDigester() {
 
         return DigesterFactory.newDigester(tldValidation, 
                                            tldNamespaceAware, 
