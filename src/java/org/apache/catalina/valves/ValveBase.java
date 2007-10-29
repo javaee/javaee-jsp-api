@@ -75,7 +75,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * management and lifecycle support.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5.24.1 $ $Date: 2006/04/11 11:44:19 $
+ * @version $Revision: 1.5 $ $Date: 2006/04/17 16:44:48 $
  */
 
 public abstract class ValveBase
@@ -449,8 +449,8 @@ public abstract class ValveBase
                         ((ContainerBase)container).getJmxName());
                 if (vname != null) {
                     setObjectName(vname);
+                    setController(vname);
                     Registry.getRegistry().registerComponent(this, vname, getClass().getName());
-                    setController(((ContainerBase)container).getJmxName());
                 }
             } catch( Throwable t ) {
                 log.info( "Can't register valve " + this , t );
@@ -460,11 +460,10 @@ public abstract class ValveBase
 
     private void unregisterMBean() {
         try {
-            if (getController() != null && (container != null) &&
-                    (getController() == ((ContainerBase)container).getJmxName())) {
-                ObjectName vname=getObjectName();
-                Registry.getRegistry().getMBeanServer().unregisterMBean(vname);
+            if ((oname != null) && (oname == controller)) {
+                Registry.getRegistry().getMBeanServer().unregisterMBean(oname);
                 setObjectName(null);
+                setController(null);
             }
         } catch( Throwable t ) {
             log.info( "Can't unregister valve " + this , t );
