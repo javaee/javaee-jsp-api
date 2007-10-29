@@ -1594,11 +1594,13 @@ public class CoyoteRequest
         throws UnsupportedEncodingException {
 
         // START SJSAS 4936855
+        /*
         if (requestParametersParsed || usingReader) {
             log.warn(sm.getString("coyoteRequest.setCharacterEncoding.ise",
                                   enc));
             return;
         }
+        */
         // END SJSAS 4936855
 
         // Ensure that the specified encoding is valid
@@ -2273,6 +2275,15 @@ public class CoyoteRequest
             return null;
         }
     }
+    
+    /**
+     * set the session - this method is not for general use
+     *
+     * @param the new session
+     */
+    public void setSession(Session newSess) {
+        session = newSess;
+    }    
 
 
     /**
