@@ -64,7 +64,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/20 20:22:34 $
  */
 
 public class ApplicationContext
@@ -661,7 +661,7 @@ public class ApplicationContext
 
         Logger logger = context.getLogger();
         if (logger != null)
-            logger.log(context.logName() + message);
+            logger.log(context.logName() + message, Logger.INFORMATION);
 
     }
 
