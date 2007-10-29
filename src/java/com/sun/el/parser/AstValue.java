@@ -133,8 +133,10 @@ public final class AstValue extends SimpleNode {
         Target t = getTarget(ctx);
         ctx.setPropertyResolved(false);
         ELResolver elResolver = ctx.getELResolver();
-        value = ELSupport.coerceToType(value,
-                    elResolver.getType(ctx, t.base, t.property));
+        if (value != null) {
+            value = ELSupport.coerceToType(value,
+                        elResolver.getType(ctx, t.base, t.property));
+        }
         elResolver.setValue(ctx, t.base, t.property, value);
     }
 
