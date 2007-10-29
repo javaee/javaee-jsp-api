@@ -71,7 +71,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2006/03/13 19:29:45 $
+ * @version $Revision: 1.13 $ $Date: 2006/07/04 15:32:11 $
  */
 
 public class CoyoteAdapter
@@ -266,6 +266,8 @@ public class CoyoteAdapter
     public void afterService(Request req,Response res) throws Exception{
         CoyoteRequest request = (CoyoteRequest) req.getNote(ADAPTER_NOTES);
         CoyoteResponse response = (CoyoteResponse) res.getNote(ADAPTER_NOTES);
+        
+        if ( request == null || response == null) return;
         
         try{
             response.finishResponse();
