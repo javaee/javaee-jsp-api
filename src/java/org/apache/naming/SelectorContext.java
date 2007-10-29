@@ -33,7 +33,7 @@ import javax.naming.NamingException;
  * Catalina JNDI Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:29:47 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:15 $
  */
 
 public class SelectorContext implements Context {
@@ -509,7 +509,7 @@ public class SelectorContext implements Context {
      */
     public Name composeName(Name name, Name prefix)
         throws NamingException {
-	prefix = (Name) name.clone();
+	prefix = (Name) prefix.clone();
 	return prefix.addAll(name);
     }
 
