@@ -64,7 +64,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/08/10 20:56:23 $
+ * @version $Revision: 1.4 $ $Date: 2005/08/18 02:30:13 $
  */
 
 final class StandardContextValve
@@ -204,6 +204,10 @@ final class StandardContextValve
                     continue;
                 ServletRequestListener listener =
                     (ServletRequestListener) instances[i];
+                // START SJSAS 6329662
+                ((StandardContext) container).fireContainerEvent(
+                    "beforeRequestInitialized", listener);
+                // END SJSAS 6329662
                 try {
                     listener.requestInitialized(event);
                 } catch (Throwable t) {
@@ -217,7 +221,11 @@ final class StandardContextValve
                     // return;
                     return END_PIPELINE;
                     // END OF IASRI 4665318
-
+                // START SJSAS 6329662
+                } finally {
+                    ((StandardContext) container).fireContainerEvent(
+                        "afterRequestInitialized", listener);
+                // END SJSAS 6329662
                 }
             }
         }
@@ -249,6 +257,10 @@ final class StandardContextValve
                     continue;
                 ServletRequestListener listener =
                     (ServletRequestListener) instances[i];
+                // START SJSAS 6329662
+                ((StandardContext) container).fireContainerEvent(
+                    "beforeRequestDestroyed", listener);
+                // END SJSAS 6329662
                 try {
                     listener.requestDestroyed(event);
                 } catch (Throwable t) {
@@ -258,6 +270,11 @@ final class StandardContextValve
                         t);
                     ServletRequest sreq = request.getRequest();
                     sreq.setAttribute(Globals.EXCEPTION_ATTR,t);
+                // START SJSAS 6329662
+                } finally {
+                    ((StandardContext) container).fireContainerEvent(
+                        "afterRequestDestroyed", listener);
+                // END SJSAS 6329662
                 }
             }
         }
