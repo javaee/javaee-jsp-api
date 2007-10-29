@@ -301,16 +301,20 @@ public final class IntrospectionUtils {
 			"boolean".equals( paramType.getName())) {
 			params[0]=new Boolean(value);
 
-		    // Try a setFoo ( InetAddress )
-		    } else if ("java.net.InetAddress".
+		    // Try a setFoo ( long )
+		    } else if ("java.lang.Long".equals( paramType.getName()) ||
+			"long".equals( paramType.getName())) {
+			try {
+			    params[0]=new Long(value);
+			} catch( NumberFormatException ex ) {ok=false;}
+                    } else if ("java.net.InetAddress".
 				equals( paramType.getName())){
 			try{
  			    params[0]= InetAddress.getByName(value);
  			}catch(UnknownHostException exc) {
  			    d("Unable to resolve host name:" + value);
  			    ok=false;
- 			}
- 
+ 			} 
  		    // Unknown type
 		    } else {
 			d("Unknown type " + paramType.getName() );

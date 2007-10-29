@@ -27,10 +27,13 @@ import java.security.cert.CertificateException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.catalina.ContainerEvent;
+import org.apache.catalina.ContainerListener;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.core.ContainerBase;
 import org.apache.catalina.util.StringManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +62,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2005/09/30 22:40:39 $
+ * @version $Revision: 1.8 $ $Date: 2005/11/07 22:39:58 $
  */
 
 public class CoyoteAdapter
@@ -723,4 +726,26 @@ public class CoyoteAdapter
      }
      */
 
+    
+    // START SJSAS 6349248
+    /**
+     * Notify all container event listeners that a particular event has
+     * occurred for this Adapter.  The default implementation performs
+     * this notification synchronously using the calling thread.
+     *
+     * @param type Event type
+     * @param data Event data
+     */
+    public void fireAdapterEvent(String type, Object data) {
+        if ( connector != null && connector.getContainer() != null) {
+            try{
+                ((ContainerBase)connector.getContainer())
+                    .fireContainerEvent(type,data);
+            } catch (Throwable t){
+                log.error(sm.getString("coyoteAdapter.service"), t);
+            }
+        }
+    }
+    // END SJSAS 6349248
+       
 }

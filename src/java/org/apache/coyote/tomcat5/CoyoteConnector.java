@@ -76,7 +76,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/08/22 16:27:39 $
+ * @version $Revision: 1.4 $ $Date: 2005/09/30 22:40:39 $
  */
 
 
@@ -1964,4 +1964,5 @@ public class CoyoteConnector
             return;
         getService().removeConnector(this);
     }
+
 }
