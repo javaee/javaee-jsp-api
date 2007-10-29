@@ -2737,9 +2737,10 @@ class Generator {
                 if (tagVarNumbers.get(fullName) != null) {
                     Integer i = (Integer)tagVarNumbers.get(fullName);
                     varName = varName + i.intValue();
-                    tagVarNumbers.put(fullName, new Integer(i.intValue() + 1));
+                    tagVarNumbers.put(fullName,
+                                      Integer.valueOf(i.intValue() + 1));
                 } else {
-                    tagVarNumbers.put(fullName, new Integer(1));
+                    tagVarNumbers.put(fullName, Integer.valueOf(1));
                     varName = varName + "0";
                 }
             }

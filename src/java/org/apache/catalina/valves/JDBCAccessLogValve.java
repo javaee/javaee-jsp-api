@@ -397,7 +397,7 @@ public final class JDBCAccessLogValve
      * is desired or not.
      */
     public void setResolveHosts(String resolveHosts) {
-        this.resolveHosts = new Boolean(resolveHosts).booleanValue();
+        this.resolveHosts = Boolean.valueOf(resolveHosts).booleanValue();
     }
 
 

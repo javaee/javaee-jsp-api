@@ -305,7 +305,7 @@ public final class IntrospectionUtils {
 		    } else if ("java.lang.Boolean".
 			       equals( paramType.getName()) ||
 			"boolean".equals( paramType.getName())) {
-			params[0]=new Boolean(value);
+			params[0] = Boolean.valueOf(value);
 
 		    // Try a setFoo ( long )
 		    } else if ("java.lang.Long".equals( paramType.getName()) ||

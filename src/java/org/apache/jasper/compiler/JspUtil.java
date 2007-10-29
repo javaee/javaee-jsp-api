@@ -660,7 +660,7 @@ public class JspUtil {
 	    return "(Boolean) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Boolean.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Boolean(false)";
+		return "Boolean.FALSE";
 	    } else {
 		// Detect format error at translation time
 		return "new Boolean(" + Boolean.valueOf(s).toString() + ")";
@@ -685,7 +685,7 @@ public class JspUtil {
 	    return "(Byte) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Byte.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Byte((byte) 0)";
+		return "Byte.valueOf((byte) 0)";
 	    } else {
 		// Detect format error at translation time
 		return "new Byte((byte)" + Byte.valueOf(s).toString() + ")";
@@ -763,7 +763,7 @@ public class JspUtil {
 	    return "(Float) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Float.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Float(0)";
+		return "Float.valueOf(0)";
 	    } else {
 		// Detect format error at translation time
 		return "new Float(" + Float.valueOf(s).toString() + "f)";
@@ -787,7 +787,7 @@ public class JspUtil {
 	    return "(Integer) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Integer.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Integer(0)";
+		return "Integer.valueOf(0)";
 	    } else {
 		// Detect format error at translation time
 		return "new Integer(" + Integer.valueOf(s).toString() + ")";
@@ -812,7 +812,7 @@ public class JspUtil {
 	    return "(Short) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Short.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Short((short) 0)";
+		return "Short.valueOf((short) 0)";
 	    } else {
 		// Detect format error at translation time
 		return "new Short(\"" + Short.valueOf(s).toString() + "\")";
@@ -837,7 +837,7 @@ public class JspUtil {
 	    return "(Long) org.apache.jasper.runtime.JspRuntimeLibrary.coerce(" + s + ", Long.class)";
 	} else {
 	    if (s == null || s.length() == 0) {
-		return "new Long(0)";
+		return "Long.valueOf(0)";
 	    } else {
 		// Detect format error at translation time
 		return "new Long(" + Long.valueOf(s).toString() + "l)";

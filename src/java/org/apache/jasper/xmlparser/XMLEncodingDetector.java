@@ -129,7 +129,7 @@ public class XMLEncodingDetector {
         scanXMLDecl();
 	
         return new Object[] { this.encoding,
-                              new Boolean(this.isEncodingSetInProlog),
+                              Boolean.valueOf(this.isEncodingSetInProlog),
                               this.hasBom };
     }
     

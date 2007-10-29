@@ -79,7 +79,7 @@ import org.apache.coyote.tomcat5.CoyoteConnector;
  * <code>org.apache.catalina.core.StandardServer</code> component.</p>
  *
  * @author Amy Roh
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:48 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
  */
 
 public class MBeanFactory extends BaseModelMBean {
@@ -491,7 +491,7 @@ public class MBeanFactory extends BaseModelMBean {
             partypes4[0] = Boolean.TYPE;
             Method meth4 = cls.getMethod("setSecure", partypes4);
             Object arglist4[] = new Object[1];
-            arglist4[0] = new Boolean(true);
+            arglist4[0] = Boolean.TRUE;
             meth4.invoke(retobj, arglist4);
             // Set factory
             Class serverSocketFactoryCls =

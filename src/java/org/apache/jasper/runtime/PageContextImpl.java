@@ -873,7 +873,7 @@ public class PageContextImpl extends PageContext {
              */
             request.setAttribute("javax.servlet.jsp.jspException", t);
             request.setAttribute("javax.servlet.error.status_code",
-                new Integer(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+                Integer.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
             request.setAttribute("javax.servlet.error.request_uri",
             ((HttpServletRequest) request).getRequestURI());
             request.setAttribute("javax.servlet.error.servlet_name",

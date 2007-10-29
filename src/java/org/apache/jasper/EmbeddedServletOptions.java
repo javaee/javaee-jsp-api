@@ -619,7 +619,7 @@ public final class EmbeddedServletOptions implements Options {
                         msg,
                         new Object[] {
                             capacity,
-                            new Integer(Constants.DEFAULT_INITIAL_CAPACITY)});
+                            Integer.valueOf(Constants.DEFAULT_INITIAL_CAPACITY)});
                     log.warn(msg);
                 }
             }
