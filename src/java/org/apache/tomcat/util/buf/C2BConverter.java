@@ -185,6 +185,7 @@ public class C2BConverter {
      */
     public  void convert(char c ) throws IOException {
         char[] tmp = new char[1];
+        tmp[0] = c;
         convert(tmp, 0, 1);
     }
 
