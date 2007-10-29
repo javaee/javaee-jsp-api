@@ -78,7 +78,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:37 $
+ * @version $Revision: 1.7 $ $Date: 2006/01/24 21:17:03 $
  */
 
 final class StandardHostValve
@@ -172,9 +172,26 @@ final class StandardHostValve
             Thread.currentThread().setContextClassLoader
                     (context.getLoader().getClassLoader());
         }
-        
+                 
         // Update the session last access time for our session (if any)
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
+                
+        // START GlassFish 247
+        // Select the Wrapper to be used for this Request
+        Wrapper wrapper = request.getWrapper();
+        if (wrapper == null) {
+            try {
+                ((HttpServletResponse) response.getResponse())
+                    .sendError(HttpServletResponse.SC_NOT_FOUND);
+            } catch (IllegalStateException e) {
+                ;
+            } catch (IOException e) {
+                ;
+            }
+            return END_PIPELINE;
+        }       
+        // END GlassFish 247
+
 
         // Ask this Context to process this request
         // START OF IASRI 4665318
