@@ -29,6 +29,9 @@ import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
+// START SJSAS 6347215
+import java.net.UnknownHostException;
+// END SJSAS 6347215
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -104,7 +107,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.14 $ $Date: 2005/11/07 22:39:58 $
+ * @version $Revision: 1.15 $ $Date: 2005/11/08 02:10:37 $
  */
 
 public class CoyoteRequest
@@ -1270,6 +1273,20 @@ public class CoyoteRequest
      */
     public String getRemoteAddr() {
         if (remoteAddr == null) {
+
+            // START SJSAS 6347215
+            if (connector.getAuthPassthroughEnabled()
+                    && connector.getProxyHandler() != null) {
+                remoteAddr = connector.getProxyHandler().getRemoteAddress(
+                                            getRequest());
+                if (remoteAddr == null) {
+                    log.warn(sm.getString(
+                        "coyoteRequest.nullRemoteAddressFromProxy"));
+                }
+                return remoteAddr;
+            }
+            // END SJSAS 6347215
+
             if (socket != null) {
                 InetAddress inet = socket.getInetAddress();
                 remoteAddr = inet.getHostAddress();
@@ -1290,6 +1307,25 @@ public class CoyoteRequest
         if (remoteHost == null) {
             if (!connector.getEnableLookups()) {
                 remoteHost = getRemoteAddr();
+            // START SJSAS 6347215
+            } else if (connector.getAuthPassthroughEnabled()
+                    && connector.getProxyHandler() != null) {
+                String addr =
+                    connector.getProxyHandler().getRemoteAddress(getRequest());
+                if (addr != null) {
+                    try {
+                        remoteHost = InetAddress.getByName(addr).getHostName();
+                    } catch (UnknownHostException e) {
+                        log.warn(sm.getString(
+                                    "coyoteRequest.unknownHost",
+                                    addr),
+                                 e);
+                    }
+                } else {
+                    log.warn(sm.getString(
+                        "coyoteRequest.nullRemoteAddressFromProxy"));
+                }
+            // END SJSAS 6347215
             } else if (socket != null) {
                 InetAddress inet = socket.getInetAddress();
                 remoteHost = inet.getHostName();
