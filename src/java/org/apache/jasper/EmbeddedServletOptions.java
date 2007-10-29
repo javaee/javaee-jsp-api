@@ -702,7 +702,8 @@ public final class EmbeddedServletOptions implements Options {
                 return false;
             }
             if (log.isWarnEnabled()) {
-                log.warn(Localizer.getMessage("jsp.warning.boolean", param));
+                log.warn(Localizer.getMessage("jsp.warning.boolean", param,
+                     (init? "true": "false")));
             }
         }
         return init;
