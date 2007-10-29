@@ -38,6 +38,9 @@ import java.net.Socket;
 // START SJSAS 6347215
 import java.net.UnknownHostException;
 // END SJSAS 6347215
+// START GlassFish 898
+import java.net.URLDecoder;
+// END GlassFish 898
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -116,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.24 $ $Date: 2006/05/04 01:25:02 $
+ * @version $Revision: 1.25 $ $Date: 2006/08/02 17:39:53 $
  */
 
 public class CoyoteRequest
@@ -2670,8 +2673,13 @@ public class CoyoteRequest
         for (int i = 0; i < count; i++) {
             ServerCookie scookie = serverCookies.getCookie(i);
             try {
+                /* GlassFish 898
                 Cookie cookie = new Cookie(scookie.getName().toString(),
                                            scookie.getValue().toString());
+                */
+                // START GlassFish 898
+                Cookie cookie = makeCookie(scookie);
+                // END GlassFish 898
                 cookie.setPath(scookie.getPath().toString());
                 cookie.setVersion(scookie.getVersion());
                 String domain = scookie.getDomain().toString();
@@ -2690,6 +2698,31 @@ public class CoyoteRequest
         }
 
     }
+
+
+    // START GlassFish 898
+    protected Cookie makeCookie(ServerCookie scookie) {
+        return makeCookie(scookie, false);
+    }
+
+    protected Cookie makeCookie(ServerCookie scookie, boolean decode) {
+
+        String name = scookie.getName().toString();
+        String value = scookie.getValue().toString();
+
+        if (decode) {
+            try {
+                name = URLDecoder.decode(name, "UTF-8");
+                value = URLDecoder.decode(value, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                name = URLDecoder.decode(name);
+                value = URLDecoder.decode(value);
+            }
+        }
+
+        return new Cookie(name, value);
+    }
+    // END GlassFish 898
 
 
     /**
