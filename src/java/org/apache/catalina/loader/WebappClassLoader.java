@@ -128,7 +128,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.20 $ $Date: 2006/08/01 16:43:17 $
+ * @version $Revision: 1.21 $ $Date: 2006/08/24 19:12:47 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1293,41 +1293,9 @@ public class WebappClassLoader
      */
     public Class loadClass(String name) throws ClassNotFoundException {
 
-        return (loadClass(name, false));
-
-    }
-
-
-    /**
-     * Load the class with the specified name, searching using the following
-     * algorithm until it finds and returns the class.  If the class cannot
-     * be found, returns <code>ClassNotFoundException</code>.
-     * <ul>
-     * <li>Call <code>findLoadedClass(String)</code> to check if the
-     *     class has already been loaded.  If it has, the same
-     *     <code>Class</code> object is returned.</li>
-     * <li>If the <code>delegate</code> property is set to <code>true</code>,
-     *     call the <code>loadClass()</code> method of the parent class
-     *     loader, if any.</li>
-     * <li>Call <code>findClass()</code> to find this class in our locally
-     *     defined repositories.</li>
-     * <li>Call the <code>loadClass()</code> method of our parent
-     *     class loader, if any.</li>
-     * </ul>
-     * If the class was found using the above steps, and the
-     * <code>resolve</code> flag is <code>true</code>, this method will then
-     * call <code>resolveClass(Class)</code> on the resulting Class object.
-     *
-     * @param name Name of the class to be loaded
-     * @param resolve If <code>true</code> then resolve the class
-     *
-     * @exception ClassNotFoundException if the class was not found
-     */
-    public Class loadClass(String name, boolean resolve)
-        throws ClassNotFoundException {
-
         if (log.isTraceEnabled())
-            log.trace("loadClass(" + name + ", " + resolve + ")");
+            log.trace("loadClass(" + name + ")");
+
         Class clazz = null;
 
         // Don't load classes if class loader is stopped
@@ -1341,8 +1309,6 @@ public class WebappClassLoader
         if (clazz != null) {
             if (log.isTraceEnabled())
                 log.trace("  Returning class from cache");
-            if (resolve)
-                resolveClass(clazz);
             return (clazz);
         }
 
@@ -1351,8 +1317,6 @@ public class WebappClassLoader
         if (clazz != null) {
             if (log.isTraceEnabled())
                 log.trace("  Returning class from cache");
-            if (resolve)
-                resolveClass(clazz);
             return (clazz);
         }
 
@@ -1410,8 +1374,6 @@ public class WebappClassLoader
                 if (clazz != null) {
                     if (log.isTraceEnabled())
                         log.trace("  Loading class from parent");
-                    if (resolve)
-                        resolveClass(clazz);
                     return (clazz);
                 }
             } catch (ClassNotFoundException e) {
@@ -1433,8 +1395,6 @@ public class WebappClassLoader
                 if (clazz != null) {
                     if (log.isTraceEnabled())
                         log.trace("  Loading class from local repository");
-                    if (resolve)
-                        resolveClass(clazz);
                     return (clazz);
                 }
             } catch (ClassNotFoundException e) {
@@ -1468,8 +1428,6 @@ public class WebappClassLoader
                     //log.debug("  Loading class from parent");
                     log.trace("  Loading class from system");
                 // END PE 4985680
-                if (resolve)
-                    resolveClass(clazz);
                 return (clazz);
             }
         } catch (ClassNotFoundException e) {
@@ -1487,8 +1445,6 @@ public class WebappClassLoader
                 clazz = parent.loadClass(name);
                 if (log.isTraceEnabled())
                     log.trace("  Loading class from parent");
-                if (resolve)
-                    resolveClass(clazz);
                 return (clazz);
             }
         } catch (ClassNotFoundException e) {
@@ -1505,12 +1461,50 @@ public class WebappClassLoader
             if (clazz != null) {
                 if (log.isTraceEnabled())
                     log.trace("  Loading class from local repository");
-                if (resolve)
-                    resolveClass(clazz);
                 return (clazz);
             }
         }
         // END PE 4985680
+
+        throw new ClassNotFoundException(name);
+    }
+
+
+    /**
+     * Load the class with the specified name, searching using the following
+     * algorithm until it finds and returns the class.  If the class cannot
+     * be found, returns <code>ClassNotFoundException</code>.
+     * <ul>
+     * <li>Call <code>findLoadedClass(String)</code> to check if the
+     *     class has already been loaded.  If it has, the same
+     *     <code>Class</code> object is returned.</li>
+     * <li>If the <code>delegate</code> property is set to <code>true</code>,
+     *     call the <code>loadClass()</code> method of the parent class
+     *     loader, if any.</li>
+     * <li>Call <code>findClass()</code> to find this class in our locally
+     *     defined repositories.</li>
+     * <li>Call the <code>loadClass()</code> method of our parent
+     *     class loader, if any.</li>
+     * </ul>
+     * If the class was found using the above steps, and the
+     * <code>resolve</code> flag is <code>true</code>, this method will then
+     * call <code>resolveClass(Class)</code> on the resulting Class object.
+     *
+     * @param name Name of the class to be loaded
+     * @param resolve If <code>true</code> then resolve the class
+     *
+     * @exception ClassNotFoundException if the class was not found
+     */
+    public Class loadClass(String name, boolean resolve)
+        throws ClassNotFoundException {
+
+        Class clazz = loadClass(name);
+        if (clazz != null) {
+            if (resolve) {
+                resolveClass(clazz);
+            }
+            return (clazz);
+        }
 
         throw new ClassNotFoundException(name);
     }
