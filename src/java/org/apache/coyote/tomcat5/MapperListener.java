@@ -569,22 +569,6 @@ public class MapperListener
 
         String name = objectName.getKeyProperty("name");
 
-        // If the domain is the same with ours or the engine 
-        // name attribute is the same... - then it's ours
-        String targetDomain=objectName.getDomain();
-        if( ! domain.equals( targetDomain )) {
-            try {
-                targetDomain = (String) mBeanServer.getAttribute
-                    (objectName, "engineName");
-            } catch (Exception e) {
-                // Ignore
-            }
-            if( ! domain.equals( targetDomain )) {
-                // not ours
-                return;
-            }
-        }
-
         String hostName = null;
         String contextName = null;
         if (name.startsWith("//")) {
