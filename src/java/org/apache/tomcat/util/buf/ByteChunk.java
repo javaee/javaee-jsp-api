@@ -405,6 +405,24 @@ public final class ByteChunk implements Cloneable, Serializable {
         end=start;
     }
 
+    // See if we can add more space without flushing the buffer
+    boolean canGrow() {
+	if (buff.length == limit)
+	    return false;
+	// This seems like a potential place for huge memory use, but it's
+	// the same algorithm as makeSpace() has always effectively used.
+	int desiredSize = buff.length * 2;
+	if (limit > 0 && desiredSize > limit)
+	    desiredSize = limit;
+	byte[] tmp=new byte[desiredSize];
+	System.arraycopy(buff, start, tmp, 0, end-start);
+	buff = tmp;
+	tmp = null;
+	end = end - start;
+	start = 0;
+	return true;
+    }
+
     /** Make space for len chars. If len is small, allocate
      *	a reserve space too. Never grow bigger than limit.
      */

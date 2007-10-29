@@ -105,8 +105,6 @@ public final class UEncoder {
 		    }
 		}
 
-		c2b.flushBuffer();
-		
 		urlEncode( buf, bb.getBuffer(), bb.getOffset(),
 			   bb.getLength() );
 		bb.recycle();

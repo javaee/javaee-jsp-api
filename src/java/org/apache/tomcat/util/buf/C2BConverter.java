@@ -65,7 +65,8 @@ class C2BConverter_8859_1 extends C2BConverter {
     public final void convert(char sa[], int off, int len) throws IOException {
         int res = convertLoop(sa, off, len);
         while (res < len) {
-            bb.flushBuffer();
+	    if (!bb.canGrow())
+                bb.flushBuffer();
             off += res;
             len -= res;
             res = convertLoop(sa, off, len);
@@ -160,8 +161,11 @@ public class C2BConverter {
         CoderResult cr = encoder.encode(cb, tmp, true);
         bb.setEnd(tmp.position());
         while (cr == CoderResult.OVERFLOW) {
-            bb.flushBuffer();
-            tmp = ByteBuffer.wrap(barr, 0, barr.length);
+	    if (!bb.canGrow())
+                bb.flushBuffer();
+	    boff = bb.getEnd();
+	    barr = bb.getBuffer();
+            tmp = ByteBuffer.wrap(barr, boff, barr.length - boff);
             cr = encoder.encode(cb, tmp, true);
             bb.setEnd(tmp.position());
         }
@@ -212,7 +216,6 @@ public class C2BConverter {
             if (log.isDebugEnabled()) 
                 log.debug("XXX unknowon type " + type );
         }
-        flushBuffer();
         //System.out.println("C2B: XXX " + bb.getBuffer() + bb.getLength()); 
         setByteChunk(orig);
     }
