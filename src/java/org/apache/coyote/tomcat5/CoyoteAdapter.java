@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.20 $ $Date: 2006/10/13 17:35:51 $
+ * @version $Revision: 1.21 $ $Date: 2006/11/09 00:40:08 $
  */
 
 public class CoyoteAdapter
@@ -242,12 +242,19 @@ public class CoyoteAdapter
                         request.setAttribute(Globals.CERTIFICATES_ATTR,
                                              certs);
                     }
+                    
                 }
                 // END S1AS 6188932
 
                 // Calling the container
                 connector.getContainer().invoke(request, response);
-              
+                  
+                String serverName = System.getProperty("product.name");
+                // Add server header
+                if (compatWithTomcat){
+                    serverName = "Apache/" + serverName;
+                }
+                response.addHeader("Server",serverName);
             }
          /* GlassFish Issue 79    
             response.finishResponse();
