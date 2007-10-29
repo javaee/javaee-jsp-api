@@ -281,15 +281,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
  
         Collection c = pageInfo.getTaglibs();
         if (c != null) {
-            Object[] objs = c.toArray();
-            if (objs != null && objs.length > 0) {
-                taglibs = new TagLibraryInfo[objs.length];
-                for (int i=0; i<objs.length; i++) {
-                    taglibs[i] = (TagLibraryInfo) objs[i];
-                }
-            }
+            taglibs = (TagLibraryInfo[]) c.toArray();
         }
-                                                                                
+
         return taglibs;
     }
 
