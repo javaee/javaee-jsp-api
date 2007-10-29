@@ -48,6 +48,10 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.PatternSet;
+// START PWC 6441271
+import org.apache.jasper.Constants;
+import org.apache.tomcat.util.threads.ThreadPool;
+// END PWC 6441271
 
 /**
  * Main JSP compiler class. This class uses Ant for compiling.
@@ -66,8 +70,17 @@ public class Compiler {
     // ----------------------------------------------------------------- Static
 
 
+    /* PWC 6441271
     // Some javac are not thread safe; use a lock to serialize compilation, 
     static Object javacLock = new Object();
+    */
+    // START PWC 6441271
+    // Use a threadpool and force it to 1 to simulate serialization
+    private static ThreadPool threadPool = null;
+    private static int minThreads = Constants.DEFAULT_MIN_THREADS;
+    private static int maxThreads = Constants.DEFAULT_MAX_THREADS;
+    private static String lineSeparator = System.getProperty("line.separator");
+    // END PWC 6441271
 
 
     // ----------------------------------------------------- Instance Variables
@@ -136,7 +149,12 @@ public class Compiler {
 
         protected void log(String message) {
             reportBuf.append(message);
+            /* PWC 6441271
             reportBuf.append(System.getProperty("line.separator"));
+            */
+            // START PWC 6441271
+            reportBuf.append(lineSeparator);
+            // END PWC 6441271
         }
 
         protected String getReport() {
@@ -421,6 +439,7 @@ public class Compiler {
 
         BuildException be = null;
 
+        /* PWC 6441271
         try {
             if (ctxt.getOptions().getFork()) {
                 javac.execute();
@@ -436,13 +455,62 @@ public class Compiler {
                 log.error( "Env: " + info.toString());
             }
         }
+        */
+        // START PWC 6441271
+        String errorCapture = null;
+        if (ctxt.getOptions().getFork()) {
+            try {
+                javac.execute();
+            } catch (BuildException e) {
+                be = e;
+                log.error( "Javac exception ", e);
+                log.error( "Env: " + info.toString());
+            }
+            errorReport.append(logger.getReport());
+            // Stop capturing the System.err output for this thread
+            errorCapture = SystemLogHandler.unsetThread();
+        } else {
+            errorReport.append(logger.getReport());
+            errorCapture = SystemLogHandler.unsetThread();
 
+            // Capture the current thread
+            if (errorCapture != null) {
+                errorReport.append(lineSeparator);
+                errorReport.append(errorCapture);
+            }
+
+            JavacObj javacObj = new JavacObj(javac);
+            synchronized(javacObj) {
+                threadPool.run(javacObj);
+                // Wait for the thread to complete
+                try {
+                    javacObj.wait();
+                } catch (InterruptedException e) {
+                    ;
+                }
+            }
+            be = javacObj.getException();
+            if (be != null) {
+                log.error( "Javac exception ", be);
+                log.error( "Env: " + info.toString());
+            }
+            errorReport.append(logger.getReport());
+            errorCapture = javacObj.getErrorCapture();
+        }
+        // END PWC 6441271
+        /* PWC 6441271
         errorReport.append(logger.getReport());
 
         // Stop capturing the System.err output for this thread
         String errorCapture = SystemLogHandler.unsetThread();
+        */
         if (errorCapture != null) {
+            /* PWC 6441271
             errorReport.append(System.getProperty("line.separator"));
+            */
+            // START PWC 6441271
+            errorReport.append(lineSeparator);
+            // END PWC 6441271
             errorReport.append(errorCapture);
         }
 
@@ -744,4 +812,61 @@ public class Compiler {
             // Remove as much as possible, ignore possible exceptions
         }
     }
+
+    // START PWC 6441271
+    public static void startThreadPool() {
+        threadPool = new ThreadPool();
+        threadPool.setName("javac");
+        if (maxThreads <= 0) 
+            threadPool.setMaxThreads(1);
+        else 
+            threadPool.setMaxThreads(maxThreads);
+        threadPool.setMaxSpareThreads(minThreads);
+        threadPool.setMinSpareThreads(minThreads);
+        threadPool.start();
+    }
+
+    public static void setMinThreads(int i) {
+        minThreads = i;
+    }
+
+    public static void setMaxThreads(int i) {
+        maxThreads = i;
+    }
+
+    // Implement java compilation in a separate java thread to 
+    // avoid stack overflow problem (exposed by 64 -bit server)
+    protected class JavacObj implements Runnable {
+        
+        Javac _javac = null;
+        BuildException _be = null;
+        String _errorCapture = null;
+
+        public JavacObj(Javac javac) {
+            _javac = javac;
+        }
+
+        public void run() {
+            SystemLogHandler.setThread();
+            try {
+                _javac.execute();
+            } catch  (BuildException e) {
+                _be = e;
+            } finally {
+                _errorCapture = SystemLogHandler.unsetThread();
+                synchronized(this) {
+                    this.notify();
+                }
+            }
+        }
+
+        public BuildException getException() {
+            return _be;
+        }
+
+        public String getErrorCapture() {
+            return _errorCapture;
+        }
+    }
+    // END PWC 6441271
 }

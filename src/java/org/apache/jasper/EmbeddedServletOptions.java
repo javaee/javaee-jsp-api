@@ -34,6 +34,9 @@ import java.text.MessageFormat;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
+// START PWC 6441271
+import org.apache.jasper.compiler.Compiler;
+// END PWC 6441271
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.TagPluginManager;
@@ -793,6 +796,51 @@ public final class EmbeddedServletOptions implements Options {
             }
         }
         // END SJSWS
+
+        // START PWC 6441271
+        String numThreads = config.getInitParameter("minThreads");
+        if (numThreads != null) {
+            try {
+                int num = Integer.parseInt(numThreads);
+                if (num > 0) {
+                    Compiler.setMinThreads(num);
+                }
+            } catch (NumberFormatException nfe) {
+                if (log.isWarnEnabled()) {
+                    String msg = Localizer.getMessage(
+                        "jsp.warning.minThreads");
+                    msg = MessageFormat.format(
+                        msg,
+                        new Object[] {
+                            capacity,
+                            new Integer(Constants.DEFAULT_MIN_THREADS)});
+                    log.warn(msg);
+                }
+            }
+        }
+
+        numThreads = config.getInitParameter("maxThreads");
+        if (numThreads != null) {
+            try {
+                int num = Integer.parseInt(numThreads);
+                if (num > 0) {
+                    Compiler.setMaxThreads(num);
+                }
+            } catch (NumberFormatException nfe) {
+                if (log.isWarnEnabled()) {
+                    String msg = Localizer.getMessage(
+                        "jsp.warning.maxThreads");
+                    msg = MessageFormat.format(
+                        msg,
+                        new Object[] {
+                            capacity,
+                            new Integer(Constants.DEFAULT_MAX_THREADS)});
+                    log.warn(msg);
+
+                }
+            }
+        }
+        // END PWC 6441271
 
 	// Setup the global Tag Libraries location cache for this
 	// web-application.

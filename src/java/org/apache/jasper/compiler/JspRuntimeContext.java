@@ -64,12 +64,16 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public final class JspRuntimeContext implements Runnable {
 
     // Logger
     private static Log log = LogFactory.getLog(JspRuntimeContext.class);
+
+    // START PWC 6441271
+    private static boolean started = false;
+    // END PWC 6441271
 
     /*
      * Counts how many times the webapp's JSPs have been reloaded.
@@ -124,6 +128,10 @@ public final class JspRuntimeContext implements Runnable {
         }
 
         initClassPath();
+
+        // START PWC 6441271
+        startThreadPool(options);
+        // END PWC 6441271
 
 	if (context instanceof org.apache.jasper.servlet.JspCServletContext) {
 	    return;
@@ -298,6 +306,17 @@ public final class JspRuntimeContext implements Runnable {
 
 
     // -------------------------------------------------------- Private Methods
+
+
+    // START PWC 6441271
+    private static synchronized void startThreadPool(Options options) {
+        if (!started && !options.getFork()) {
+            started = true;
+            Compiler.startThreadPool();
+        }
+    }
+    // END PWC 6441271   
+
 
     /**
      * Method used by background thread to check the JSP dependencies

@@ -236,6 +236,19 @@ public class Constants {
     public static final int DEFAULT_INITIAL_CAPACITY = 32;
     // END SJSWS
 
+    // START PWC 6441271
+    /*
+     * Minimum number of java compiler threads created during startup
+     * and present during idle time
+     */
+    public static final int DEFAULT_MIN_THREADS = 1;
+
+    /*
+     * Maximum number of java compiler threads in the pool
+     */
+    public static final int DEFAULT_MAX_THREADS = 20;
+    // END PWC 6441271
+
     // START GlassFish 750
     public static final String JSP_TAGLIBRARY_CACHE = "com.sun.jsp.taglibraryCache";
     // END GlassFish 750
