@@ -530,6 +530,8 @@ class JspDocumentParser
                             startMark,
                             current);
                         ttext = new CharArrayWriter();
+                        ttext.write('$');
+                        ttext.write('{');
                         //We subtract two from the column number to
                         //account for the '${' that we've already parsed
                         startMark = new Mark(ctxt, path, line, column - 2);
@@ -561,6 +563,7 @@ class JspDocumentParser
                             continue;
                         }
                         if (ch == '}') {
+                            ttext.write('}');
                             new Node.ELExpression(
                                 ttext.toString(),
                                 startMark,
