@@ -69,6 +69,9 @@ public final class TldConfig  {
     // Names of JARs that are known not to contain any TLDs
     private static HashSet noTldJars;
 
+    // Names of system jar files that are ignored if placed under WEB-INF
+    private static HashSet systemJars;
+
     private static org.apache.commons.logging.Log log=
         org.apache.commons.logging.LogFactory.getLog( TldConfig.class );
 
@@ -131,6 +134,12 @@ public final class TldConfig  {
         noTldJars.add("dnsns.jar");
     }
 
+    static {
+        systemJars = new HashSet();
+        systemJars.add("standard.jar");
+        systemJars.add("appserv-jstl.jar");
+        systemJars.add("jsf-impl.jar");
+    }
 
     // ----------------------------------------------------- Instance Variables
 
@@ -728,7 +737,8 @@ public final class TldConfig  {
                      * Scan all JARs from WEB-INF/lib, plus any shared JARs
                      * that are not known not to contain any TLDs
                      */
-                    if (loader == webappLoader
+                    if ((loader == webappLoader &&
+                                !systemJars.contains(file.getName()))
                             || noTldJars == null
                             || !noTldJars.contains(file.getName())) {
                         if (jarPathMap == null) {

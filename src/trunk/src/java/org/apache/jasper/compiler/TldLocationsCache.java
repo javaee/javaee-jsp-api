@@ -97,6 +97,9 @@ public class TldLocationsCache {
     // Names of JARs that are known not to contain any TLDs
     private static HashSet noTldJars;
 
+    // Names of system jar files that are ignored if placed under WEB-INF
+    private static HashSet systemJars;
+
     /**
      * The mapping of the 'global' tag library URI to the location (resource
      * path) of the TLD associated with that tag library. The location is
@@ -166,6 +169,13 @@ public class TldLocationsCache {
         noTldJars.add("ldapsec.jar");
         noTldJars.add("localedata.jar");
         noTldJars.add("dnsns.jar");
+    }
+
+    static {
+        systemJars = new HashSet();
+        systemJars.add("standard.jar");
+        systemJars.add("appserv-jstl.jar");
+        systemJars.add("jsf-impl.jar");
     }
 
     public TldLocationsCache(ServletContext ctxt) {
@@ -536,17 +546,16 @@ public class TldLocationsCache {
      */
     private boolean needScanJar(ClassLoader loader, ClassLoader webappLoader,
                                 String jarPath) {
-        if (loader == webappLoader) {
-            // JARs under WEB-INF/lib must be scanned unconditionally according
-            // to the spec.
-            return true;
-        } else {
-            String jarName = jarPath;
-            int slash = jarPath.lastIndexOf('/');
-            if (slash >= 0) {
-                jarName = jarPath.substring(slash + 1);
-            }
-            return (!noTldJars.contains(jarName));
+        String jarName = jarPath;
+        int slash = jarPath.lastIndexOf('/');
+        if (slash >= 0) {
+            jarName = jarPath.substring(slash + 1);
         }
+        if (loader == webappLoader) {
+            // JARs under WEB-INF/lib must be scanned unconditionally, unless
+            // they are jsf or jstl jars
+            return !systemJars.contains(jarName);
+        }
+        return (!noTldJars.contains(jarName));
     }
 }
