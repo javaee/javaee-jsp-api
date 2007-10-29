@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.5 $ $Date: 2005/12/08 01:27:59 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/14 23:29:11 $
  */
 
 public class StandardManager
@@ -539,13 +539,25 @@ public class StandardManager
             if (log.isDebugEnabled())
                 log.debug("Unloading " + sessions.size() + " sessions");
             try {
+                // START SJSAS 6375689
+                Session actSessions[] = findSessions();
+                if (actSessions != null) {
+                    for (int i = 0; i < actSessions.length; i++) {
+                        StandardSession session = (StandardSession)
+                            actSessions[i];
+                        ((StandardSession) session).passivate();
+                    }
+                }
+                // END SJSAS 6375689
                 oos.writeObject(new Integer(sessions.size()));
                 Iterator elements = sessions.values().iterator();
                 while (elements.hasNext()) {
                     StandardSession session =
                         (StandardSession) elements.next();
                     list.add(session);
+                    /* SJSAS 6375689
                     ((StandardSession) session).passivate();
+                    */
                     session.writeObjectData(oos);
                 }
             } catch (IOException e) {
