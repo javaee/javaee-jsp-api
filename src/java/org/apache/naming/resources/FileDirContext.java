@@ -58,7 +58,7 @@ import org.apache.naming.NamingContextEnumeration;
  * Filesystem Directory Context implementation helper class.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/06/14 22:50:47 $
+ * @version $Revision: 1.3 $ $Date: 2005/07/22 12:09:43 $
  */
 
 public class FileDirContext extends BaseDirContext {
@@ -816,7 +816,7 @@ public class FileDirContext extends BaseDirContext {
 	String normalized = path;
 
 	// Normalize the slashes and add leading slash if necessary
-	if (normalized.indexOf('\\') >= 0)
+    if (File.separatorChar == '\\' && normalized.indexOf('\\') >= 0)
 	    normalized = normalized.replace('\\', '/');
 	if (!normalized.startsWith("/"))
 	    normalized = "/" + normalized;
