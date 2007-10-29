@@ -44,10 +44,15 @@ import java.util.Properties;
  * your own version for a particular web application.
  *
  * @author Craig R. McClanahan
- * @revision $Date: 2005/04/29 01:28:26 $ $Version$
+ * @revision $Date: 2005/05/27 22:55:09 $ $Version$
  */
 
+/* SJSAS 6292972
 public class CharsetMapper {
+*/
+// START SJSAS 6292972
+public class CharsetMapper implements Cloneable {
+// END SJSAS 6292972
 
 
     // ---------------------------------------------------- Manifest Constants
@@ -150,4 +155,16 @@ public class CharsetMapper {
     }
 
 
+    // START SJSAS 6292972
+    public Object clone() {
+        
+        try {
+            CharsetMapper clone = (CharsetMapper)super.clone();
+            clone.map = (Properties)map.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new InternalError(e.toString());
+        }
+    }
+    // END SJSAS 6292972
 }
