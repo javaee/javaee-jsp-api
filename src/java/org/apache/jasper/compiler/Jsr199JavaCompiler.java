@@ -189,13 +189,19 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         } catch (IOException e) {
         }
 
+        JavaFileManager javaFileManager = getJavaFileManager(stdFileManager);
         javax.tools.JavaCompiler.CompilationTask ct =
             javac.getTask(null,
-                          getJavaFileManager(stdFileManager),
+                          javaFileManager,
                           diagnostics,
                           options,
                           null, 
                           Arrays.asList(sourceFiles));
+
+        try {
+            javaFileManager.close();
+        } catch (IOException ex) {
+        }
 
         if (ct.call()) {
             for (BytecodeFile bytecodeFile: classFiles) {
