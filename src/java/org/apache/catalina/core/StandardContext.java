@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2005/09/13 23:06:03 $
+ * @version $Revision: 1.7 $ $Date: 2005/09/27 14:32:17 $
  */
 
 public class StandardContext
@@ -628,7 +628,12 @@ public class StandardContext
     /** Name of the engine. If null, the domain is used.
      */ 
     private String engineName = null;
+    /* SJSAS 6340499
     private String j2EEApplication="none";
+     */ 
+    // START SJSAS 6340499
+    private String j2EEApplication="null";
+    // END SJSAS 6340499
     private String j2EEServer="none";
 
     // START IASRI 4823322
