@@ -630,8 +630,7 @@ public class OutputBuffer extends Writer
             enc = DEFAULT_ENCODING;
         conv = (C2BConverter) encoders.get(enc);
         if (conv == null) {
-            
-            if (SecurityUtil.isPackageProtectionEnabled()){
+            if (System.getSecurityManager() != null){
                 try{
                     conv = (C2BConverter)AccessController.doPrivileged(
                             new PrivilegedExceptionAction(){
@@ -653,7 +652,6 @@ public class OutputBuffer extends Writer
             } else {
                 conv = new C2BConverter(bb, enc);
             }
-            
             encoders.put(enc, conv);
 
         }
