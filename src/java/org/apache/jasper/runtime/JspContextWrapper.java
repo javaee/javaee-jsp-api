@@ -300,7 +300,7 @@ public class JspContextWrapper extends PageContext {
 
     public void include(String relativeUrlPath, boolean flush) 
 	    throws ServletException, IOException {
-	include(relativeUrlPath, false); // XXX
+	invokingJspCtxt.include(relativeUrlPath, flush);
     }
 
     public VariableResolver getVariableResolver() {
