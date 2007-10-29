@@ -48,11 +48,6 @@ import org.xml.sax.SAXNotSupportedException;
 public class DigesterFactory{
 
     /**
-     * The XML entiry resolver used by the Digester.
-     */
-    private static SchemaResolver schemaResolver;
-
-    /**
      * The path prefix for .xsd resources
      */
     private static String schemaResourcePrefix;
@@ -117,7 +112,7 @@ public class DigesterFactory{
             digester = patchXerces(digester);
         }
 
-        schemaResolver = new SchemaResolver(digester);
+        SchemaResolver schemaResolver = new SchemaResolver(digester);
         if (xmlValidation) {
             // Xerces 2.3 and up has a special way to turn on validation
             // for both DTD and Schema
@@ -127,7 +122,7 @@ public class DigesterFactory{
                 turnOnValidation(digester);
             }
         }
-        registerLocalSchema();
+        registerLocalSchema(schemaResolver);
         
         digester.setEntityResolver(schemaResolver);
         if ( rule != null )
@@ -165,88 +160,125 @@ public class DigesterFactory{
      * @param The instance on which properties are set.
      * @return an instance ready to parse XML schema.
      */
-    protected static void registerLocalSchema(){
+    protected static void registerLocalSchema(SchemaResolver schemaResolver) {
 
         if (schemaResourcePrefix != null) {
             // Java EE 5
             register(
-                    schemaResourcePrefix + Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5,
-                    Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5);
+                schemaResolver,
+                schemaResourcePrefix + Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5,
+                Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5);
             // J2EE
-            register(schemaResourcePrefix + Constants.J2eeSchemaPublicId_14,
-                     Constants.J2eeSchemaPublicId_14);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.J2eeSchemaPublicId_14,
+                Constants.J2eeSchemaPublicId_14);
             // W3C
-            register(schemaResourcePrefix + Constants.W3cSchemaPublicId_10,
-                     Constants.W3cSchemaPublicId_10);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.W3cSchemaPublicId_10,
+                Constants.W3cSchemaPublicId_10);
             // JSP
-            register(schemaResourcePrefix + Constants.JspSchemaPublicId_20,
-                     Constants.JspSchemaPublicId_20);
-            register(schemaResourcePrefix + Constants.JSP_SCHEMA_PUBLIC_ID_21,
-                     Constants.JSP_SCHEMA_PUBLIC_ID_21);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.JspSchemaPublicId_20,
+                Constants.JspSchemaPublicId_20);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.JSP_SCHEMA_PUBLIC_ID_21,
+                Constants.JSP_SCHEMA_PUBLIC_ID_21);
             // TLD
-            register(schemaResourcePrefix + Constants.TldSchemaPublicId_20,
-                     Constants.TldSchemaPublicId_20);
-            register(schemaResourcePrefix + Constants.TLD_SCHEMA_PUBLIC_ID_21,
-                     Constants.TLD_SCHEMA_PUBLIC_ID_21);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.TldSchemaPublicId_20,
+                Constants.TldSchemaPublicId_20);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.TLD_SCHEMA_PUBLIC_ID_21,
+                Constants.TLD_SCHEMA_PUBLIC_ID_21);
             // web.xml    
-            register(schemaResourcePrefix + Constants.WebSchemaPublicId_24,
-                     Constants.WebSchemaPublicId_24);
-            register(schemaResourcePrefix + Constants.WebSchemaPublicId_25,
-                     Constants.WebSchemaPublicId_25);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.WebSchemaPublicId_24,
+                Constants.WebSchemaPublicId_24);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.WebSchemaPublicId_25,
+                Constants.WebSchemaPublicId_25);
             // Web Service
-            register(schemaResourcePrefix + Constants.J2eeWebServiceClientSchemaPublicId_11,
-                     Constants.J2eeWebServiceClientSchemaPublicId_11);
+            register(
+                schemaResolver,
+                schemaResourcePrefix + Constants.J2eeWebServiceClientSchemaPublicId_11,
+                Constants.J2eeWebServiceClientSchemaPublicId_11);
 	} else {
             // Java EE 5
-            register(Constants.JAVA_EE_SCHEMA_RESOURCE_PATH_5,
+            register(schemaResolver,
+                     Constants.JAVA_EE_SCHEMA_RESOURCE_PATH_5,
                      Constants.JAVA_EE_SCHEMA_PUBLIC_ID_5);
             // J2EE
-            register(Constants.J2eeSchemaResourcePath_14,
+            register(schemaResolver,
+                     Constants.J2eeSchemaResourcePath_14,
                      Constants.J2eeSchemaPublicId_14);
             // W3C
-            register(Constants.W3cSchemaResourcePath_10,
+            register(schemaResolver,
+                     Constants.W3cSchemaResourcePath_10,
                      Constants.W3cSchemaPublicId_10);
             // JSP
-            register(Constants.JspSchemaResourcePath_20,
+            register(schemaResolver,
+                     Constants.JspSchemaResourcePath_20,
                      Constants.JspSchemaPublicId_20);
-            register(Constants.JSP_SCHEMA_RESOURCE_PATH_21,
+            register(schemaResolver,
+                     Constants.JSP_SCHEMA_RESOURCE_PATH_21,
                      Constants.JSP_SCHEMA_PUBLIC_ID_21);
             // TLD
-            register(Constants.TldSchemaResourcePath_20,
+            register(schemaResolver,
+                     Constants.TldSchemaResourcePath_20,
                      Constants.TldSchemaPublicId_20);
-            register(Constants.TLD_SCHEMA_RESOURCE_PATH_21,
+            register(schemaResolver,
+                     Constants.TLD_SCHEMA_RESOURCE_PATH_21,
                      Constants.TLD_SCHEMA_PUBLIC_ID_21);
             // web.xml    
-            register(Constants.WebSchemaResourcePath_24,
+            register(schemaResolver,
+                     Constants.WebSchemaResourcePath_24,
                      Constants.WebSchemaPublicId_24);
-            register(Constants.WebSchemaResourcePath_25,
+            register(schemaResolver,
+                     Constants.WebSchemaResourcePath_25,
                      Constants.WebSchemaPublicId_25);
             // Web Service
-            register(Constants.J2eeWebServiceClientSchemaResourcePath_11,
+            register(schemaResolver,
+                     Constants.J2eeWebServiceClientSchemaResourcePath_11,
                      Constants.J2eeWebServiceClientSchemaPublicId_11);
         }
 
         if (dtdResourcePrefix != null) {
             // TLD
-            register(dtdResourcePrefix + "web-jsptaglibrary_1_1.dtd",  
+            register(schemaResolver,
+                     dtdResourcePrefix + "web-jsptaglibrary_1_1.dtd",  
                      Constants.TldDtdPublicId_11);
-            register(dtdResourcePrefix + "web-jsptaglibrary_1_2.dtd",
+            register(schemaResolver,
+                     dtdResourcePrefix + "web-jsptaglibrary_1_2.dtd",
                      Constants.TldDtdPublicId_12);
             // web.xml    
-            register(dtdResourcePrefix + "web-app_2_2.dtd",
+            register(schemaResolver,
+                     dtdResourcePrefix + "web-app_2_2.dtd",
                      Constants.WebDtdPublicId_22);
-            register(dtdResourcePrefix + "web-app_2_3.dtd",
+            register(schemaResolver,
+                     dtdResourcePrefix + "web-app_2_3.dtd",
                      Constants.WebDtdPublicId_23);
 	} else {
             // TLD
-            register(Constants.TldDtdResourcePath_11,  
+            register(schemaResolver,
+                     Constants.TldDtdResourcePath_11,  
                      Constants.TldDtdPublicId_11);
-            register(Constants.TldDtdResourcePath_12,
+            register(schemaResolver,
+                     Constants.TldDtdResourcePath_12,
                      Constants.TldDtdPublicId_12);
             // web.xml    
-            register(Constants.WebDtdResourcePath_22,
+            register(schemaResolver,
+                     Constants.WebDtdResourcePath_22,
                      Constants.WebDtdPublicId_22);
-            register(Constants.WebDtdResourcePath_23,
+            register(schemaResolver,
+                     Constants.WebDtdResourcePath_23,
                      Constants.WebDtdPublicId_23);
         }
     }
@@ -255,7 +287,10 @@ public class DigesterFactory{
     /**
      * Load the resource and add it to the 
      */
-    protected static void register(String resourceURL, String resourcePublicId){
+    protected static void register(
+            SchemaResolver schemaResolver,
+            String resourceURL,
+            String resourcePublicId) {
 
         URL url = DigesterFactory.class.getResource(resourceURL);
         schemaResolver.register(resourcePublicId , url.toString() );
