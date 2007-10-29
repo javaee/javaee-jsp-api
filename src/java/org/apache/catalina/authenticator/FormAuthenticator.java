@@ -49,6 +49,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -76,7 +77,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2007/04/17 21:33:22 $
+ * @version $Revision: 1.7 $ $Date: 2007/05/05 05:31:53 $
  */
 
 public class FormAuthenticator
@@ -401,7 +402,7 @@ public class FormAuthenticator
 
 
     /**
-     * Called to forward to the login page
+     * Called to forward or redirect to the login page.
      *
      * @param request HttpRequest we are processing
      * @param response HttpResponse we are creating
@@ -409,22 +410,28 @@ public class FormAuthenticator
      *                  should be performed
      */
     protected void forwardToLoginPage(HttpRequest request,
-                                HttpResponse response,
-                                LoginConfig config) {
-        RequestDispatcher disp =
-                context.getServletContext().getRequestDispatcher
-                (config.getLoginPage());
+                                      HttpResponse response,
+                                      LoginConfig config) {
+        ServletContext sc = context.getServletContext();
         try {
-            disp.forward(request.getRequest(), response.getResponse());
-            response.finishResponse();
+            if (request.getRequest().isSecure()) {
+                RequestDispatcher disp = sc.getRequestDispatcher
+                    (config.getLoginPage());  
+                disp.forward(request.getRequest(), response.getResponse());
+                response.finishResponse();
+            } else {
+                ((HttpServletResponse) response.getResponse()).sendRedirect(
+                    sc.getContextPath() + config.getLoginPage());
+            }
         } catch (Throwable t) {
-            log.warn("Unexpected error forwarding to login page", t);
+            log.warn("Unexpected error forwarding or redirecting to "
+                     + "login page", t);
         }
     }
     
     
     /**
-     * Called to forward to the error page
+     * Called to forward or redirect to the error page
      *
      * @param request HttpRequest we are processing
      * @param response HttpResponse we are creating
@@ -434,13 +441,19 @@ public class FormAuthenticator
     protected void forwardToErrorPage(HttpRequest request,
                                 HttpResponse response,
                                 LoginConfig config) {
-        RequestDispatcher disp =
-                context.getServletContext().getRequestDispatcher
-                (config.getErrorPage());
+        ServletContext sc = context.getServletContext();
         try {
-            disp.forward(request.getRequest(), response.getResponse());
+            if (request.getRequest().isSecure()) {
+                RequestDispatcher disp = sc.getRequestDispatcher
+                    (config.getErrorPage());
+                disp.forward(request.getRequest(), response.getResponse());
+            } else {
+                ((HttpServletResponse) response.getResponse()).sendRedirect(
+                    sc.getContextPath() + config.getErrorPage());
+            }
         } catch (Throwable t) {
-            log.warn("Unexpected error forwarding to error page", t);
+            log.warn("Unexpected error forwarding or redirecting to "
+                     + "error page", t);
         }
     }
     
