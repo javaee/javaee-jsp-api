@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.16 $ $Date: 2006/08/01 18:42:43 $
+ * @version $Revision: 1.17 $ $Date: 2006/08/01 18:53:58 $
  */
 
 public class ErrorReportValve
@@ -395,6 +395,8 @@ public class ErrorReportValve
 
         StringBuffer sb = new StringBuffer();
 
+        sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"");
+        sb.append(" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
         sb.append("<html><head><title>");
         sb.append(ServerInfo.getServerInfo()).append(" - ");
         /* 6412710
@@ -405,7 +407,7 @@ public class ErrorReportValve
                                responseLocale));
         // END SJSAS 6412710
         sb.append("</title>");
-        sb.append("<style><!--");
+        sb.append("<style type=\"text/css\"><!--");
         sb.append(org.apache.catalina.util.TomcatCSS.TOMCAT_CSS);
         sb.append("--></style> ");
         sb.append("</head><body>");
@@ -419,7 +421,7 @@ public class ErrorReportValve
                                "" + statusCode, message,
                                responseLocale)).append("</h1>");
         // END SJSAS 6412710
-        sb.append("<HR size=\"1\" noshade>");
+        sb.append("<hr/>");
         sb.append("<p><b>type</b> ");
         if (throwable != null) {
             /* SJSAS 6412710
@@ -447,8 +449,8 @@ public class ErrorReportValve
         sb.append(sm.getString("errorReportValve.message",
                                responseLocale));
         // END SJSAS 6412710
-        sb.append("</b> <u>");
-        sb.append(message).append("</u></p>");
+        sb.append("</b>");
+        sb.append(message).append("</p>");
         sb.append("<p><b>");
         /* SJSAS 6412710
         sb.append(sm.getString("errorReportValve.description"));
@@ -457,9 +459,9 @@ public class ErrorReportValve
         sb.append(sm.getString("errorReportValve.description",
                                responseLocale));
         // END SJSAS 6412710
-        sb.append("</b> <u>");
+        sb.append("</b>");
         sb.append(report);
-        sb.append("</u></p>");
+        sb.append("</p>");
 
         if (throwable != null) {
             /* GlassFish 823
@@ -557,7 +559,7 @@ public class ErrorReportValve
 
         }
 
-        sb.append("<HR size=\"1\" noshade>");
+        sb.append("<hr/>");
         sb.append("<h3>").append(ServerInfo.getServerInfo()).append("</h3>");
         sb.append("</body></html>");
         return sb.toString();
