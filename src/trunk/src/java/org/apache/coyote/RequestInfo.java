@@ -107,7 +107,11 @@ public class RequestInfo  {
     // Number of responses with a status code equal to 503
     private long count503;
 
+    // Worker thread that processes the associated request
     private Thread workerThread;
+
+    // Request completion time
+    private long requestCompletionTime;
     // END S1AS
 
 
@@ -241,12 +245,14 @@ public class RequestInfo  {
 
         long t0=req.getStartTime();
         long t1=System.currentTimeMillis();
-        long time=t1-t0;
-        processingTime+=time;
-        if( maxTime < time ) {
-            maxTime=time;
+
+        requestCompletionTime = t1-t0;
+        processingTime+=requestCompletionTime;
+        if( maxTime < requestCompletionTime ) {
+            maxTime=requestCompletionTime;
             maxRequestUri=req.requestURI().toString();
         }
+
     }
 
     public int getStage() {
@@ -436,6 +442,22 @@ public class RequestInfo  {
      */
     public void setWorkerThread(Thread workerThread) {
         this.workerThread = workerThread;
+    }
+  
+    /**
+     * Gets the time taken to complete the request associated
+     * with this RequestInfo.
+     */
+    public long getRequestCompletionTime() {
+        return requestCompletionTime;
+    }
+
+    /**
+     * Sets the time taken to complete the request associated
+     * with this RequestInfo.
+     */
+    public void setRequestCompletionTime(long completionTime) {
+        this.requestCompletionTime = completionTime;
     }
     // END S1AS
 
