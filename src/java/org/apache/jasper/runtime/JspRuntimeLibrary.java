@@ -262,7 +262,7 @@ public class JspRuntimeLibrary {
             } else if ( t.equals(Byte.class) || t.equals(Byte.TYPE) ) {
                 return Byte.valueOf(s);
             } else if (t.equals(Character.class) || t.equals(Character.TYPE)) {
-                return s.length() > 0 ? new Character(s.charAt(0)) : null;
+                return s.length() > 0 ? Character.valueOf(s.charAt(0)) : null;
             } else if ( t.equals(Short.class) || t.equals(Short.TYPE) ) {
                 return Short.valueOf(s);
             } else if ( t.equals(Integer.class) || t.equals(Integer.TYPE) ) {
