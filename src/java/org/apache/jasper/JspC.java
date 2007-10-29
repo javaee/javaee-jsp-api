@@ -1048,16 +1048,23 @@ public class JspC implements Options {
         FileOutputStream fos = new FileOutputStream(webXml);
 
         byte buf[] = new byte[512];
-        while (true) {
-            int n = fis.read(buf);
-            if (n < 0) {
-                break;
-            }
-            fos.write(buf, 0, n);
-        }
 
-        fis.close();
-        fos.close();
+        try {
+            while (true) {
+                int n = fis.read(buf);
+                if (n < 0) {
+                    break;
+                }
+                fos.write(buf, 0, n);
+            }
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
+        }
 
         webXml2.delete();
         (new File(webxmlFile)).delete();
