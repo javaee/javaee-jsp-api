@@ -53,6 +53,9 @@ import org.apache.catalina.net.ServerSocketFactory;
 import org.apache.catalina.security.SecurityConfig;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
+// START SJSAS 6340446
+import org.apache.catalina.util.ServerInfo;
+// END SJSAS 6340446
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.IntrospectionUtils;
@@ -112,7 +115,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:10 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -874,12 +877,16 @@ public class Embedded  extends StandardService implements Lifecycle {
      */
     public void start() throws LifecycleException {
 
-        // START SJSAS 5031700
-        //if( log.isInfoEnabled() )
-            //log.info("Starting tomcat server");
-        if (log.isDebugEnabled() )
-            log.debug("Starting Sun-Java-System/Application-Server-PE");
-        // END SJSAS 5031700
+        /* SJSAS 5022949
+        if( log.isInfoEnabled() )
+            log.info("Starting tomcat server");
+         */
+        // START SJSAS 6340446
+        if (log.isDebugEnabled()) {
+            log.debug("Starting Servlet container component of "
+                      + ServerInfo.getServerInfo());
+        }
+        // END SJSAS 6340446
 
         // Validate the setup of our required system properties
         initDirs();
