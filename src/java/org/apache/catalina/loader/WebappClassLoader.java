@@ -128,7 +128,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.19 $ $Date: 2006/07/31 16:08:49 $
+ * @version $Revision: 1.20 $ $Date: 2006/08/01 16:43:17 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -950,6 +950,10 @@ public class WebappClassLoader
                 if (!hasExternalRepositories) {
                     throw cnfe;
                 }
+            } catch (UnsupportedClassVersionError ucve) {
+                throw new UnsupportedClassVersionError(
+                    sm.getString("webappLoader.unsupportedVersion", name,
+                                 getJavaVersion()));
             } catch(AccessControlException ace) {
                 throw new ClassNotFoundException(name, ace);
             } catch (RuntimeException e) {
@@ -2588,5 +2592,26 @@ public class WebappClassLoader
         }
     }
     // END GlassFish Issue 587
+
+
+    private String getJavaVersion() {
+
+        String version = null;
+
+	SecurityManager sm = System.getSecurityManager();
+	if (sm != null) {
+            version = (String) AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        return System.getProperty("java.version");
+                    }
+            });
+        } else {
+            version = System.getProperty("java.version");
+        }
+
+        return version;
+    }
+
 }
 
