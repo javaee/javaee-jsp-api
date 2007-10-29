@@ -31,10 +31,10 @@ import org.apache.catalina.Response;
 
 /**
  * Concrete implementation of <code>RequestFilterValve</code> that filters
- * based on the string representation of the remote client's IP address.
+ * based on the remote client's host name.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:41 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
  */
 
 public final class RemoteHostValve
