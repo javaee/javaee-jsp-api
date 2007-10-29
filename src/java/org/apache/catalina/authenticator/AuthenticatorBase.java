@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/04/17 16:44:47 $
+ * @version $Revision: 1.9 $ $Date: 2006/08/09 23:42:41 $
  */
 
 
@@ -158,12 +158,6 @@ public abstract class AuthenticatorBase
      * The Context to which this Valve is attached.
      */
     protected Context context = null;
-    
-    
-    /**
-     * The debugging detail level for this component.
-     */
-    protected int debug = 0;
     
     
     /**

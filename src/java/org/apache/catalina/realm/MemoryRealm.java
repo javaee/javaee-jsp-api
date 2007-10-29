@@ -33,7 +33,6 @@ import java.security.Principal;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.util.StringManager;
 import com.sun.org.apache.commons.digester.Digester;
@@ -52,7 +51,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * synchronization is performed around accesses to the principals collection.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:53 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:04 $
  */
 
 public class MemoryRealm  extends RealmBase {
@@ -60,12 +59,6 @@ public class MemoryRealm  extends RealmBase {
     private static Log log = LogFactory.getLog(MemoryRealm.class);
 
     // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The Container with which this Realm is associated.
-     */
-    private Container container = null;
 
 
     /**
