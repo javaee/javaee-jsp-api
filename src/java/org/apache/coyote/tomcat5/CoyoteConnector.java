@@ -56,6 +56,7 @@ import org.apache.tomcat.util.http.mapper.Mapper;
 
 import org.apache.coyote.Adapter;
 import org.apache.coyote.ProtocolHandler;
+import org.apache.coyote.tomcat5.CoyoteAdapter;
 
 import org.apache.catalina.Connector;
 import org.apache.catalina.Container;
@@ -85,7 +86,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2006/07/21 17:57:11 $
+ * @version $Revision: 1.13 $ $Date: 2006/08/12 04:31:06 $
  */
 
 
@@ -1488,7 +1489,7 @@ public class CoyoteConnector
             } catch (Exception e) {
                 throw new LifecycleException
                     (sm.getString
-                     ("coyoteConnector.apadterClassInstantiationFailed", e));
+                     ("coyoteConnector.adapterClassInstantiationFailed", e));
             } 
         }
         //END SJSAS 6363251
@@ -1501,6 +1502,14 @@ public class CoyoteConnector
                 // use no-arg constructor for JkCoyoteHandler
                 if (protocolHandlerClassName.equals("org.apache.jk.server.JkCoyoteHandler")) {
                     protocolHandler = (ProtocolHandler) clazz.newInstance();
+                    if (adapter instanceof CoyoteAdapter){
+                        ((CoyoteAdapter)adapter).setCompatWithTomcat(true);
+                    } else {
+                        throw new IllegalStateException
+                          (sm.getString
+                            ("coyoteConnector.illegalAdapter",adapter));
+                    }
+                    protocolHandler.setAdapter(adapter);
                     return;
                 }
 

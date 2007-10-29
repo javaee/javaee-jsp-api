@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.17 $ $Date: 2006/09/01 17:51:01 $
+ * @version $Revision: 1.18 $ $Date: 2006/09/29 16:45:04 $
  */
 
 public class CoyoteAdapter
@@ -91,6 +91,13 @@ public class CoyoteAdapter
     public static final int ADAPTER_NOTES = 1;
 
 
+    /**
+     * When mod_jk is used, the adapter must be invoked the same way 
+     * Tomcat does by invoking service(...) and the afterService(...). This
+     * is a hack to make it compatible with Tomcat 5|6.
+     */
+    private boolean compatWithTomcat = false;
+    
     // ----------------------------------------------------------- Constructors
 
 
@@ -267,6 +274,11 @@ public class CoyoteAdapter
             response.recycle();
         } 
         // END GlassFish Issue 798
+        
+        if ( compatWithTomcat ) {
+            afterService(req,res);
+        }
+        
     }
 
     // START GlassFish Issue 798
@@ -826,5 +838,24 @@ public class CoyoteAdapter
         }
     }
     // END SJSAS 6349248
+
+    
+    /**
+     * Return true when an instance is executed the same way it does in Tomcat.
+     */
+    public boolean isCompatWithTomcat() {
+        return compatWithTomcat;
+    }
+
+    
+    /**
+     * <tt>true</tt> if this class needs to be compatible with Tomcat
+     * Adapter class. Since Tomcat Adapter implementation doesn't support 
+     * the afterService method, the afterService method must be invoked 
+     * inside the service method.
+     */
+    public void setCompatWithTomcat(boolean compatWithTomcat) {
+        this.compatWithTomcat = compatWithTomcat;
+    }
        
 }
