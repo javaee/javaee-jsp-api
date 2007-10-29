@@ -131,7 +131,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.43 $ $Date: 2007/03/21 19:43:57 $
+ * @version $Revision: 1.44 $ $Date: 2007/04/18 20:05:28 $
  */
 
 public class StandardContext
@@ -619,8 +619,17 @@ public class StandardContext
      */
     private transient DirContext webappResources = null;
 
+    /*
+     * Time (in milliseconds) it took to start this context
+     */
     private long startupTime;
+
+    /*
+     * Time (in milliseconds since January 1, 1970, 00:00:00) when this
+     * context was started
+     */
     private long startTimeMillis;
+
     private long tldScanTime;
 
     // START SJSWS 6324431
@@ -4810,6 +4819,9 @@ public class StandardContext
             }
             return;
         }
+
+        long startupTimeStart = System.currentTimeMillis();
+
         if( !initialized ) { 
             try {
                 init();
@@ -5186,7 +5198,8 @@ public class StandardContext
         registerJMX();
 
         startTimeMillis = System.currentTimeMillis();
-        
+        startupTime = startTimeMillis - startupTimeStart;
+
         // Send j2ee.state.running notification 
         if (ok && (this.getObjectName() != null)) {
             Notification notification = 
