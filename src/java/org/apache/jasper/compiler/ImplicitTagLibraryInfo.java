@@ -27,13 +27,18 @@
 
 package org.apache.jasper.compiler;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
+import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.FunctionInfo;
 import javax.servlet.jsp.tagext.TagLibraryInfo;
 import javax.servlet.jsp.tagext.TagInfo;
 import javax.servlet.jsp.tagext.TagFileInfo;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.JasperException;
+import org.apache.jasper.xmlparser.ParserUtils;
+import org.apache.jasper.xmlparser.TreeNode;
 
 /**
  * Class responsible for generating an implicit tag library containing tag
@@ -50,6 +55,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
     private static final String TAGS_SHORTNAME = "tags";
     private static final String TLIB_VERSION = "1.0";
     private static final String JSP_VERSION = "2.0";
+    private static final String IMPLICIT_TLD = "implicit.tld";
 
     // Maps tag names to tag file paths
     private Hashtable tagFileMap;
@@ -57,6 +63,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
     private ParserController pc;
     private PageInfo pageInfo;
     private Vector vec;
+    private ErrorDispatcher err;
 
     /**
      * Constructor.
@@ -68,6 +75,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 				  ErrorDispatcher err) throws JasperException {
         super(prefix, null);
 	this.pc = pc;
+        this.err = err;
         this.pageInfo = pc.getCompiler().getPageInfo();
 	this.tagFileMap = new Hashtable();
 	this.vec = new Vector();
@@ -111,7 +119,12 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 		    tagName = tagName.substring(0,
 						tagName.lastIndexOf(suffix));
 		    tagFileMap.put(tagName, path);
-		}
+                } else if (path.endsWith(IMPLICIT_TLD)) {
+                    String tldName = path.substring(path.lastIndexOf("/") + 1);
+                    if (IMPLICIT_TLD.equals(tldName)) {
+                        parseImplicitTld(ctxt, path);
+                    }
+                }    
 	    }
 	}
     }
@@ -187,4 +200,54 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 
 	return tagFile;
     }
+
+
+    /**
+     * Parses the JSP version and tlib-version from the implicit.tld at the
+     * given path.
+     */
+    private void parseImplicitTld(JspCompilationContext ctxt, String path)
+            throws JasperException {
+
+        InputStream is = null;
+
+        try {
+            URL uri = ctxt.getResource(path);
+            if (uri == null) {
+                // no implicit.tld
+                return;
+            }
+
+            is = uri.openStream();
+            TreeNode tld = new ParserUtils().parseXMLDocument(IMPLICIT_TLD,
+                                                              is);
+            this.jspversion = tld.findAttribute("version");
+
+            Iterator list = tld.findChildren();
+            while (list.hasNext()) {
+                TreeNode element = (TreeNode) list.next();
+                String tname = element.getName();
+                if ("tlibversion".equals(tname)
+                        || "tlib-version".equals(tname)) {
+                    this.tlibversion = element.getBody();
+                } else if ("jspversion".equals(tname)
+                        || "jsp-version".equals(tname)) {
+                    this.jspversion = element.getBody();
+                } else if (!"shortname".equals(tname)
+                        && !"short-name".equals(tname)) {
+                    err.jspError("jsp.error.invalidImplicitTld", path, tname);
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new JasperException(ex);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Throwable t) {}
+            }
+        }
+    }
+
 }

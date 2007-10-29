@@ -130,8 +130,14 @@ class TagFileProcessor {
             "the alias attribute of the variable directive";
         private static final String TAG_DYNAMIC =
             "the dynamic-attributes attribute of the tag directive";
+
+        private static final Double JSP_VERSION_2_1 = Double.valueOf("2.1");
+
         private HashMap nameTable = new HashMap();
         private HashMap nameFromTable = new HashMap();
+
+        // The tag file's JSP version
+        private Double jspVersionDouble;
 
         public TagFileDirectiveVisitor(Compiler compiler,
                                        TagLibraryInfo tagLibInfo,
@@ -143,6 +149,8 @@ class TagFileProcessor {
             this.path = path;
             attributeVector = new Vector();
             variableVector = new Vector();
+
+            jspVersionDouble = Double.valueOf(tagLibInfo.getRequiredVersion());
         }
 
         public void visit(Node.TagDirective n) throws JasperException {
@@ -168,7 +176,13 @@ class TagFileProcessor {
             description = checkConflict(n, description, "description");
             displayName = checkConflict(n, displayName, "display-name");
             example = checkConflict(n, example, "example");
-            // Other tag directives are validated in Validator
+
+            if (n.getAttributeValue("deferredSyntaxAllowedAsLiteral") != null
+                    && Double.compare(jspVersionDouble, JSP_VERSION_2_1) < 0) {
+                err.jspError("jsp.error.deferredSyntaxAllowedAsLiteralNotSupported");
+            }
+
+            // Additional tag directives are validated in Validator
         }
 
         private String checkConflict(Node n, String oldAttrValue, String attr)
@@ -203,9 +217,26 @@ class TagFileProcessor {
             boolean fragment = JspUtil.booleanValue(
                                         n.getAttributeValue("fragment"));
             String type = n.getAttributeValue("type");
+
             String deferredValue = n.getAttributeValue("deferredValue");
             String deferredMethod = n.getAttributeValue("deferredMethod");
             String expectedType = n.getAttributeValue("deferredValueType");
+            String methodSignature = n.getAttributeValue("deferredMethodSignature");
+            if (Double.compare(jspVersionDouble, JSP_VERSION_2_1) < 0) {
+                if (deferredValue != null) {
+                    err.jspError("jsp.error.deferredValueNotSupported");
+                }
+                if (deferredMethod != null) {
+                    err.jspError("jsp.error.deferredMethodNotSupported");
+                }
+                if (expectedType != null) {
+                    err.jspError("jsp.error.deferredValueTypeNotSupported");
+                }
+                if (methodSignature != null) {
+                    err.jspError("jsp.error.deferredMethodSignatureNotSupported");
+                }
+            }
+
             boolean isDeferredValue = JspUtil.booleanValue(deferredValue);
             boolean isDeferredMethod = JspUtil.booleanValue(deferredMethod);
             if (expectedType == null) {
@@ -219,7 +250,7 @@ class TagFileProcessor {
                 }
                 isDeferredValue = true;
             }
-            String methodSignature = n.getAttributeValue("deferredMethodSignature");
+
             if (methodSignature == null) {
                 if (isDeferredMethod) {
                     methodSignature = "void method()";
