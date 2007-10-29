@@ -374,6 +374,10 @@ public class InputBuffer extends Reader
             }
         }
 
+        int limit = bb.getLength()+cb.getStart();
+        if ( cb.getLimit() < limit )
+            cb.setLimit(limit);
+
         if (markPos == -1) {
             cb.setOffset(0);
             cb.setEnd(0);
