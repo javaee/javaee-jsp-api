@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.35 $ $Date: 2006/10/10 23:50:38 $
+ * @version $Revision: 1.36 $ $Date: 2006/10/13 17:35:51 $
  */
 
 public class CoyoteRequest
@@ -238,12 +238,6 @@ public class CoyoteRequest
      * The attributes associated with this Request, keyed by attribute name.
      */
     protected HashMap attributes = new HashMap();
-
-
-    /**
-     * List of read only attributes for this Request.
-     */
-    private HashMap readOnlyAttributes = new HashMap();
 
 
     /**
@@ -1624,15 +1618,7 @@ public class CoyoteRequest
      */
     public void removeAttribute(String name) {
         Object value = null;
-        boolean found = false;
-
-        // Remove the specified attribute
-        // Check for read only attribute
-        // requests are per thread so synchronization unnecessary
-        if (readOnlyAttributes.containsKey(name)) {
-            return;
-        }
-        found = attributes.containsKey(name);
+        boolean found = attributes.containsKey(name);
         if (found) {
             value = attributes.get(name);
             attributes.remove(name);
@@ -1690,17 +1676,9 @@ public class CoyoteRequest
             return;
         }
 
-        Object oldValue = null;
         boolean replaced = false;
 
-        // Add or replace the specified attribute
-        // Check for read only attribute
-        // requests are per thread so synchronization unnecessary
-        if (readOnlyAttributes.containsKey(name)) {
-            return;
-        }
-
-        oldValue = attributes.put(name, value);
+        Object oldValue = attributes.put(name, value);
         if (oldValue != null) {
             replaced = true;
         }
