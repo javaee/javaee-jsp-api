@@ -28,8 +28,21 @@ package org.apache.coyote;
  * @author Remy Maucherat
  */
 public interface Adapter {
-
-
+    
+    // START SJSAS 6349248
+    public final static String 
+            CONNECTION_PROCESSING_STARTED = "connectionProcessingStarted";
+    
+    public final static String 
+            CONNECTION_PROCESSING_COMPLETED = "connectionProcessingCompleted";
+    
+    public final static String 
+            REQUEST_PROCESSING_STARTED = "requestProcessingStarted";
+    
+    public final static String 
+            REQUEST_PROCESSING_COMPLETED = "requestProcessingCompleted";
+    // END SJSAS 6349248
+   
     /** 
      * Call the service method, and notify all listeners
      *
@@ -48,5 +61,15 @@ public interface Adapter {
     public void service(Request req, Response res)
 	throws Exception;
 
-
+    // START SJSAS 6349248   
+    /**
+     * Notify all container event listeners that a particular event has
+     * occurred for this Adapter.  The default implementation performs
+     * this notification synchronously using the calling thread.
+     *
+     * @param type Event type
+     * @param data Event data
+     */
+    public void fireAdapterEvent(String type, Object data);
+    // END SJSAS 6349248    
 }
