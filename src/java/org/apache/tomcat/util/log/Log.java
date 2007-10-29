@@ -85,11 +85,11 @@ public class Log implements com.sun.org.apache.commons.logging.Log {
 
     // name of the logger ( each logger has a unique name,
     // used as a key internally )
-    protected String logname;
+    protected final String logname;
 
     // string displayed at the beginning of each log line,
     // to identify the source
-    protected String prefix;
+    protected final String prefix;
 
     /* The "real" logger. This allows the manager to change the
        sink/logger at runtime, and without requiring the log
@@ -199,7 +199,7 @@ public class Log implements com.sun.org.apache.commons.logging.Log {
      *  have been created from the default LogManager, and 
      *  provide a special manager implemetation.
      */
-    public static LogManager setLogManager( LogManager lm ) {
+    public static synchronized LogManager setLogManager( LogManager lm ) {
 	// can be changed only once - so that user
 	// code can't change the log manager in running servers
 	if( logManager.getClass() == LogManager.class ) {
@@ -215,7 +215,7 @@ public class Log implements com.sun.org.apache.commons.logging.Log {
 	return logname;
     }
 
-    public void setProxy( LogManager lm, LogHandler l ) {
+    public synchronized void setProxy( LogManager lm, LogHandler l ) {
 	// only the manager can change the proxy
 	if( lm!= logManager ) {
 	    log("Attempt to change proxy " + lm + " " + logManager);
