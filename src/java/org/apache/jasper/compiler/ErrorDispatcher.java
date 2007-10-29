@@ -104,6 +104,16 @@ public class ErrorDispatcher {
     /*
      * Dispatches the given JSP parse error to the configured error handler.
      *
+     * @param where Error location
+     * @param e The exception whose message is used as the error message
+     */
+    public void jspError(Mark where, Exception e) throws JasperException {
+	dispatch(where, e.getMessage(), null, e);
+    }
+
+    /*
+     * Dispatches the given JSP parse error to the configured error handler.
+     *
      * The given error code is localized. If it is not found in the
      * resource bundle for localized error messages, it is used as the error
      * message.
