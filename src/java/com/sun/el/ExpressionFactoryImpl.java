@@ -25,6 +25,7 @@
 package com.sun.el;
 
 import javax.el.ELContext;
+import javax.el.ELException;
 import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
@@ -49,7 +50,13 @@ public class ExpressionFactoryImpl extends ExpressionFactory {
     }
 
     public Object coerceToType(Object obj, Class type) {
-        return ELSupport.coerceToType(obj, type);
+        Object ret;
+        try {
+            ret = ELSupport.coerceToType(obj, type);
+        } catch (IllegalArgumentException ex) {
+            throw new ELException(ex);
+        }
+        return ret;
     }
 
     public MethodExpression createMethodExpression(ELContext context,
