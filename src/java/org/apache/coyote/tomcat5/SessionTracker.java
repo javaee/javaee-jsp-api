@@ -51,9 +51,6 @@ public class SessionTracker implements SessionListener {
 
     private CoyoteResponse response;
 
-    private static final String JSESSIONIDSSO = "JSESSIONIDSSO";
-    private static final String SET_COOKIE = "Set-Cookie";
-
     /**
      * Processes the given session event, by unregistering this SessionTracker
      * as a session listener from the session that is the source of the event,
@@ -75,23 +72,8 @@ public class SessionTracker implements SessionListener {
                 count--;
                 if (count == 0) {
                     trackedSessionId = null;
-                    if (response != null
-                            && response.getHeader(SET_COOKIE) != null) {
-                        String ssoId = null;
-                        String[] values = response.getHeaderValues(SET_COOKIE);
-                        if (values != null) {
-                            for (int i=0; i<values.length; i++) {
-                                if (values[i].startsWith(JSESSIONIDSSO)) {
-                                    ssoId = values[i];
-                                    break;
-                                }
-                            }
-                        }
-
+                    if (response != null) {
                         response.removeCookie();
-                        if (ssoId != null) {
-                            response.addHeader(SET_COOKIE, ssoId);
-                        }
                     }
                 }
             }
