@@ -126,11 +126,11 @@ public class SessionTracker implements SessionListener {
     /**
      * Associates the given response with this SessionTracker.
      *
-     * If the number of tracked sessions drops to zero, this SessionTracker will remove
-     * the Set-Cookie from the given response.
+     * If the number of tracked sessions drops to zero, this SessionTracker
+     * will remove the Set-Cookie from the given response.
      *
-     * @param response The response from which to remove the Set-Cookie header if the
-     * number of tracked sessions drops to zero
+     * @param response The response from which to remove the Set-Cookie
+     * header if the number of tracked sessions drops to zero
      */
     public synchronized void setResponse(CoyoteResponse response) {
         this.response = response;
