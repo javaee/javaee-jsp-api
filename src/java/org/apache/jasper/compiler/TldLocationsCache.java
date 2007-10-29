@@ -490,6 +490,13 @@ public class TldLocationsCache {
                 if (!path.endsWith(".tld")) {
                     continue;
                 }
+                if (path.startsWith("/WEB-INF/tags/")
+                        && !path.endsWith("implicit.tld")) {
+                    throw new JasperException(
+                        Localizer.getMessage(
+                                "jsp.error.tldinit.tldInWebInfTags",
+                                path));
+                }
                 InputStream stream = ctxt.getResourceAsStream(path);
                 String uri = null;
                 try {
