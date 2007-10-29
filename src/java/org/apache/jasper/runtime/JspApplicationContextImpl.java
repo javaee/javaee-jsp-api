@@ -19,7 +19,8 @@
  * [name of copyright owner]
  *
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- */package org.apache.jasper.runtime;
+ */
+package org.apache.jasper.runtime;
 
 /**
  * Implements javax.servlet.jsp.JspApplication
@@ -28,7 +29,7 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Collections;
 
@@ -92,6 +93,10 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         return jaContext;
     }
 
+    public static void removeJspApplicationContext(ServletContext context) {
+        map.remove(context);
+    }
+
     protected Iterator<ELResolver> getELResolvers() {
         return elResolvers.iterator();
     }
@@ -100,7 +105,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
 
     private static Map<ServletContext, JspApplicationContextImpl> map =
             Collections.synchronizedMap(
-                new WeakHashMap<ServletContext, JspApplicationContextImpl>());
+                new HashMap<ServletContext, JspApplicationContextImpl>());
 
     private ArrayList<ELResolver> elResolvers = new ArrayList<ELResolver>();
     private ArrayList<ELContextListener> listeners =

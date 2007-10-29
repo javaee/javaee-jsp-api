@@ -53,6 +53,7 @@ import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.Localizer;
+import org.apache.jasper.runtime.JspApplicationContextImpl;
 
 /**
  * The JSP engine (a.k.a Jasper).
@@ -345,6 +346,8 @@ public class JspServlet extends HttpServlet {
         }
 
         rctxt.destroy();
+        JspApplicationContextImpl.removeJspApplicationContext(context);
+
     }
 
 
