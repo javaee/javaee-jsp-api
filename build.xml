@@ -140,7 +140,7 @@
     <target name="compile-jsr199">
         <javac srcdir="src/java" destdir="${jsr199.build}/classes"
                includes="org/apache/jasper/compiler/Jsr199JavaCompiler.java"
-               optimize="${javac.optimize}"
+               debug="${javac.debug}" optimize="${javac.optimize}"
                target="1.5" >
             <classpath refid="catalina.classpath" />
         </javac>
