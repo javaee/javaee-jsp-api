@@ -98,7 +98,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.14 $ $Date: 2007/02/13 19:27:38 $
+ * @version $Revision: 1.15 $ $Date: 2007/05/05 05:32:18 $
  */
 
 public class DefaultServlet
@@ -1641,6 +1641,7 @@ public class DefaultServlet
                     // The entity has not been modified since the date
                     // specified by the client. This is not an error case.
                     response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                    response.setHeader("ETag", getETag(resourceAttributes));
                     return false;
                 }
             }
@@ -1697,6 +1698,7 @@ public class DefaultServlet
                 if ( ("GET".equals(request.getMethod()))
                      || ("HEAD".equals(request.getMethod())) ) {
                     response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                    response.setHeader("ETag", getETag(resourceAttributes));
                     return false;
                 } else {
                     response.sendError
