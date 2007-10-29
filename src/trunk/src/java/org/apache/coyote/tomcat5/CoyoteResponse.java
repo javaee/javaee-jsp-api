@@ -68,7 +68,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:11 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/12 23:31:08 $
  */
 
 public class CoyoteResponse
@@ -294,7 +294,8 @@ public class CoyoteResponse
         error = false;
         isContentTypeSet = false;
         isCharacterEncodingSet = false;
-        
+        detailErrorMsg = null;
+
         cookies.clear();
 
         if (Constants.SECURITY) {
