@@ -65,23 +65,14 @@ public class InternalInputBuffer implements InputBuffer {
         this.request = request;
         headers = request.getMimeHeaders();
 
-        // START SJSAS 6231069
-        // This logic is candidate to memory leak
-        /*
         headerBuffer1 = new byte[headerBufferSize];
         headerBuffer2 = new byte[headerBufferSize];
         bodyBuffer = new byte[headerBufferSize];
-        */
-        // END SJSAS 6231069
-        // START SJSAS 6231069
-        buf = new byte[headerBufferSize];
-        // END SJSAS 6231069
+        buf = headerBuffer1;
 
         // BEGIN SJSAS 8.1 BUG 6066026
         //headerBuffer = new char[headerBufferSize];
         //ascbuf = headerBuffer;
-        // END SJSAS 6231069
-        // START SJSAS 6231069
         ascbuf = new char[headerBufferSize];
         // END SJSAS 8.1 BUG 6066026
 
@@ -161,25 +152,19 @@ public class InternalInputBuffer implements InputBuffer {
     /**
      * HTTP header buffer no 1.
      */
-    // START SJSAS 6231069
-    //protected byte[] headerBuffer1;
-    // END SJSAS 6231069
+    protected byte[] headerBuffer1;
 
 
     /**
      * HTTP header buffer no 2.
      */
-    // START SJSAS 6231069
-    //protected byte[] headerBuffer2;
-    // END SJSAS 6231069
+    protected byte[] headerBuffer2;
 
 
     /**
      * HTTP body buffer.
      */
-    // START SJSAS 6231069
-    //protected byte[] bodyBuffer;
-    // END SJSAS 6231069
+    protected byte[] bodyBuffer;
 
 
     /**
@@ -340,9 +325,7 @@ public class InternalInputBuffer implements InputBuffer {
         request.recycle();
 
         inputStream = null;
-        // START SJSAS 6231069
-        //buf = headerBuffer1;
-        // END SJSAS 6231069
+        buf = headerBuffer1;
         lastValid = 0;
         pos = 0;
         lastActiveFilter = -1;
@@ -368,9 +351,8 @@ public class InternalInputBuffer implements InputBuffer {
         // Recycle Request object
         request.recycle();
 
-        // START SJSAS 6231069
         // Determine the header buffer used for next request
-        /*byte[] newHeaderBuf = null;
+        byte[] newHeaderBuf = null;
         if (buf == headerBuffer1) {
             newHeaderBuf = headerBuffer2;
         } else {
@@ -381,8 +363,7 @@ public class InternalInputBuffer implements InputBuffer {
         System.arraycopy(buf, pos, newHeaderBuf, 0, lastValid - pos);
 
         // Swap buffers
-        buf = newHeaderBuf;*/
-        // END SJSAS 6231069
+        buf = newHeaderBuf;
 
         // Recycle filters
         for (int i = 0; i <= lastActiveFilter; i++) {
@@ -864,10 +845,7 @@ public class InternalInputBuffer implements InputBuffer {
 
         } else {
 
-            
-            // START SJSAS 6231069
-            //buf = bodyBuffer;
-            // END SJSAS 6231069
+            buf = bodyBuffer;
             pos = 0;
             lastValid = 0;
             nRead = inputStream.read(buf, 0, buf.length);
