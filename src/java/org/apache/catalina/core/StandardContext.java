@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.14 $ $Date: 2005/12/08 19:22:25 $
+ * @version $Revision: 1.15 $ $Date: 2005/12/14 23:29:11 $
  */
 
 public class StandardContext
@@ -2134,7 +2134,12 @@ public class StandardContext
         super.addChild(child);
 
         // START SJSAS 6342808
+        /* SJSWS 6362207
         if (started) {
+        */
+        // START SJSWS 6362207
+        if (getAvailable()) {
+        // END SJSWS 6362207
             /*
              * If this StandardContext has already been started, we need to
              * register the newly added child with JMX. Any children that were
