@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/08/10 21:35:20 $
+ * @version $Revision: 1.6 $ $Date: 2006/09/28 19:55:12 $
  */
 
 public final class Globals {
@@ -350,4 +350,23 @@ public final class Globals {
     public static final String SESSION_TRACKER =
         "com.sun.enterprise.http.sessionTracker";    
     // END GlassFish 896
+
+
+    /**
+     * The name of the cookie used to carry a session's version info
+     */
+    public static final String SESSION_VERSION_COOKIE_NAME =
+        "JSESSIONIDVERSION";
+
+    /**
+     * The name of the path parameter used to carry a session's version info
+     */
+    public static final String SESSION_VERSION_PARAMETER_NAME =
+        "jsessionidversion";
+
+    public static final String SESSION_VERSION_PARAMETER =
+        ";" + SESSION_VERSION_PARAMETER_NAME + "=";
+
+    public static final String SESSION_VERSIONS_REQUEST_ATTRIBUTE =
+        "com.sun.enterprise.http.sessionVersions";
 }

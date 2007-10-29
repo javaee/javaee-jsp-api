@@ -366,6 +366,12 @@ public class CoyoteRequest
 
 
     /**
+     * The requested session version (if any) for this request.
+     */
+    protected String requestedSessionVersion = null;
+
+
+    /**
      * Was the requested session ID received in a URL?
      */
     protected boolean requestedSessionURL = false;
@@ -2504,7 +2510,12 @@ public class CoyoteRequest
             return (false);
         Session session = null;
         try {
-            session = manager.findSession(requestedSessionId);
+            if (manager.isSessionVersioningSupported()) {
+                session = manager.findSession(requestedSessionId,
+                                              requestedSessionVersion);
+            } else {
+                session = manager.findSession(requestedSessionId);
+            }
         } catch (IOException e) {
             session = null;
         }
@@ -2614,9 +2625,14 @@ public class CoyoteRequest
         if (manager == null)
             return (null);      // Sessions are not supported
         if (requestedSessionId != null) {            
-            if(!unsuccessfulSessionFind) {
+            if (!unsuccessfulSessionFind) {
                 try {
-                    session = manager.findSession(requestedSessionId);
+                    if (manager.isSessionVersioningSupported()) {
+                        session = manager.findSession(requestedSessionId,
+                                                      requestedSessionVersion);
+                    } else {
+                        session = manager.findSession(requestedSessionId);
+                    }
                     if(session == null) {
                         unsuccessfulSessionFind = true;
                     }
@@ -3128,9 +3144,15 @@ public class CoyoteRequest
              * Parse the session id from the encoded URI only if the encoded
              * URI is not null, to allow for lazy evaluation
              */
-            if (!coyoteRequest.requestURI().getByteChunk().isNull())
+            if (!coyoteRequest.requestURI().getByteChunk().isNull()) {
                 parseSessionIdFromRequestURI();
+            }
             // END SJSWS 6376484
+
+            Manager manager = context.getManager();
+            if (manager != null && manager.isSessionVersioningSupported()) {
+                parseSessionVersion();
+            }
 
         } else {
             setRequestedSessionId(null);
@@ -3139,6 +3161,54 @@ public class CoyoteRequest
 
     }
     // END CR 6309511
+
+
+    /**
+     * Parses the session version, and removes it from the request URI
+     */
+    protected void parseSessionVersion() {
+
+        CharChunk uriCC = coyoteRequest.decodedURI().getCharChunk();
+        int semicolon = uriCC.indexOf(Globals.SESSION_VERSION_PARAMETER, 0,
+                                      Globals.SESSION_VERSION_PARAMETER.length(),
+                                      0);
+        if (semicolon > 0) {
+
+            int start = uriCC.getStart();
+            int end = uriCC.getEnd();
+
+            int sessionVersionStart = start + semicolon
+                + Globals.SESSION_VERSION_PARAMETER.length();
+            int semicolon2 = uriCC.indexOf(';', sessionVersionStart);
+            String sessionVersionString = null;
+            if (semicolon2 >= 0) {
+                sessionVersionString = new String(
+                    uriCC.getBuffer(),
+                    sessionVersionStart, 
+                    semicolon2 - semicolon - Globals.SESSION_VERSION_PARAMETER.length());
+            } else {
+                sessionVersionString = new String(
+                    uriCC.getBuffer(),
+                    sessionVersionStart, 
+                    end - sessionVersionStart);
+            }
+
+            if (sessionVersionString != null) {
+                HashMap<String, String> sessionVersions =
+                    RequestUtil.parseSessionVersions(sessionVersionString);
+                if (sessionVersions != null) {
+                    attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                                   sessionVersions);
+                    this.requestedSessionVersion =
+                        sessionVersions.get(context.getPath());
+                }
+            }
+
+            if (!coyoteRequest.requestURI().getByteChunk().isNull()) {
+                removeSessionVersionFromRequestURI();
+            }
+        }
+    }
 
 
     // START SJSWS 6376484
@@ -3153,7 +3223,7 @@ public class CoyoteRequest
         start = uriBC.getStart();
         end = uriBC.getEnd();
         semicolon = uriBC.indexOf(match, 0, match.length(), 0);
-        
+
         if (semicolon > 0) {
             sessionIdStart = start + semicolon;
             semicolon2 = uriBC.indexOf
@@ -3173,7 +3243,37 @@ public class CoyoteRequest
     // END SJSWS 6376484
 
 
-    // START SJSAS 6346226
+    /**
+     * Removes the session version from the request URI.
+     */
+    protected void removeSessionVersionFromRequestURI() {
+
+        int start, end, sessionVersionStart, semicolon, semicolon2;
+
+        ByteChunk uriBC = coyoteRequest.requestURI().getByteChunk();
+        start = uriBC.getStart();
+        end = uriBC.getEnd();
+        semicolon = uriBC.indexOf(Globals.SESSION_VERSION_PARAMETER, 0,
+                                  Globals.SESSION_VERSION_PARAMETER.length(),
+                                  0);
+        if (semicolon > 0) {
+            sessionVersionStart = start + semicolon;
+            semicolon2 = uriBC.indexOf
+                (';', semicolon + Globals.SESSION_VERSION_PARAMETER.length());
+            uriBC.setEnd(start + semicolon);
+            byte[] buf = uriBC.getBuffer();
+            if (semicolon2 >= 0) {
+                for (int i = 0; i < end - start - semicolon2; i++) {
+                    buf[start + semicolon + i] 
+                        = buf[start + i + semicolon2];
+                }
+                uriBC.setBytes(buf, start, semicolon 
+                               + (end - start - semicolon2));
+            }
+        }
+    }
+
+
     /**
      * Parses the value of the JROUTE cookie, if present.
      */
@@ -3255,6 +3355,30 @@ public class CoyoteRequest
             }
         }
 
+        // Search for JSESSIONIDVERSION with the least specific path
+        // (this is important for cross-context request dispatches)
+        Manager manager = context.getManager();
+        if (manager != null && manager.isSessionVersioningSupported()) {
+            String sessionVersionString = null;
+            for (int i = 0; i < count; i++) {
+                ServerCookie scookie = serverCookies.getCookie(i);
+                if (scookie.getName().equals(
+                                        Globals.SESSION_VERSION_COOKIE_NAME)) {
+                    sessionVersionString = scookie.getValue().toString();
+                }
+            }
+
+            if (sessionVersionString != null) {
+                HashMap<String, String> sessionVersions =
+                    RequestUtil.parseSessionVersions(sessionVersionString);
+                if (sessionVersions != null) {
+                    attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                                   sessionVersions);
+                    this.requestedSessionVersion =
+                        sessionVersions.get(context.getPath());
+                }
+            }
+        }
     }
     // END CR 6309511
 
@@ -3372,5 +3496,4 @@ public class CoyoteRequest
         attributes.put(Globals.SESSION_TRACKER, sessionTracker);
     }
     // END GlassFish 896
-
 }

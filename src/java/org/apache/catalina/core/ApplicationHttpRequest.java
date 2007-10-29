@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2006/11/02 17:40:12 $
+ * @version $Revision: 1.8 $ $Date: 2006/11/06 17:03:52 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -100,10 +100,27 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
         this.crossContext = crossContext;
         setRequest(request);
 
+        if (context.getManager() != null) {
+            isSessionVersioningSupported =
+                context.getManager().isSessionVersioningSupported();
+            if (isSessionVersioningSupported) {
+                HashMap<String, String> sessionVersions =
+                    (HashMap<String, String>) getAttribute(
+                        Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+                if (sessionVersions != null) {
+                    requestedSessionVersion = sessionVersions.get(
+                        context.getPath());
+                }
+            }
+        }
     }
 
 
     // ----------------------------------------------------- Instance Variables
+
+
+    private String requestedSessionVersion = null;
+    private boolean isSessionVersioningSupported = false;
 
 
     /**
@@ -546,8 +563,15 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             if (other != null) {
                 Session localSession = null;
                 try {
-                    localSession =
-                        context.getManager().findSession(other.getId());
+                    if (isSessionVersioningSupported) {
+                        localSession =
+                            context.getManager().findSession(
+                                other.getId(),
+                                requestedSessionVersion);
+                    } else {
+                        localSession =
+                            context.getManager().findSession(other.getId());
+                    }
                 } catch (IOException e) {
                     // Ignore
                 }

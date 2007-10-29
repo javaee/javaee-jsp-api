@@ -40,6 +40,7 @@ import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -50,11 +51,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Connector;
 import org.apache.catalina.Context;
+import org.apache.catalina.Globals;
 import org.apache.catalina.Session;
 import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.util.CharsetMapper;
 import org.apache.catalina.util.DateTool;
+import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.coyote.Response;
@@ -74,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.17 $ $Date: 2006/11/09 00:40:08 $
+ * @version $Revision: 1.18 $ $Date: 2006/11/09 20:28:40 $
  */
 
 public class CoyoteResponse
@@ -189,7 +192,7 @@ public class CoyoteResponse
      */
     public void setCoyoteResponse(Response coyoteResponse) {
         this.coyoteResponse = coyoteResponse;
-        outputBuffer.setResponse(coyoteResponse);
+        outputBuffer.setCoyoteResponse(this);
     }
 
     /**
@@ -1140,7 +1143,15 @@ public class CoyoteResponse
     public String encodeRedirectURL(String url) {
 
         if (isEncodeable(toAbsolute(url))) {
-            return (toEncoded(url, request.getSessionInternal().getIdInternal()));
+            String sessionVersion = null;
+            HashMap<String, String> sessionVersions = (HashMap<String, String>)
+                request.getAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+            if (sessionVersions != null) {
+                sessionVersion = RequestUtil.makeSessionVersionString(sessionVersions);
+            }
+            return (toEncoded(url,
+                              request.getSessionInternal().getIdInternal(),
+                              sessionVersion));
         } else {
             return (url);
         }
@@ -1176,7 +1187,15 @@ public class CoyoteResponse
             if (url.equalsIgnoreCase("")){
                 url = absolute;
             }
-            return (toEncoded(url, request.getSessionInternal().getIdInternal()));
+            String sessionVersion = null;
+            HashMap<String, String> sessionVersions = (HashMap<String, String>)
+                request.getAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+            if (sessionVersions != null) {
+                sessionVersion = RequestUtil.makeSessionVersionString(sessionVersions);
+            }
+            return (toEncoded(url,
+                              request.getSessionInternal().getIdInternal(),
+                              sessionVersion));
         } else {
             return (url);
         }
@@ -1620,6 +1639,20 @@ public class CoyoteResponse
      * @param sessionId Session id to be included in the encoded URL
      */
     protected String toEncoded(String url, String sessionId) {
+        return toEncoded(url, sessionId, null);
+    }
+
+
+    /**
+     * Return the specified URL with the specified session identifier
+     * suitably encoded.
+     *
+     * @param url URL to be encoded with the session id
+     * @param sessionId Session id to be included in the encoded URL
+     * @param sessionVersion Session version to be included in the encoded URL
+     */
+    protected String toEncoded(String url, String sessionId,
+                               String sessionVersion) {
 
         if ((url == null) || (sessionId == null))
             return (url);
@@ -1641,6 +1674,10 @@ public class CoyoteResponse
         if( sb.length() > 0 ) { // jsessionid can't be first.
             sb.append(";jsessionid=");
             sb.append(sessionId);
+            if (sessionVersion != null) {
+                sb.append(Globals.SESSION_VERSION_PARAMETER);
+                sb.append(sessionVersion);
+            }
         }
 
         // START SJSAS 6337561

@@ -32,22 +32,25 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
-
 
 /**
  * General purpose request parsing and encoding utility methods.
  *
  * @author Craig R. McClanahan
  * @author Tim Tye
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:19 $
  */
 
 public final class RequestUtil {
 
+    private static final String SESSION_VERSION_SEPARATOR = ":";
 
     /**
      * The DateFormat to use for generating readable dates in cookies.
@@ -518,5 +521,64 @@ public final class RequestUtil {
     }
 
 
+    /**
+     * Parses the given session version string into its components.
+     *
+     * @param sessionVersion The session version string to parse
+     *
+     * @return The mappings from context paths to session version numbers
+     * that were parsed from the given session version string
+     */
+    public static final HashMap<String, String> parseSessionVersions(
+                                                String sessionVersion) {
 
+        if (sessionVersion == null) {
+            return null;
+        }
+
+        StringTokenizer st = new StringTokenizer(sessionVersion,
+                                                 SESSION_VERSION_SEPARATOR);
+        HashMap<String, String> result =
+            new HashMap<String, String>(st.countTokens());
+        while (st.hasMoreTokens()) {
+            String contextPath = st.nextToken();
+            if (st.hasMoreTokens()) {
+                result.put(contextPath, st.nextToken());
+            }
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Gets the string representation of the given session version mappings.
+     *
+     * @param sessionVersions The session version mappings
+     *
+     * @return The string representation of the given session version mappings
+     */
+    public static String makeSessionVersionString(HashMap sessionVersions) {
+
+        if (sessionVersions == null) {
+            return null;
+        }
+
+        StringBuffer sb = new StringBuffer();
+        Iterator<String> iter = sessionVersions.keySet().iterator();
+        boolean first = true;
+        while (iter.hasNext()) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(':');
+            }
+            String contextPath = iter.next();
+            sb.append(contextPath);
+            sb.append(SESSION_VERSION_SEPARATOR);
+            sb.append(sessionVersions.get(contextPath));
+        }
+
+        return sb.toString();
+    }
 }

@@ -35,9 +35,13 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 
-import org.apache.catalina.connector.ClientAbortException;
+import javax.servlet.http.Cookie;
+
 import org.apache.coyote.ActionCode;
 import org.apache.coyote.Response;
+import org.apache.catalina.Globals;
+import org.apache.catalina.connector.ClientAbortException;
+import org.apache.catalina.util.RequestUtil;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.C2BConverter;
 
@@ -141,7 +145,7 @@ public class OutputBuffer extends Writer
      * Associated Coyote response.
      */
     private Response response;
-
+    private CoyoteResponse coyoteResponse;
 
     /**
      * Suspended flag. All output bytes will be swallowed if this is true.
@@ -210,6 +214,12 @@ public class OutputBuffer extends Writer
      */
     public void setResponse(Response response) {
 	this.response = response;
+    }
+
+
+    public void setCoyoteResponse(CoyoteResponse coyoteResponse) {
+        this.coyoteResponse = coyoteResponse;
+        setResponse((Response) coyoteResponse.getCoyoteResponse());
     }
 
 
@@ -326,6 +336,7 @@ public class OutputBuffer extends Writer
 
         doFlush = true;
         if (initial){
+            addSessionVersionCookieIfNecessary();
             response.sendHeaders();
             initial = false;
         }
@@ -621,4 +632,32 @@ public class OutputBuffer extends Writer
         return bb.getLimit();
     }
 
+    
+    /**
+     * Adds a session version cookie to the response if necessary.
+     */
+    private void addSessionVersionCookieIfNecessary() {
+
+        CoyoteRequest req = (CoyoteRequest) coyoteResponse.getRequest();
+        if (req.isRequestedSessionIdFromURL()) {
+            return;
+        }
+
+        HashMap<String, String> sessionVersions = (HashMap<String, String>)
+            req.getAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+        if (sessionVersions != null) {
+            Cookie cookie = new Cookie(
+                Globals.SESSION_VERSION_COOKIE_NAME,
+                RequestUtil.makeSessionVersionString(sessionVersions));
+            if (sessionVersions.size() > 1
+                    || coyoteResponse.getContext() == null) {
+                // Cross-context dispatch
+                cookie.setPath("/");
+            } else {
+                cookie.setPath(coyoteResponse.getContext().getName());
+            }
+            response.addHeader("Set-Cookie",
+                               coyoteResponse.getCookieString(cookie));
+        }
+    }
 }
