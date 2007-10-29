@@ -75,6 +75,7 @@ import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.compat.JdkCompat;
+import com.sun.org.apache.commons.beanutils.MappedPropertyDescriptor;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
 import com.sun.org.apache.commons.logging.LogConfigurationException;
@@ -126,7 +127,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.27 $ $Date: 2007/02/09 02:56:25 $
+ * @version $Revision: 1.28 $ $Date: 2007/03/08 00:41:23 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1820,6 +1821,8 @@ public class WebappClassLoader
         // Clear the IntrospectionUtils cache.
         IntrospectionUtils.clear();
        
+        MappedPropertyDescriptor.clear();
+
         // START S1AS 5032338
         //com.sun.org.apache.commons.logging.LogFactory.release(this);
         // Clear the classloader reference in commons-logging.
