@@ -120,7 +120,7 @@ public class StringCache {
     /**
      * @return Returns the cacheSize.
      */
-    public int getCacheSize() {
+    public static int getCacheSize() {
         return cacheSize;
     }
     
@@ -128,7 +128,7 @@ public class StringCache {
     /**
      * @param cacheSize The cacheSize to set.
      */
-    public void setCacheSize(int cacheSize) {
+    public static void setCacheSize(int cacheSize) {
         StringCache.cacheSize = cacheSize;
     }
 
@@ -136,7 +136,7 @@ public class StringCache {
     /**
      * @return Returns the enabled.
      */
-    public boolean getByteEnabled() {
+    public static boolean getByteEnabled() {
         return byteEnabled;
     }
     
@@ -144,7 +144,7 @@ public class StringCache {
     /**
      * @param enabled The enabled to set.
      */
-    public void setByteEnabled(boolean byteEnabled) {
+    public static void setByteEnabled(boolean byteEnabled) {
         StringCache.byteEnabled = byteEnabled;
     }
     
@@ -152,7 +152,7 @@ public class StringCache {
     /**
      * @return Returns the enabled.
      */
-    public boolean getCharEnabled() {
+    public static boolean getCharEnabled() {
         return charEnabled;
     }
     
@@ -160,7 +160,7 @@ public class StringCache {
     /**
      * @param enabled The enabled to set.
      */
-    public void setCharEnabled(boolean charEnabled) {
+    public static void setCharEnabled(boolean charEnabled) {
         StringCache.charEnabled = charEnabled;
     }
     
@@ -168,7 +168,7 @@ public class StringCache {
     /**
      * @return Returns the trainThreshold.
      */
-    public int getTrainThreshold() {
+    public static int getTrainThreshold() {
         return trainThreshold;
     }
     
@@ -176,7 +176,7 @@ public class StringCache {
     /**
      * @param trainThreshold The trainThreshold to set.
      */
-    public void setTrainThreshold(int trainThreshold) {
+    public static void setTrainThreshold(int trainThreshold) {
         StringCache.trainThreshold = trainThreshold;
     }
 
@@ -184,7 +184,7 @@ public class StringCache {
     /**
      * @return Returns the accessCount.
      */
-    public int getAccessCount() {
+    public static int getAccessCount() {
         return accessCount;
     }
     
@@ -192,7 +192,7 @@ public class StringCache {
     /**
      * @return Returns the hitCount.
      */
-    public int getHitCount() {
+    public static int getHitCount() {
         return hitCount;
     }
 
@@ -200,7 +200,7 @@ public class StringCache {
     // -------------------------------------------------- Public Static Methods
 
     
-    public void reset() {
+    public static void reset() {
         hitCount = 0;
         accessCount = 0;
         synchronized (bcStats) {
