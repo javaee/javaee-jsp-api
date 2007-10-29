@@ -43,7 +43,7 @@ import org.apache.catalina.deploy.SecurityConstraint;
  * Container.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:18 $
+ * @version $Revision: 1.4 $ $Date: 2006/01/18 19:23:47 $
  */
 
 public interface Realm {
@@ -252,6 +252,19 @@ public interface Realm {
                                               Context context,
                                               Authenticator authenticator)
           throws IOException;
+
+    /**
+     * Post authentication for given request and response.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param context The Context to which client of this class is attached.
+     * @exception IOException if an input/output error occurs
+     */
+    public boolean invokePostAuthenticateDelegate(HttpRequest request,
+                                              HttpResponse response,
+                                              Context context)
+           throws IOException;
     
     //END SJSAS 6202703
 
@@ -316,5 +329,4 @@ public interface Realm {
      */
     public String getRealmName();
     // END IASRI 4856062,4918627,4874504
- 
 }

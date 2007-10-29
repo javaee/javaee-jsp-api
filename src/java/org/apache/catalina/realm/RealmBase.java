@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2006/10/10 22:43:24 $
+ * @version $Revision: 1.12 $ $Date: 2006/12/15 18:56:52 $
  */
 
 public abstract class RealmBase
@@ -1046,6 +1046,21 @@ public abstract class RealmBase
                         request, response, config);
     }
     
+    /**
+     * Post authentication for given request and response.
+     *
+     * @param request Request we are processing
+     * @param response Response we are creating
+     * @param context The Context to which client of this class is attached.
+     * @exception IOException if an input/output error occurs
+     */
+    public boolean invokePostAuthenticateDelegate(HttpRequest request,
+                                              HttpResponse response,
+                                              Context context)
+          throws IOException {
+         return true;
+    }
+    
     //END SJSAS 6202703
 
     /**
@@ -1699,5 +1714,4 @@ public abstract class RealmBase
         return null;
     }
     // END IASRI 4856062,4918627,4874504
-
 }

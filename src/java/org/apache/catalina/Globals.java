@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/11/17 23:06:36 $
+ * @version $Revision: 1.8 $ $Date: 2006/11/21 17:39:38 $
  */
 
 public final class Globals {
@@ -376,4 +376,10 @@ public final class Globals {
 
     public static final String SESSION_VERSIONS_REQUEST_ATTRIBUTE =
         "com.sun.enterprise.http.sessionVersions";
+
+    public static final String WRAPPED_REQUEST =
+        "__javax.security.auth.message.request";
+    
+    public static final String WRAPPED_RESPONSE =
+        "__javax.security.auth.message.response"; 
 }

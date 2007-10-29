@@ -36,6 +36,7 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
+import org.apache.catalina.Globals;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleException;
@@ -50,6 +51,7 @@ import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+
 /** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import com.sun.org.apache.commons.modeler.Registry;
 */
@@ -556,9 +558,20 @@ public class StandardPipeline
         doInvoke(request, response);
     }
 
-
     protected void doInvoke(Request request, Response response)
         throws IOException, ServletException {
+
+        doInvoke(request, response, false);
+    }
+
+    protected void doChainInvoke(Request request, Response response)
+        throws IOException, ServletException {
+
+        doInvoke(request, response, true);
+    }
+
+    private void doInvoke(Request request, Response response,
+        boolean chaining) throws IOException, ServletException {
         // END PWC 4665318
 
         // START OF IASRI 4665318
@@ -574,7 +587,13 @@ public class StandardPipeline
             // that the pipeline should proceed.
             int i;
             for (i = 0; i < valves.length; i++) {
-                status = valves[i].invoke(request, response);
+                Request req = request;
+                Response resp = response;
+                if (chaining) {
+                    req = getRequest(request);
+                    resp = getResponse(request, response);
+                }
+                status = valves[i].invoke(req, resp);
                 if (status != Valve.INVOKE_NEXT)
                     break;
             }
@@ -583,14 +602,26 @@ public class StandardPipeline
             // logic only if the pipeline was not aborted (i.e. no valve
             // returned END_PIPELINE)
             if ((status == Valve.INVOKE_NEXT) && (basic != null)) {
-                basic.invoke(request, response);
-                basic.postInvoke(request, response);
+                Request req = request;
+                Response resp = response;
+                if (chaining) {
+                    req = getRequest(request);
+                    resp = getResponse(request, response);
+                }
+                basic.invoke(req, resp);
+                basic.postInvoke(req, resp);
             }
 
             // Invoke the post-request processing logic only on those valves
             // that returned a status of INVOKE_NEXT
             for (int j = i - 1; j >= 0; j--) {
-                valves[j].postInvoke(request, response);
+                Request req = request;
+                Response resp = response;
+                if (chaining) {
+                    req = getRequest(request);
+                    resp = getResponse(request, response);
+                }
+                valves[j].postInvoke(req, resp);
             }
         } else {
             throw new ServletException
@@ -705,4 +736,22 @@ public class StandardPipeline
 
     }
 
+    // ------------------------------------------------------ Private Methods
+    private Request getRequest(Request request) {
+	Request r = (Request) 
+	    request.getNote(Globals.WRAPPED_REQUEST); 
+	if (r == null) {
+	    r = request;
+	}
+	return r;
+    }
+
+    private Response getResponse(Request request, Response response) {
+	Response r = (Response) 
+	    request.getNote(Globals.WRAPPED_RESPONSE); 
+	if (r == null) {
+	    r = response;
+	}
+	return r;
+    }
 }

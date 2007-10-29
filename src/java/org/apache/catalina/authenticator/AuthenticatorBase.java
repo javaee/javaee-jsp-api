@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/10/03 18:40:58 $
+ * @version $Revision: 1.11 $ $Date: 2006/11/16 21:01:25 $
  */
 
 
@@ -699,7 +699,21 @@ public abstract class AuthenticatorBase
         // END OF IASRI 4665318
         
     }
-    
+
+    /**
+     * A post-request processing implementation that does nothing.
+     *
+     * Very few Valves override this behaviour as most Valve logic
+     * is used for request processing.
+     */
+    public void postInvoke(Request request, Response response) 
+	throws IOException, ServletException {
+	    Realm realm = this.context.getRealm();
+	    HttpRequest hrequest = (HttpRequest) request;
+	    HttpResponse hresponse = (HttpResponse) response;
+	    realm.invokePostAuthenticateDelegate
+		(hrequest, hresponse, context);
+    }
     
     // ------------------------------------------------------ Protected Methods
     
