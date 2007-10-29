@@ -123,10 +123,11 @@ public class ErrorDispatcher {
      * message.
      *
      * @param errCode Error code
-     * @param arg Argument for parametric replacement
+     * @param args Arguments for parametric replacement
      */
-    public void jspError(String errCode, String arg) throws JasperException {
-	dispatch(null, errCode, new Object[] {arg}, null);
+    public void jspError(String errCode, String ... args)
+             throws JasperException {
+	dispatch(null, errCode, args, null);
     }
 
     /*
@@ -138,11 +139,11 @@ public class ErrorDispatcher {
      *
      * @param where Error location
      * @param errCode Error code
-     * @param arg Argument for parametric replacement
+     * @param args Arguments for parametric replacement
      */
-    public void jspError(Mark where, String errCode, String arg)
+    public void jspError(Mark where, String errCode, String ... args)
 	        throws JasperException {
-	dispatch(where, errCode, new Object[] {arg}, null);
+	dispatch(where, errCode, args, null);
     }
 
     /*
@@ -154,119 +155,11 @@ public class ErrorDispatcher {
      *
      * @param n Node that caused the error
      * @param errCode Error code
-     * @param arg Argument for parametric replacement
+     * @param args Arguments for parametric replacement
      */
-    public void jspError(Node n, String errCode, String arg)
+    public void jspError(Node n, String errCode, String ... args)
 	        throws JasperException {
-	dispatch(n.getStart(), errCode, new Object[] {arg}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     */
-    public void jspError(String errCode, String arg1, String arg2)
-	        throws JasperException {
-	dispatch(null, errCode, new Object[] {arg1, arg2}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     * @param arg3 Third argument for parametric replacement
-     */
-    public void jspError(String errCode, String arg1, String arg2, String arg3)
-	        throws JasperException {
-	dispatch(null, errCode, new Object[] {arg1, arg2, arg3}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param where Error location
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     */
-    public void jspError(Mark where, String errCode, String arg1, String arg2)
-	        throws JasperException {
-	dispatch(where, errCode, new Object[] {arg1, arg2}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param where Error location
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     * @param arg3 Third argument for parametric replacement
-     */
-
-    public void jspError(Mark where, String errCode, String arg1, String arg2,
-                         String arg3)
-                throws JasperException {
-        dispatch(where, errCode, new Object[] {arg1, arg2, arg3}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param n Node that caused the error
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     */
-
-    public void jspError(Node n, String errCode, String arg1, String arg2)
-	        throws JasperException {
-	dispatch(n.getStart(), errCode, new Object[] {arg1, arg2}, null);
-    }
-
-    /*
-     * Dispatches the given JSP parse error to the configured error handler.
-     *
-     * The given error code is localized. If it is not found in the
-     * resource bundle for localized error messages, it is used as the error
-     * message.
-     *
-     * @param n Node that caused the error
-     * @param errCode Error code
-     * @param arg1 First argument for parametric replacement
-     * @param arg2 Second argument for parametric replacement
-     * @param arg3 Third argument for parametric replacement
-     */
-
-    public void jspError(Node n, String errCode, String arg1, String arg2,
-                         String arg3)
-	        throws JasperException {
-	dispatch(n.getStart(), errCode, new Object[] {arg1, arg2, arg3}, null);
+	dispatch(n.getStart(), errCode, args, null);
     }
 
     /*

@@ -130,25 +130,26 @@ class TagFileProcessor {
         private Double jspVersionDouble;
 
         private static enum Name {
-            ATTR_NAME(
-                "the name attribute of the attribute directive"),
-            VAR_NAME_GIVEN(
-                "the name-given attribute of the variable directive"),
-            VAR_NAME_FROM(
-                "the name-from-attribute attribute of the variable directive"),
-            VAR_ALIAS(
-                "the alias attribute of the variable directive"),
-            TAG_DYNAMIC(
-                "the dynamic-attributes attribute of the tag directive");
+            ATTR_NAME("name", "attribute"),
+            VAR_NAME_GIVEN("name-given", "variable"),
+            VAR_NAME_FROM("name-from-attribute", "variable"),
+            VAR_ALIAS("alias", "variable"),
+            TAG_DYNAMIC("dynamic-attributes", "tag");
 
-            private String name;
+            private String attribute;
+            private String directive;
 
-            String getName() {
-                return this.name;
+            String getAttribute() {
+                return this.attribute;
             }
 
-            Name(String name) {
-                this.name = name;
+            String getDirective() {
+                return this.directive;
+            }
+
+            Name(String attribute, String directive) {
+                this.attribute = attribute;
+                this.directive = directive;
             }
         }
 
@@ -515,7 +516,9 @@ class TagFileProcessor {
                         || nameEntry.getType() != Name.TAG_DYNAMIC) {
                     int line = nameEntry.getNode().getStart().getLineNumber();
                     err.jspError(n, "jsp.error.tagfile.nameNotUnique",
-                        type.getName(), nameEntry.getType().getName(),
+                        type.getAttribute(), type.getDirective(),
+                        nameEntry.getType().getAttribute(),
+                        nameEntry.getType().getDirective(),
                         Integer.toString(line));
                 }
             } else {
