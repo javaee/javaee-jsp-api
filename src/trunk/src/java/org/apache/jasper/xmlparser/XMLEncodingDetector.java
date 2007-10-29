@@ -292,12 +292,12 @@ public class XMLEncodingDetector {
         int b0 = b4[0] & 0xFF;
         int b1 = b4[1] & 0xFF;
         if (b0 == 0xFE && b1 == 0xFF) {
-            // UTF-16, big-endian
+            // UTF-16, big-endian, with a BOM
             return new Object [] {"UTF-16BE", new Boolean(true),
                                   new Boolean(true)};
         }
         if (b0 == 0xFF && b1 == 0xFE) {
-            // UTF-16, little-endian
+            // UTF-16, little-endian, with a BOM
             return new Object [] {"UTF-16LE", new Boolean(false),
                                   new Boolean(true)};
         }
@@ -355,6 +355,16 @@ public class XMLEncodingDetector {
             // EBCDIC
             // a la xerces1, return CP037 instead of EBCDIC here
             return new Object [] {"CP037", null, null};
+        }
+        if (b0 == 0x00 && b1 == 0x00 && b2 == 0xFE && b3 == 0xFF) {
+            // UTF-32, big-endian, with a BOM
+            return new Object [] {"UTF-32BE", new Boolean(true),
+                                  new Boolean(true)};
+        }
+        if (b0 == 0xFF && b1 == 0xFE && b2 == 0x00 && b3 == 0x00) {
+            // UTF-32, little-endian, with a BOM
+            return new Object [] {"UTF-32LE", new Boolean(false),
+                                  new Boolean(true)};
         }
 
         // default encoding
