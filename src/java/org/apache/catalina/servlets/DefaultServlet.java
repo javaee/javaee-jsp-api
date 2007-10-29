@@ -64,6 +64,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.catalina.Globals;
+import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.ServerInfo;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.util.URLEncoder;
@@ -84,7 +85,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.12 $ $Date: 2006/09/29 22:10:18 $
+ * @version $Revision: 1.13 $ $Date: 2006/10/03 17:37:03 $
  */
 
 public class DefaultServlet
@@ -1241,7 +1242,7 @@ public class DefaultServlet
                   .append("'");
 
                 sb.append(">");
-                sb.append(trimmed);
+                sb.append(RequestUtil.filter(trimmed));
                 if (childCacheEntry.context != null)
                     sb.append("/");
                 sb.append("</entry>");
@@ -1410,7 +1411,7 @@ public class DefaultServlet
                 if (childCacheEntry.context != null)
                     sb.append("/");
                 sb.append("\"><tt>");
-                sb.append(trimmed);
+                sb.append(RequestUtil.filter(trimmed));
                 if (childCacheEntry.context != null)
                     sb.append("/");
                 sb.append("</tt></a></td>\r\n");
