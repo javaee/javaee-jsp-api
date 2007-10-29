@@ -1862,6 +1862,9 @@ class Parser implements TagConstants {
         do {
             Mark start = reader.mark();
             Attributes attrs = parseAttributes();
+            if (attrs == null || attrs.getValue("name") == null) {
+                err.jspError(start, "jsp.error.jspAttribute.missing.name");
+            }
             Node.NamedAttribute namedAttributeNode =
                 new Node.NamedAttribute( attrs, start, parent );
 
