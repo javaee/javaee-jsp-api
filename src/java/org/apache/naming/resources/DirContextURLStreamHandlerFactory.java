@@ -31,7 +31,7 @@ import javax.naming.directory.DirContext;
  * Factory for Stream handlers to a JNDI directory context.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class DirContextURLStreamHandlerFactory 
     implements URLStreamHandlerFactory {

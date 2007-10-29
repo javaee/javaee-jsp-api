@@ -34,13 +34,6 @@ import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.io.IOException;
-
-// START SJSAS 6231069
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.Channel;
-// END SJSAS 6231069
-
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameParser;
@@ -65,7 +58,7 @@ import org.apache.naming.NamingContextEnumeration;
  * Filesystem Directory Context implementation helper class.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/12 00:56:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/12/07 21:38:34 $
  */
 
 public class FileDirContext extends BaseDirContext {
@@ -223,7 +216,7 @@ public class FileDirContext extends BaseDirContext {
         absoluteBase = null;
         base = null;
         super.release();
- 
+
     }
 
 
@@ -610,11 +603,10 @@ public class FileDirContext extends BaseDirContext {
         // Open os
         
         try {
-            // START SJSAS 6231069   
-            /*FileOutputStream os = null;
+            FileOutputStream os = null;
             byte buffer[] = new byte[BUFFER_SIZE];
             int len = -1;
-
+            try {
                 os = new FileOutputStream(file);
                 while (true) {
                     len = is.read(buffer);
@@ -626,22 +618,7 @@ public class FileDirContext extends BaseDirContext {
                 if (os != null)
                     os.close();
                 is.close();
-            }*/     
-            // END SJSAS 6231069
-            // START SJSAS 6231069             
-            FileChannel srcChannel = null; 
-            FileChannel destChannel = null;
-            try {            
-                srcChannel = ((ByteBufferInputStream)is).getChannel();
-                destChannel = new FileOutputStream(file).getChannel();
-                destChannel.transferFrom(srcChannel, 0, srcChannel.size());
-            } finally {
-                if ( srcChannel != null)
-                    srcChannel.close();
-                if ( destChannel != null )
-                    destChannel.close();
             }
-            // END SJSAS 6231069
         } catch (IOException e) {
             throw new NamingException
                 (sm.getString("resources.bindFailed", e));
@@ -1043,22 +1020,8 @@ public class FileDirContext extends BaseDirContext {
         protected long length = -1L;
         
         
-        // START SJSAS 6231069
-        /**
-         * The ByteBuffer object used to map the File into memory.
-         */
-        protected ByteBuffer byteBuffer;
-        
-        
-        /**
-         * The fileChannel used to map the resource.
-         */
-        protected FileChannel fileChannel;
-        // END SJSAS 6231069
-        
-        
-        
         // --------------------------------------------------- Resource Methods
+        
         
         /**
          * Content accessor.
@@ -1068,192 +1031,15 @@ public class FileDirContext extends BaseDirContext {
         public InputStream streamContent()
             throws IOException {
             if (binaryContent == null) {
-                // START SJSAS 6231069
-                //inputStream = new FileInputStream(file);
-                // END SJSAS 6231069
-                // START SJSAS 6231069
-                mapFile();
-                inputStream = new ByteBufferInputStream(file, 
-                                                        byteBuffer, 
-                                                        fileChannel);
-                // END SJSAS 6231069
+                inputStream = new FileInputStream(file);
             }
             return super.streamContent();
         }
         
         
-        // START SJSAS 6231069 
-        /**
-         * Return the byteBuffer used to map the resource, to possibly be used 
-         * for direct file serving. 
-         * 
-         * @return the mapped byteBuffer representing the resource.
-         */
-        public ByteBuffer getResourceMappedBuffer() throws IOException{
-            mapFile();
-            byteBuffer.rewind();
-            return byteBuffer;
-        }
-        
-            
-        /**
-         * Map the underlyting resources using <code>ByteBuffer</code>
-         */
-        private void mapFile() throws FileNotFoundException, IOException{
-            if (byteBuffer == null){
-                fileChannel = new FileInputStream(file).getChannel();
-                byteBuffer = fileChannel.map(
-                           FileChannel.MapMode.READ_ONLY,0, fileChannel.size()); 
-                fileChannel.close();
-            }
-        }
-        // END SJSAS 6231069 
     }
 
 
-    // START SJSAS 6231069    
-    /**
-     * Stream Wrapper around a <code>ByteBuffer</code>
-     */
-    private class ByteBufferInputStream extends InputStream implements Channel{
-
-        /**
-         * The <code>ByteBuffer</code> that contains the mapped file.
-         */
-        private ByteBuffer buffer;
-        
-        
-        /**
-         * The <code>FileChannel</code> used to map the <code>File</code>
-         * into a <code>ByteBuffer</code>
-         */
-        private FileChannel fileChannel;
-        
-        
-        /**
-         * The <code>File</code> from which we will create the mapped 
-         * <code>ByteBuffer</code>
-         */
-        private File file;
-
-        
-        /**
-         * Create a stream.
-         *
-         * @param file The mapped file
-         * @param buffer the ByteBuffer which map the fil
-         * @param fileChannel the channel from the file.
-         */
-        private ByteBufferInputStream (final File file,
-                                       final ByteBuffer buffer, 
-                                       final FileChannel fileChannel){
-            this.file = file;
-            this.buffer = buffer;
-            this.fileChannel = fileChannel;
-        }
-
-        
-        /**
-         * Set the underlying <code>ByteBuffer</code>
-         */
-        public void setByteBuffer (final ByteBuffer buffer){
-            this.buffer = buffer;
-        }
-
-        
-        /**
-         * <code>true</code> is the <code>ByteBuffer</code> position is lower
-         * that the limit.
-         */ 
-        public int available() {
-            return buffer.remaining();
-        }
-
-        
-        /**
-         * Close this stream by clearing the underlying <code>ByteBuffer</code>
-         * and closing the <code>FileChannel</code>, if it hasn't yet been closed.
-         */
-        public void close () {
-            try{
-                buffer.clear();
-                fileChannel.close();
-            } catch (IOException ex){
-                ;
-            }
-        }
-
-        /**
-         * Not supported
-         */ 
-        public boolean markSupported (){
-            return false;
-        }
-
-        
-        /**
-         * Read bytes from the mapped <code>ByteBuffer</code>
-         */
-        public int read () {
-            return (buffer.hasRemaining() ? (buffer.get () & 0xff): -1);
-        }
-
-        
-        /**
-         * Read bytes from the mapped <code>ByteBuffer</code>
-         */
-        public int read (byte[] b){
-            return read (b, 0, b.length);
-        }
-
-        
-        /**
-         * Read bytes from the mapped <code>ByteBuffer</code>
-         */
-        public int read (byte[] b, int offset, int length) {
-            if (!buffer.hasRemaining()) {
-                return -1;
-            }
-            if (length > buffer.remaining()) {
-                length = buffer.remaining();
-            }
-            buffer.get(b, offset, length);
-            return length;
-        }
-        
-        
-        /**
-         * return true if the underlying <code>FileChannel</code> still opens.
-         */
-        public boolean isOpen(){
-            return fileChannel.isOpen();
-        }
-        
-        
-        /**
-         * Return the underlying <code>FileChannel</code>. If it has already
-         * been closed, return a new one.
-         */
-        public FileChannel getChannel(){
-            try{
-                if ( !isOpen() ) {
-                    fileChannel = new FileInputStream(file).getChannel();    
-                }
-            } catch (FileNotFoundException ex){
-                ;
-            } finally {
-                return fileChannel;
-            }
-        }
-        
-        
-        public void reset(){
-            buffer.rewind();
-        }
-        
-    }
-    // END SJSAS 6231069
- 
     // ------------------------------------- FileResourceAttributes Inner Class
 
 
@@ -1279,7 +1065,7 @@ public class FileDirContext extends BaseDirContext {
         
         
         protected boolean accessed = false;
-
+        
         
         // ----------------------------------------- ResourceAttributes Methods
         
@@ -1385,6 +1171,10 @@ public class FileDirContext extends BaseDirContext {
             }
             return super.getResourceType();
         }
+        
+        
     }
+
+
 }
 
