@@ -85,7 +85,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/01 20:58:02 $
  */
 
 public class StandardSession
@@ -1698,6 +1698,13 @@ public class StandardSession
         }
         isValid = isValidSave;
 
+        if (listeners == null) {
+            listeners = new ArrayList();
+        }
+
+        if (notes == null) {
+            notes = new HashMap();
+        }
     }
 
 
