@@ -55,11 +55,22 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
 
     private JspWriter jspWriter;
 
+    // START CR 6466049
+    /**
+     * Indicates whether or not the wrapped JspWriter can be flushed.
+     */
+    private boolean canFlushWriter;
+    // END CR 6466049
+
+
     public ServletResponseWrapperInclude(ServletResponse response, 
 					 JspWriter jspWriter) {
 	super((HttpServletResponse)response);
 	this.printWriter = new PrintWriter(jspWriter);
 	this.jspWriter = jspWriter;
+        // START CR 6466049
+        this.canFlushWriter = (jspWriter instanceof JspWriterImpl);
+        // END CR 6466049
     }
 
     /**
@@ -92,4 +103,15 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
         printWriter.flush();
     }
     // END CR 6421712
+
+
+    // START CR 6466049
+    /**
+     * Indicates whether or not the wrapped JspWriter can be flushed.
+     * (BodyContent objects cannot be flushed)
+     */
+    public boolean canFlush() {
+        return canFlushWriter;
+    }
+    // END CR 6466049
 }
