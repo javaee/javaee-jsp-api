@@ -141,7 +141,7 @@ public class Constants {
 
     /**
      * Public Id and the Resource path (of the cached copy) 
-     * of the DTDs for tag library descriptors. 
+     * of the DTDs and schemas for tag library descriptors. 
      */
     public static final String TAGLIB_DTD_PUBLIC_ID_11 = 
 	"-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN";
@@ -151,10 +151,18 @@ public class Constants {
 	"-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN";
     public static final String TAGLIB_DTD_RESOURCE_PATH_12 = 
 	"/javax/servlet/jsp/resources/web-jsptaglibrary_1_2.dtd";
+    public static final String TAGLIB_SCHEMA_PUBLIC_ID_20 =
+        "web-jsptaglibrary_2_0.xsd";
+    public static final String TAGLIB_SCHEMA_RESOURCE_PATH_20 =
+        "/javax/servlet/jsp/resources/web-jsptaglibrary_2_0.xsd";
+    public static final String TAGLIB_SCHEMA_PUBLIC_ID_21 =
+        "web-jsptaglibrary_2_1.xsd";
+    public static final String TAGLIB_SCHEMA_RESOURCE_PATH_21 =
+        "/javax/servlet/jsp/resources/web-jsptaglibrary_2_1.xsd";
 
     /**
      * Public Id and the Resource path (of the cached copy) 
-     * of the DTDs for web application deployment descriptors
+     * of the DTDs and schemas for web application deployment descriptors
      */
     public static final String WEBAPP_DTD_PUBLIC_ID_22 = 
 	"-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN";
@@ -164,6 +172,14 @@ public class Constants {
 	"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN";
     public static final String WEBAPP_DTD_RESOURCE_PATH_23 = 
 	"/javax/servlet/resources/web-app_2_3.dtd";
+    public static final String WEBAPP_SCHEMA_PUBLIC_ID_24 =
+        "web-app_2_4.xsd";
+    public static final String WEBAPP_SCHEMA_RESOURCE_PATH_24 =
+        "/javax/servlet/resources/web-app_2_4.xsd";
+    public static final String WEBAPP_SCHEMA_PUBLIC_ID_25 =
+        "web-app_2_5.xsd";
+    public static final String WEBAPP_SCHEMA_RESOURCE_PATH_25 =
+        "/javax/servlet/resources/web-app_2_5.xsd";
 
     /**
      * List of the Public IDs that we cache, and their

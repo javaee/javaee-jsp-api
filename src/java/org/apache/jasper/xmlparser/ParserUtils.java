@@ -58,7 +58,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:00 $
+ * @version $Revision: 1.3 $ $Date: 2006/02/17 00:39:24 $
  */
 
 public class ParserUtils {
@@ -86,6 +86,13 @@ public class ParserUtils {
         Constants.WEBAPP_DTD_RESOURCE_PATH_22,
         Constants.WEBAPP_DTD_RESOURCE_PATH_23,
     };
+
+    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = {
+        Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20,
+        Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
+        Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24,
+        Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25,
+    };
     // END PWC 6386258
 
 
@@ -97,7 +104,14 @@ public class ParserUtils {
      * Sets the path prefix for .xsd resources
      */
     public static void setSchemaResourcePrefix(String prefix) {
-        // no-op for now
+        for (int i=0; i<CACHED_SCHEMA_RESOURCE_PATHS.length; i++) {
+            String path = CACHED_SCHEMA_RESOURCE_PATHS[i];
+            int index = path.lastIndexOf('/');
+            if (index != -1) {
+                CACHED_SCHEMA_RESOURCE_PATHS[i] =
+                    prefix + path.substring(index+1);
+            }
+        }
     }
 
     /**
@@ -263,7 +277,7 @@ class MyEntityResolver implements EntityResolver {
 	}
         if (ParserUtils.log.isDebugEnabled())
             ParserUtils.log.debug("Resolve entity failed"  + publicId + " "
-			   + systemId );
+                                  + systemId );
 	ParserUtils.log.error(
             Localizer.getMessage("jsp.error.parse.xml.invalidPublicId",
             publicId));
