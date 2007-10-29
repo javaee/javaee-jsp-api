@@ -190,9 +190,11 @@ public class JDTJavaCompiler implements JavaCompiler {
         // class file are alwyas saved.
     }
 
-    public void removeJavaFile() {
-        File javaFile = new File(javaFileName);
-        javaFile.delete();
+    public void doJavaFile(boolean keep) {
+        if (!keep) {
+            File javaFile = new File(javaFileName);
+            javaFile.delete();
+        }
     }
 
     public JavacErrorDetail[] compile(final String targetClassName,

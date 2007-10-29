@@ -171,7 +171,7 @@ public class AntJavaCompiler implements JavaCompiler {
     }
 
     public void saveClassFile(String className, String classFileName) {
-        // class file are alwyas saved.
+        // class files are alwyas saved.
     }
 
     public void setDebug(boolean debug) {
@@ -285,9 +285,11 @@ public class AntJavaCompiler implements JavaCompiler {
         return javacErrors;
     }
 
-    public void removeJavaFile() {
-        File javaFile = new File(javaFileName);
-        javaFile.delete();
+    public void doJavaFile(boolean keep) {
+        if (!keep) {
+            File javaFile = new File(javaFileName);
+            javaFile.delete();
+        }
     }
 
     public static void startThreadPool() {

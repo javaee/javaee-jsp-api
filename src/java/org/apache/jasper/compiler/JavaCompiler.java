@@ -50,9 +50,9 @@ interface JavaCompiler {
         throws JasperException;
 
     /**
-     * Remove the generated Java File from disk, if there is one.
+     * Remove/save the generated Java File from/to disk
      */
-    public void removeJavaFile();
+    public void doJavaFile(boolean keep) throws JasperException;
 
     /**
      * Return the time the class file was generated.

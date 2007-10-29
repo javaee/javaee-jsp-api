@@ -43,8 +43,12 @@ import java.io.Writer;
 import java.io.CharArrayWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import java.net.URI;
 import java.util.Map;
 import java.util.List;
@@ -72,11 +76,15 @@ public class Jsr199JavaCompiler implements JavaCompiler {
     private ArrayList<String> options = new ArrayList<String>();
     private CharArrayWriter charArrayWriter;
     private JspCompilationContext ctxt;
+    private String javaFileName;
+    private String javaEncoding;
+    private ErrorDispatcher errDispatcher;
 
     public void init(JspCompilationContext ctxt,
                      ErrorDispatcher err,
                      boolean suppressLogging) {
         this.ctxt = ctxt;
+        this.errDispatcher = errDispatcher;
         rtctxt = ctxt.getRuntimeContext();
     }
 
@@ -103,8 +111,24 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         rtctxt.saveBytecode(className, classFileName);
     }
 
-    public void removeJavaFile() {
-        // no Java file generated
+    public void doJavaFile(boolean keep) throws JasperException {
+
+        if (! keep)
+            return;
+
+        try {
+            Writer writer = new OutputStreamWriter(
+                                    new FileOutputStream(javaFileName),
+                                    javaEncoding);
+            writer.write(charArrayWriter.toString());
+            writer.close();
+        } catch (UnsupportedEncodingException ex) {
+            errDispatcher.jspError("jsp.error.needAlternateJavaEncoding",
+                                   javaEncoding);
+        } catch (IOException ex) {
+            throw new JasperException(ex);
+        }
+
     }
 
     public void setDebug(boolean debug) {
@@ -114,6 +138,8 @@ public class Jsr199JavaCompiler implements JavaCompiler {
     }
 
     public Writer getJavaWriter(String javaFileName, String javaEncoding) {
+        this.javaFileName = javaFileName;
+        this.javaEncoding = javaEncoding;
         this.charArrayWriter = new CharArrayWriter();
         return this.charArrayWriter;
     }

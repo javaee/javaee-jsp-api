@@ -224,7 +224,7 @@ public class Compiler {
                 }
             }
             // Remove the generated .java file
-            javaCompiler.removeJavaFile();
+            javaCompiler.doJavaFile(false);
             throw e;
         } finally {
             if (writer != null) {
@@ -328,9 +328,7 @@ public class Compiler {
             log.debug("Compiled " + javaFileName + " " + (t2-t1) + "ms");
         }
 
-        if (!ctxt.keepGenerated()) {
-            javaCompiler.removeJavaFile();
-        }
+        javaCompiler.doJavaFile(ctxt.keepGenerated());
 
         // JSR45 Support
         if (!ctxt.isPrototypeMode() && !options.isSmapSuppressed()) {
