@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.31 $ $Date: 2006/11/22 17:11:00 $
+ * @version $Revision: 1.32 $ $Date: 2007/01/04 19:36:19 $
  */
 
 public class StandardContext
@@ -389,12 +389,6 @@ public class StandardContext
      * The MIME mappings for this web application, keyed by extension.
      */
     private HashMap<String,String> mimeMappings = new HashMap<String,String>();
-
-
-     /**
-      * Special case: error page for status 200.
-      */
-     private ErrorPage okErrorPage = null;
 
 
     /**
@@ -2373,11 +2367,14 @@ public class StandardContext
             }
         } else {
             synchronized (statusPages) {
-                if (errorPage.getErrorCode() == 200) {
-                    this.okErrorPage = errorPage;
+                int errorCode = errorPage.getErrorCode();
+                if ((errorCode >= 400) && (errorCode < 600)) {
+                    statusPages.put(Integer.valueOf(errorCode), errorPage);
+                } else {
+                    log.error(sm.getString(
+                                "standardContext.invalidErrorPageCode",
+                                errorCode));
                 }
-                statusPages.put(Integer.valueOf(errorPage.getErrorCode()),
-                                errorPage);
             }
         }
 
@@ -3008,12 +3005,11 @@ public class StandardContext
      * @param errorCode Error code to look up
      */
     public ErrorPage findErrorPage(int errorCode) {
-        if (errorCode == 200) {
-            return (okErrorPage);
-        } else {
+        if ((errorCode >= 400) && (errorCode < 600)) {
             return ((ErrorPage) statusPages.get(Integer.valueOf(errorCode)));
         }
 
+        return null;
     }
 
 
@@ -3783,9 +3779,6 @@ public class StandardContext
             }
         } else {
             synchronized (statusPages) {
-                if (errorPage.getErrorCode() == 200) {
-                    this.okErrorPage = null;
-                }
                 statusPages.remove(Integer.valueOf(errorPage.getErrorCode()));
             }
         }
