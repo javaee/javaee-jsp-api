@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.14 $ $Date: 2006/03/12 01:27:02 $
+ * @version $Revision: 1.15 $ $Date: 2006/03/13 21:51:44 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1761,8 +1761,12 @@ public class WebappClassLoader
                 }
             }
         }
+
+        // START SJSAS 6390584
+        com.sun.org.apache.commons.beanutils.PropertyUtils.clearDescriptors();
+        // END SJSAS 6390584
         
-         // Clear the IntrospectionUtils cache.
+        // Clear the IntrospectionUtils cache.
         IntrospectionUtils.clear();
        
         // START S1AS 5032338
