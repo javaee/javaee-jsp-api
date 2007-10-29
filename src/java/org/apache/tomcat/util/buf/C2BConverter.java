@@ -49,71 +49,12 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 
 /** Efficient conversion of character to bytes.
  *  
- *  This uses the standard JDK mechansim - a writer - but provides mechanisms
- *  to recycle all the objects that are used. It is compatible with JDK1.1 and up,
- *  ( nio is better, but it's not available even in 1.2 or 1.3 )
- * 
+ *  Now uses NIO directly
  */
-
-class C2BConverter_8859_1 extends C2BConverter {
-    protected C2BConverter_8859_1(ByteChunk bb, String enc) throws IOException {
-        super(bb, enc);
-    }
-
-    public final void convert(char sa[]) throws IOException {
-        convert(sa, 0, sa.length);
-    }
-
-    public final void convert(String s) throws IOException {
-        convert(s.toCharArray(), 0, s.length());
-    }
-
-    public final void convert(String s, int off, int len) throws IOException {
-        convert(s.toCharArray(), off, len);
-    }
-
-    public final void convert(char sa[], int off, int len) throws IOException {
-        int res = convertLoop(sa, off, len);
-        while (res < len) {
-	    if (!bb.canGrow())
-                bb.flushBuffer();
-            off += res;
-            len -= res;
-            res = convertLoop(sa, off, len);
-        }
-    }
-
-    private int convertLoop(char sa[], int sp, int len) throws IOException {
-        int sl = sp + len;
-        if (sl > sa.length)
-            sl = sa.length;
-        byte[] da = bb.getBytes();
-        int dp = bb.getEnd();
-        int dl = da.length - dp;
-        int nChars = 0;
-        while (sp < sl) {
-            char c = sa[sp];
-            if (c <= '\u00FF') {
-                if (dp >= dl) {
-                    bb.setEnd(dp);
-                    return nChars;
-                }
-                da[dp++] = (byte)c;
-                sp++;
-                nChars++;
-            }
-            else {
-                bb.setEnd(dp);
-                throw new IOException("Unexpected character in C2BConverter for ISO_8859_1");
-            }
-        }
-        bb.setEnd(dp);
-        return nChars;
-    }
-}
 
 public class C2BConverter {
 
@@ -129,7 +70,9 @@ public class C2BConverter {
     public C2BConverter(ByteChunk output, String encoding) throws IOException {
         this.bb=output;
         this.enc=encoding;
-        encoder = Charset.forName(enc).newEncoder();
+        encoder = Charset.forName(enc).newEncoder().
+		onMalformedInput(CodingErrorAction.REPLACE).
+		onUnmappableCharacter(CodingErrorAction.REPLACE);
     }
 
     /** Create a converter
@@ -139,9 +82,6 @@ public class C2BConverter {
     }
 
     public static C2BConverter getInstance(ByteChunk output, String encoding) throws IOException {
-        if (encoding.equals("ISO-8859-1")) {
-            return new C2BConverter_8859_1(output, encoding);
-        }
         return new C2BConverter(output, encoding);
     }
     
@@ -182,8 +122,9 @@ public class C2BConverter {
             cr = encoder.encode(cb, tmp, true);
             bb.setEnd(tmp.position());
         }
-        if (cr != CoderResult.UNDERFLOW)
+        if (cr != CoderResult.UNDERFLOW) {
             throw new IOException("Encoding error");
+	}
     }
 
     /** Generate the bytes using the specified encoding
