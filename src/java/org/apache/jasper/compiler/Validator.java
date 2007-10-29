@@ -22,6 +22,7 @@
 package org.apache.jasper.compiler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -1585,6 +1586,11 @@ class Validator {
 				     n.getMethodName(), n.getName(),
 				     c.getName());
 		    }
+                    // Make sure that this method is public
+                    if (! Modifier.isPublic(method.getModifiers())) {
+                        err.jspError("jsp.error.nonPublicFunction",
+                                     c.getName() + '.' + method.getName());
+                    }
 		    fmapper.mapFunction(n.getPrefix() + ':' + n.getName(),
 					method);
 		}
