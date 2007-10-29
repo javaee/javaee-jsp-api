@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.16 $ $Date: 2006/04/10 20:04:21 $
+ * @version $Revision: 1.17 $ $Date: 2006/05/27 14:34:06 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1121,8 +1121,15 @@ public class WebappClassLoader
             log.trace("getResource(" + name + ")");
         URL url = null;
 
-        // (1) Delegate to parent if requested
-        if (delegate) {
+        /*
+         * (1) Delegate to parent if requested, or if the requested resource
+         * belongs to one of the packages that are part of the Java EE platform
+         */
+        if (delegate
+                || name.startsWith("javax")
+                || name.startsWith("sun")
+                || name.startsWith("com/sun/faces")
+                || name.startsWith("org/apache/taglibs/standard")) {
             if (log.isTraceEnabled())
                 log.trace("  Delegating to parent classloader " + parent);
             ClassLoader loader = parent;
@@ -1202,8 +1209,15 @@ public class WebappClassLoader
             return (stream);
         }
 
-        // (1) Delegate to parent if requested
-        if (delegate) {
+        /*
+         * (1) Delegate to parent if requested, or if the requested resource
+         * belongs to one of the packages that are part of the Java EE platform
+         */
+        if (delegate
+                || name.startsWith("javax")
+                || name.startsWith("sun")
+                || name.startsWith("com/sun/faces")
+                || name.startsWith("org/apache/taglibs/standard")) {
             if (log.isTraceEnabled())
                 log.trace("  Delegating to parent classloader " + parent);
             ClassLoader loader = parent;
