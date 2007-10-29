@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.HashSet;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
@@ -60,7 +61,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.11 $ $Date: 2006/10/12 22:52:43 $
+ * @version $Revision: 1.12 $ $Date: 2007/02/05 20:50:08 $
  */
 
 public abstract class PersistentManagerBase
@@ -209,6 +210,15 @@ public abstract class PersistentManagerBase
      * number of sessions was active
      */
     private int rejectedSessions = 0;
+
+
+    // SJSAS 6406580 START
+    /**
+     * The set of invalidated Sessions for this Manager, keyed by
+     * session identifier.
+     */
+    protected HashSet invalidatedSessions = new HashSet();
+    // SJSAS 6406580 END    
 
 
     // ------------------------------------------------------------- Properties
@@ -812,6 +822,42 @@ public abstract class PersistentManagerBase
             e.printStackTrace();
         }        
     }
+
+
+    // START SJSAS 6406580
+    /**
+     * Add this Session id to the set of invalidated Session ids for this
+     * Manager.
+     *
+     * @param sessionId session id to be added
+     */
+    public void addToInvalidatedSessions(String sessionId) {
+        synchronized (invalidatedSessions) {
+            invalidatedSessions.add(sessionId);
+        }
+    }
+    
+    /**
+     * Remove this Session from the set of invalidated Sessions for this
+     * Manager.
+     *
+     * @param sessionId session id to be removed
+     */
+    public void removeFromInvalidatedSessions(String sessionId) {       
+        synchronized (invalidatedSessions) {
+            invalidatedSessions.remove(sessionId);
+        }
+    }    
+    
+    public boolean isSessionIdValid(String sessionId) {       
+        boolean result = true;
+        synchronized (invalidatedSessions) {
+            result = !invalidatedSessions.contains(sessionId);
+        }
+        return result;
+    }
+    // END SJSAS 6406580    
+
 
     /**
      * Save all currently active sessions in the appropriate persistence

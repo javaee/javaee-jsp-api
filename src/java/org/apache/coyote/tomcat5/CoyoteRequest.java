@@ -91,7 +91,7 @@ import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 // START SJSAS 6406580
-import org.apache.catalina.session.ManagerBase;
+import org.apache.catalina.session.PersistentManagerBase;
 // END SJSAS 6406580
 import org.apache.catalina.Realm;
 import org.apache.catalina.Session;
@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.51 $ $Date: 2007/02/21 02:00:30 $
+ * @version $Revision: 1.52 $ $Date: 2007/03/01 21:59:53 $
  */
 
 public class CoyoteRequest
@@ -502,10 +502,10 @@ public class CoyoteRequest
         // START SJSAS 6406580
         if (context != null && requestedSessionId != null) {
             Manager manager = context.getManager();
-            if (manager instanceof ManagerBase) { 
-                ((ManagerBase) manager).removeFromInvalidatedSessions(
-                                            requestedSessionId);
-           }
+            if (manager instanceof PersistentManagerBase) { 
+                ((PersistentManagerBase) manager).removeFromInvalidatedSessions(
+                    requestedSessionId);
+            }
         }        
         // END SJSAS 6406580
 

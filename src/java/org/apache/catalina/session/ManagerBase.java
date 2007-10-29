@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -88,7 +87,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.17 $ $Date: 2007/01/18 20:44:25 $
+ * @version $Revision: 1.18 $ $Date: 2007/02/09 20:05:45 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -231,14 +230,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      */
     protected HashMap sessions = new HashMap();
     
-    //SJSAS 6406580 START
-    /**
-     * The set of invalidated Sessions for this Manager, keyed by
-     * session identifier.
-     */
-    protected HashSet invalidatedSessions = new HashSet();
-    //SJSAS 6406580 END    
-
     // Number of sessions created by this manager
     protected int sessionCounter=0;
 
@@ -830,37 +821,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         }
     }
     
-    //START SJSAS 6406580
-    /**
-     * Add this Session id to the set of invalidated Session ids for this Manager.
-     *
-     * @param sessionId session id to be added
-     */
-    public void addToInvalidatedSessions(String sessionId) {
-        synchronized (invalidatedSessions) {
-            invalidatedSessions.add(sessionId);
-        }
-    }
-    
-    /**
-     * Remove this Session from the set of invalidated Sessions for this Manager.
-     *
-     * @param sessionId session id to be removed
-     */
-    public void removeFromInvalidatedSessions(String sessionId) {       
-        synchronized (invalidatedSessions) {
-            invalidatedSessions.remove(sessionId);
-        }
-    }    
-    
-    public boolean isSessionIdValid(String sessionId) {       
-        boolean result = true;
-        synchronized (invalidatedSessions) {
-            result = !invalidatedSessions.contains(sessionId);
-        }
-        return result;
-    }
-    //END SJSAS 6406580    
 
     /**
      * Add a property change listener to this component.
