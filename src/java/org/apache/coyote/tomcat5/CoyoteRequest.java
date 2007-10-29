@@ -71,6 +71,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.Host;
 import org.apache.catalina.HttpRequest;
+import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -92,7 +93,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:59 $
+ * @version $Revision: 1.22 $ $Date: 2005/04/26 00:23:56 $
  */
 
 public class CoyoteRequest
@@ -2330,14 +2331,21 @@ public class CoyoteRequest
         // Check for a role alias defined in a <security-role-ref> element
         if (wrapper != null) {
             String realRole = wrapper.findSecurityReference(role);
+
+            //START SJSAS 6232464
             if ((realRole != null) &&
-                realm.hasRole(userPrincipal, realRole))
+                //realm.hasRole(userPrincipal, realRole))
+                realm.hasRole(this, (HttpResponse) response,
+                    userPrincipal, realRole))
                 return (true);
         }
 
         // Check for a role defined directly as a <security-role>
-        return (realm.hasRole(userPrincipal, role));
 
+        //return (realm.hasRole(userPrincipal, role));
+        return (realm.hasRole(this, (HttpResponse) response,
+                    userPrincipal, role));
+        //END SJSAS 6232464
     }
 
 
