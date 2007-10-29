@@ -96,7 +96,16 @@ public class InternalOutputBuffer
 
     // -------------------------------------------------------------- Variables
 
+    // START GlassFish Issue 646
+    /**
+     * Logger.
+     */
+    protected static com.sun.org.apache.commons.logging.Log log 
+        = com.sun.org.apache.commons.logging.
+            LogFactory.getLog(InternalOutputBuffer.class);
+    // END GlassFish Issue 646
 
+    
     /**
      * The string manager for this package.
      */
@@ -320,6 +329,26 @@ public class InternalOutputBuffer
 
     }
 
+    
+    // START GlassFish Issue 646
+    /**
+     * Flush the buffer.
+     */
+    private void flush(boolean isFull) throws IOException {
+         // Sending the response header buffer
+        if (useSocketBuffer) {
+            socketBuffer.append(buf, 0, pos);
+        } else {
+            outputStream.write(buf, 0, pos);
+        }    
+        
+        if ( isFull ) {
+            pos = 0;
+            buf = headerBuffer;
+        }
+    }
+    // END GlassFish Issue 646
+    
 
     /**
      * Reset current response.
@@ -600,6 +629,7 @@ public class InternalOutputBuffer
         committed = true;
         response.setCommitted(true);
 
+        /* GlassFish Issue 646
         if (pos > 0) {
             // Sending the response header buffer
             if (useSocketBuffer) {
@@ -607,7 +637,13 @@ public class InternalOutputBuffer
             } else {
                 outputStream.write(buf, 0, pos);
             }
+            flush(false);
+        }*/
+        // START GlassFish Issue 646
+        if (pos > 0) {
+            flush(false);
         }
+        // END GlassFish Issue 646
 
     }
 
@@ -682,6 +718,16 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
+            
+            // START GlassFish Issue 646
+            if ( pos >= buf.length ) {
+                try{
+                    flush(true);
+                }catch(IOException ex){
+                    log.warn(ex);
+                }
+            }
+            // END GlassFish Issue 646
             buf[pos++] = (byte) c;
         }
 
@@ -696,7 +742,16 @@ public class InternalOutputBuffer
      * @param b data to be written
      */
     protected void write(byte[] b) {
-
+        // START GlassFish Issue 646
+        if ( b.length + pos >= buf.length){
+            try{
+                flush(true);
+            }catch(IOException ex){
+                log.warn(ex);
+            }
+        }        
+        // END GlassFish Issue 646
+        
         // Writing the byte chunk to the output buffer
         System.arraycopy(b, 0, buf, pos, b.length);
         pos = pos + b.length;
@@ -737,6 +792,16 @@ public class InternalOutputBuffer
                     c = ' ';
                 }
             }
+                
+            // START GlassFish Issue 646
+            if ( pos >= buf.length ) {
+                try{
+                    flush(true);
+                }catch(IOException ex){
+                    log.warn(ex);
+                }
+            }
+            // END GlassFish Issue 646
             buf[pos++] = (byte) c;
         }
 
@@ -766,7 +831,7 @@ public class InternalOutputBuffer
             outputStream.write(cbuf, off, len);
         }
     }
-
+    
 
     // ----------------------------------- OutputStreamOutputBuffer Inner Class
 
