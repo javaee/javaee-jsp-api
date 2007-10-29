@@ -74,7 +74,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:07 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 final class ApplicationDispatcher
@@ -391,10 +391,6 @@ final class ApplicationDispatcher
             ApplicationHttpRequest wrequest =
                 (ApplicationHttpRequest) wrapRequest();
             String contextPath = context.getPath();
-            wrequest.setContextPath(contextPath);
-            wrequest.setRequestURI(requestURI);
-            wrequest.setServletPath(servletPath);
-            wrequest.setPathInfo(pathInfo);
 
             if (hrequest.getAttribute(Globals.FORWARD_REQUEST_URI_ATTR) == null) { 
                 wrequest.setAttribute(Globals.FORWARD_REQUEST_URI_ATTR,
@@ -409,6 +405,10 @@ final class ApplicationDispatcher
                                       hrequest.getQueryString());
             }
  
+            wrequest.setContextPath(contextPath);
+            wrequest.setRequestURI(requestURI);
+            wrequest.setServletPath(servletPath);
+            wrequest.setPathInfo(pathInfo);
             if (queryString != null) {
                 wrequest.setQueryString(queryString);
                 wrequest.setQueryParams(queryString);
