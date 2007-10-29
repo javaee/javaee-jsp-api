@@ -57,6 +57,9 @@ import org.apache.catalina.Manager;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Session;
+// START SJSAS 6374691
+import org.apache.catalina.Valve;
+// END SJSAS 6374691
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.catalina.deploy.ErrorPage;
@@ -65,7 +68,6 @@ import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 
 /**
  * Valve that implements the default basic behavior for the
@@ -76,7 +78,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2005/10/11 19:36:25 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:37 $
  */
 
 final class StandardHostValve
@@ -99,6 +101,11 @@ final class StandardHostValve
      */
     private static final StringManager sm =
         StringManager.getManager(Constants.Package);
+
+
+    // START SJSAS 6374691
+    private Valve errorReportValve;
+    // END SJSAS 6374691
 
 
     // ------------------------------------------------------------- Properties
@@ -176,7 +183,11 @@ final class StandardHostValve
     }
 
 
-    public void postInvoke(Request request, Response response){
+    public void postInvoke(Request request, Response response)
+        // START SJSAS 6374691
+        throws IOException, ServletException
+        // END SJSAS 6374691
+    {
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
         // END OF IASRI 4665318
         // Error page processing
@@ -193,6 +204,11 @@ final class StandardHostValve
         Thread.currentThread().setContextClassLoader
             (StandardHostValve.class.getClassLoader());
 
+        // START SJSAS 6374691
+        if (errorReportValve != null) {
+            errorReportValve.postInvoke(request, response);
+        }
+        // END SJSAS 6374691
     }
 
 
@@ -624,4 +640,12 @@ final class StandardHostValve
 
     }
     // END SJSAS 6324911
+
+
+    // START SJSAS 6374691
+    void setErrorReportValve(Valve errorReportValve) {
+        this.errorReportValve = errorReportValve;
+    }
+    // END SJSAS 6374691
+
 }

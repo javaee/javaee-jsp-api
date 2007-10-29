@@ -59,7 +59,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:36 $
+ * @version $Revision: 1.6 $ $Date: 2006/01/13 02:34:29 $
  */
 
 public class StandardHost
@@ -874,14 +874,19 @@ public class StandardHost
                 }
             }
         }
-            
+
         // Set error report valve
         if ((errorReportValveClass != null)
             && (!errorReportValveClass.equals(""))) {
             try {
                 Valve valve = (Valve) Class.forName(errorReportValveClass)
                     .newInstance();
+                /* START SJSAS 6374691
                 addValve(valve);
+                */
+                // START SJSAS 6374691
+                ((StandardHostValve) pipeline.getBasic()).setErrorReportValve(valve);
+                // END SJSAS 6374691
             } catch (Throwable t) {
                 log.error(sm.getString
                     ("standardHost.invalidErrorReportValveClass", 
