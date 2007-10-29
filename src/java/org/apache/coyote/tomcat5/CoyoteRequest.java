@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.52 $ $Date: 2007/03/01 21:59:53 $
+ * @version $Revision: 1.53 $ $Date: 2007/03/05 22:18:03 $
  */
 
 public class CoyoteRequest
@@ -2664,13 +2664,21 @@ public class CoyoteRequest
         // START S1AS8PE 4817642
         if (requestedSessionId != null && context.getReuseSessionID()) {
             session = manager.createSession(requestedSessionId);
+            if (manager instanceof PersistentManagerBase) {
+                ((PersistentManagerBase) manager).
+                    removeFromInvalidatedSessions(requestedSessionId);
+            }
         // END S1AS8PE 4817642
         // START GlassFish 896
         } else if (sessionTracker.getActiveSessions() > 0) {
             synchronized (sessionTracker) {
                 if (sessionTracker.getActiveSessions() > 0) {
-                    session = manager.createSession(
-                        sessionTracker.getSessionId());
+                    String id = sessionTracker.getSessionId();
+                    session = manager.createSession(id);
+                    if (manager instanceof PersistentManagerBase) {
+                        ((PersistentManagerBase) manager).
+                            removeFromInvalidatedSessions(id);
+                    }
                 }
             }
         // END GlassFish 896
