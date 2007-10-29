@@ -22,6 +22,7 @@
  */
 package org.apache.coyote.tomcat5;
 
+import java.util.ArrayList;
 import org.apache.catalina.Session;
 import org.apache.catalina.SessionEvent;
 import org.apache.catalina.SessionListener;
@@ -51,6 +52,14 @@ public class SessionTracker implements SessionListener {
 
     private CoyoteResponse response;
 
+    /*
+     * The list of contexts whose sessions we're tracking.
+     *
+     * The size of this list will be greater than one only in cross
+     * context request dispatch scenarios
+     */
+    private ArrayList contextNames = new ArrayList(2);
+
     /**
      * Processes the given session event, by unregistering this SessionTracker
      * as a session listener from the session that is the source of the event,
@@ -65,10 +74,14 @@ public class SessionTracker implements SessionListener {
         }
 
         Session session = event.getSession();
-           
+
         synchronized (this) {
             if (session.getIdInternal() != null
-                    && session.getIdInternal().equals(trackedSessionId)) {
+                    && session.getIdInternal().equals(trackedSessionId)
+                    && session.getManager() != null
+                    && session.getManager().getContainer() != null
+                    && contextNames.contains(
+                            session.getManager().getContainer().getName())) {
                 count--;
                 if (count == 0) {
                     trackedSessionId = null;
@@ -120,6 +133,12 @@ public class SessionTracker implements SessionListener {
 
         count++;
 
+        if (session.getManager() != null
+                && session.getManager().getContainer() != null
+                && session.getManager().getContainer().getName() != null) {
+            contextNames.add(session.getManager().getContainer().getName());
+        }
+
         session.addSessionListener(this);
     }
 
@@ -142,7 +161,7 @@ public class SessionTracker implements SessionListener {
     public synchronized void reset() {
         count = 0;
         trackedSessionId = null;
-        response = null;
+        contextNames.clear();
     }
 
 }
