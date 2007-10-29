@@ -83,7 +83,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.17 $ $Date: 2007/01/11 21:16:51 $
+ * @version $Revision: 1.18 $ $Date: 2007/02/16 18:10:32 $
  */
 
 final class StandardHostValve
@@ -364,6 +364,14 @@ final class StandardHostValve
         Context context = request.getContext();
         if (context == null)
             return;
+
+        /*
+         * Only look for error pages when isError() is set.
+         * isError() is set when response.sendError() is invoked.
+         */
+        if (!response.isError()) {
+            return;
+        }
 
         ErrorPage errorPage = context.findErrorPage(statusCode);
         if (errorPage != null) {
