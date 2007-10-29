@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2006/11/06 17:03:52 $
+ * @version $Revision: 1.9 $ $Date: 2006/11/17 23:06:36 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -575,7 +575,10 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                 } catch (IOException e) {
                     // Ignore
                 }
-                if (localSession == null && create) {
+
+                if ((localSession != null) && !localSession.isValid()) {
+                    localSession = null;
+                } else if (localSession == null && create) {
                     //START OF 6364900
                     localSession = 
                         context.getManager().createSession(other.getId());
