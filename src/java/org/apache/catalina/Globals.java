@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/11/21 17:39:38 $
+ * @version $Revision: 1.9 $ $Date: 2007/01/22 21:10:07 $
  */
 
 public final class Globals {
@@ -382,4 +382,16 @@ public final class Globals {
     
     public static final String WRAPPED_RESPONSE =
         "__javax.security.auth.message.response"; 
+    
+    
+    /**
+     * The servlet context attribute under which we store a flag used
+     * to mark this request as having been processed by the SSIServlet.
+     * We do this because of the pathInfo mangling happening when using
+     * the CGIServlet in conjunction with the SSI servlet. (value stored
+     * as an object of type String)
+     */
+     public static final String SSI_FLAG_ATTR =
+         "org.apache.catalina.ssi.SSIServlet";
+
 }
