@@ -379,7 +379,8 @@ public class TldLocationsCache {
      * @param ignore true if any exceptions raised when processing the given
      * JAR should be ignored, false otherwise
      */
-    private void scanJar(JarURLConnection conn, boolean ignore)
+    private void scanJar(JarURLConnection conn, boolean ignore,
+                boolean ignoreSystemUri)
             throws JasperException {
 
         JarFile jarFile = null;
@@ -400,7 +401,8 @@ public class TldLocationsCache {
                     String uri = getUriFromTld(resourcePath, stream);
                     // Add implicit map entry only if its uri is not already
                     // present in the map
-                    if (uri != null && mappings.get(uri) == null) {
+                    if (uri != null && mappings.get(uri) == null &&
+                            !(ignoreSystemUri && systemUris.contains(uri))) {
                         mappings.put(uri, new String[]{ resourcePath, name });
                     }
                 } finally {
@@ -475,7 +477,8 @@ public class TldLocationsCache {
                 }
                 // Add implicit map entry only if its uri is not already
                 // present in the map
-                if (uri != null && mappings.get(uri) == null) {
+                if (uri != null && !systemUris.contains(uri) &&
+                        mappings.get(uri) == null) {
                     mappings.put(uri, new String[] { path, null });
                 }
             }
@@ -528,22 +531,23 @@ public class TldLocationsCache {
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
+                boolean ignoreSystem = (loader == webappLoader);
                 URL[] urls = ((URLClassLoader) loader).getURLs();
                 for (int i=0; i<urls.length; i++) {
                     URLConnection conn = urls[i].openConnection();
                     if (conn instanceof JarURLConnection) {
-                        if (needScanJar(loader, webappLoader,
+                        if (needScanJar(ignoreSystem,
                                         ((JarURLConnection) conn).getJarFile().getName())) {
-                            scanJar((JarURLConnection) conn, true);
+                            scanJar((JarURLConnection) conn, true, ignoreSystem);
                         }
                     } else {
                         String urlStr = urls[i].toString();
                         if (urlStr.startsWith(FILE_PROTOCOL)
                                 && urlStr.endsWith(JAR_FILE_SUFFIX)
-                                && needScanJar(loader, webappLoader, urlStr)) {
+                                && needScanJar(ignoreSystem, urlStr)) {
                             URL jarURL = new URL("jar:" + urlStr + "!/");
                             scanJar((JarURLConnection) jarURL.openConnection(),
-                                    true);
+                                    true, ignoreSystem);
                         }
                     }
                 }
@@ -564,14 +568,14 @@ public class TldLocationsCache {
      * @return TRUE if the JAR file identified by <tt>jarPath</tt> needs to be
      * scanned for TLDs, FALSE otherwise
      */
-    private boolean needScanJar(ClassLoader loader, ClassLoader webappLoader,
+    private boolean needScanJar(boolean ignoreSystemJar,
                                 String jarPath) {
         String jarName = jarPath;
         int slash = jarPath.lastIndexOf('/');
         if (slash >= 0) {
             jarName = jarPath.substring(slash + 1);
         }
-        if (loader == webappLoader) {
+        if (ignoreSystemJar) {
             // JARs under WEB-INF/lib must be scanned unconditionally, unless
             // they are jsf or jstl jars
             return !systemJars.contains(jarName);
