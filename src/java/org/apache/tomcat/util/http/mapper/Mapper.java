@@ -549,9 +549,13 @@ public final class Mapper {
      * The given default path corresponds to the context path of one of the
      * web contexts deployed on the virtual server that has been designated as
      * the virtual server's new default-web-module.
+     *
+     * @throws Exception if there is no web context deployed on the given
+     * virtual server that matches the given default context path
      */
     public void setDefaultContextPath(String hostName,
-                                      String defaultContextPath) {
+                                      String defaultContextPath)
+            throws Exception {
 
         if (defaultContextPath != null) {
             defaultContextPathsMap.put(hostName, defaultContextPath);
@@ -579,18 +583,32 @@ public final class Mapper {
      * The given default path corresponds to the context path of one of the
      * web contexts deployed on the virtual server that has been designated as
      * the virtual server's new default-web-module.
+     *
+     * @throws Exception if there is no web context deployed on the given
+     * virtual server that matches the given default context path
      */
-    private void addDefaultContext(Host host, String defaultContextPath) {
+    private void addDefaultContext(Host host, String defaultContextPath)
+            throws Exception {
+
+        boolean defaultContextFound = false;
 
         Context[] contexts = host.contextList.contexts;
+
         if (contexts != null) {
             for (int i=0; i<contexts.length; i++) {
                 if (contexts[i].name.equals(defaultContextPath)) {
                     host.defaultContexts[0] = contexts[i];
+                    defaultContextFound = true;
                     break;
                 }
             }
-        }    
+        }
+
+        if (!defaultContextFound) {
+            throw new Exception("No context matching " + defaultContextPath
+                                + " deployed on virtual server "
+                                + host.name);
+        }
     }
     // END GlassFish 1024
 
