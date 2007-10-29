@@ -29,6 +29,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import javax.el.ELException;
@@ -135,18 +136,54 @@ public class ReflectionUtil {
                     paramString(paramTypes)));
         }
 
-        String methodName = (property instanceof String) ? (String) property
-                : property.toString();
+        String methodName = property.toString();
 
-        Method method = null;
-        try {
-            method = base.getClass().getMethod(methodName, paramTypes);
-        } catch (NoSuchMethodException nsme) {
+        Method method = getMethod(base.getClass(), methodName, paramTypes);
+        if (method == null) {
             throw new MethodNotFoundException(MessageFactory.get(
                     "error.method.notfound", base, property,
                     paramString(paramTypes)));
         }
         return method;
+    }
+
+    /*
+     * Get a public method form a public class or interface of a given method.
+     * Note that if the base is an instance of a non-public class that
+     * implements a public interface,  calling Class.getMethod() with the base
+     * will not find the method.  To correct this, a version of the
+     * same method must be found in a superclass or interface.
+     **/
+
+    static private Method getMethod(Class cl, String methodName,
+                                    Class[] paramTypes) {
+
+        Method m = null;
+        try {
+            m = cl.getMethod(methodName, paramTypes);
+        } catch (NoSuchMethodException ex) {
+            return null;
+        }
+
+        Class dclass  = m.getDeclaringClass();
+        if (Modifier.isPublic(dclass.getModifiers())) {
+            return m;
+        }
+
+        for (Class c: dclass.getInterfaces()) {
+            m = getMethod(c, methodName, paramTypes);
+            if (m != null) {
+                return m;
+            }
+        }
+        Class c = dclass.getSuperclass();
+        if (c != null) {
+            m = getMethod(c, methodName, paramTypes);
+            if (m != null) {
+                return m;
+            }
+        }
+        return null;
     }
 
     protected static final String paramString(Class[] types) {
