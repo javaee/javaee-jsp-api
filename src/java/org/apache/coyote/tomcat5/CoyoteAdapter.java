@@ -87,7 +87,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.31 $ $Date: 2007/06/05 21:47:31 $
+ * @version $Revision: 1.32 $ $Date: 2007/07/06 22:13:29 $
  */
 
 public class CoyoteAdapter
@@ -100,10 +100,12 @@ public class CoyoteAdapter
 
     public static final int ADAPTER_NOTES = 1;
 
-
     protected static final boolean ALLOW_BACKSLASH = 
         Boolean.valueOf(System.getProperty("org.apache.coyote.tomcat5.CoyoteAdapter.ALLOW_BACKSLASH", "false")).booleanValue();
 
+    private static final boolean COLLAPSE_ADJACENT_SLASHES =
+        Boolean.valueOf(System.getProperty(
+            "com.sun.enterprise.web.collapseAdjacentSlashes", "true")).booleanValue();
 
     /**
      * When mod_jk is used, the adapter must be invoked the same way 
@@ -402,7 +404,7 @@ public class CoyoteAdapter
         // START CR 6309511
         // URI character decoding
         request.convertURI(decodedURI);
-        
+
         // START GlassFish Issue 2339
         // Normalize decoded URI
         if (!normalize(decodedURI)) {
@@ -731,11 +733,13 @@ public class CoyoteAdapter
         }
 
         // Replace "//" with "/"
-        for (pos = start; pos < (end - 1); pos++) {
-            if (b[pos] == (byte) '/') {
-                while ((pos + 1 < end) && (b[pos + 1] == (byte) '/')) {
-                    copyBytes(b, pos, pos + 1, end - pos - 1);
-                    end--;
+        if (COLLAPSE_ADJACENT_SLASHES) {
+            for (pos = start; pos < (end - 1); pos++) {
+                if (b[pos] == (byte) '/') {
+                    while ((pos + 1 < end) && (b[pos + 1] == (byte) '/')) {
+                        copyBytes(b, pos, pos + 1, end - pos - 1);
+                        end--;
+                    }
                 }
             }
         }
@@ -832,14 +836,16 @@ public class CoyoteAdapter
         }
 
         // Replace "//" with "/"
-        for (pos = start; pos < (end - 1); pos++) {
-            if (c[pos] == (char) '/') {
-                while ((pos + 1 < end) && (c[pos + 1] == (char) '/')) {
-                    copyChars(c, pos, pos + 1, end - pos - 1);
-                    end--;
+        if (COLLAPSE_ADJACENT_SLASHES) {
+            for (pos = start; pos < (end - 1); pos++) {
+                if (c[pos] == (char) '/') {
+                    while ((pos + 1 < end) && (c[pos + 1] == (char) '/')) {
+                        copyChars(c, pos, pos + 1, end - pos - 1);
+                        end--;
+                    }
                 }
             }
-        }
+        }	
 
         // If the URI ends with "/." or "/..", then we append an extra "/"
         // Note: It is possible to extend the URI by 1 without any side effect
