@@ -125,7 +125,7 @@ import org.apache.coyote.tomcat5.CoyoteRequest;
  *
  * @author Craig R. McClanahan
  * @author Jason Brittain
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:22 $
+ * @version $Revision: 1.3 $ $Date: 2006/04/17 16:44:48 $
  */
 
 public final class AccessLogValve
@@ -879,8 +879,8 @@ public final class AccessLogValve
             else
                 value = "";
         } else if (pattern == 'r') {
-            StringBuffer sb = new StringBuffer();
             if (hreq != null) {
+                StringBuffer sb = new StringBuffer();
                 sb.append(hreq.getMethod());
                 sb.append(space);
                 sb.append(hreq.getRequestURI());
@@ -890,11 +890,10 @@ public final class AccessLogValve
                 }
                 sb.append(space);
                 sb.append(hreq.getProtocol());
+                value = sb.toString();
             } else {
-                sb.append("- - ");
-                sb.append(req.getProtocol());
+                value = "- - -";
             }
-            value = sb.toString();
         } else if (pattern == 'S') {
             if (request instanceof CoyoteRequest) {
                 Session sess = ((CoyoteRequest) request).getSessionInternal(false);
