@@ -55,7 +55,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/07/22 12:12:24 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:35 $
  */
 
 
@@ -518,6 +518,17 @@ public class CoyoteResponseFacade
         response.setStatus(sc, sm);
 
     }
+
+
+    // START SJSAS 6374990
+    public int getStatus() {
+        return response.getStatus();
+    }
+
+    public String getMessage() {
+        return response.getMessage();
+    }
+    // END SJSAS 6374990
 
 
     //START S1AS 4703023
