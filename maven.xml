@@ -8,8 +8,6 @@
  Copyright 2004-2005 Sun Microsystems, Inc.  All rights reserved.
  Use is subject to license terms.
 -->
-    <extend>../bootstrap/maven.xml</extend>
-
     <goal name="build" description="Build using ant">
         <j:set var="ant.target" value="all" />
         <j:set var="module.dir" value="./" />
