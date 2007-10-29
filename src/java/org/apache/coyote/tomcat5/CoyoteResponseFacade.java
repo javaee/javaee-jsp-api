@@ -55,7 +55,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:35 $
+ * @version $Revision: 1.4 $ $Date: 2006/03/08 21:10:55 $
  */
 
 
@@ -527,6 +527,14 @@ public class CoyoteResponseFacade
 
     public String getMessage() {
         return response.getMessage();
+    }
+
+    public void setSuspended(boolean suspended) {
+        response.setSuspended(suspended);
+    }
+
+    public void setAppCommitted(boolean appCommitted) {
+        response.setAppCommitted(appCommitted);
     }
     // END SJSAS 6374990
 

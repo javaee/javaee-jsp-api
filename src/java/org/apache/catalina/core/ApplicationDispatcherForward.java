@@ -174,10 +174,22 @@ class ApplicationDispatcherForward {
                                Context context) {
         try {
             // Forward control to the specified error page
+            if (response.isCommitted()) {
+                /*
+                 * If the target of the RD.forward() has called
+                 * response.sendError(), the response will have been committed,
+                 * and any attempt to RD.forward() the response to the error
+                 * page will cause an IllegalStateException.
+                 * Uncommit the response.
+                 */
+                resetResponse(response);
+            }
             ServletContext servletContext = context.getServletContext();
             RequestDispatcher rd =
                 servletContext.getRequestDispatcher(errorPage.getLocation());
             rd.forward(request, response);
+        } catch (IllegalStateException ise) {
+            log.warn("Exception processing " + errorPage, ise);
         } catch (Throwable t) {
             log.warn("Exception processing " + errorPage, t);
         }
@@ -327,6 +339,17 @@ class ApplicationDispatcherForward {
         }
 
         return ((CoyoteResponseFacade) response).getMessage();
+    }
+
+
+    private static void resetResponse(ServletResponse response) {
+   
+        while (response instanceof ServletResponseWrapper) {
+            response = ((ServletResponseWrapper) response).getResponse();
+        }
+
+        ((CoyoteResponseFacade) response).setSuspended(false);
+        ((CoyoteResponseFacade) response).setAppCommitted(false);
     }
 
 }
