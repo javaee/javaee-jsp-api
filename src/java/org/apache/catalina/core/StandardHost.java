@@ -38,6 +38,7 @@ import org.apache.catalina.DefaultContext;
 import org.apache.catalina.Deployer;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Pipeline;
 import org.apache.catalina.Valve;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.modeler.Registry;
@@ -50,7 +51,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:12 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 public class StandardHost
@@ -191,6 +192,14 @@ public class StandardHost
 
 
     // ------------------------------------------------------------- Properties
+
+
+    // START SJSAS 6331392
+    public void setPipeline(Pipeline pl) {
+        pl.setBasic(new StandardHostValve());
+        pipeline = pl;
+    }    
+    // END SJSAS 6331392
 
 
     /**

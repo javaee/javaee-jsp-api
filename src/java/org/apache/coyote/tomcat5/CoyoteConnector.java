@@ -76,7 +76,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/08/12 23:31:08 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/22 16:27:39 $
  */
 
 
@@ -368,6 +368,11 @@ public class CoyoteConnector
      * URI encoding.
      */
     private String URIEncoding = null;
+
+
+    // START SJSAS 6331392
+    private boolean isEnabled = true;
+    // END SJSAS 6331392
 
 
     // START S1AS 6188932
@@ -1257,6 +1262,17 @@ public class CoyoteConnector
         this.proxyHandler = proxyHandler;
     }
     // END S1AS 6188932
+
+
+    // START SJSAS 6331392
+    public void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+    // END SJSAS 6331392
 
 
     // --------------------------------------------------------- Public Methods

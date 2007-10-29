@@ -26,6 +26,7 @@ import java.security.cert.CertificateException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
@@ -58,7 +59,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2005/08/29 17:23:23 $
+ * @version $Revision: 1.6 $ $Date: 2005/09/23 18:13:46 $
  */
 
 public class CoyoteAdapter
@@ -161,6 +162,19 @@ public class CoyoteAdapter
             req.getParameters().setQueryStringEncoding
                 (connector.getURIEncoding());
         }
+
+        // START SJSAS 6331392
+        // Check connector for disabled state
+        if (!connector.isEnabled()) {
+            String msg = sm.getString("coyoteAdapter.listenerOff",
+                                      String.valueOf(connector.getPort()));
+            if (log.isDebugEnabled()) {
+                log.debug(msg);            
+            }
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
+            return;
+        }
+        // END SJSAS 6331392
 
         if (connector.isXpoweredBy()) {
             response.addHeader("X-Powered-By", "Servlet/2.5");
