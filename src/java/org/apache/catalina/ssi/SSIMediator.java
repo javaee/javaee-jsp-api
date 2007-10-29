@@ -50,13 +50,13 @@ import org.apache.catalina.util.Strftime;
  * @author Bip Thelin
  * @author Amy Roh
  * @author Dan Sandberg
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $, $Date: 2005/12/08 01:28:03 $
  */
 public class SSIMediator {
     protected final static String DEFAULT_CONFIG_ERR_MSG = "[an error occurred while processing this directive]";
     protected final static String DEFAULT_CONFIG_TIME_FMT = "%A, %d-%b-%Y %T %Z";
     protected final static String DEFAULT_CONFIG_SIZE_FMT = "abbrev";
-    protected static URLEncoder urlEncoder;
+    protected static final URLEncoder urlEncoder = new URLEncoder();
     protected String configErrMsg = DEFAULT_CONFIG_ERR_MSG;
     protected String configTimeFmt = DEFAULT_CONFIG_TIME_FMT;
     protected String configSizeFmt = DEFAULT_CONFIG_SIZE_FMT;
@@ -68,7 +68,6 @@ public class SSIMediator {
 
     static {
 	//We try to encode only the same characters that apache does
-	urlEncoder = new URLEncoder();
 	urlEncoder.addSafeCharacter(',');
 	urlEncoder.addSafeCharacter(':');
 	urlEncoder.addSafeCharacter('-');
