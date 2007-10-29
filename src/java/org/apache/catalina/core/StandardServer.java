@@ -98,7 +98,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * (but not required) when deploying and starting Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:37 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:01 $
  */
 
 public final class StandardServer
@@ -529,7 +529,7 @@ public final class StandardServer
             while (expected < shutdown.length()) {
                 if (random == null)
                     random = new Random(System.currentTimeMillis());
-                expected += (random.nextInt() % 1024);
+                expected += random.nextInt(1024);
             }
             while (expected > 0) {
                 int ch = -1;
