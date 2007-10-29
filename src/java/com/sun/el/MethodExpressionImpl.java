@@ -82,7 +82,7 @@ import com.sun.el.util.ReflectionUtil;
  * @see javax.el.MethodExpression
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class MethodExpressionImpl extends MethodExpression implements
         Externalizable {
@@ -280,12 +280,7 @@ public final class MethodExpressionImpl extends MethodExpression implements
             ELException {
         EvaluationContext ctx = new EvaluationContext(context, this.fnMapper,
                 this.varMapper);
-        Object v = this.getNode().invoke(ctx, this.paramTypes, params);
-        if (this.expectedType != null) {
-            return ELSupport.coerceToType(v, this.expectedType);
-        } else {
-            return v;
-        }
+        return this.getNode().invoke(ctx, this.paramTypes, params);
     }
 
     /*
