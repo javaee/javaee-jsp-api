@@ -188,6 +188,7 @@ public class PageContextImpl extends PageContext {
 	setAttribute(CONFIG, config);
 	setAttribute(PAGECONTEXT, this);
 	setAttribute(APPLICATION, context);
+        setAttribute(Constants.FIRST_REQUEST_SEEN, "true", APPLICATION_SCOPE);
 
 	isIncluded = request.getAttribute(
 	    "javax.servlet.include.servlet_path") != null;

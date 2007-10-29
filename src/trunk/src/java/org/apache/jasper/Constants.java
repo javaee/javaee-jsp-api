@@ -128,6 +128,7 @@ public class Constants {
     public static final String INC_SERVLET_PATH = "javax.servlet.include.servlet_path";
     public static final String TMP_DIR = "javax.servlet.context.tempdir";
     public static final String FORWARD_SEEN = "javax.servlet.forward.seen";
+    public static final String FIRST_REQUEST_SEEN = "jspx.1st.request";
 
     // Must be kept in sync with org/apache/catalina/Globals.java
     public static final String ALT_DD_ATTR = "org.apache.catalina.deploy.alt_dd";
