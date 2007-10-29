@@ -115,7 +115,6 @@ public class PageContextImpl extends PageContext {
     private ServletRequest request;
     private ServletResponse response;
     private HttpSession session;
-    private boolean isIncluded;
 
     // initial output stream
     private JspWriter out;
@@ -191,24 +190,15 @@ public class PageContextImpl extends PageContext {
 	setAttribute(APPLICATION, context);
         setAttribute(Constants.FIRST_REQUEST_SEEN, "true", APPLICATION_SCOPE);
 
-	isIncluded = request.getAttribute(
-	    "javax.servlet.include.servlet_path") != null;
     }
 
     public void release() {
         out = baseOut;
 	try {
-	    if (isIncluded) {
-		((JspWriterImpl)out).flushBuffer();
-                // push it into the including jspWriter
-	    } else {
-                // Old code:
-                //out.flush();
-                // Do not flush the buffer even if we're not included (i.e.
-                // we are the main page. The servlet will flush it and close
-                // the stream.
-                ((JspWriterImpl)out).flushBuffer();
-            }
+            // Do not flush the buffer even if we're not included (i.e.
+            // we are the main page. The servlet will flush it and close
+            // the stream.
+            ((JspWriterImpl)out).flushBuffer();
 	} catch (IOException ex) {
 	    log.warn("Internal error flushing the buffer in release()");
 	}

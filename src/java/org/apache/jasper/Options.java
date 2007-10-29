@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -184,6 +182,18 @@ public interface Options {
      * Are Text strings to be generated as char arrays?
      */
     public boolean genStringAsCharArray();
+
+    /**
+     * Are text strings to be generated as byte arrays, if the page is
+     * unbuffered?
+     */
+    public boolean genStringAsByteArray();
+
+    /**
+     * If the buffer attribute for the page directive is not specified,
+     * is the default "none"?
+     */
+    public boolean isDefaultBufferNone();
 
     /**
      * Modification test interval.

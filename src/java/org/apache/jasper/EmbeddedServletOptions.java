@@ -126,6 +126,10 @@ public final class EmbeddedServletOptions implements Options {
      */
     private boolean genStringAsCharArray = false;
 
+    private boolean genStringAsByteArray = true;
+
+    private boolean defaultBufferNone = false;
+
     private boolean errorOnUseBeanInvalidClassAttribute = false;
 
     /**
@@ -307,6 +311,14 @@ public final class EmbeddedServletOptions implements Options {
         return this.genStringAsCharArray;
     }
 
+    public boolean genStringAsByteArray() {
+        return this.genStringAsByteArray;
+    }
+
+    public boolean isDefaultBufferNone() {
+        return defaultBufferNone;
+    }
+
     /**
      * Class ID for use in the plugin tag when the browser is IE. 
      */
@@ -479,6 +491,8 @@ public final class EmbeddedServletOptions implements Options {
         isSmapSuppressed = getBoolean(config, isSmapSuppressed, "suppressSmap");
         isSmapDumped = getBoolean(config, isSmapDumped, "dumpSmap");
         genStringAsCharArray = getBoolean(config, genStringAsCharArray, "genStrAsCharArray");
+        genStringAsByteArray = getBoolean(config, genStringAsByteArray, "genStrAsByteArray");
+        defaultBufferNone = getBoolean(config, defaultBufferNone, "defaultBufferNone");
         errorOnUseBeanInvalidClassAttribute = getBoolean(config, errorOnUseBeanInvalidClassAttribute, "errorOnUseBeanInvalidClassAttribute");
         fork = getBoolean(config, fork, "fork");
         xpoweredBy = getBoolean(config, xpoweredBy, "xpoweredBy");

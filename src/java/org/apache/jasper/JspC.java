@@ -183,6 +183,8 @@ public class JspC implements Options {
     private URLClassLoader loader = null;
     private boolean trimSpaces = false;
     private boolean genStringAsCharArray = false;
+    private boolean genStringAsByteArray = true;
+    private boolean defaultBufferNone = false;
     private boolean xpoweredBy;
     private boolean mappedFile = false;
     private boolean poolingEnabled = true;
@@ -580,6 +582,22 @@ public class JspC implements Options {
      */
     public boolean genStringAsCharArray() {
         return genStringAsCharArray;
+    }
+
+    public void setGenStringAsByteArray(boolean genStringAsCharArray) {
+        this.genStringAsByteArray = genStringAsByteArray;
+    }
+
+    public boolean genStringAsByteArray() {
+        return genStringAsByteArray;
+    }
+
+    public boolean isDefaultBufferNone() {
+        return defaultBufferNone;
+    }
+
+    public void setDefaultBufferNone() {
+        this.defaultBufferNone = defaultBufferNone;
     }
 
     /**

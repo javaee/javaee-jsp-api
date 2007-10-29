@@ -490,6 +490,10 @@ public class PageInfo {
 	return buffer;
     }
 
+    public void setBuffer(int size) {
+        buffer = size;
+    }
+
 
     /*
      * session

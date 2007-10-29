@@ -133,6 +133,10 @@ public class Compiler {
         if (jspProperty.getIncludeCoda() != null) {
 	    pageInfo.setIncludeCoda(jspProperty.getIncludeCoda());
         }
+        if (options.isDefaultBufferNone() && pageInfo.getBufferValue() == null){
+            // Set to unbuffered if not specified explicitly
+            pageInfo.setBuffer(0);
+        }
 
         String javaFileName = ctxt.getServletJavaFileName();
         ServletWriter writer = null;

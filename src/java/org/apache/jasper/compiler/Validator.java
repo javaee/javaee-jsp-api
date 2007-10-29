@@ -571,7 +571,6 @@ class Validator {
 	public void visit(Node.SetProperty n) throws JasperException {
             JspUtil.checkAttributes("SetProperty", n,
                                     setPropertyAttrs, err);
-	    String name = n.getTextAttribute("name");
 	    String property = n.getTextAttribute("property");
 	    String param = n.getTextAttribute("param");
 	    String value = n.getAttributeValue("value");

@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -39,6 +37,9 @@ import org.apache.jasper.Constants;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.security.SecurityUtil;
 
+import com.sun.enterprise.web.io.ByteWriter;
+
+
 /**
  * Write text to a character-output stream, buffering characters so as
  * to provide for the efficient writing of single characters, arrays,
@@ -48,9 +49,14 @@ import org.apache.jasper.security.SecurityUtil;
  * buffered. 
  * 
  * This needs revisiting when the buffering problems in the JSP spec
- * are fixed -akv 
+ * are fixed -akv  What buffering problems? -kmc
+ *
+ * Add method for writing bytes.  This allows static texts to be pre-encoded,
+ * for performance.  Note that this can be done only if the page is unbuffered.
+ * -kmc
  *
  * @author Anil K. Vijendran
+ * @author Kin-man Chung
  */
 public class JspWriterImpl extends JspWriter {
 
@@ -60,6 +66,8 @@ public class JspWriterImpl extends JspWriter {
     private int nextChar;
     private boolean flushed = false;
     private boolean closed = false;
+    protected boolean implementsByteWriter = true;
+    protected ByteWriter byteOut;
     
     public JspWriterImpl() {
 	super( Constants.DEFAULT_BUFFER_SIZE, true );
@@ -219,7 +227,6 @@ public class JspWriterImpl extends JspWriter {
             out.close();
         out = null;
         closed = true;
-        //            cb = null;
     }
 
     /**
@@ -233,6 +240,43 @@ public class JspWriterImpl extends JspWriter {
     private void ensureOpen() throws IOException {
 	if (response == null || closed)
 	    throw new IOException("Stream closed");
+    }
+
+
+    /**
+     * Attempt to write a String pre-encoded with the page encoding.
+     *
+     * @param bytesOK If true, write out the byte array,
+     *                else, write out the String.
+     * @param buf     The text encoded with the page encoding
+     * @param str     The original text
+     */
+    public void write(boolean bytesOK, byte buf[], String str)
+            throws IOException {
+
+        ensureOpen();
+        if (bufferSize == 0 && bytesOK && implementsByteWriter) {
+            write(buf, 0, buf.length, str.length());
+        } else {
+            write(str);
+        }
+    }
+
+    private void initByteOut() throws IOException {
+        initOut();
+        if (byteOut == null) {
+            try {
+                byteOut = (ByteWriter) out;
+            } catch (ClassCastException ex) {
+                implementsByteWriter = false;
+            }
+        }
+    }
+
+    public void write(byte buf[], int off, int len, int strlen)
+            throws IOException {
+        initByteOut();
+        byteOut.write(buf, off, len, strlen);
     }
 
 

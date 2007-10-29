@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -86,9 +84,10 @@ class Generator {
     private JspCompilationContext ctxt;
     private boolean isPoolingEnabled;
     private boolean breakAtLF;
+    private boolean genBytes;
     private PageInfo pageInfo;
     private Vector tagHandlerPoolNames;
-    private GenBuffer charArrayBuffer;
+    private GenBuffer arrayBuffer;
 
     /**
      * @param s the input string
@@ -190,7 +189,7 @@ class Generator {
 
             public void visit(Node.Declaration n) throws JasperException {
                 n.setBeginJavaLine(out.getJavaLine());
-                out.printMultiLn(new String(n.getText()));
+                out.printMultiLn(n.getText());
                 out.println();
                 n.setEndJavaLine(out.getJavaLine());
             }
@@ -470,6 +469,30 @@ class Generator {
             out.printil("}");
             out.println();
         }
+
+        // Codes to support genStringAsByteArray option
+        // Generate a static variable for the initial response encoding
+        if (genBytes) {
+            // first get the respons encoding
+            String contentType = pageInfo.getContentType();
+            String encoding = "ISO-8859-1";
+            int i = contentType.indexOf("charset=");
+            if (i > 0)
+                encoding = contentType.substring(i+8);
+
+            // Make sure the encoding is supported
+            // Assume that this can be determined at compile time
+            try {
+                "testing".getBytes(encoding);
+                out.printin("private static final String _jspx_encoding = ");
+                out.print(quote(encoding));
+                out.println(";");
+                out.printil("private boolean _jspx_gen_bytes = true;");
+                out.printil("private boolean _jspx_encoding_tested;");
+            } catch (java.io.UnsupportedEncodingException ex) {
+                genBytes = false;
+            }
+        }
     }
 
     /**
@@ -514,6 +537,40 @@ class Generator {
         out.popIndent();
         out.printil("}");
         out.println();
+
+        // Method to get bytes from String
+        if (genBytes) {
+            out.printil("private static byte[] _jspx_getBytes(String s) {");
+            out.pushIndent();
+            out.printil("try {");
+            out.pushIndent();
+            out.printil("return s.getBytes(_jspx_encoding);");
+            out.popIndent();
+            out.printil("} catch (java.io.UnsupportedEncodingException ex) {");
+            out.printil("}");
+            out.printil("return null;");
+            out.popIndent();
+            out.printil("}");
+            out.println();
+
+            // Generate code to see if the response encoding has been set
+            // differently from the encoding declared in the page directive.
+            // Note that we only need to do the test once.  The assumption
+            // is that the encoding cannot be changed once some data has been
+            // written.
+            out.printil("private boolean _jspx_same_encoding(String encoding) {");
+            out.pushIndent();
+            out.printil("if (! _jspx_encoding_tested) {");
+            out.pushIndent();
+            out.printil("_jspx_gen_bytes = _jspx_encoding.equals(encoding);");
+            out.printil("_jspx_encoding_tested = true;");
+            out.popIndent();
+            out.printil("}");
+            out.printil("return _jspx_gen_bytes;");
+            out.popIndent();
+            out.printil("}");
+            out.println();
+        }
 
         generateTagHandlerInit();
         generateTagHandlerDestroy();
@@ -590,6 +647,7 @@ class Generator {
         out.printil("ServletConfig config = null;");
         out.printil("JspWriter out = null;");
         out.printil("Object page = this;");
+
         out.printil("JspWriter _jspx_out = null;");
         out.printil("PageContext _jspx_page_context = null;");
         out.println();
@@ -630,7 +688,6 @@ class Generator {
         out.printil("_jspx_resourceInjector = (org.apache.jasper.runtime.ResourceInjector) application.getAttribute(\"com.sun.appserv.jsp.resource.injector\");");
         out.println();
     }
-
 
     /**
      * Generates an XML Prolog, which includes an XML declaration and
@@ -722,7 +779,7 @@ class Generator {
         private ArrayList methodsBuffered;
         private FragmentHelperClass fragmentHelperClass;
         private int methodNesting;
-        private int charArrayCount;
+        private int arrayCount;
         private HashMap textMap;
 
         /**
@@ -1701,7 +1758,7 @@ class Generator {
                     out.printil("PageContext pageContext = _jspx_page_context;");
                 }
                 out.printil("JspWriter out = _jspx_page_context.getOut();");
-                generateLocalVariables(out, n);
+                generateLocalVariables(out, n, genBytes);
             }
 
             if (n.implementsSimpleTag()) {
@@ -1711,6 +1768,7 @@ class Generator {
                  * Classic tag handler: Generate code for start element, body,
                  * and end element
                  */
+                boolean genBytesSave = genBytes;
                 generateCustomStart(
                     n,
                     handlerInfo,
@@ -1745,6 +1803,7 @@ class Generator {
                     tagHandlerVar,
                     tagEvalVar,
                     tagPushBodyCountVar);
+                genBytes = genBytesSave;
             }
 
             if (ci.isScriptless() && !ci.hasScriptingVars()) {
@@ -1915,47 +1974,73 @@ class Generator {
             }
 
             if (textSize < 3) {
-               // Special case small text strings
-               n.setBeginJavaLine(out.getJavaLine());
-               int lineInc = 0;
-               for (int i = 0; i < textSize; i++) {
-                   char ch = text.charAt(i);
-                   out.printil("out.write(" + quote(ch) + ");");
-                   if (i > 0) {
-                       n.addSmap(lineInc);
-                   }
-                   if (ch == '\n') {
-                       lineInc++;
-                   }
-               }
-               n.setEndJavaLine(out.getJavaLine());
-               return;
-           }
+                // Special case small text strings
+                n.setBeginJavaLine(out.getJavaLine());
+                int lineInc = 0;
+                for (int i = 0; i < textSize; i++) {
+                    char ch = text.charAt(i);
+                    out.printil("out.write(" + quote(ch) + ");");
+                    if (i > 0) {
+                        n.addSmap(lineInc);
+                    }
+                    if (ch == '\n') {
+                        lineInc++;
+                    }
+                }
+                n.setEndJavaLine(out.getJavaLine());
+                return;
+             }
 
-            if (ctxt.getOptions().genStringAsCharArray()) {
-               // Generate Strings as char arrays, for performance
-                ServletWriter caOut;
-                if (charArrayBuffer == null) {
-                    charArrayBuffer = new GenBuffer();
-                    caOut = charArrayBuffer.getOut();
-                    caOut.pushIndent();
+            if (genBytes || ctxt.getOptions().genStringAsCharArray()) {
+                // Generate Strings as byte or char arrays, for performance
+                n.setBeginJavaLine(out.getJavaLine());
+
+                ServletWriter aOut;
+                if (arrayBuffer == null) {
+                    arrayBuffer = new GenBuffer();
+                    aOut = arrayBuffer.getOut();
+                    aOut.pushIndent();
                     textMap = new HashMap();
                 } else {
-                    caOut = charArrayBuffer.getOut();
+                    aOut = arrayBuffer.getOut();
                 }
-                String charArrayName = (String) textMap.get(text);
-                if (charArrayName == null) {
-                    charArrayName = "_jspx_char_array_" + charArrayCount++;
-                    textMap.put(text, charArrayName);
-                    caOut.printin("static char[] ");
-                    caOut.print(charArrayName);
-                    caOut.print(" = ");
-                    caOut.print(quote(text));
-                    caOut.println(".toCharArray();");
+                String arrayName = (String) textMap.get(text);
+                
+                if (arrayName == null) {
+                    arrayName = "_jspx_array_" + arrayCount++;
+                    textMap.put(text, arrayName);
+                    if (genBytes) {
+                        // First output the String itself
+                        aOut.printin("private final static String ");
+                        aOut.print(arrayName);
+                        aOut.print("S = ");
+                        aOut.print(quote(text));
+                        aOut.println(";");
+                        // Then output the bytes for the String
+                        aOut.printin("private final static byte[] ");
+                        aOut.print(arrayName);
+                        aOut.print(" = _jspx_getBytes(");
+                        aOut.print(arrayName);
+                        aOut.println("S);");
+                    } else {
+                        aOut.printin("private final static char[] ");
+                        aOut.print(arrayName);
+                        aOut.print(" = ");
+                        aOut.print(quote(text));
+                        aOut.println(".toCharArray();");
+                    }    
                 }
 
-                n.setBeginJavaLine(out.getJavaLine());
-                out.printil("out.write(" + charArrayName + ");");
+                if (genBytes) {
+                    out.printin("((org.apache.jasper.runtime.JspWriterImpl)out).write(_jspx_same_encoding(response.getCharacterEncoding()), ");
+                    out.print(arrayName);
+                    out.print(", ");
+                    out.print(arrayName);
+                    out.println("S);");
+                } else {
+                    out.printil("out.write(" + arrayName + ");");
+                }
+
                 n.setEndJavaLine(out.getJavaLine());
                 return;
             }
@@ -2275,6 +2360,7 @@ class Generator {
                     out.println(
                         " != javax.servlet.jsp.tagext.Tag.EVAL_BODY_INCLUDE) {");
                     // Assume EVAL_BODY_BUFFERED
+                    genBytes = false;  // Can't handle bytes in a body content
                     out.pushIndent();
                     out.printil("out = _jspx_page_context.pushBody();");
                     if (n.implementsTryCatchFinally()) {
@@ -3108,7 +3194,10 @@ class Generator {
                 // Use a fixed name for push body count, to simplify code gen
                 pushBodyCountVar = "_jspx_push_body_count";
             }
+            boolean genBytesSave = genBytes;  // can't output bytes in fragments
+            genBytes = false;
             visitBody(n);
+            genBytes = genBytesSave;
             out = outSave;
             parent = tmpParent;
             isSimpleTagParent = isSimpleTagParentSave;
@@ -3158,9 +3247,7 @@ class Generator {
                                 + varName
                                 + " = "
                                 + quote(
-                                    new String(
-                                        ((Node.TemplateText)bodyElement)
-                                            .getText()))
+                                     ((Node.TemplateText)bodyElement).getText())
                                 + ";");
                     }
                 }
@@ -3212,7 +3299,8 @@ class Generator {
         }
     }
 
-    private static void generateLocalVariables(ServletWriter out, Node n)
+    private static void generateLocalVariables(ServletWriter out, Node n,
+                                               boolean genBytes)
         throws JasperException {
         Node.ChildInfo ci;
         if (n instanceof Node.CustomTag) {
@@ -3241,7 +3329,7 @@ class Generator {
             out.printil(
                 "HttpServletRequest request = (HttpServletRequest)_jspx_page_context.getRequest();");
         }
-        if (ci.hasIncludeAction()) {
+        if (ci.hasIncludeAction() || genBytes) {
             out.printil(
                 "HttpServletResponse response = (HttpServletResponse)_jspx_page_context.getResponse();");
         }
@@ -3266,8 +3354,8 @@ class Generator {
         }
 
         // Append char array declarations
-        if (charArrayBuffer != null) {
-            out.printMultiLn(charArrayBuffer.toString());
+        if (arrayBuffer != null) {
+            out.printMultiLn(arrayBuffer.toString());
         }
 
         // Close the class definition
@@ -3319,7 +3407,7 @@ class Generator {
     Generator(ServletWriter out, Compiler compiler) {
         this.out = out;
         methodsBuffered = new ArrayList();
-        charArrayBuffer = null;
+        arrayBuffer = null;
         err = compiler.getErrorDispatcher();
         ctxt = compiler.getCompilationContext();
         fragmentHelperClass =
@@ -3343,6 +3431,8 @@ class Generator {
         }
         beanInfo = pageInfo.getBeanRepository();
         breakAtLF = ctxt.getOptions().getMappedFile();
+        genBytes = pageInfo.getBuffer() == 0 &&
+                   ctxt.getOptions().genStringAsByteArray();
         if (isPoolingEnabled) {
             tagHandlerPoolNames = new Vector();
         }
@@ -4048,7 +4138,7 @@ class Generator {
             out.popIndent();
             out.printil("{");
             out.pushIndent();
-            generateLocalVariables(out, parent);
+            generateLocalVariables(out, parent, false);
 
             return result;
         }
