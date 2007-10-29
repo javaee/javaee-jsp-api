@@ -118,8 +118,8 @@ public class JspC implements Options {
     private static final String SWITCH_CLASS_NAME = "-c";
     private static final String SWITCH_FULL_STOP = "--";
     private static final String SWITCH_COMPILE = "-compile";
-    private static final String SWITCH_SOURCE = "-source";
-    private static final String SWITCH_TARGET = "-target";
+    private static final String SWITCH_SOURCE = "-compilerSourceVM";
+    private static final String SWITCH_TARGET = "-compilerTargetVM";
     private static final String SWITCH_URI_BASE = "-uribase";
     private static final String SWITCH_URI_ROOT = "-uriroot";
     private static final String SWITCH_FILE_WEBAPP = "-webapp";
