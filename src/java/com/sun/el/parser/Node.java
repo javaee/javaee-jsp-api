@@ -34,7 +34,7 @@ import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public interface Node {
 
@@ -71,4 +71,7 @@ public interface Node {
   public void accept(NodeVisitor visitor) throws ELException;
   public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes) throws ELException;
   public Object invoke(EvaluationContext ctx, Class[] paramTypes, Object[] paramValues) throws ELException;
+
+  public boolean equals(Object n);
+  public int hashCode();
 }

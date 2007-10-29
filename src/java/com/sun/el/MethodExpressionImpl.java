@@ -153,8 +153,11 @@ public final class MethodExpressionImpl extends MethodExpression implements
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        return (obj instanceof MethodExpressionImpl && obj.hashCode() == this
-                .hashCode());
+        if (obj instanceof MethodExpressionImpl) {
+            MethodExpressionImpl me = (MethodExpressionImpl) obj;
+            return getNode().equals(me.getNode());
+        }
+        return false;
     }
 
     /**
@@ -242,7 +245,7 @@ public final class MethodExpressionImpl extends MethodExpression implements
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return this.expr.hashCode();
+        return getNode().hashCode();
     }
 
     /**

@@ -57,10 +57,14 @@ public class MethodExpressionLiteral extends MethodExpression implements Externa
     }
 
     public Object invoke(ELContext context, Object[] params) throws ELException {
-        if (this.expectedType != null) {
-            return ELSupport.coerceToType(this.expr, this.expectedType);
-        } else {
+        if (this.expectedType == null) {
             return this.expr;
+        }
+
+        try {
+            return ELSupport.coerceToType(this.expr, this.expectedType);
+        } catch (Exception ex) {
+            throw new ELException (ex);
         }
     }
 

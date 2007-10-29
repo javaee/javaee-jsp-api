@@ -93,7 +93,7 @@ import com.sun.el.util.ReflectionUtil;
  * @see javax.el.ValueExpression
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class ValueExpressionImpl extends ValueExpression implements
         Externalizable {
@@ -130,8 +130,11 @@ public final class ValueExpressionImpl extends ValueExpression implements
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        return (obj instanceof ValueExpressionImpl && obj.hashCode() == this
-                .hashCode());
+        if (obj instanceof ValueExpressionImpl) {
+            ValueExpressionImpl v = (ValueExpressionImpl) obj;
+            return getNode().equals(v.getNode());
+        }
+        return false;
     }
 
     /*
@@ -202,7 +205,7 @@ public final class ValueExpressionImpl extends ValueExpression implements
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return this.expr.hashCode();
+        return getNode().hashCode();
     }
 
     /*

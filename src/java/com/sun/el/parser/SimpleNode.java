@@ -33,7 +33,7 @@ import com.sun.el.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public abstract class SimpleNode extends ELSupport implements Node {
     protected Node parent;
@@ -160,5 +160,54 @@ public abstract class SimpleNode extends ELSupport implements Node {
 
     public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes) throws ELException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object node) {
+        if (! (node instanceof SimpleNode)) {
+            return false;
+        }
+        SimpleNode n = (SimpleNode) node;
+        if (this.id != n.id) {
+            return false;
+        }
+        if (this.children == null && n.children == null) {
+            return true;
+        }
+        if (this.children == null || n.children == null) {
+            // One is null and the other is non-null
+            return false;
+        }
+        if (this.children.length != n.children.length) {
+            return false;
+        }
+        if (this.children.length == 0) {
+            if (this.image == null) {
+                return n.image == null;
+            }
+            return this.image.equals(n.image);
+        }
+        for (int i = 0; i < this.children.length; i++) {
+            if (! this.children[i].equals(n.children[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        if (this.children == null || this.children.length == 0) {
+            if (this.image == null) {
+                return this.image.hashCode();
+            }
+            return this.id;
+        }
+        int h = 0;
+        for (int i = this.children.length - 1; i >=0; i--) {
+            h = h + h + h + this.children[i].hashCode();
+        }
+        h = h + h + h + id;
+        return h;
     }
 }
