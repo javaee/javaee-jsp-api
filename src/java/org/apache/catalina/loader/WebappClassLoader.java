@@ -126,7 +126,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.23 $ $Date: 2006/11/10 01:18:41 $
+ * @version $Revision: 1.24 $ $Date: 2006/11/13 17:11:05 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1195,8 +1195,9 @@ public class WebappClassLoader
             ResourceEntry entry = (ResourceEntry) resourceEntries.get(name);
             try {
                 String repository = entry.codeBase.toString();
-                if ((repository.endsWith(".jar")) 
-                    && (!(name.endsWith(".class")))) {
+                if ((repository.endsWith(".jar"))
+                        && !(name.endsWith(".class"))
+                        && !(name.endsWith(".jar"))) {
                     // Copy binary content to the work directory if not present
                     File resourceFile = new File(loaderDir, name);
                     url = resourceFile.toURL();
