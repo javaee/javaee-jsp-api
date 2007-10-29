@@ -287,7 +287,8 @@ public final class ApplicationFilterFactory {
         if (servletName == null) {
             return (false);
         } else {
-            if (servletName.equals(filterMap.getServletName())) {
+            if (servletName.equals(filterMap.getServletName())
+                    || "*".equals(filterMap.getServletName())) {
                 return (true);
             } else {
                 return false;
