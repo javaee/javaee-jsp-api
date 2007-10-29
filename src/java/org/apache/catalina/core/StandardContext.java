@@ -131,7 +131,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.42 $ $Date: 2007/03/19 19:37:47 $
+ * @version $Revision: 1.43 $ $Date: 2007/03/21 19:43:57 $
  */
 
 public class StandardContext
@@ -4896,7 +4896,8 @@ public class StandardContext
             if (log.isDebugEnabled())
                 log.debug("Configuring default Resources");
             try {
-                if ((docBase != null) && (docBase.endsWith(".war")))
+                if ((docBase != null) && (docBase.endsWith(".war")) && 
+                    (!(new File(docBase).isDirectory()))) 
                     setResources(new WARDirContext());
                 else
                     setResources(new FileDirContext());
