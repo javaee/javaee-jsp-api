@@ -38,6 +38,7 @@
         <pathelement location="${javaee.jar}"/>
         <pathelement location="${ant.jar}"/>
         <pathelement location="${commons-logging.jar}"/>
+        <pathelement location="${pwc.jar}"/>
     </path>
 
     &commonBuild;
@@ -83,6 +84,10 @@
         <jar destfile="${glassfish.lib.home}/appserv-rt.jar"
              update="true"
              basedir="target/classes"/> 
+        <jar destfile="${glassfish.home}/../pwc/pwc.jar"
+             update="true"
+             basedir="target/classes"/> 
+
     </target>
 
     <target name="jar-init">
