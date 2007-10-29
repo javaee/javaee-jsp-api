@@ -89,7 +89,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:30 $
+ * @version $Revision: 1.5 $ $Date: 2006/01/27 19:35:19 $
  */
 
 final class ApplicationDispatcher
@@ -658,6 +658,9 @@ final class ApplicationDispatcher
             context.getManager().lockSession(request); 
         }       
         try {
+            if(crossContext) {
+                context.getManager().preRequestDispatcherProcess(request, response);
+            }            
             doInvoke(request,response);
             if(crossContext) {
                 context.getManager().postRequestDispatcherProcess(request, response);
