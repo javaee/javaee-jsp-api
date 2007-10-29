@@ -21,6 +21,9 @@
 
 package org.apache.jasper.servlet;
 
+// START PWC 6300204
+import java.io.FileNotFoundException;
+// END PWC 6300204
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -358,6 +361,22 @@ public class JspServlet extends HttpServlet {
                     if (null == context.getResource(jspUri)
                             && !options.getUsePrecompiled()) {
                     // END PWC 6181923
+
+                        // START PWC 6300204
+                        String includeRequestUri = (String) 
+                            request.getAttribute("javax.servlet.include.request_uri");
+                        if (includeRequestUri != null) {
+                            // Missing JSP resource has been the target of a
+                            // RequestDispatcher.include().
+                            // Throw an exception (rather than returning a 
+                            // 404 response error code), because any call to
+                            // response.sendError() must be ignored by the
+                            // servlet engine when issued from within an
+                            // included resource (as per the Servlet spec).
+                            throw new FileNotFoundException(jspUri);
+                        }
+                        // END PWC 6300204
+
                         /* RIMOD PWC 6282167, 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                            jspUri);
