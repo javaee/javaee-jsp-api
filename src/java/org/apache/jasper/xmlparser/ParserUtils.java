@@ -67,7 +67,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/06/20 22:28:21 $
+ * @version $Revision: 1.9 $ $Date: 2006/07/12 20:39:25 $
  */
 
 public class ParserUtils {
@@ -95,6 +95,19 @@ public class ParserUtils {
 
     private static HashMap<String, Schema> schemaCache =
         new HashMap<String, Schema>();
+
+    /**
+     * List of the Public IDs that we cache, and their
+     * associated location. This is used by 
+     * an EntityResolver to return the location of the
+     * cached copy of a DTD.
+     */
+    static final String[] CACHED_DTD_PUBLIC_IDS = {
+	Constants.TAGLIB_DTD_PUBLIC_ID_11,
+	Constants.TAGLIB_DTD_PUBLIC_ID_12,
+	Constants.WEBAPP_DTD_PUBLIC_ID_22,
+	Constants.WEBAPP_DTD_PUBLIC_ID_23,
+    };
 
     // START PWC 6386258
     static final String[] CACHED_DTD_RESOURCE_PATHS = {
@@ -410,8 +423,8 @@ class MyEntityResolver implements EntityResolver {
     public InputSource resolveEntity(String publicId, String systemId)
 	throws SAXException
     {
-	for (int i=0; i<Constants.CACHED_DTD_PUBLIC_IDS.length; i++) {
-	    String cachedDtdPublicId = Constants.CACHED_DTD_PUBLIC_IDS[i];
+	for (int i=0; i<ParserUtils.CACHED_DTD_PUBLIC_IDS.length; i++) {
+	    String cachedDtdPublicId = ParserUtils.CACHED_DTD_PUBLIC_IDS[i];
 	    if (cachedDtdPublicId.equals(publicId)) {
                 /* PWC 6386258
 		String resourcePath = Constants.CACHED_DTD_RESOURCE_PATHS[i];

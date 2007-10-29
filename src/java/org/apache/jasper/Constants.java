@@ -179,19 +179,6 @@ public class Constants {
     public static final String SCHEMA_LOCATION_WEBAPP_25
         = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd";
 
-    /**
-     * List of the Public IDs that we cache, and their
-     * associated location. This is used by 
-     * an EntityResolver to return the location of the
-     * cached copy of a DTD.
-     */
-    public static final String[] CACHED_DTD_PUBLIC_IDS = {
-	TAGLIB_DTD_PUBLIC_ID_11,
-	TAGLIB_DTD_PUBLIC_ID_12,
-	WEBAPP_DTD_PUBLIC_ID_22,
-	WEBAPP_DTD_PUBLIC_ID_23,
-    };
-
     /* PWC 6386258
     public static final String[] CACHED_DTD_RESOURCE_PATHS = {
 	TAGLIB_DTD_RESOURCE_PATH_11,
