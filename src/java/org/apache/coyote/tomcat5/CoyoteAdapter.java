@@ -56,6 +56,9 @@ import org.apache.tomcat.util.buf.B2CConverter;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
+// START GlassFish 936
+import org.apache.tomcat.util.buf.UEncoder;
+// END GlassFish 936
 /* CR 6309511
 import org.apache.tomcat.util.http.Cookies;
 import org.apache.tomcat.util.http.ServerCookie;
@@ -71,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.14 $ $Date: 2006/07/04 18:10:15 $
+ * @version $Revision: 1.15 $ $Date: 2006/08/10 21:35:20 $
  */
 
 public class CoyoteAdapter
@@ -99,7 +102,9 @@ public class CoyoteAdapter
         super();
         this.connector = connector;
         this.debug = connector.getDebug();
-
+        // START GlassFish 936
+        urlEncoder.addSafeCharacter('/');
+        // END GlassFish 936
     }
 
 
@@ -117,6 +122,9 @@ public class CoyoteAdapter
      */
     private int debug = 0;
 
+    // START GlassFish 936
+    private UEncoder urlEncoder = new UEncoder();
+    // END GlassFish 936
 
     /**
      * The match string for identifying a session ID parameter.
@@ -443,6 +451,9 @@ public class CoyoteAdapter
                 // shouldn't matter
                 redirectPath = redirectPath + "?" + query;
             }
+            // START GlassFish 936
+            redirectPath = urlEncoder.encodeURL(redirectPath);
+            // END GlassFish 936
             response.sendRedirect(redirectPath);
             return false;
         }
