@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.38 $ $Date: 2006/10/23 21:33:08 $
+ * @version $Revision: 1.39 $ $Date: 2006/10/27 16:39:55 $
  */
 
 public class CoyoteRequest
@@ -3157,7 +3157,7 @@ public class CoyoteRequest
         if (semicolon > 0) {
             sessionIdStart = start + semicolon;
             semicolon2 = uriBC.indexOf
-                (';', start + semicolon + match.length());
+                (';', semicolon + match.length());
             uriBC.setEnd(start + semicolon);
             byte[] buf = uriBC.getBuffer();
             if (semicolon2 >= 0) {
