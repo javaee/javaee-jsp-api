@@ -232,7 +232,7 @@ public class JspContextWrapper extends PageContext {
 	}
     }
 
-    public Enumeration getAttributeNamesInScope(int scope) {
+    public Enumeration<String> getAttributeNamesInScope(int scope) {
         if (scope == PAGE_SCOPE) {
             return pageAttributes.keys();
 	}
