@@ -82,9 +82,9 @@ class TagFileProcessor {
             new JspUtil.ValidAttribute("type"),
             new JspUtil.ValidAttribute("description"),
             new JspUtil.ValidAttribute("deferredValue"),
+            new JspUtil.ValidAttribute("deferredValueType"),
             new JspUtil.ValidAttribute("deferredMethod"),
-            new JspUtil.ValidAttribute("expectedType"),
-            new JspUtil.ValidAttribute("methodSignature")
+            new JspUtil.ValidAttribute("deferredMethodSignature")
         };
 
         private static final JspUtil.ValidAttribute[] variableDirectiveAttrs = {
@@ -201,7 +201,7 @@ class TagFileProcessor {
                                           n.getAttributeValue("deferredValue"));
             boolean isDeferredMethod = JspUtil.booleanValue(
                                          n.getAttributeValue("deferredMethod"));
-            String expectedType = n.getAttributeValue("expectedType");
+            String expectedType = n.getAttributeValue("deferredValueType");
             if (expectedType == null) {
                 if (isDeferredValue) {
                     expectedType = "java.lang.Object";
@@ -210,7 +210,7 @@ class TagFileProcessor {
             else {
                 isDeferredValue = true;
             }
-            String methodSignature = n.getAttributeValue("methodSignature");
+            String methodSignature = n.getAttributeValue("deferredMethodSignature");
             if (methodSignature == null) {
                 if (isDeferredMethod) {
                     methodSignature = "void method()";

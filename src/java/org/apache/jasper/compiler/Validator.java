@@ -989,14 +989,16 @@ class Validator {
                                 if (el.hasDollarExpression() &&
                                         !tldAttrs[j].canBeRequestTime()) {
                                     err.jspError(n,
-                                        "jsp.error.el.deferred.dollar");
+                                        "jsp.error.el.deferred.dollar",
+                                        tldAttrs[j].getName());
                                 }
                                 if (el.hasPoundExpression() &&
                                         !tldAttrs[j].isDeferredValue() &&
                                         !tldAttrs[j].isDeferredMethod()) {
                                     if ("2.1".equals(n.getJspVersion())) {
                                         err.jspError(n,
-                                            "jsp.error.el.nondeferred.pound");
+                                            "jsp.error.el.nondeferred.pound",
+                                            tldAttrs[j].getName());
                                     } else {
                                         // #{} needs to be escaped before
                                         // sending it to EL interpreter
