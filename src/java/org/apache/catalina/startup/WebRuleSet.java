@@ -44,7 +44,7 @@ import org.xml.sax.Attributes;
  * deployment descriptor (<code>/WEB-INF/web.xml</code>) resource.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:11 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:07 $
  */
 
 public class WebRuleSet extends RuleSetBase {
@@ -423,6 +423,12 @@ public class WebRuleSet extends RuleSetBase {
         digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/locale", 0);
         digester.addCallParam(prefix + "web-app/locale-encoding-mapping-list/locale-encoding-mapping/encoding", 1);
 
+        // START GlassFish 747
+        digester.addCallMethod(prefix + "web-app/jsp-config/taglib",
+                               "addTaglib", 2);
+        digester.addCallParam(prefix + "web-app/jsp-config/taglib/taglib-uri", 0);
+        digester.addCallParam(prefix + "web-app/jsp-config/taglib/taglib-location", 1);
+        // END GlassFish 747
     }
 
     /**
