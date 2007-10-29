@@ -32,7 +32,7 @@ import java.util.Properties;
  * when integrating Tomcat.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:31 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
  */
 
 public class ServerInfo {
@@ -60,20 +60,21 @@ public class ServerInfo {
         } catch (Throwable t) {
             ;
         }
-        */
-        // END S1AS 5022949
-        // BEGIN S1AS 5022949
-        serverInfo = System.getProperty("product.name");
-        // END S1AS 5022949
-
         if (serverInfo == null)
             serverInfo = "Apache Tomcat";
-
+        */
+        // END S1AS 5022949
     }
 
 
     // --------------------------------------------------------- Public Methods
 
+
+    // START PWC 5022949
+    public static void setServerInfo(String info) {
+        serverInfo = info;
+    }
+    // END PWC 5022949
 
     /**
      * Return the server identification for this version of Tomcat.
