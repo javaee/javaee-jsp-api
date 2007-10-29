@@ -100,7 +100,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.21 $ $Date: 2007/04/20 16:00:17 $
+ * @version $Revision: 1.22 $ $Date: 2007/05/05 05:32:18 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -804,7 +804,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
                 domain=ctx.getEngineName();
                 distributable = ctx.getDistributable();
                 StandardHost hst=(StandardHost)ctx.getParent();
-                String path = ctx.getPath();
+                String path = ctx.getEncodedPath();
                 if (path.equals("")) {
                     path = "/";
                 }   

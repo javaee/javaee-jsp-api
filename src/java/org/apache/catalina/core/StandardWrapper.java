@@ -88,7 +88,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2007/02/09 17:40:16 $
+ * @version $Revision: 1.11 $ $Date: 2007/05/05 05:31:54 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -1828,7 +1828,7 @@ public class StandardWrapper
 
     protected void registerJMX(StandardContext ctx) {
 
-        String parentName = ctx.getName();
+        String parentName = ctx.getEncodedPath();
         parentName = ("".equals(parentName)) ? "/" : parentName;
 
         String hostName = ctx.getParent().getName();

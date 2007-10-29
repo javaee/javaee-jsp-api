@@ -144,7 +144,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.45 $ $Date: 2007/05/01 18:58:23 $
+ * @version $Revision: 1.46 $ $Date: 2007/05/05 05:31:54 $
  */
 
 public class StandardContext
@@ -4598,10 +4598,10 @@ public class StandardContext
             }
             // Register the cache in JMX
             if (isCachingAllowed()) {
-                ObjectName resourcesName = 
-                    new ObjectName(this.getDomain() + ":type=Cache,host=" 
-                                   + getHostname() + ",path=" 
-                                   + (("".equals(getPath()))?"/":getPath()));
+                ObjectName resourcesName = new ObjectName(
+                    this.getDomain() + ":type=Cache,host=" 
+                    + getHostname() + ",path=" 
+                    + (("".equals(encodedPath)) ? "/" : encodedPath));
                 Registry.getRegistry(null, null).registerComponent
                     (proxyDirContext.getCache(), resourcesName, null);
             }
@@ -6205,10 +6205,9 @@ public class StandardContext
         String onameStr;
         StandardHost hst=(StandardHost)getParent();
         
-        String pathName=getName();
         String hostName=getParent().getName();
         String name= "//" + ((hostName==null)? "DEFAULT" : hostName) +
-                (("".equals(pathName))?"/":pathName );
+                (("".equals(encodedPath)) ? "/" : encodedPath);
 
         String suffix=",J2EEApplication=" +
                 getJ2EEApplication() + ",J2EEServer=" +

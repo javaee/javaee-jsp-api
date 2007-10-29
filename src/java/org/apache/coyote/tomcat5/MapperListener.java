@@ -65,6 +65,7 @@ import org.apache.catalina.Host;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.core.StandardWrapper;
+import org.apache.catalina.util.RequestUtil;
 
 import org.apache.tomcat.util.http.mapper.Mapper;
 
@@ -559,6 +560,7 @@ public class MapperListener
         if (slash != -1) {
             hostName = name.substring(0, slash);
             contextName = name.substring(slash);
+            contextName = RequestUtil.URLDecode(contextName , "UTF-8");
         } else {
             return;
         }
@@ -597,6 +599,7 @@ public class MapperListener
         if (slash != -1) {
             hostName = name.substring(0, slash);
             contextName = name.substring(slash);
+            contextName = RequestUtil.URLDecode(contextName , "UTF-8");
         } else {
             return;
         }
@@ -651,6 +654,7 @@ public class MapperListener
         if (slash != -1) {
             hostName = name.substring(0, slash);
             contextName = name.substring(slash);
+            contextName = RequestUtil.URLDecode(contextName , "UTF-8");
         } else {
             return;
         }

@@ -104,7 +104,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2007/03/15 21:40:38 $
+ * @version $Revision: 1.10 $ $Date: 2007/05/05 05:32:09 $
  */
 
 public class WebappLoader
@@ -647,7 +647,7 @@ public class WebappLoader
                 try {
                     StandardContext ctx=(StandardContext)container;
                     Engine eng=(Engine)ctx.getParent().getParent();
-                    String path = ctx.getPath();
+                    String path = ctx.getEncodedPath();
                     if (path.equals("")) {
                         path = "/";
                     }   

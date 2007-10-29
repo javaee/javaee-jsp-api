@@ -1730,7 +1730,7 @@ public abstract class ContainerBase
             servlet=container;
         }
         if( context!=null ) {
-            String path=((StandardContext)context).getPath();
+            String path=((StandardContext)context).getEncodedPath();
             suffix.append(",path=").append((path.equals("")) ? "/" : path);
         } 
         if( host!=null ) suffix.append(",host=").append( host.getName() );
