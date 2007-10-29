@@ -140,6 +140,16 @@ public final class EmbeddedServletOptions implements Options {
     private String compiler = null;
 
     /**
+     * Compiler target VM.
+     */
+    private String compilerTargetVM = "1.5";
+    
+    /**
+     * The compiler source VM.
+     */
+    private String compilerSourceVM = "1.5";
+
+    /**
      * Cache for the TLD locations
      */
     private TldLocationsCache tldLocationsCache = null;
@@ -169,10 +179,6 @@ public final class EmbeddedServletOptions implements Options {
      * Is generation of X-Powered-By response header enabled/disabled?
      */
     private boolean xpoweredBy;
-
-    // START PWC 1.1 6281941
-    private String source;
-    // END PWC 1.1 6281941
 
     // BEGIN S1AS 6181923
     private boolean usePrecompiled;
@@ -313,11 +319,19 @@ public final class EmbeddedServletOptions implements Options {
         return compiler;
     }
 
-    // START PWC 1.1 6281941
-    public String getSource() {
-        return source;
+    /**
+     * @see Options#getCompilerTargetVM
+     */
+    public String getCompilerTargetVM() {
+        return compilerTargetVM;
     }
-    // END PWC 1.1 6281941
+    
+    /**
+     * @see Options#getCompilerSourceVM
+     */
+    public String getCompilerSourceVM() {
+        return compilerSourceVM;
+    }
 
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return errorOnUseBeanInvalidClassAttribute;
@@ -378,6 +392,17 @@ public final class EmbeddedServletOptions implements Options {
      */
     public EmbeddedServletOptions(ServletConfig config,
 				  ServletContext context) {
+
+        // JVM version numbers
+        try {
+            if (Float.parseFloat(System.getProperty("java.specification.version")) > 1.4) {
+                compilerSourceVM = compilerTargetVM = "1.5";
+            } else {
+                compilerSourceVM = compilerTargetVM = "1.4";
+            }
+        } catch (NumberFormatException e) {
+            // Ignore
+        }
 
         Enumeration enumeration=config.getInitParameterNames();
         while( enumeration.hasMoreElements() ) {
@@ -584,9 +609,15 @@ public final class EmbeddedServletOptions implements Options {
                                   
         this.compiler = config.getInitParameter("compiler");
 
-        // START PWC 1.1 6281941
-        this.source = config.getInitParameter("source");
-        // END PWC 1.1 6281941
+        String compilerTargetVM = config.getInitParameter("compilerTargetVM");
+        if(compilerTargetVM != null) {
+            this.compilerTargetVM = compilerTargetVM;
+        }
+        
+        String compilerSourceVM = config.getInitParameter("compilerSourceVM");
+        if(compilerSourceVM != null) {
+            this.compilerSourceVM = compilerSourceVM;
+        }
 
         String javaEncoding = config.getInitParameter("javaEncoding");
         if (javaEncoding != null) {
