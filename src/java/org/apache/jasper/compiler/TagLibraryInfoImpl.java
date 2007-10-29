@@ -550,6 +550,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
         boolean deferredMethod = false;
         String expectedType = "java.lang.Object";
         String methodSignature = "void method()";
+        String description = null;
         
         Iterator list = elem.findChildren();
         while (list.hasNext()) {
@@ -586,9 +587,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                 if (s != null) {
                     isFragment = JspUtil.booleanValue(s);
                 }
-            } else if ("description".equals(tname) ||    // Ignored elements
-		       false) {
-		;
+            } else if ("description".equals(tname)) {
+		description = element.getBody();
             } else if ("deferred-value".equals(tname)) {
                 deferredValue = true;
                 Iterator iter = element.findChildren();
@@ -651,8 +651,9 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	}
 
         return new TagAttributeInfo(name, required, type, rtexprvalue,
-                                    isFragment, deferredValue, deferredMethod,
-                                    expectedType, methodSignature);
+                                    isFragment, description, deferredValue,
+                                    deferredMethod, expectedType,
+                                    methodSignature);
     }
 
     TagVariableInfo createVariable(TreeNode elem) {

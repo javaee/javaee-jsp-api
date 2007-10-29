@@ -244,9 +244,15 @@ class TagFileProcessor {
             }
 
             TagAttributeInfo tagAttributeInfo =
-                    new TagAttributeInfo(attrName, required, type, rtexprvalue,
-                                         fragment, isDeferredValue,
-                                         isDeferredMethod, expectedType,
+                    new TagAttributeInfo(attrName,
+                                         required,
+                                         type,
+                                         rtexprvalue,
+                                         fragment,
+                                         description,
+                                         isDeferredValue,
+                                         isDeferredMethod,
+                                         expectedType,
                                          methodSignature);
             attributeVector.addElement(tagAttributeInfo);
             checkUniqueName(attrName, ATTR_NAME, n, tagAttributeInfo);
