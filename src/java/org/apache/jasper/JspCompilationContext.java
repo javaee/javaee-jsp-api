@@ -241,6 +241,14 @@ public class JspCompilationContext {
     }
 
     /**
+     * Create a compiler object for parsing only.
+     */
+    public Compiler createParser() throws JasperException {
+        jspCompiler = new Compiler(this, jsw);
+        return jspCompiler;
+    }
+
+    /**
      * Create a "Compiler" object.
      */
     public Compiler createCompiler(boolean jspcMode) throws JasperException {

@@ -78,6 +78,15 @@ public class Compiler {
 
     // ------------------------------------------------------------ Constructor
 
+    // Compiler for parsing only
+    public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw) {
+        this.jsw = jsw;
+        this.ctxt = ctxt;
+        this.jspcMode = false;
+        this.options = ctxt.getOptions();
+        this.log = commonsLog;
+        this.smapUtil = new SmapUtil(ctxt);
+    }
 
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw,
                     boolean jspcMode) {
