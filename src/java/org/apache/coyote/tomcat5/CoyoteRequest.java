@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.37 $ $Date: 2006/10/13 18:32:41 $
+ * @version $Revision: 1.38 $ $Date: 2006/10/23 21:33:08 $
  */
 
 public class CoyoteRequest
@@ -1746,8 +1746,10 @@ public class CoyoteRequest
 
         // START SJSAS 4936855
         if (requestParametersParsed || usingReader) {
+            String contextName =
+                (getContext() != null ? getContext().getName() : "UNKNOWN");
             log.warn(sm.getString("coyoteRequest.setCharacterEncoding.ise",
-                                  enc));
+                                  enc, contextName));
             return;
         }
         // END SJSAS 4936855
