@@ -38,6 +38,12 @@ import javax.management.MalformedObjectNameException;
 
 import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
+// START CR 6411114
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
+// END CR 6411114
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Valve;
@@ -48,9 +54,17 @@ import org.apache.catalina.Host;
 import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ContainerBase;
+// START CR 6411114
+import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.core.StandardWrapper;
+import org.apache.catalina.util.LifecycleSupport;
+// END CR 6411114
 import org.apache.catalina.util.StringManager;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+// START CR 6411114
+import com.sun.org.apache.commons.modeler.Registry;
+// END CR 6411114
 
 
 /**
@@ -61,11 +75,16 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * management and lifecycle support.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:25 $
+ * @version $Revision: 1.5.24.1 $ $Date: 2006/04/11 11:44:19 $
  */
 
 public abstract class ValveBase
+/** CR 6411114
     implements Contained, Valve, MBeanRegistration {
+*/
+// START CR 6411114
+    implements Contained, Lifecycle, Valve, MBeanRegistration {
+// END CR 6411114
     private static Log log = LogFactory.getLog(ValveBase.class);
 
     //------------------------------------------------------ Instance Variables
@@ -83,6 +102,20 @@ public abstract class ValveBase
     protected int debug = 0;
 
 
+    // START CR 6411114
+    /**
+     * Has this component been started yet?
+     */
+    protected boolean started = false;
+
+
+    /**
+     * The lifecycle event support for this component.
+     */
+    protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+
+
+    // END CR 6411114
     /**
      * Descriptive information about this Valve implementation.  This value
      * should be overridden by subclasses.
@@ -190,6 +223,89 @@ public abstract class ValveBase
     }
     // END OF IASRI 4665318
 
+    // START CR 6411114
+    // ------------------------------------------------------ Lifecycle Methods
+
+
+    /**
+     * Add a lifecycle event listener to this component.
+     *
+     * @param listener The listener to add
+     */
+    public void addLifecycleListener(LifecycleListener listener) {
+
+        lifecycle.addLifecycleListener(listener);
+
+    }
+
+
+    /**
+     * Get the lifecycle listeners associated with this lifecycle. If this
+     * Lifecycle has no listeners registered, a zero-length array is returned.
+     */
+    public LifecycleListener[] findLifecycleListeners() {
+
+        return lifecycle.findLifecycleListeners();
+
+    }
+
+
+    /**
+     * Remove a lifecycle event listener from this component.
+     *
+     * @param listener The listener to add
+     */
+    public void removeLifecycleListener(LifecycleListener listener) {
+
+        lifecycle.removeLifecycleListener(listener);
+
+    }
+
+
+    /**
+     * Prepare for the beginning of active use of the public methods of this
+     * component.  This method should be called after <code>configure()</code>,
+     * and before any of the public methods of the component are utilized.
+     *
+     * @exception LifecycleException if this component detects a fatal error
+     *  that prevents this component from being used
+     */
+    public void start() throws LifecycleException {
+
+        // Validate and update our current component state
+        if (started)
+            return;
+        lifecycle.fireLifecycleEvent(START_EVENT, null);
+        // Register the MBean when the valve is started
+        registerMBean();
+        started = true;
+    }
+
+
+    /**
+     * Gracefully terminate the active use of the public methods of this
+     * component.  This method should be the last one called on a given
+     * instance of this component.
+     *
+     * @exception LifecycleException if this component detects a fatal error
+     *  that needs to be reported
+     */
+    public void stop() throws LifecycleException {
+
+        // Validate and update our current component state
+        if (!started)
+            return;
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        // Deregister the MBean when the valve is stopped
+        unregisterMBean();
+        started = false;
+
+    }
+
+
+
+
+    // END CR 6411114
     // -------------------- JMX and Registration  --------------------
     protected String domain;
     protected ObjectName oname;
@@ -314,4 +430,45 @@ public abstract class ValveBase
         if( container== null) return null;
         return ((ContainerBase)container).getJmxName();
     }
+    // START CR 6411114
+
+
+    private void registerMBean() {
+
+        if ((getObjectName() == null) && (container != null)) {
+            try {
+                String domain=((ContainerBase)container).getDomain();
+                if (container instanceof StandardContext) {
+                    domain=((StandardContext)container).getEngineName();
+                }
+                if (container instanceof StandardWrapper) {
+                    Container ctx=((StandardWrapper)container).getParent();
+                    domain=((StandardContext)ctx).getEngineName();
+                }
+                ObjectName vname=createObjectName(domain,
+                        ((ContainerBase)container).getJmxName());
+                if (vname != null) {
+                    setObjectName(vname);
+                    Registry.getRegistry().registerComponent(this, vname, getClass().getName());
+                    setController(((ContainerBase)container).getJmxName());
+                }
+            } catch( Throwable t ) {
+                log.info( "Can't register valve " + this , t );
+            }
+        }
+    }
+
+    private void unregisterMBean() {
+        try {
+            if (getController() != null && (container != null) &&
+                    (getController() == ((ContainerBase)container).getJmxName())) {
+                ObjectName vname=getObjectName();
+                Registry.getRegistry().getMBeanServer().unregisterMBean(vname);
+                setObjectName(null);
+            }
+        } catch( Throwable t ) {
+            log.info( "Can't unregister valve " + this , t );
+        }
+    }
+    // END CR 6411114
 }

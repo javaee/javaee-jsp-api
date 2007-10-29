@@ -36,11 +36,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.HttpResponse;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
+*/
 import org.apache.catalina.LifecycleException;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.util.LifecycleSupport;
+*/
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.valves.Constants;
@@ -127,8 +131,13 @@ import java.sql.PreparedStatement;
  */
 
 public final class JDBCAccessLogValve 
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     extends ValveBase 
     implements Lifecycle {
+    */
+    // START CR 6411114
+    extends ValveBase {
+    // END CR 6411114
 
 
     // ----------------------------------------------------------- Constructors
@@ -215,7 +224,9 @@ public final class JDBCAccessLogValve
     /**
      * The lifecycle event support for this component.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+    */
 
 
     /**
@@ -227,7 +238,9 @@ public final class JDBCAccessLogValve
     /**
      * Has this component been started yet?
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     private boolean started = false;
+    */
 
 
     // ------------------------------------------------------------- Properties
@@ -492,22 +505,26 @@ public final class JDBCAccessLogValve
      * 
      * @param listener The listener to add.
      */  
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void addLifecycleListener(LifecycleListener listener) {
 
         lifecycle.addLifecycleListener(listener);
 
     }
+    */
 
 
     /**
      * Get the lifecycle listeners associated with this lifecycle. If this 
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public LifecycleListener[] findLifecycleListeners() {
 
         return lifecycle.findLifecycleListeners();
 
     }
+    */
 
 
     /**
@@ -515,11 +532,13 @@ public final class JDBCAccessLogValve
      * 
      * @param listener The listener to remove.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void removeLifecycleListener(LifecycleListener listener) {
 
         lifecycle.removeLifecycleListener(listener);
 
     }
+    */
 
 
     /**
@@ -530,11 +549,18 @@ public final class JDBCAccessLogValve
      */
     public void start() throws LifecycleException {
 
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (started)
             throw new LifecycleException
                 (sm.getString("accessLogValve.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
+        */
+        // START CR 6411114
+        if (started)            // Ignore multiple starts
+            return;
+        super.start();
+        // END CR 6411114
 
         try {
             Class.forName(driverName).newInstance(); 
@@ -581,11 +607,17 @@ public final class JDBCAccessLogValve
      */
     public void stop() throws LifecycleException {
 
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (!started)
             throw new LifecycleException
                 (sm.getString("accessLogValve.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
+        */
+        // START CR 6411114
+        if (!started)       // Ignore stop if not started
+            return;
+        // END CR 6411114
 
         try {
             if (ps != null)
@@ -595,6 +627,9 @@ public final class JDBCAccessLogValve
     	} catch (SQLException e) {
             throw new LifecycleException(e);	
         }
+        // START CR 6411114
+        super.stop();
+        // END CR 6411114
 
     }
 

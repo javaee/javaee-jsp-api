@@ -39,10 +39,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.Container;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
+*/
 import org.apache.catalina.LifecycleException;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.LifecycleListener;
+*/
 import org.apache.catalina.Logger;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
@@ -50,7 +54,9 @@ import org.apache.catalina.Session;
 import org.apache.catalina.SessionEvent;
 import org.apache.catalina.SessionListener;
 import org.apache.catalina.valves.ValveBase;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.util.LifecycleSupport;
+*/
 import org.apache.catalina.util.StringManager;
 
 
@@ -72,12 +78,17 @@ import org.apache.catalina.util.StringManager;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:28 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/07 22:30:06 $
  */
 
 public class SingleSignOn
     extends ValveBase
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     implements Lifecycle, SessionListener {
+    */
+    // START CR 6411114
+    implements SessionListener {
+    // END CR 6411114
 
 
     // ----------------------------------------------------- Instance Variables
@@ -106,7 +117,9 @@ public class SingleSignOn
     /**
      * The lifecycle event support for this component.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+    */
 
 
     /**
@@ -126,7 +139,9 @@ public class SingleSignOn
     /**
      * Component started flag.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected boolean started = false;
+    */
 
 
     // ------------------------------------------------------------- Properties
@@ -162,22 +177,26 @@ public class SingleSignOn
      *
      * @param listener The listener to add
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void addLifecycleListener(LifecycleListener listener) {
 
         lifecycle.addLifecycleListener(listener);
 
     }
+    */
 
 
     /**
      * Get the lifecycle listeners associated with this lifecycle. If this 
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public LifecycleListener[] findLifecycleListeners() {
 
         return lifecycle.findLifecycleListeners();
 
     }
+    */
 
 
     /**
@@ -185,11 +204,13 @@ public class SingleSignOn
      *
      * @param listener The listener to remove
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void removeLifecycleListener(LifecycleListener listener) {
 
         lifecycle.removeLifecycleListener(listener);
 
     }
+    */
 
 
     /**
@@ -203,11 +224,18 @@ public class SingleSignOn
     public void start() throws LifecycleException {
 
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (started)
             throw new LifecycleException
                 (sm.getString("authenticator.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
+        */
+        // START CR 6411114
+        if (started)            // Ignore multiple starts
+            return;
+        super.start();
+        // END CR 6411114
 
         if (debug >= 1)
             log("Started");
@@ -226,14 +254,23 @@ public class SingleSignOn
     public void stop() throws LifecycleException {
 
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (!started)
             throw new LifecycleException
                 (sm.getString("authenticator.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
+        */
+        // START CR 6411114
+        if (!started)       // Ignore stop if not started
+            return;
+        // END CR 6411114
 
         if (debug >= 1)
             log("Stopped");
+        // START CR 6411114
+        super.stop();
+        // END CR 6411114
 
     }
 

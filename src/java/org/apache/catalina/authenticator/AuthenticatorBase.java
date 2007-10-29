@@ -56,10 +56,14 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
+*/
 import org.apache.catalina.LifecycleException;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.LifecycleListener;
+*/
 import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Pipeline;
@@ -73,7 +77,9 @@ import org.apache.catalina.Wrapper;
 // END GlassFish 247
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.util.LifecycleSupport;
+*/
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 //START SJSAS 6202703
@@ -104,13 +110,18 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/03/07 22:30:06 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/12 01:27:00 $
  */
 
 
 public abstract class AuthenticatorBase
-        extends ValveBase
-        implements Authenticator, Lifecycle {
+    extends ValveBase
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
+    implements Authenticator, Lifecycle {
+    */
+    // START CR 6411114
+    implements Authenticator {
+    // END CR 6411114
     private static Log log = LogFactory.getLog(AuthenticatorBase.class);
     
     
@@ -187,9 +198,11 @@ public abstract class AuthenticatorBase
     /**
      * The lifecycle event support for this component.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+    */
     
-    
+
     /**
      * A random number generator to use when generating session identifiers.
      */
@@ -220,8 +233,10 @@ public abstract class AuthenticatorBase
     /**
      * Has this component been started?
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected boolean started = false;
-    
+    */
+
     
     /**
      * "Expires" header always set to Date(1), so generate once only
@@ -988,35 +1003,41 @@ public abstract class AuthenticatorBase
      *
      * @param listener The listener to add
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void addLifecycleListener(LifecycleListener listener) {
         
         lifecycle.addLifecycleListener(listener);
         
     }
-    
+    */
+
     
     /**
      * Get the lifecycle listeners associated with this lifecycle. If this
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public LifecycleListener[] findLifecycleListeners() {
         
         return lifecycle.findLifecycleListeners();
         
     }
-    
+    */
+
     
     /**
      * Remove a lifecycle event listener from this component.
      *
      * @param listener The listener to remove
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void removeLifecycleListener(LifecycleListener listener) {
         
         lifecycle.removeLifecycleListener(listener);
         
     }
-    
+    */
+
     
     /**
      * Prepare for the beginning of active use of the public methods of this
@@ -1029,10 +1050,17 @@ public abstract class AuthenticatorBase
     public void start() throws LifecycleException {
         
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (started)
             throw new LifecycleException
                     (sm.getString("authenticator.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
+        */
+        // START CR 6411114
+        if (started)            // Ignore multiple starts
+            return;
+        super.start();
+        // END CR 6411114
         if ("org.apache.catalina.core.StandardContext".equals
                 (context.getClass().getName())) {
             try {
@@ -1047,8 +1075,10 @@ public abstract class AuthenticatorBase
                 log.error("Exception getting debug value", e);
             }
         }
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         started = true;
-        
+        */
+
         // Look up the SingleSignOn implementation in our request processing
         // path, if there is one
         Container parent = context.getParent();
@@ -1088,13 +1118,22 @@ public abstract class AuthenticatorBase
     public void stop() throws LifecycleException {
         
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (!started)
             throw new LifecycleException
-                    (sm.getString("authenticator.notStarted"));
+                (sm.getString("authenticator.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
-        
+        */
+        // START CR 6411114
+        if (!started)       // Ignore stop if not started
+            return;
+        // END CR 6411114
+
         sso = null;
+        // START CR 6411114
+        super.stop();
+        // END CR 6411114
         
     }
     // BEGIN S1AS8 PE 4856062,4918627

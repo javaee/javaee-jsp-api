@@ -49,13 +49,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.catalina.HttpResponse;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
+*/
 import org.apache.catalina.LifecycleException;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.LifecycleListener;
+*/
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import org.apache.catalina.util.LifecycleSupport;
+*/
 import org.apache.catalina.util.ServerInfo;
 import org.apache.catalina.util.StringManager;
 
@@ -145,12 +151,17 @@ import com.sun.org.apache.commons.logging.Log;
  *
  *
  * @author Tim Funk
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:23 $
+ * @version $Revision: 1.4.24.1 $ $Date: 2006/04/11 11:44:18 $
  */
 
 public final class ExtendedAccessLogValve
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     extends ValveBase
     implements Lifecycle {
+    */
+    // START CR 6411114
+    extends ValveBase {
+    // END CR 6411114
 
 
     // ----------------------------------------------------------- Constructors
@@ -181,7 +192,9 @@ public final class ExtendedAccessLogValve
     /**
      * The lifecycle event support for this component.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+    */
 
 
 
@@ -195,7 +208,9 @@ public final class ExtendedAccessLogValve
     /**
      * Has this component been started yet?
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     private boolean started = false;
+    */
 
 
     /**
@@ -1024,22 +1039,26 @@ public final class ExtendedAccessLogValve
      *
      * @param listener The listener to add
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void addLifecycleListener(LifecycleListener listener) {
 
         lifecycle.addLifecycleListener(listener);
 
     }
+    */
 
 
     /**
      * Get the lifecycle listeners associated with this lifecycle. If this
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public LifecycleListener[] findLifecycleListeners() {
 
         return lifecycle.findLifecycleListeners();
 
     }
+    */
 
 
     /**
@@ -1047,11 +1066,13 @@ public final class ExtendedAccessLogValve
      *
      * @param listener The listener to add
      */
+    /** CR 6411114 (Lifecycle implementation moved to ValveBase)
     public void removeLifecycleListener(LifecycleListener listener) {
 
         lifecycle.removeLifecycleListener(listener);
 
     }
+    */
 
 
     /**
@@ -1065,11 +1086,18 @@ public final class ExtendedAccessLogValve
     public void start() throws LifecycleException {
 
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (started)
             throw new LifecycleException
                 (sm.getString("extendedAccessLogValve.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
+        */
+        // START CR 6411114
+        if (started)            // Ignore multiple starts
+            return;
+        super.start();
+        // END CR 6411114
 
         // Initialize the timeZone, Date formatters, and currentDate
         TimeZone tz = TimeZone.getTimeZone("GMT");
@@ -1110,13 +1138,22 @@ public final class ExtendedAccessLogValve
     public void stop() throws LifecycleException {
 
         // Validate and update our current component state
+        /** CR 6411114 (Lifecycle implementation moved to ValveBase)
         if (!started)
             throw new LifecycleException
                 (sm.getString("extendedAccessLogValve.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
+        */
+        // START CR 6411114
+        if (!started)       // Ignore stop if not started
+            return;
+        // END CR 6411114
 
         close();
+        // START CR 6411114
+        super.stop();
+        // END CR 6411114
 
     }
 

@@ -50,7 +50,9 @@ import org.apache.catalina.util.StringManager;
 import org.apache.catalina.valves.ValveBase;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+/** CR 6411114 (Lifecycle implementation moved to ValveBase)
 import com.sun.org.apache.commons.modeler.Registry;
+*/
 
 
 /**
@@ -264,13 +266,17 @@ public class StandardPipeline
         for (int i = 0; i < valves.length; i++) {
             if (valves[i] instanceof Lifecycle)
                 ((Lifecycle) valves[i]).start();
+            /** CR 6411114 (MBean registration moved to ValveBase.start())
             registerValve(valves[i]);
+            */
         }
         if ((basic != null) && (basic instanceof Lifecycle))
             ((Lifecycle) basic).start();
         
+        /** CR 6411114 (MBean registration moved to ValveBase.start())
         if( basic!=null )
             registerValve(basic);
+        */
 
         // Notify our interested LifecycleListeners
         lifecycle.fireLifecycleEvent(START_EVENT, null);
@@ -306,13 +312,17 @@ public class StandardPipeline
         // Stop the Valves in our pipeline (including the basic), if any
         if ((basic != null) && (basic instanceof Lifecycle)) 
             ((Lifecycle) basic).stop();
+        /** CR 6411114 (MBean deregistration moved to ValveBase.stop())
         if( basic!=null ) {
             unregisterValve(basic);
         }
+        */
         for (int i = 0; i < valves.length; i++) {
             if (valves[i] instanceof Lifecycle)
                 ((Lifecycle) valves[i]).stop();
+            /** CR 6411114 (MBean deregistration moved to ValveBase.stop())
             unregisterValve(valves[i]);
+            */
         
         }
 
@@ -321,6 +331,7 @@ public class StandardPipeline
 
     }
 
+    /** CR 6411114 (MBean registration/deregistration moved to ValveBase)
     private void registerValve(Valve valve) {
 
         if( valve instanceof ValveBase &&
@@ -366,6 +377,7 @@ public class StandardPipeline
             }
         }
     }    
+    */
 
     // ------------------------------------------------------- Pipeline Methods
 
@@ -424,7 +436,13 @@ public class StandardPipeline
         if (valve instanceof Contained) {
             ((Contained) valve).setContainer(this.container);
         }
+        /** CR 6411114
         if (valve instanceof Lifecycle) {
+        */
+        // START CR 6411114
+        // Start the valve if the pipeline has already been started
+        if (started && (valve instanceof Lifecycle)) {
+        // END CR 6411114
             try {
                 ((Lifecycle) valve).start();
             } catch (LifecycleException e) {
@@ -471,8 +489,10 @@ public class StandardPipeline
                     log.error("StandardPipeline.addValve: start: ", e);
                 }
             }
+            /** CR 6411114 (MBean registration moved to ValveBase.start())
             // Register the newly added valve
             registerValve(valve);
+            */
         }
 
         // Add this Valve to the set associated with this Pipeline
@@ -631,8 +651,10 @@ public class StandardPipeline
                     log.error("StandardPipeline.removeValve: stop: ", e);
                 }
             }
+            /** CR 6411114 (MBean deregistration moved to ValveBase.stop())
             // Unregister the removed valave
             unregisterValve(valve);
+            */
         }
 
     }
