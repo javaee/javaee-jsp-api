@@ -80,7 +80,7 @@ import com.sun.appserv.ProxyHandler;
  * normative.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/12 23:31:07 $
  */
 
 public interface Connector {
@@ -282,8 +282,20 @@ public interface Connector {
       * Get the underlying WebContainer certificate for the request     
       */
     public X509Certificate[] getCertificates(Request request);
-
     // END OF SJSAS 8.1 PE 6191830
 
+    // START CR 6309511
+    /**
+     * Get the encoding to be used for byte<-->char conversion for
+     * data sent/received via this Connector
+     */
+    public String getURIEncoding();
+
+    /**
+     * Set the encoding to be used for byte<-->char conversion for
+     * data sent/received via this Connector
+     */
+    public void setURIEncoding(String encoding);
+    // END CR 6309511
 
 }

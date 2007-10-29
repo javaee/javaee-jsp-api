@@ -107,6 +107,32 @@ public class B2CConverter {
 	}
     }
 
+    // START CR 6309511
+    /**
+     * Character conversion of a US-ASCII MessageBytes.
+     */
+    public static void convertASCII(MessageBytes mb) {
+ 
+        // This is of course only meaningful for bytes
+        if (mb.getType() != MessageBytes.T_BYTES)
+            return;
+        
+        ByteChunk bc = mb.getByteChunk();
+        CharChunk cc = mb.getCharChunk();
+        cc.allocate(bc.getLength(), -1);
+
+        // Default encoding: fast conversion
+        byte[] bbuf = bc.getBuffer();
+        char[] cbuf = cc.getBuffer();
+        int start = bc.getStart();
+        for (int i = 0; i < bc.getLength(); i++) {
+            cbuf[i] = (char) (bbuf[i + start] & 0xff);
+        }
+        mb.setChars(cbuf, 0, bc.getLength());
+   
+     }
+    // END CR 6309511
+
     public void reset()
 	throws IOException
     {

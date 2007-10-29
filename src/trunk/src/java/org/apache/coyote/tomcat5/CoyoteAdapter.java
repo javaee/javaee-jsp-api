@@ -37,12 +37,16 @@ import org.apache.coyote.ActionCode;
 import org.apache.coyote.Adapter;
 import org.apache.coyote.Request;
 import org.apache.coyote.Response;
+/* CR 6309511
 import org.apache.tomcat.util.buf.B2CConverter;
+ */
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
+/* CR 6309511
 import org.apache.tomcat.util.http.Cookies;
 import org.apache.tomcat.util.http.ServerCookie;
+ */
 // START S1AS 6188932
 import com.sun.appserv.ProxyHandler;
 // END S1AS 6188932
@@ -54,7 +58,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/07/22 12:12:23 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/12 23:31:08 $
  */
 
 public class CoyoteAdapter
@@ -104,14 +108,18 @@ public class CoyoteAdapter
     /**
      * The match string for identifying a session ID parameter.
      */
+    /* CR 6309511
     private static final String match =
         ";" + Globals.SESSION_PARAMETER_NAME + "=";
+     */
 
 
     /**
      * The match string for identifying a session ID parameter.
      */
+    /* CR 6309511
     private static final char[] SESSION_ID = match.toCharArray();
+     */
 
 
     /**
@@ -152,7 +160,6 @@ public class CoyoteAdapter
             // Set query string encoding
             req.getParameters().setQueryStringEncoding
                 (connector.getURIEncoding());
-
         }
 
         if (connector.isXpoweredBy()) {
@@ -275,11 +282,20 @@ public class CoyoteAdapter
             request.setAuthType(authtype);
         }
 
+        /* CR 6309511
         // URI character decoding
         convertURI(decodedURI, request);
 
         // Parse session Id
         parseSessionId(req, request);
+         */
+        // START CR 6309511
+        // URI character decoding
+        request.convertURI(decodedURI);
+        
+        // Parse session Id
+        request.parseSessionId();
+        // END CR 6309511
 
         // Remove any remaining parameters (other than session id, which has
         // already been removed in parseSessionId()) from the URI, so they
@@ -354,7 +370,12 @@ public class CoyoteAdapter
         }
 
         // Parse session Id
+        /* CR 6309511
         parseSessionCookiesId(req, request);
+         */
+        // START CR 6309511
+        request.parseSessionCookiesId();
+        // END CR 6309511
 
         return true;
     }
@@ -363,6 +384,7 @@ public class CoyoteAdapter
     /**
      * Parse session id in URL.
      */
+    /* CR 6309511
     protected void parseSessionId(Request req, CoyoteRequest request) {
 
         CharChunk uriCC = req.decodedURI().getCharChunk();
@@ -415,11 +437,13 @@ public class CoyoteAdapter
         }
 
     }
+     */
 
 
     /**
      * Parse session id in URL.
      */
+    /* CR 6309511
     protected void parseSessionCookiesId(Request req, CoyoteRequest request) {
 
         // Parse session id from cookies
@@ -455,11 +479,13 @@ public class CoyoteAdapter
         }
 
     }
+     */
 
 
     /**
      * Character conversion of the URI.
      */
+    /* CR 6309511
     protected void convertURI(MessageBytes uri, CoyoteRequest request) 
         throws Exception {
 
@@ -505,6 +531,7 @@ public class CoyoteAdapter
         uri.setChars(cbuf, 0, bc.getLength());
 
     }
+     */
 
 
     /**
@@ -649,6 +676,7 @@ public class CoyoteAdapter
      /**
       * Character conversion of the a US-ASCII MessageBytes.
       */
+    /* CR 6309511
      protected void convertMB(MessageBytes mb) {
  
         // This is of course only meaningful for bytes
@@ -669,5 +697,6 @@ public class CoyoteAdapter
         mb.setChars(cbuf, 0, bc.getLength());
    
      }
+     */
 
 }
