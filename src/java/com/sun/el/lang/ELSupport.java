@@ -29,7 +29,7 @@ import com.sun.el.util.MessageFactory;
  * A helper class that implements the EL Specification
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public class ELSupport {
 
@@ -206,7 +206,8 @@ public class ELSupport {
             if (number instanceof BigInteger) {
                 return new BigDecimal((BigInteger) number);
             }
-            return new BigDecimal(number.toString());
+//            return new BigDecimal(number.toString());
+            return new BigDecimal(number.doubleValue());
         }
         if (Byte.TYPE == type || Byte.class.equals(type)) {
             return new Byte(number.byteValue());
