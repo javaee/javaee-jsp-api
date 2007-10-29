@@ -70,7 +70,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/02/14 23:09:52 $
+ * @version $Revision: 1.8 $ $Date: 2006/02/15 00:33:55 $
  */
 
 final class StandardContextValve
@@ -158,11 +158,15 @@ final class StandardContextValve
 
         // Select the Wrapper to be used for this Request
         Wrapper wrapper = request.getWrapper();
+        // START GlassFish 247
+        /**
         if (wrapper == null) {
             String requestURI = hreq.getDecodedRequestURI();
             notFound(requestURI, (HttpServletResponse) response.getResponse());
             return END_PIPELINE;
         }
+        */
+        // End GlassFish 247
         
         // Normal request processing
         if (((StandardContext) container).getSwallowOutput()) {
