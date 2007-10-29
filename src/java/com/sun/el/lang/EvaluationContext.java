@@ -15,7 +15,6 @@ public final class EvaluationContext extends ELContext {
 
     public EvaluationContext(ELContext elContext, FunctionMapper fnMapper,
             VariableMapper varMapper) {
-        super(null);
         this.elContext = elContext;
         this.fnMapper = fnMapper;
         this.varMapper = varMapper;

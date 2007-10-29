@@ -3,13 +3,15 @@
 package com.sun.el.parser;
 
 import javax.el.ELException;
+import javax.el.PropertyNotWritableException;
 
 import com.sun.el.lang.ELSupport;
 import com.sun.el.lang.EvaluationContext;
+import com.sun.el.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: ja120114 $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
  */
 public abstract class SimpleNode extends ELSupport implements Node {
     protected Node parent;
@@ -118,7 +120,7 @@ public abstract class SimpleNode extends ELSupport implements Node {
 
     public void setValue(EvaluationContext ctx, Object value)
             throws ELException {
-        throw new UnsupportedOperationException();
+        throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
     }
 
     public void accept(NodeVisitor visitor) throws ELException {
