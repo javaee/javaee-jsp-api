@@ -794,7 +794,8 @@ public final class TldConfig  {
                      */
                     if ((loader != webappLoader
                                 || !systemJars.contains(file.getName()))
-                            && (noTldJars == null
+                            && (loader == webappLoader
+                                || noTldJars == null
                                 || !noTldJars.contains(file.getName()))) {
                         JarPathElement elem = new JarPathElement(
                                 file, loader == webappLoader);
