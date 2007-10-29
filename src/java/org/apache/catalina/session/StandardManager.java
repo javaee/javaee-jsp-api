@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.9 $ $Date: 2006/08/02 01:34:58 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 17:02:55 $
  */
 
 public class StandardManager
@@ -306,6 +306,15 @@ public class StandardManager
 
         return (super.createSession());
 
+    }
+
+
+    /*
+     * Releases any resources held by this session manager.
+     */
+    public void release() {
+        super.release();
+        clearStore();
     }
 
 

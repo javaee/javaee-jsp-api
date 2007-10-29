@@ -87,7 +87,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/04/24 21:51:47 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 17:02:54 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -1503,4 +1503,11 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     }
     //END OF 6364900    
 
+
+    /*
+     * Releases any resources held by this session manager.
+     */
+    public void release() {
+        // Do nothing. Subclasses override this method to do something useful
+    }
 }

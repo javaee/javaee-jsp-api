@@ -101,6 +101,7 @@ import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.mbeans.MBeanUtils;
+import org.apache.catalina.session.ManagerBase;
 import org.apache.catalina.session.PersistentManagerBase;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.startup.ContextConfig;
@@ -127,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.24 $ $Date: 2006/09/29 21:41:26 $
+ * @version $Revision: 1.25 $ $Date: 2006/10/03 17:51:05 $
  */
 
 public class StandardContext
@@ -5197,8 +5198,8 @@ public class StandardContext
         // super.destroy() will stop session manager and cause it to unload
         // all its active sessions into a file. Delete this file, because this
         // context is being destroyed and must not leave any traces.
-        if (getManager() instanceof StandardManager) {
-            ((StandardManager)getManager()).clearStore();
+        if (getManager() instanceof ManagerBase) {
+            ((ManagerBase)getManager()).release();
         }
         // END SJSAS 6359401
 
