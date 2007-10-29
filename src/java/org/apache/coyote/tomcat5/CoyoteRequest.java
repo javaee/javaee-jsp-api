@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.41 $ $Date: 2006/11/17 23:06:37 $
+ * @version $Revision: 1.42 $ $Date: 2006/11/21 17:39:40 $
  */
 
 public class CoyoteRequest
@@ -3149,8 +3149,9 @@ public class CoyoteRequest
             }
             // END SJSWS 6376484
 
-            Manager manager = context.getManager();
-            if (manager != null && manager.isSessionVersioningSupported()) {
+            if (context != null
+                    && context.getManager() != null
+                    && context.getManager().isSessionVersioningSupported()) {
                 parseSessionVersion();
             }
 
