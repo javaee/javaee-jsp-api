@@ -54,7 +54,12 @@ public class XMLEncodingDetector {
     // org.apache.xerces.impl.XMLEntityManager fields
     public static final int DEFAULT_BUFFER_SIZE = 2048;
     public static final int DEFAULT_XMLDECL_BUFFER_SIZE = 64;
+    /* PWC1.2 6298448
     private boolean fAllowJavaEncodings;
+    */
+    // START PWC1.2 6298448
+    private boolean fAllowJavaEncodings = true;
+    // END PWC1.2 6298448
     private SymbolTable fSymbolTable;
     private XMLEncodingDetector fCurrentEntity;
     private int fBufferSize = DEFAULT_BUFFER_SIZE;
