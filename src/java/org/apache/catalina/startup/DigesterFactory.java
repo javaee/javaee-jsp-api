@@ -191,9 +191,9 @@ public class DigesterFactory{
             // web.xml    
             register(schemaResourcePrefix + Constants.WebSchemaPublicId_24,
                      Constants.WebSchemaPublicId_24);
+            register(schemaResourcePrefix + Constants.WebSchemaPublicId_25,
+                     Constants.WebSchemaPublicId_25);
             // Web Service
-            register(schemaResourcePrefix + Constants.J2eeWebServiceSchemaPublicId_11,
-                     Constants.J2eeWebServiceSchemaPublicId_11);
             register(schemaResourcePrefix + Constants.J2eeWebServiceClientSchemaPublicId_11,
                      Constants.J2eeWebServiceClientSchemaPublicId_11);
 	} else {
@@ -219,9 +219,9 @@ public class DigesterFactory{
             // web.xml    
             register(Constants.WebSchemaResourcePath_24,
                      Constants.WebSchemaPublicId_24);
+            register(Constants.WebSchemaResourcePath_25,
+                     Constants.WebSchemaPublicId_25);
             // Web Service
-            register(Constants.J2eeWebServiceSchemaResourcePath_11,
-                     Constants.J2eeWebServiceSchemaPublicId_11);
             register(Constants.J2eeWebServiceClientSchemaResourcePath_11,
                      Constants.J2eeWebServiceClientSchemaPublicId_11);
         }
