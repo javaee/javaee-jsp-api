@@ -75,4 +75,10 @@ public final class Constants {
     public final static String FORCED_RESPONSE_TYPE = 
            "text/html; charset=iso-8859-1";
     // END SJSAS 6328909
+
+
+    // START SJSAS 6337561
+    public final static String PROXY_JROUTE = "proxy-jroute";
+    // END SJSAS 6337561
+    
 }
