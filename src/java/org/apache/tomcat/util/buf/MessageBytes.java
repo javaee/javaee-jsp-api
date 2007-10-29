@@ -344,7 +344,14 @@ public final class MessageBytes implements Cloneable, Serializable {
 	}
     }
 
-    public boolean equals(MessageBytes mb) {
+    public boolean equals(Object obj) {
+
+        if (obj == null || (!(obj instanceof MessageBytes))) {
+            return false;
+        }
+
+        MessageBytes mb = (MessageBytes) obj;
+
 	switch (type) {
 	case T_STR:
 	    return mb.equals( strValue );
