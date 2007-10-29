@@ -94,8 +94,6 @@ public class PageContextImpl extends PageContext {
     // Logger
     private static Log log = LogFactory.getLog(PageContextImpl.class);
 
-    static ExpressionFactory expFactory;
-
     // per-servlet state
     private BodyContentImpl[] outs;
     private int depth;
@@ -165,7 +163,6 @@ public class PageContextImpl extends PageContext {
 	this.autoFlush = autoFlush;
 	this.request = request;
  	this.response = response;
-        expFactory = ExpressionFactory.newInstance();
 
 	// Setup session (if required)
 	if (request instanceof HttpServletRequest && needsSession)
@@ -683,8 +680,7 @@ public class PageContextImpl extends PageContext {
                                                                                 
             celResolver.add(new ImplicitObjectELResolver());
             // Add ELResolvers registered in JspApplicationContext
-            JspApplicationContextImpl jaContext =
-                (JspApplicationContextImpl) getJspApplicationContext();
+            JspApplicationContextImpl jaContext = getJspApplicationContext();
             Iterator<ELResolver> it = jaContext.getELResolvers();
             while (it.hasNext()) {
                 celResolver.add(it.next());
@@ -931,6 +927,12 @@ public class PageContextImpl extends PageContext {
         }
     }
 
+    private static ExpressionFactory getExpressionFactory(
+            PageContext pageContext) {
+        PageContextImpl pc = (PageContextImpl) pageContext;
+        return pc.getJspApplicationContext().getExpressionFactory();
+    }
+
     /**
      * Evaluates an EL expression
      *
@@ -956,6 +958,7 @@ public class PageContextImpl extends PageContext {
                         ELContextImpl elContext =
                             (ELContextImpl) pageContext.getELContext();
                         elContext.setFunctionMapper(functionMap);
+                        ExpressionFactory expFactory = getExpressionFactory(pageContext);
                         ValueExpression expr =
                              expFactory.createValueExpression(
                                                    elContext,
@@ -975,6 +978,7 @@ public class PageContextImpl extends PageContext {
         } else {
             ELContextImpl elContext = (ELContextImpl)pageContext.getELContext();
             elContext.setFunctionMapper(functionMap);
+            ExpressionFactory expFactory = getExpressionFactory(pageContext);
             ValueExpression expr = expFactory.createValueExpression(
                                            elContext,
                                            expression,
@@ -992,6 +996,7 @@ public class PageContextImpl extends PageContext {
         // ELResolvers are not used in createValueExpression
         ELContextImpl elctxt = (ELContextImpl)pageContext.getELContext();
         elctxt.setFunctionMapper(functionMap);
+        ExpressionFactory expFactory = getExpressionFactory(pageContext);
         return expFactory.createValueExpression(elctxt,
                                                 expression,
                                                 expectedType);
@@ -1006,6 +1011,7 @@ public class PageContextImpl extends PageContext {
                                                                                 
         ELContextImpl elctxt = (ELContextImpl)pageContext.getELContext();
         elctxt.setFunctionMapper(functionMap);
+        ExpressionFactory expFactory = getExpressionFactory(pageContext);
         return expFactory.createMethodExpression(
                                     elctxt,
                                     expression,
@@ -1023,6 +1029,7 @@ public class PageContextImpl extends PageContext {
     public static void setMethodVariable(PageContext pageContext,
                                          String variable,
                                          MethodExpression expression) {
+        ExpressionFactory expFactory = getExpressionFactory(pageContext);
         ValueExpression exp =
             expFactory.createValueExpression(expression, Object.class);
         setValueVariable(pageContext, variable, exp);
