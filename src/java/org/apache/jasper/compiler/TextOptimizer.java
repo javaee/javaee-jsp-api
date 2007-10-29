@@ -51,16 +51,16 @@ public class TextOptimizer {
      */
     static class TextCatVisitor extends Node.Visitor {
 
-        private Options options;
-        private PageInfo pageInfo;
         private int textNodeCount = 0;
         private Node.TemplateText firstTextNode = null;
         private StringBuffer textBuffer;
         private final String emptyText = new String("");
+        private boolean prePass;
+        private boolean trim;
 
-        public TextCatVisitor(Compiler compiler) {
-            options = compiler.getCompilationContext().getOptions();
-            pageInfo = compiler.getPageInfo();
+        public TextCatVisitor(boolean prePass, boolean trim){
+            this.prePass = prePass;
+            this.trim = trim;
         }
 
         public void doVisit(Node n) throws JasperException {
@@ -68,22 +68,38 @@ public class TextOptimizer {
         }
 
 	/*
-         * The following directis are ignored in text concatenation
+         * The following directives are ignored in text concatenation
+         * except in the pre pass phase.
          */
 
         public void visit(Node.PageDirective n) throws JasperException {
+            if (prePass) {
+                collectText();
+            }
         }
 
         public void visit(Node.TagDirective n) throws JasperException {
+            if (prePass) {
+                collectText();
+            }
         }
 
         public void visit(Node.TaglibDirective n) throws JasperException {
+            if (prePass) {
+                collectText();
+            }
         }
 
         public void visit(Node.AttributeDirective n) throws JasperException {
+            if (prePass) {
+                collectText();
+            }
         }
 
         public void visit(Node.VariableDirective n) throws JasperException {
+            if (prePass) {
+                collectText();
+            }
         }
 
         /*
@@ -96,9 +112,7 @@ public class TextOptimizer {
 
         public void visit(Node.TemplateText n) throws JasperException {
 
-            if (( options.getTrimSpaces() ||
-                     pageInfo.isTrimDirectiveWhitespaces()) &&
-                  n.isAllSpace()) {
+            if ((trim) && ! prePass && n.isAllSpace()) {
                 n.setText(emptyText);
                 return;
             }
@@ -131,7 +145,17 @@ public class TextOptimizer {
     public static void concatenate(Compiler compiler, Node.Nodes page)
             throws JasperException {
 
-        TextCatVisitor v = new TextCatVisitor(compiler);
+        Options options = compiler.getCompilationContext().getOptions();
+        PageInfo pageInfo = compiler.getPageInfo();
+        boolean trim =
+            options.getTrimSpaces() || pageInfo.isTrimDirectiveWhitespaces();
+
+        if (trim) {
+            TextCatVisitor v = new TextCatVisitor(true, trim);
+            page.visit(v);
+            v.collectText();
+        }
+        TextCatVisitor v = new TextCatVisitor(false, trim);
         page.visit(v);
 
 	// Cleanup, in case the page ends with a template text
