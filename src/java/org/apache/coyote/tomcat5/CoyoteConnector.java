@@ -28,8 +28,11 @@
 
 package org.apache.coyote.tomcat5;
 
+import java.lang.reflect.Constructor;
 import java.net.URLEncoder;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2005/11/17 19:45:56 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/08 01:28:34 $
  */
 
 
@@ -91,9 +94,53 @@ public class CoyoteConnector
 {
     private static Log log = LogFactory.getLog(CoyoteConnector.class);
 
+    // ---------------------------------------------- Adapter Configuration --//
+    
+    // START SJSAS 6363251
+    public final static 
+            String ADAPTER_CLASS_NAME="com.sun.enterprise.web.adapter";
+    public final static 
+            String ADAPTER_PORT="com.sun.enterprise.web.adapter.ports";
+     
+    /**
+     * The list of port on which the customized Adapter should be applied.
+     */
+    private static ArrayList ports = null;
+    
+    
+    /**
+     * Coyote Adapter class name.
+     */
+    private static String adapterClassName = null;    
+    
+        
+    static{
+        if ( System.getProperty(ADAPTER_CLASS_NAME) != null){
+            ports = new ArrayList();
+            
+            adapterClassName = System.getProperty(ADAPTER_CLASS_NAME);
+                
+            if ( System.getProperty(ADAPTER_PORT) != null){
+                StringTokenizer st 
+                    = new StringTokenizer(System.getProperty(ADAPTER_PORT),",");
+                while (st.hasMoreTokens()){
+                    ports.add(st.nextToken());
+                }
+            }  
+        }   
+    } 
 
+
+    /**
+     * Coyote Adapter class name.
+     * Defaults to the CoyoteAdapter.
+     */
+    private String defaultClassName =
+        "org.apache.coyote.tomcat5.CoyoteAdapter";
+    // END SJSAS 6363251
+
+    
     // ----------------------------------------------------- Instance Variables
-
 
     /**
      * Holder for our configured properties.
@@ -345,7 +392,6 @@ public class CoyoteConnector
     private String protocolHandlerClassName =
         "org.apache.coyote.http11.Http11Protocol";
 
-
     /**
      * Coyote protocol handler.
      */
@@ -390,8 +436,7 @@ public class CoyoteConnector
 
     protected ProxyHandler proxyHandler = null;
     // END S1AS 6188932
-
-
+    
     // ------------------------------------------------------------- Properties
 
     /**
@@ -1418,9 +1463,30 @@ public class CoyoteConnector
             }
             log.debug("Creating name for connector " + oname);
         }
+        
 
+        //START SJSAS 6363251
         // Initializa adapter
-        adapter = new CoyoteAdapter(this);
+        //adapter = new CoyoteAdapter(this);
+        //END SJSAS 6363251
+        // Instantiate Adapter
+        //START SJSAS 6363251
+        try {
+            if ( ports == null || !ports.contains(String.valueOf(port))) {
+                adapterClassName = defaultClassName;
+            } 
+               
+            Class clazz = Class.forName(adapterClassName);
+            Constructor constructor = 
+                    clazz.getConstructor(new Class[]{CoyoteConnector.class});
+            adapter = 
+                    (Adapter)constructor.newInstance(new Object[]{this});
+        } catch (Exception e) {
+            throw new LifecycleException
+                (sm.getString
+                 ("coyoteConnector.apadterClassInstantiationFailed", e));
+        } 
+        //END SJSAS 6363251
 
         // Instantiate protocol handler
         try {
@@ -1971,4 +2037,38 @@ public class CoyoteConnector
         getService().removeConnector(this);
     }
 
+    
+    // START SJSAS 6363251
+    /**
+     * Set the <code>Adapter</code> used by this connector.
+     */
+    public void setAdapter(Adapter adapter){
+        this.adapter = adapter;
+    }
+    
+    
+    /**
+     * Get the <code>Adapter</code> used by this connector.
+     */    
+    public Adapter getAdapter(){
+        return adapter;
+    }
+    
+    
+    /**
+     * Set the Adapter class.
+     */
+    public static void setAdapterClassName(String acn){
+        adapterClassName = acn;
+    }
+ 
+    
+    /**
+     * Get the Adapter class.
+     */
+    public static String getAdapterClassName(){
+        return adapterClassName;
+    }
+    // END SJSAS 6363251
+ 
 }
