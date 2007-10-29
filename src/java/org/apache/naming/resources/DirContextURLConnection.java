@@ -55,7 +55,7 @@ import org.apache.naming.resources.ResourceAttributes;
  * content is directly returned.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision: 1.2 $
  */
 public class DirContextURLConnection 
     extends URLConnection {
@@ -69,7 +69,7 @@ public class DirContextURLConnection
         if (context == null)
             throw new IllegalArgumentException
                 ("Directory context can't be null");
-        if (System.getSecurityManager() != null) {
+        if (IS_SECURITY_ENABLED) {
             this.permission = new JndiPermission(url.toString());
 	}
         this.context = context;
@@ -119,6 +119,13 @@ public class DirContextURLConnection
      * Permission
      */
     protected Permission permission;
+
+
+    /**
+     * Is the Java SecurityManager enabled?
+     */
+    public static final boolean IS_SECURITY_ENABLED =
+        (System.getSecurityManager() != null);
 
 
     // ------------------------------------------------------------- Properties
