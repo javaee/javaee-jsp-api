@@ -152,6 +152,20 @@ class TagFileProcessor {
             jspVersionDouble = Double.valueOf(tagLibInfo.getRequiredVersion());
         }
 
+        public void visit(Node.JspRoot n) throws JasperException {
+            /*
+             * If a tag file in XML syntax contains a jsp:root element, the
+             * value of its "version" attribute must match the tag file's JSP
+             * version. 
+             */
+            String jspRootVersion = n.getTextAttribute("version");
+            if (!jspRootVersion.equals(jspVersionDouble.toString())) {
+                err.jspError(n, "jsp.error.tagfile.jspVersionMismatch",
+                             jspRootVersion, jspVersionDouble.toString());
+            }
+            visitBody(n);
+        }
+
         public void visit(Node.TagDirective n) throws JasperException {
 
             JspUtil.checkAttributes("Tag directive", n, tagDirectiveAttrs,

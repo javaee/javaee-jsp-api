@@ -283,7 +283,9 @@ class JspDocumentParser
         checkPrefixes(uri, qName, attrs);
 
         if (directivesOnly &&
-            !(JSP_URI.equals(uri) && localName.startsWith(DIRECTIVE_ACTION))) {
+            !(JSP_URI.equals(uri) &&
+                    (localName.startsWith(DIRECTIVE_ACTION)
+                    || localName.startsWith(ROOT_ACTION)))) {
             return;
         }
 
