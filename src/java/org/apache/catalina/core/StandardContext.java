@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.30 $ $Date: 2006/11/16 21:01:25 $
+ * @version $Revision: 1.31 $ $Date: 2006/11/22 17:11:00 $
  */
 
 public class StandardContext
@@ -388,7 +388,7 @@ public class StandardContext
     /**
      * The MIME mappings for this web application, keyed by extension.
      */
-    private HashMap mimeMappings = new HashMap();
+    private HashMap<String,String> mimeMappings = new HashMap<String,String>();
 
 
      /**
@@ -3207,8 +3207,26 @@ public class StandardContext
      */
     public String findMimeMapping(String extension) {
 
-        return ((String) mimeMappings.get(extension));
+        String mimeType = mimeMappings.get(extension);
+        if (mimeType == null) {
+            // No mapping found, try case-insensitive match
+            synchronized (mimeMappings) {
+                Iterator<String> extensions = mimeMappings.keySet().iterator();
+                while (extensions.hasNext()) {
+                    String ext = extensions.next();
+                    if (ext.equalsIgnoreCase(extension)) {
+                        // Case-insensitive extension match found
+                        mimeType = mimeMappings.get(ext);
+                        // Add given extension to the map, in order to make
+                        // subsequent lookups faster
+                        mimeMappings.put(extension, mimeType);
+                        break;
+                    }
+                }                
+            }        
+        }
 
+        return mimeType;
     }
 
 
