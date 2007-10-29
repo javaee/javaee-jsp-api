@@ -203,8 +203,8 @@ class ParserController implements TagConstants {
 		JspReader jspReader = new JspReader(ctxt, absFileName,
 						    sourceEnc, inStreamReader,
 						    err);
-                parsedPage = Parser.parse(this, jspReader, parent, isTagFile,
-					  directiveOnly, jarFileUrl,
+                parsedPage = Parser.parse(this, absFileName, jspReader, parent,
+                                          isTagFile, directiveOnly, jarFileUrl,
 					  sourceEnc, jspConfigPageEnc,
 					  isDefaultPageEncoding, hasBom);
             } finally {

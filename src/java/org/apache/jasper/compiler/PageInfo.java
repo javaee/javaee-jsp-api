@@ -85,6 +85,9 @@ class PageInfo {
     private Vector includeCoda;
     private Vector pluginDcls;		// Id's for tagplugin declarations
 
+    // Resource location path of the translation unit's top-level page
+    private String rootPath;
+
 
     PageInfo(BeanRepository beanRepository, String jspFile) {
 
@@ -705,5 +708,28 @@ class PageInfo {
 
     public Mark getNonCustomTagPrefix(String prefix) {
         return (Mark) nonCustomTagPrefixMap.get(prefix);
+    }
+
+
+    /**
+     * Sets the resource location path of the translation unit's top-level
+     * page.
+     *
+     * @param rootPath Resource location path of the translation unit's
+     * top-level page
+     */
+    void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+
+    /**
+     * Gets the resource location path of the translation unit's top-level
+     * page.
+     *
+     * @return Resource location path of the translation unit's top-level
+     * page
+     */
+    String getRootPath() {
+        return rootPath;
     }
 }

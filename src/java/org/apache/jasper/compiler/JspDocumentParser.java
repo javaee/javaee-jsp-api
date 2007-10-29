@@ -205,6 +205,7 @@ class JspDocumentParser
                 jspDocParser.addInclude(
                     dummyRoot,
                     jspDocParser.pageInfo.getIncludeCoda());
+                jspDocParser.pageInfo.setRootPath(path);
             }
 
             // Create Node.Nodes from dummy root

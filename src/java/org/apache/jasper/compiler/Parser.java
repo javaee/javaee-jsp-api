@@ -99,6 +99,7 @@ class Parser implements TagConstants {
      * @return list of nodes representing the parsed page
      */
     public static Node.Nodes parse(ParserController pc,
+                                   String path,
 				   JspReader reader,
 				   Node parent,
 				   boolean isTagFile,
@@ -145,6 +146,7 @@ class Parser implements TagConstants {
 	}
 	if (parent == null) {
 	    parser.addInclude(root, pageInfo.getIncludeCoda());
+	    parser.pageInfo.setRootPath(path);
 	}
 
 	Node.Nodes page = new Node.Nodes(root);

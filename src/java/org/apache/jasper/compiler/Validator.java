@@ -221,6 +221,22 @@ class Validator {
 	    if (pageInfo.getBuffer() == 0 && !pageInfo.isAutoFlush())
 		err.jspError(n, "jsp.error.page.badCombo");
 
+            // Error pages must not be self-referencing
+            if (pageInfo.isErrorPage() && pageInfo.getErrorPage() != null) {
+                String rootPath = pageInfo.getRootPath();
+                String errorPath = pageInfo.getErrorPage();
+                if (!errorPath.startsWith("/")) {
+                    // Error page location is relative to root path
+                    String baseRootPath =
+                        rootPath.substring(0, rootPath.lastIndexOf('/'));
+                    errorPath = baseRootPath + '/' + errorPath;
+                }
+                if (rootPath.equals(errorPath)) {
+                    err.jspError(n, "jsp.error.page.selfreferencing",
+                                 rootPath);
+                }
+            }
+
 	    // Attributes for imports for this node have been processed by
 	    // the parsers, just add them to pageInfo.
 	    pageInfo.addImports(n.getImports());
