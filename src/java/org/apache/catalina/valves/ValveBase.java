@@ -88,7 +88,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * management and lifecycle support.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/04/26 17:26:37 $
+ * @version $Revision: 1.7 $ $Date: 2007/05/05 05:32:41 $
  */
 
 public abstract class ValveBase
@@ -390,13 +390,12 @@ public abstract class ValveBase
         } else if (container instanceof Host) {
             parentName=",host=" +container.getName();
         } else if (container instanceof Context) {
-                    String path = ((Context)container).getPath();
-                    if (path.length() < 1) {
-                        path = "/";
-                    }
-                    Host host = (Host) container.getParent();
-                    parentName=",path=" + path + ",host=" +
-                            host.getName();
+            String path = ((Context)container).getPath();
+            if (path.length() < 1) {
+                path = "/";
+            }
+            Host host = (Host) container.getParent();
+            parentName=",path=" + path + ",host=" + host.getName();
         } else if (container instanceof Wrapper) {
             Context ctx = (Context) container.getParent();
             String path = ctx.getPath();
