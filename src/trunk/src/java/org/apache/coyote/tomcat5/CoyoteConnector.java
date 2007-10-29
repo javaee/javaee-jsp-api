@@ -76,7 +76,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:10 $
+ * @version $Revision: 1.2 $ $Date: 2005/08/12 23:31:08 $
  */
 
 
@@ -1147,27 +1147,27 @@ public class CoyoteConnector
     }
 
 
-     /**
-      * Return the character encoding to be used for the URI.
-      */
-     public String getURIEncoding() {
+    /**
+     * Return the character encoding to be used for the URI.
+     */
+    public String getURIEncoding() {
 
-         return (this.URIEncoding);
+        return (this.URIEncoding);
 
-     }
+    }
 
 
-     /**
-      * Set the URI encoding to be used for the URI.
-      *
-      * @param URIEncoding The new URI character encoding.
-      */
-     public void setURIEncoding(String URIEncoding) {
+    /**
+     * Set the URI encoding to be used for the URI.
+     *
+     * @param URIEncoding The new URI character encoding.
+     */
+    public void setURIEncoding(String URIEncoding) {
 
-         this.URIEncoding = URIEncoding;
-         setProperty("uRIEncoding", URIEncoding);
+        this.URIEncoding = URIEncoding;
+        setProperty("uRIEncoding", URIEncoding);
 
-     }
+    }
 
 
     /**
