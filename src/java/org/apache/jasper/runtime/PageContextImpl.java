@@ -929,7 +929,9 @@ public class PageContextImpl extends PageContext {
 
     private static ExpressionFactory getExpressionFactory(
             PageContext pageContext) {
-        PageContextImpl pc = (PageContextImpl) pageContext;
+
+        PageContextImpl pc =
+            (PageContextImpl) JspContextWrapper.getRootPageContext(pageContext);
         return pc.getJspApplicationContext().getExpressionFactory();
     }
 

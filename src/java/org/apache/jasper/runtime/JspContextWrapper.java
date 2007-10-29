@@ -276,6 +276,13 @@ public class JspContextWrapper extends PageContext {
 	return invokingJspCtxt.getServletContext();
     }
 
+    static public PageContext getRootPageContext(PageContext pc) {
+        while (pc instanceof JspContextWrapper) {
+            pc = ((JspContextWrapper)pc).invokingJspCtxt;
+        }
+        return pc;
+    }
+
     public ELContext getELContext() {
         if (elContext == null) {
             PageContext pc = invokingJspCtxt;
