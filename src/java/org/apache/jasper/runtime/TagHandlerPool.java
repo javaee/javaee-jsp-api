@@ -83,17 +83,9 @@ public class TagHandlerPool {
         this.handlers = new Tag[maxSize];
         this.current = -1;
 
-        String resourceInjectorClassName =
-            config.getInitParameter("com.sun.appserv.jsp.resource.injector");
-        if (resourceInjectorClassName != null) {
-            try {
-                resourceInjector = (ResourceInjector)
-                    Class.forName(resourceInjectorClassName).newInstance();
-                resourceInjector.setContext(config.getServletContext());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        this.resourceInjector = (ResourceInjector)
+            config.getServletContext().getAttribute(
+                Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE);
     }
 
     /**

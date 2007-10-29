@@ -627,24 +627,10 @@ class Generator {
             out.printil("session = pageContext.getSession();");
         out.printil("out = pageContext.getOut();");
         out.printil("_jspx_out = out;");
-        out.println();
-
-        generateResourceInjector();
-    }
-
-    /**
-     * Generates code that initializes resouce injector.
-     */
-    private void generateResourceInjector() {
-        out.printil("String resourceInjectorClassName = config.getInitParameter(\"com.sun.appserv.jsp.resource.injector\");");
-        out.printil("if (resourceInjectorClassName != null) {");
-        out.pushIndent();
-        out.printil("_jspx_resourceInjector = (org.apache.jasper.runtime.ResourceInjector) Class.forName(resourceInjectorClassName).newInstance();");
-        out.printil("_jspx_resourceInjector.setContext(application);");
-        out.popIndent();
-        out.printil("}");
+        out.printil("_jspx_resourceInjector = (org.apache.jasper.runtime.ResourceInjector) application.getAttribute(\"com.sun.appserv.jsp.resource.injector\");");
         out.println();
     }
+
 
     /**
      * Generates an XML Prolog, which includes an XML declaration and

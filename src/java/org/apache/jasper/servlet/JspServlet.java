@@ -63,6 +63,7 @@ import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
+import org.apache.jasper.runtime.ResourceInjector;
 
 /**
  * The JSP engine (a.k.a Jasper).
@@ -118,6 +119,21 @@ public class JspServlet extends HttpServlet {
         // Initialize the JSP Runtime Context
         options = new EmbeddedServletOptions(config, context);
         rctxt = new JspRuntimeContext(context,options);
+
+        // Instantiate and init our resource injector
+        String resourceInjectorClassName = config.getInitParameter(
+            Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE);
+        if (resourceInjectorClassName != null) {
+            try {
+                ResourceInjector ri = (ResourceInjector)
+                    Class.forName(resourceInjectorClassName).newInstance();
+                ri.setContext(this.context);
+                this.context.setAttribute(
+                    Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE, ri);
+            } catch (Exception e) {
+                throw new ServletException(e);
+	    }
+        }
 
         // START SJSWS 6232180
         // Determine which HTTP methods to service ("*" means all)

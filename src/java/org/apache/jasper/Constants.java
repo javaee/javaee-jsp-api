@@ -265,5 +265,7 @@ public class Constants {
         "com.sun.jsp.tldUriToLocationMap";
     // END GlassFish 747
 
+    public static final String JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE =
+        "com.sun.appserv.jsp.resource.injector";
 }
 
