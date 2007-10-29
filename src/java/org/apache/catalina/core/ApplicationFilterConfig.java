@@ -45,7 +45,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * is first started.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:08 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 final class ApplicationFilterConfig implements FilterConfig, Serializable {
@@ -73,7 +73,7 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
      *  instantiating the filter object
      * @exception ServletException if thrown by the filter's init() method
      */
-    public ApplicationFilterConfig(Context context, FilterDef filterDef)
+    public ApplicationFilterConfig(StandardContext context, FilterDef filterDef)
         throws ClassCastException, ClassNotFoundException,
                IllegalAccessException, InstantiationException,
                ServletException {
@@ -91,7 +91,7 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
     /**
      * The Context with which we are associated.
      */
-    private Context context = null;
+    private StandardContext context = null;
 
 
     /**
@@ -214,8 +214,12 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         // Instantiate a new instance of this filter and return it
         Class clazz = classLoader.loadClass(filterClass);
         this.filter = (Filter) clazz.newInstance();
-        if (context instanceof StandardContext &&
-            ((StandardContext)context).getSwallowOutput()) {
+
+        // START PWC 1.2
+        context.fireContainerEvent("beforeFilterInitialized", filter);
+        // END PWC 1.2
+
+        if (context.getSwallowOutput()) {
             try {
                 SystemLogHandler.startCapture();
                 filter.init(this);
@@ -228,6 +232,11 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         } else {
             filter.init(this);
         }
+
+        // START PWC 1.2
+        context.fireContainerEvent("afterFilterInitialized", filter);
+        // END PWC 1.2
+
         return (this.filter);
 
     }
