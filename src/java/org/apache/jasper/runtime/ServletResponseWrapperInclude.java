@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -66,8 +64,9 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
     public ServletResponseWrapperInclude(ServletResponse response, 
 					 JspWriter jspWriter) {
 	super((HttpServletResponse)response);
-	this.printWriter = new WrapperWriter(jspWriter);
-	this.jspWriter = jspWriter;
+
+        this.printWriter = new PrintWriter(jspWriter);
+        this.jspWriter = jspWriter;
         // START CR 6466049
         this.canFlushWriter = (jspWriter instanceof JspWriterImpl);
         // END CR 6466049
@@ -114,19 +113,4 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
         return canFlushWriter;
     }
     // END CR 6466049
-
-    static private class WrapperWriter extends PrintWriter
-             implements com.sun.enterprise.web.io.ByteWriter {
-        private JspWriterImpl jspWriter;
-
-        public WrapperWriter(JspWriter writer) {
-            super(writer);
-            jspWriter = (JspWriterImpl) writer;
-        }
-
-        public void write(byte buf[], int off, int len, int strlen)
-                throws IOException {
-            jspWriter.write(buf, off, len, strlen);
-        }
-    }
 }

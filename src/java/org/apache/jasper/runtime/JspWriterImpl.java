@@ -257,11 +257,14 @@ public class JspWriterImpl extends JspWriter {
             throws IOException {
 
         ensureOpen();
-        if (bufferSize == 0 && bytesOK && implementsByteWriter) {
-            write(buf, 0, buf.length, str.length());
-        } else {
-            write(str);
+        if (bufferSize == 0 && bytesOK) {
+            initByteOut();
+            if (implementsByteWriter) {
+                write(buf, 0, buf.length, str.length());
+                return;
+            }
         }
+        write(str);
     }
 
     private void initByteOut() throws IOException {
@@ -269,6 +272,7 @@ public class JspWriterImpl extends JspWriter {
         if (byteOut == null) {
             try {
                 byteOut = (ByteWriter) out;
+                implementsByteWriter = true;
             } catch (ClassCastException ex) {
                 implementsByteWriter = false;
             }
@@ -277,7 +281,6 @@ public class JspWriterImpl extends JspWriter {
 
     public void write(byte buf[], int off, int len, int strlen)
             throws IOException {
-        initByteOut();
         byteOut.write(buf, off, len, strlen);
     }
 
