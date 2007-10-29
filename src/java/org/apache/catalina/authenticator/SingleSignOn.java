@@ -91,7 +91,7 @@ import org.apache.catalina.util.StringManager;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2007/04/17 21:33:22 $
+ * @version $Revision: 1.7 $ $Date: 2007/05/05 05:31:53 $
  */
 
 public class SingleSignOn
@@ -112,12 +112,6 @@ public class SingleSignOn
      * keyed by the cookie value that is used to select them.
      */
     protected HashMap cache = new HashMap();
-
-
-    /**
-     * The debugging detail level for this component.
-     */
-    protected int debug = 0;
 
 
     /**
