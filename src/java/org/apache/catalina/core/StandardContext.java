@@ -144,7 +144,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.46 $ $Date: 2007/05/05 05:31:54 $
+ * @version $Revision: 1.47 $ $Date: 2007/07/18 15:31:56 $
  */
 
 public class StandardContext
@@ -5198,7 +5198,7 @@ public class StandardContext
                 log.trace("Starting completed");
             setAvailable(true);
         } else {
-            log.error(sm.getString("standardContext.startFailed"));
+            log.error(sm.getString("standardContext.startFailed", getName()));
             try {
                 stop();
             } catch (Throwable t) {
