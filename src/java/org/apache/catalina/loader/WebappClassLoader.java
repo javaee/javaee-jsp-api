@@ -128,7 +128,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.18 $ $Date: 2006/05/30 18:56:56 $
+ * @version $Revision: 1.19 $ $Date: 2006/07/31 16:08:49 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -2528,6 +2528,11 @@ public class WebappClassLoader
 
 
     // START GlassFish Issue 587
+    /*
+     * Purges all bean classes that were loaded by this WebappClassLoader
+     * from the caches maintained by javax.el.BeanELResolver, in order to
+     * avoid this WebappClassLoader from leaking.
+     */
     private void purgeELBeanClasses() {
 
         Field fieldlist[] = javax.el.BeanELResolver.class.getDeclaredFields();
@@ -2541,6 +2546,13 @@ public class WebappClassLoader
         }
     }
 
+    /*
+     * Purges all bean classes that were loaded by this WebappClassLoader
+     * from the cache represented by the given reflected field.
+     *
+     * @param fld The reflected field from which to remove the bean classes
+     * that were loaded by this WebappClassLoader
+     */
     private void purgeELBeanClasses(final Field fld) {
 
 	SecurityManager sm = System.getSecurityManager();
