@@ -55,7 +55,7 @@ import org.apache.catalina.util.StringManager;
  * keep these two classes in synchronization when making changes!
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:32 $
+ * @version $Revision: 1.4 $ $Date: 2006/11/01 20:19:47 $
  */
 
 public class ApplicationRequest extends ServletRequestWrapper {
@@ -217,7 +217,7 @@ public class ApplicationRequest extends ServletRequestWrapper {
      *
      * @param name Attribute name to be tested
      */
-    protected boolean isSpecial(String name) {
+    protected static boolean isSpecial(String name) {
 
         return specials.contains(name);
     }

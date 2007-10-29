@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/10/03 17:51:00 $
+ * @version $Revision: 1.13 $ $Date: 2006/11/01 22:37:14 $
  */
 
 final class ApplicationDispatcher
@@ -441,16 +441,12 @@ final class ApplicationDispatcher
             String contextPath = context.getPath();
 
             if (hrequest.getAttribute(Globals.FORWARD_REQUEST_URI_ATTR) == null) { 
-                wrequest.setAttribute(Globals.FORWARD_REQUEST_URI_ATTR,
-                                      hrequest.getRequestURI());
-                wrequest.setAttribute(Globals.FORWARD_CONTEXT_PATH_ATTR,
-                                      hrequest.getContextPath());
-                wrequest.setAttribute(Globals.FORWARD_SERVLET_PATH_ATTR,
-                                      hrequest.getServletPath());
-                wrequest.setAttribute(Globals.FORWARD_PATH_INFO_ATTR,
-                                      hrequest.getPathInfo());
-                wrequest.setAttribute(Globals.FORWARD_QUERY_STRING_ATTR,
-                                      hrequest.getQueryString());
+                wrequest.initSpecialAttributes(false,
+                                               hrequest.getRequestURI(),
+                                               hrequest.getContextPath(),
+                                               hrequest.getServletPath(),
+                                               hrequest.getPathInfo(),
+                                               hrequest.getQueryString());
             }
  
             wrequest.setContextPath(contextPath);
@@ -631,25 +627,13 @@ final class ApplicationDispatcher
 
             ApplicationHttpRequest wrequest =
                 (ApplicationHttpRequest) wrapRequest();
-            String contextPath = context.getPath();
-
-            if (requestURI != null)
-                wrequest.setAttribute(Globals.INCLUDE_REQUEST_URI_ATTR,
-                                      requestURI);
-            if (contextPath != null)
-                wrequest.setAttribute(Globals.INCLUDE_CONTEXT_PATH_ATTR,
-                                      contextPath);
-            if (servletPath != null)
-                wrequest.setAttribute(Globals.INCLUDE_SERVLET_PATH_ATTR,
-                                      servletPath);
-            if (pathInfo != null)
-                wrequest.setAttribute(Globals.INCLUDE_PATH_INFO_ATTR,
-                                      pathInfo);
-            if (queryString != null) {
-                wrequest.setAttribute(Globals.INCLUDE_QUERY_STRING_ATTR,
-                                      queryString);
-                wrequest.setQueryParams(queryString);
-            }
+            wrequest.initSpecialAttributes(true, 
+                                           requestURI,
+                                           context.getPath(),
+                                           servletPath,
+                                           pathInfo,
+                                           queryString);
+            wrequest.setQueryParams(queryString);
             
             wrequest.setAttribute(
                 ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,

@@ -68,24 +68,13 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2006/01/27 19:35:20 $
+ * @version $Revision: 1.6 $ $Date: 2006/08/10 21:35:19 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
 
 
     // ------------------------------------------------------- Static Variables
-
-
-    /**
-     * The set of attribute names that are special for request dispatchers.
-     */
-    protected static final String specials[] =
-    { Globals.INCLUDE_REQUEST_URI_ATTR, Globals.INCLUDE_CONTEXT_PATH_ATTR,
-      Globals.INCLUDE_SERVLET_PATH_ATTR, Globals.INCLUDE_PATH_INFO_ATTR,
-      Globals.INCLUDE_QUERY_STRING_ATTR, Globals.FORWARD_REQUEST_URI_ATTR, 
-      Globals.FORWARD_CONTEXT_PATH_ATTR, Globals.FORWARD_SERVLET_PATH_ATTR, 
-      Globals.FORWARD_PATH_INFO_ATTR, Globals.FORWARD_QUERY_STRING_ATTR };
 
 
     /**
@@ -207,7 +196,7 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
     /**
      * Special attributes.
      */
-    protected Object[] specialAttributes = new Object[specials.length];
+    private HashMap specialAttributes = null;
 
 
     // ------------------------------------------------- ServletRequest Methods
@@ -230,18 +219,21 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             }
         }
 
-        int pos = getSpecial(name);
-        if (pos == -1) {
+        if (!ApplicationRequest.isSpecial(name)) {
             return getRequest().getAttribute(name);
         } else {
-            if ((specialAttributes[pos] == null) 
-                && (specialAttributes[5] == null) && (pos >= 5)) {
+            Object value = null;
+            if (specialAttributes != null) {
+                value = specialAttributes.get(name);
+            }
+            if (value == null && specialAttributes != null
+                    && name.startsWith("javax.servlet.forward")) {
                 // If it's a forward special attribute, and null, it means this
                 // is an include, so we check the wrapped request since 
                 // the request could have been forwarded before the include
                 return getRequest().getAttribute(name);
             } else {
-                return specialAttributes[pos];
+                return value;
             }
         }
 
@@ -256,7 +248,6 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
         return (new AttributeNamesEnumerator());
     }
 
-
     /**
      * Override the <code>removeAttribute()</code> method of the
      * wrapped request.
@@ -265,9 +256,13 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
      */
     public void removeAttribute(String name) {
 
-        if (!removeSpecial(name))
+        if (ApplicationRequest.isSpecial(name)) {
+            if (specialAttributes != null) {
+                specialAttributes.remove(name);
+            }
+        } else {
             getRequest().removeAttribute(name);
-
+        }
     }
 
 
@@ -288,10 +283,13 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             return;
         }
 
-        if (!setSpecial(name, value)) {
+        if (ApplicationRequest.isSpecial(name)) {
+            if (specialAttributes != null) {
+                specialAttributes.put(name, value);
+            }
+        } else {
             getRequest().setAttribute(name, value);
         }
-
     }
 
 
@@ -783,67 +781,48 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
 
 
     /**
-     * Is this attribute name one of the special ones that is added only for
-     * included servlets?
+     * Initializes the special attributes of this request wrapper.
      *
-     * @param name Attribute name to be tested
+     * @param isIncludeDispatch true if the given attributes are for an
+     * include dispatch, false if they are for a forward dispatch
+     * @param requestUri The request URI
+     * @param contextPath The context path
+     * @param servletPath The servlet path
+     * @param pathInfo The path info
+     * @param queryString The query string
      */
-    protected boolean isSpecial(String name) {
+    void initSpecialAttributes(boolean isIncludeDispatch,
+                               String requestUri,
+                               String contextPath,
+                               String servletPath,
+                               String pathInfo,
+                               String queryString) {
 
-        for (int i = 0; i < specials.length; i++) {
-            if (specials[i].equals(name))
-                return (true);
+        specialAttributes = new HashMap(5);
+
+        if (isIncludeDispatch) {        
+            specialAttributes.put(Globals.INCLUDE_REQUEST_URI_ATTR,
+                                  requestUri);
+            specialAttributes.put(Globals.INCLUDE_CONTEXT_PATH_ATTR,
+                                  contextPath);
+            specialAttributes.put(Globals.INCLUDE_SERVLET_PATH_ATTR,
+                                  servletPath);
+            specialAttributes.put(Globals.INCLUDE_PATH_INFO_ATTR,
+                                  pathInfo);
+            specialAttributes.put(Globals.INCLUDE_QUERY_STRING_ATTR,
+                                  queryString);
+        } else {
+            specialAttributes.put(Globals.FORWARD_REQUEST_URI_ATTR,
+                                  requestUri);
+            specialAttributes.put(Globals.FORWARD_CONTEXT_PATH_ATTR,
+                                  contextPath);
+            specialAttributes.put(Globals.FORWARD_SERVLET_PATH_ATTR,
+                                  servletPath);
+            specialAttributes.put(Globals.FORWARD_PATH_INFO_ATTR,
+                                  pathInfo);
+            specialAttributes.put(Globals.FORWARD_QUERY_STRING_ATTR,
+                                  queryString);
         }
-        return (false);
-
-    }
-
-
-    /**
-     * Get a special attribute.
-     *
-     * @return the special attribute pos, or -1 if it is not a special 
-     *         attribute
-     */
-    protected int getSpecial(String name) {
-        for (int i = 0; i < specials.length; i++) {
-            if (specials[i].equals(name)) {
-                return (i);
-            }
-        }
-        return (-1);
-    }
-
-
-    /**
-     * Set a special attribute.
-     * 
-     * @return true if the attribute was a special attribute, false otherwise
-     */
-    protected boolean setSpecial(String name, Object value) {
-        for (int i = 0; i < specials.length; i++) {
-            if (specials[i].equals(name)) {
-                specialAttributes[i] = value;
-                return (true);
-            }
-        }
-        return (false);
-    }
-
-
-    /**
-     * Remove a special attribute.
-     * 
-     * @return true if the attribute was a special attribute, false otherwise
-     */
-    protected boolean removeSpecial(String name) {
-        for (int i = 0; i < specials.length; i++) {
-            if (specials[i].equals(name)) {
-                specialAttributes[i] = null;
-                return (true);
-            }
-        }
-        return (false);
     }
 
 
@@ -936,34 +915,29 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
      */
     protected class AttributeNamesEnumerator implements Enumeration {
 
-        protected int pos = -1;
-        protected int last = -1;
         protected Enumeration parentEnumeration = null;
         protected String next = null;
+        private Iterator<String> specialNames = null;
 
         public AttributeNamesEnumerator() {
             parentEnumeration = getRequest().getAttributeNames();
-            for (int i = 0; i < specialAttributes.length; i++) {
-                if (getAttribute(specials[i]) != null) {
-                    last = i;
-                }
+            if (specialAttributes != null) {
+                specialNames = specialAttributes.keySet().iterator();
             }
         }
 
         public boolean hasMoreElements() {
-            return ((pos != last) || (next != null) 
-                    || ((next = findNext()) != null));
+            return (specialNames != null && specialNames.hasNext())
+                    || (next != null) 
+                    || ((next = findNext()) != null);
         }
 
         public Object nextElement() {
-            if (pos != last) {
-                for (int i = pos + 1; i <= last; i++) {
-                    if (getAttribute(specials[i]) != null) {
-                        pos = i;
-                        return (specials[i]);
-                    }
-                }
+
+            if (specialNames != null && specialNames.hasNext()) {
+                return specialNames.next();
             }
+
             String result = next;
             if (next != null) {
                 next = findNext();
@@ -977,7 +951,7 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             String result = null;
             while ((result == null) && (parentEnumeration.hasMoreElements())) {
                 String current = (String) parentEnumeration.nextElement();
-                if (!isSpecial(current)) {
+                if (!ApplicationRequest.isSpecial(current)) {
                     result = current;
                 }
             }
