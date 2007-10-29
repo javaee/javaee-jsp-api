@@ -128,7 +128,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.21 $ $Date: 2006/08/24 19:12:47 $
+ * @version $Revision: 1.22 $ $Date: 2006/10/24 23:18:07 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -945,7 +945,46 @@ public class WebappClassLoader
             if (log.isTraceEnabled())
                 log.trace("      findClassInternal(" + name + ")");
             try {
-                clazz = findClassInternal(name);
+                ResourceEntry entry = findClassInternal(name);
+                // Create the code source object
+                CodeSource codeSource =
+                    new CodeSource(entry.codeBase, entry.certificates);
+                synchronized (this) {
+                    if (entry.loadedClass == null) {
+                        /* START GlassFish [680]
+                        clazz = defineClass(name, entry.binaryContent, 0,
+                                entry.binaryContent.length, 
+                                codeSource);
+                        */
+                        // START GlassFish [680]
+                        // We use a temporary byte[] so that we don't change
+                        // the content of entry in case bytecode
+                        // preprocessing takes place.
+                        byte[] binaryContent = entry.binaryContent;
+                        if (!byteCodePreprocessors.isEmpty()) {
+                            // ByteCodePreprpcessor expects name as
+                            // java/lang/Object.class
+                            String resourceName =
+                                name.replace('.', '/') + ".class";
+                            for(BytecodePreprocessor preprocessor : byteCodePreprocessors) {
+                                binaryContent = preprocessor.preprocess(
+                                    resourceName, binaryContent);
+                            }
+                        }
+                        clazz = defineClass(name, binaryContent, 0,
+                                binaryContent.length,
+                                codeSource);
+                        // END GlassFish [680]
+                        entry.loadedClass = clazz;
+                        entry.binaryContent = null;
+                        entry.source = null;
+                        entry.codeBase = null;
+                        entry.manifest = null;
+                        entry.certificates = null;
+                    } else {
+                        clazz = entry.loadedClass;
+                    }
+                }
             } catch(ClassNotFoundException cnfe) {
                 if (!hasExternalRepositories) {
                     throw cnfe;
@@ -1896,7 +1935,7 @@ public class WebappClassLoader
      *
      * @return the loaded class, or null if the class isn't found
      */
-    protected Class findClassInternal(String name)
+    protected ResourceEntry findClassInternal(String name)
         throws ClassNotFoundException {
 
         if (!validate(name))
@@ -1905,16 +1944,14 @@ public class WebappClassLoader
         String tempPath = name.replace('.', '/');
         String classPath = tempPath + ".class";
 
-        ResourceEntry entry = null;
-
-        entry = findResourceInternal(name, classPath);
+        ResourceEntry entry = findResourceInternal(name, classPath);
 
         if (entry == null)
                throw new ClassNotFoundException(name);
 
         Class clazz = entry.loadedClass;
         if (clazz != null)
-            return clazz;
+            return entry;
 
         synchronized (this) {
             if (entry.binaryContent == null && entry.loadedClass == null)
@@ -1950,10 +1987,6 @@ public class WebappClassLoader
 // END OF IASRI 4717252
         }
 
-        // Create the code source object
-        CodeSource codeSource =
-            new CodeSource(entry.codeBase, entry.certificates);
-
         if (securityManager != null) {
 
             // Checking sealing
@@ -1973,41 +2006,7 @@ public class WebappClassLoader
 
         }
 
-        synchronized (this) {
-            if (entry.loadedClass == null) {
-                /* START GlassFish [680]
-                clazz = defineClass(name, entry.binaryContent, 0,
-                        entry.binaryContent.length, 
-                        codeSource);
-                */
-                // START GlassFish [680]
-                // We use a temporary byte[] so that we don't change the
-                // content of entry in case bytecode preprocessing takes place.
-                byte[] binaryContent = entry.binaryContent;
-                if (!byteCodePreprocessors.isEmpty()) {
-                    // ByteCodePreprpcessor expects name as java/lang/Object.class
-                    String resourceName = name.replace('.', '/') + ".class";
-                    for(BytecodePreprocessor preprocessor : byteCodePreprocessors) {
-                        binaryContent = preprocessor.preprocess(resourceName,
-                                binaryContent);
-                    }
-                }
-                clazz = defineClass(name, binaryContent, 0,
-                        binaryContent.length,
-                        codeSource);
-                // END GlassFish [680]
-                entry.loadedClass = clazz;
-                entry.binaryContent = null;
-                entry.source = null;
-                entry.codeBase = null;
-                entry.manifest = null;
-                entry.certificates = null;
-            } else {
-                clazz = entry.loadedClass;
-            }
-        }
-
-        return clazz;
+        return entry;
 
     }
 
