@@ -79,7 +79,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.13 $ $Date: 2006/10/03 17:51:05 $
+ * @version $Revision: 1.14 $ $Date: 2006/10/31 22:58:06 $
  */
 
 final class StandardHostValve
@@ -343,8 +343,10 @@ final class StandardHostValve
             return;
         */
         HttpResponse hresponse = (HttpResponse) response;
+        /* 6386229
         if (!(response.getResponse() instanceof HttpServletResponse))
             return;
+        */
         int statusCode = hresponse.getStatus();
 
         // Handle a custom error page for this status code
