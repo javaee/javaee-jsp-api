@@ -65,7 +65,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.7 $, $Date: 2006/11/09 01:12:51 $
+ * @version $Revision: 1.8 $, $Date: 2007/05/05 05:32:19 $
  */
 
 public abstract class StoreBase
@@ -377,6 +377,22 @@ public abstract class StoreBase
                                + "]: " + message);
         }
     }
+    
+    /**
+     * Load and return the Session associated with the specified session
+     * identifier from this Store, without removing it.  If there is no
+     * such stored Session, return <code>null</code>.
+     *
+     * @param id Session identifier of the session to load
+     * @param version The requested session version
+     *
+     * @exception ClassNotFoundException if a deserialization error occurs
+     * @exception IOException if an input/output error occurs
+     */
+    public Session load(String id, String version)
+            throws ClassNotFoundException, IOException {
+        return load(id);
+    }    
 
     // --------------------------------------------------------- Thread Methods
 

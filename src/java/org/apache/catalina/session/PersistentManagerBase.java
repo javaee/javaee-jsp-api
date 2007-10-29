@@ -74,7 +74,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.15 $ $Date: 2007/04/03 22:33:49 $
+ * @version $Revision: 1.16 $ $Date: 2007/05/05 05:32:19 $
  */
 
 public abstract class PersistentManagerBase
@@ -967,6 +967,20 @@ public abstract class PersistentManagerBase
      * is invalid or past its expiration.
      */
     protected Session swapIn(String id) throws IOException {
+        return swapIn(id, null);
+    }
+
+    /**
+     * Look for a session in the Store and, if found, restore
+     * it in the Manager's list of active sessions if appropriate.
+     * The session will be removed from the Store after swapping
+     * in, but will not be added to the active session list if it
+     * is invalid or past its expiration.
+     *
+     * @param id The session id
+     * @param version The requested session version
+     */
+    protected Session swapIn(String id, String version) throws IOException {
 
         ClassLoader webappCl = null;
         ClassLoader curCl = null;
@@ -982,12 +996,12 @@ public abstract class PersistentManagerBase
         if (webappCl != null && curCl != webappCl) {
             try {
                 Thread.currentThread().setContextClassLoader(webappCl);
-                sess = doSwapIn(id);
+                sess = doSwapIn(id, version);
             } finally {
                 Thread.currentThread().setContextClassLoader(curCl);
             }
         } else {
-            sess = doSwapIn(id);
+            sess = doSwapIn(id, version);
         }
 
         return sess;
@@ -1000,7 +1014,7 @@ public abstract class PersistentManagerBase
      * in, but will not be added to the active session list if it
      * is invalid or past its expiration.
      */
-    private Session doSwapIn(String id) throws IOException {
+    private Session doSwapIn(String id, String version) throws IOException {
 
         if (store == null)
             return null;
@@ -1020,7 +1034,11 @@ public abstract class PersistentManagerBase
                     }
                 }
             } else {
-                 session = store.load(id);
+		if (version != null) {
+                     session = ((StoreBase) store).load(id, version);
+                } else {
+                     session = store.load(id);
+                }
             }   
         } catch (ClassNotFoundException e) {
             log.error(sm.getString("persistentManager.deserializeError", id, e));
