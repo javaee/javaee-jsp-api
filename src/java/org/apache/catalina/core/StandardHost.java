@@ -1179,6 +1179,9 @@ public class StandardHost
                 }
                 oname=new ObjectName(domain + ":type=Host,host=" +
                         this.getName());
+                // START CR 6368091
+                controller = oname;
+                // END CR 6368091
                 Registry.getRegistry().registerComponent(this, oname, null);
             } catch( Throwable t ) {
                 log.info("Error registering ", t );
