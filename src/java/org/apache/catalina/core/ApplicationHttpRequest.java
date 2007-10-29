@@ -65,7 +65,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:01 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:32 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -544,6 +544,11 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                     // Ignore
                 }
                 if (localSession == null && create) {
+                    //START OF 6364900
+                    localSession = 
+                        context.getManager().createSession(other.getId());
+                    //END OF 6364900                    
+                    /* CR 6364900
                     localSession = context.getManager().createEmptySession();
                     localSession.setNew(true);
                     localSession.setValid(true);
@@ -551,6 +556,7 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                     localSession.setMaxInactiveInterval
                         (context.getManager().getMaxInactiveIntervalSeconds());
                     localSession.setId(other.getId());
+                     */
                 }
                 if (localSession != null) {
                     localSession.access();

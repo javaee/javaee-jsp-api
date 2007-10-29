@@ -52,12 +52,21 @@ import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.Logger;
+//START OF 6364900
+import org.apache.catalina.Manager;
+//END OF 6364900
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
+//START OF 6364900
+import org.apache.catalina.Session;
+//END OF 6364900
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.RequestFacade;
 import org.apache.catalina.connector.ResponseFacade;
 import org.apache.catalina.core.StandardWrapper;
+//START OF 6364900
+import org.apache.catalina.session.StandardSession;
+//END OF 6364900
 import org.apache.catalina.util.InstanceSupport;
 import org.apache.catalina.util.StringManager;
 import org.apache.catalina.connector.ClientAbortException;
@@ -80,7 +89,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/07/27 21:18:02 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:30 $
  */
 
 final class ApplicationDispatcher
@@ -181,6 +190,13 @@ final class ApplicationDispatcher
      * The response specified by the dispatching application.
      */
     private ServletResponse appResponse = null;
+    
+    //START OF 6364900
+    /**
+     * is this dispatch cross context
+     */
+    private Boolean crossContextFlag = null;
+    //END OF 6364900
 
 
     /**
@@ -614,8 +630,8 @@ final class ApplicationDispatcher
 
 
     // -------------------------------------------------------- Private Methods
-
-
+    
+    
     /**
      * Ask the resource represented by this RequestDispatcher to process
      * the associated request, and create (or append to) the associated
@@ -632,6 +648,46 @@ final class ApplicationDispatcher
      * @exception ServletException if a servlet error occurs
      */
     private void invoke(ServletRequest request, ServletResponse response)
+            throws IOException, ServletException {
+        //START OF 6364900 original invoke has been renamed to doInvoke
+        boolean crossContext = false;
+        if(crossContextFlag != null && crossContextFlag.booleanValue()) {
+            crossContext = true;
+        }
+        if(crossContext) {
+            context.getManager().lockSession(request); 
+        }       
+        try {
+            doInvoke(request,response);
+            if(crossContext) {
+                context.getManager().postRequestDispatcherProcess(request, response);
+            }
+        } finally {
+            if(crossContext) {
+                context.getManager().unlockSession(request);
+            }
+            crossContextFlag = null;
+        }
+        //END OF 6364900
+    }
+    
+    
+    /**
+     * Ask the resource represented by this RequestDispatcher to process
+     * the associated request, and create (or append to) the associated
+     * response.
+     * <p>
+     * <strong>IMPLEMENTATION NOTE</strong>: This implementation assumes
+     * that no filters are applied to a forwarded or included resource,
+     * because they were already done for the original request.
+     *
+     * @param request The servlet request we are processing
+     * @param response The servlet response we are creating
+     *
+     * @exception IOException if an input/output error occurs
+     * @exception ServletException if a servlet error occurs
+     */
+    private void doInvoke(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
 
         // Checking to see if the context classloader is the current context
@@ -1005,6 +1061,9 @@ final class ApplicationDispatcher
             HttpServletRequest hcurrent = (HttpServletRequest) current;
             boolean crossContext = 
                 !(context.getPath().equals(hcurrent.getContextPath()));
+            //START OF 6364900
+            crossContextFlag = new Boolean(crossContext);
+            //END OF 6364900
             wrapper = new ApplicationHttpRequest
                 (hcurrent, context, crossContext);
         } else {

@@ -35,6 +35,11 @@ import java.io.IOException;
 //START OF RIMOD# 4820359
 import javax.servlet.http.HttpSession;
 //END OF RIMOD# 4820359
+//START OF 6364900
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+//END OF 6364900
 
 /**
  * A <b>Manager</b> manages the pool of Sessions that are associated with a
@@ -53,7 +58,7 @@ import javax.servlet.http.HttpSession;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:13 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:18 $
  */
 
 public interface Manager {
@@ -444,5 +449,10 @@ public interface Manager {
      */
     public void setSessionIDPrefix(String prefix);
     //END OF RIMOD# 5056989
-
+    
+    //START OF 6364900
+    public boolean lockSession(ServletRequest request) throws ServletException;
+    public void unlockSession(ServletRequest request);
+    public void postRequestDispatcherProcess(ServletRequest request, ServletResponse response);
+    //END OF 6364900
 }
