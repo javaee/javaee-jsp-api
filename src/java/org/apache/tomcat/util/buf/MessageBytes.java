@@ -311,6 +311,9 @@ public final class MessageBytes implements Cloneable, Serializable {
      * @return true if the comparison succeeded, false otherwise
      */
     public boolean equals(String s) {
+        if( s == null )
+            return false;
+
         if( ! caseSensitive )
             return equalsIgnoreCase( s );
         switch (type) {
