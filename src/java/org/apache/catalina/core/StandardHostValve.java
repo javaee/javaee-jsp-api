@@ -47,7 +47,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+// START GlassFish Issue 1057
+import javax.servlet.http.HttpSession;
+// END GlassFish Issue 1057
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.HttpRequest;
@@ -56,7 +58,9 @@ import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
+// START GlassFish Issue 1057
 import org.apache.catalina.Session;
+// END GlassFish Issue 1057
 // START SJSAS 6374691
 import org.apache.catalina.Valve;
 // END SJSAS 6374691
@@ -79,7 +83,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.15 $ $Date: 2006/10/31 23:38:08 $
+ * @version $Revision: 1.16 $ $Date: 2006/11/10 18:12:34 $
  */
 
 final class StandardHostValve
@@ -178,8 +182,25 @@ final class StandardHostValve
                     (context.getLoader().getClassLoader());
         }
                  
+        // START GlassFish Issue 1057
         // Update the session last access time for our session (if any)
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
+        HttpSession httpSess = hreq.getSession(false);
+        if (httpSess != null) {
+            Manager mgr = context.getManager();
+            if (mgr != null) {
+                Session sess = null;
+                try {
+                    sess = mgr.findSession(httpSess.getId());
+                } catch (IOException ex) {
+                    // Ignore
+                }
+                if (sess != null) {
+                    sess.access();
+                }
+            }
+        }
+        // END GlassFish Issue 1057
 
         // Ask this Context to process this request
         // START OF IASRI 4665318

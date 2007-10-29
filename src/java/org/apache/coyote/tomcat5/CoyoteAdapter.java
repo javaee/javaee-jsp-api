@@ -38,9 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.ContainerListener;
-// START GlassFish Issue 1057
-import org.apache.catalina.Session;
-// END GlassFish Issue 1057
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
@@ -77,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.22 $ $Date: 2006/11/16 19:21:24 $
+ * @version $Revision: 1.23 $ $Date: 2006/12/19 21:50:56 $
  */
 
 public class CoyoteAdapter
@@ -487,13 +484,6 @@ public class CoyoteAdapter
         // START SJSAS 6346226
         request.parseJrouteCookie();
         // END SJSAS 6346226
-
-        // START GlassFish Issue 1057
-        Session session = request.doGetSession(false);
-        if (session != null) {
-            session.access();
-        }
-        // END GlassFish Issue 1057
 
         return true;
     }
