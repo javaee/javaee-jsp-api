@@ -526,6 +526,15 @@ public class StandardPipeline
     public void invoke(Request request, Response response)
         throws IOException, ServletException {
 
+        // START PWC 4665318
+        doInvoke(request, response);
+    }
+
+
+    protected void doInvoke(Request request, Response response)
+        throws IOException, ServletException {
+        // END PWC 4665318
+
         // START OF IASRI 4665318
         if ((valves.length > 0) || (basic != null)) {
             // Set the status so that if there are no valves (other than the

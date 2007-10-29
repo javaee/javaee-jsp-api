@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/02 23:28:53 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 final class StandardHostValve
@@ -156,7 +156,7 @@ final class StandardHostValve
 
         // Ask this Context to process this request
         // START OF IASRI 4665318
-        context.invoke(request, response);
+        context.getPipeline().invoke(request, response);
         return END_PIPELINE;
     }
 

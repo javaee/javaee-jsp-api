@@ -64,7 +64,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/21 23:28:08 $
+ * @version $Revision: 1.3 $ $Date: 2005/08/10 20:56:23 $
  */
 
 final class StandardContextValve
@@ -223,7 +223,7 @@ final class StandardContextValve
         }
 
         // START OF IASRI 4665318
-        wrapper.invoke(request, response);
+        wrapper.getPipeline().invoke(request, response);
         return END_PIPELINE;
         // END OF IASRI 4665318
 
