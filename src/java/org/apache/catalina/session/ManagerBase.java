@@ -72,7 +72,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:57 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -494,13 +494,29 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
 
 
     /**
+     * Same as getMaxInactiveIntervalSeconds
+     */
+    public int getMaxInactiveInterval() {
+        return getMaxInactiveIntervalSeconds();
+    }
+
+
+    /**
      * Return the default maximum inactive interval (in seconds)
      * for Sessions created by this Manager.
      */
-    public int getMaxInactiveInterval() {
+    public int getMaxInactiveIntervalSeconds() {
 
         return (this.maxInactiveInterval);
 
+    }
+
+
+    /**
+     * Same as setMaxInactiveIntervalSeconds
+     */
+    public void setMaxInactiveInterval(int interval) {
+        setMaxInactiveIntervalSeconds(interval);
     }
 
 
@@ -510,7 +526,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      *
      * @param interval The new default value
      */
-    public void setMaxInactiveInterval(int interval) {
+    public void setMaxInactiveIntervalSeconds(int interval) {
 
         int oldMaxInactiveInterval = this.maxInactiveInterval;
         this.maxInactiveInterval = interval;
@@ -1102,8 +1118,24 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     }
 
 
+    /**
+     * Same as setSessionCount
+     */
     public void setSessionCounter(int sessionCounter) {
+        setSessionCount(sessionCounter);
+    }
+
+   
+    public void setSessionCount(int sessionCounter) {
         this.sessionCounter = sessionCounter;
+    }
+
+
+    /** 
+     * Same as getSessionCount
+     */
+    public int getSessionCounter() {
+        return getSessionCount();
     }
 
 
@@ -1112,7 +1144,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      *
      * @return sessions created
      */
-    public int getSessionCounter() {
+    public int getSessionCount() {
         return sessionCounter;
     }
 
@@ -1159,14 +1191,30 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
 
 
     /**
+     * Same as getSessionMaxAliveTimeSeconds
+     */
+    public int getSessionMaxAliveTime() {
+        return getSessionMaxAliveTimeSeconds();
+    }
+
+
+    /**
      * Gets the longest time (in seconds) that an expired session had been
      * alive.
      *
      * @return Longest time (in seconds) that an expired session had been
      * alive.
      */
-    public int getSessionMaxAliveTime() {
+    public int getSessionMaxAliveTimeSeconds() {
         return sessionMaxAliveTime;
+    }
+
+
+    /**
+     * Same as setSessionMaxAliveTimeSeconds
+     */
+    public void setSessionMaxAliveTime(int sessionMaxAliveTime) {
+        setSessionMaxAliveTimeSeconds(sessionMaxAliveTime);
     }
 
 
@@ -1177,8 +1225,16 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * @param sessionMaxAliveTime Longest time (in seconds) that an expired
      * session had been alive.
      */
-    public void setSessionMaxAliveTime(int sessionMaxAliveTime) {
+    public void setSessionMaxAliveTimeSeconds(int sessionMaxAliveTime) {
         this.sessionMaxAliveTime = sessionMaxAliveTime;
+    }
+
+
+    /**
+     * Same as getSessionAverageAliveTimeSeconds
+     */
+    public int getSessionAverageAliveTime() {
+        return getSessionAverageAliveTimeSeconds();
     }
 
 
@@ -1189,8 +1245,16 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * @return Average time (in seconds) that expired sessions had been
      * alive.
      */
-    public int getSessionAverageAliveTime() {
+    public int getSessionAverageAliveTimeSeconds() {
         return sessionAverageAliveTime;
+    }
+
+
+    /**
+     * Same as setSessionAverageAliveTimeSeconds
+     */
+    public void setSessionAverageAliveTime(int sessionAverageAliveTime) {
+        setSessionAverageAliveTimeSeconds(sessionAverageAliveTime);
     }
 
 
@@ -1201,7 +1265,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * @param sessionAverageAliveTime Average time (in seconds) that expired
      * sessions had been alive.
      */
-    public void setSessionAverageAliveTime(int sessionAverageAliveTime) {
+    public void setSessionAverageAliveTimeSeconds(int sessionAverageAliveTime) {
         this.sessionAverageAliveTime = sessionAverageAliveTime;
     }
 
@@ -1285,7 +1349,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     }
 
 
-    public String getLastAccessedTime( String sessionId ) {
+    public String getLastAccessedTimeMillis( String sessionId ) {
         Session s=(Session)sessions.get(sessionId);
         if( s==null ) {
             log.info("Session not found " + sessionId);

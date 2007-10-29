@@ -63,7 +63,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:57 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
  */
 
 public class StandardManager
@@ -166,7 +166,7 @@ public class StandardManager
 
         // Register with the new Container (if any)
         if ((this.container != null) && (this.container instanceof Context)) {
-            setMaxInactiveInterval
+            setMaxInactiveIntervalSeconds
                 ( ((Context) this.container).getSessionTimeout()*60 );
             ((Context) this.container).addPropertyChangeListener(this);
         }
@@ -734,7 +734,7 @@ public class StandardManager
         // Process a relevant property change
         if (event.getPropertyName().equals("sessionTimeout")) {
             try {
-                setMaxInactiveInterval
+                setMaxInactiveIntervalSeconds
                     ( ((Integer) event.getNewValue()).intValue()*60 );
             } catch (NumberFormatException e) {
                 log.error(sm.getString("standardManager.sessionTimeout",

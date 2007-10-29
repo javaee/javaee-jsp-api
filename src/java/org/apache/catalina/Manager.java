@@ -47,7 +47,7 @@ import javax.servlet.http.HttpSession;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:42 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public interface Manager {
@@ -110,10 +110,22 @@ public interface Manager {
 
 
     /**
+     * Same as getMaxInactiveIntervalSeconds
+     */
+    public int getMaxInactiveInterval();
+
+
+    /**
      * Return the default maximum inactive interval (in seconds)
      * for Sessions created by this Manager.
      */
-    public int getMaxInactiveInterval();
+    public int getMaxInactiveIntervalSeconds();
+
+
+    /**
+     * Same as setMaxInactiveIntervalSeconds
+     */
+    public void setMaxInactiveInterval(int interval);
 
 
     /**
@@ -122,7 +134,7 @@ public interface Manager {
      *
      * @param interval The new default value
      */
-    public void setMaxInactiveInterval(int interval);
+    public void setMaxInactiveIntervalSeconds(int interval);
 
 
     /**
@@ -144,11 +156,23 @@ public interface Manager {
 
 
     /** 
+     * Same as getSessionCount
+     */
+    public int getSessionCounter();
+
+
+    /** 
      * Returns the total number of sessions created by this manager.
      *
      * @return Total number of sessions created by this manager.
      */
-    public int getSessionCounter();
+    public int getSessionCount();
+
+
+    /** 
+     * Same as setSessionCount
+     */
+    public void setSessionCounter(int sessionCounter);
 
 
     /** 
@@ -156,7 +180,7 @@ public interface Manager {
      *
      * @param sessionCounter Total number of sessions created by this manager.
      */
-    public void setSessionCounter(int sessionCounter);
+    public void setSessionCount(int sessionCounter);
 
 
     /**
@@ -222,13 +246,25 @@ public interface Manager {
 
 
     /**
+     * Same as getSessionMaxAliveTimeSeconds
+     */
+    public int getSessionMaxAliveTime();
+
+
+    /**
      * Gets the longest time (in seconds) that an expired session had been
      * alive.
      *
      * @return Longest time (in seconds) that an expired session had been
      * alive.
      */
-    public int getSessionMaxAliveTime();
+    public int getSessionMaxAliveTimeSeconds();
+
+
+    /**
+     * Same as setSessionMaxAliveTimeSeconds
+     */
+    public void setSessionMaxAliveTime(int sessionMaxAliveTime);
 
 
     /**
@@ -238,7 +274,13 @@ public interface Manager {
      * @param sessionMaxAliveTime Longest time (in seconds) that an expired
      * session had been alive.
      */
-    public void setSessionMaxAliveTime(int sessionMaxAliveTime);
+    public void setSessionMaxAliveTimeSeconds(int sessionMaxAliveTime);
+
+
+    /**
+     * Same as getSessionAverageAliveTimeSeconds
+     */
+    public int getSessionAverageAliveTime();
 
 
     /**
@@ -248,7 +290,13 @@ public interface Manager {
      * @return Average time (in seconds) that expired sessions had been
      * alive.
      */
-    public int getSessionAverageAliveTime();
+    public int getSessionAverageAliveTimeSeconds();
+
+
+    /**
+     * Same as setSessionAverageAliveTimeSeconds
+     */
+    public void setSessionAverageAliveTime(int sessionAverageAliveTime);
 
 
     /**
@@ -258,7 +306,7 @@ public interface Manager {
      * @param sessionAverageAliveTime Average time (in seconds) that expired
      * sessions had been alive.
      */
-    public void setSessionAverageAliveTime(int sessionAverageAliveTime);
+    public void setSessionAverageAliveTimeSeconds(int sessionAverageAliveTime);
 
 
     // --------------------------------------------------------- Public Methods
