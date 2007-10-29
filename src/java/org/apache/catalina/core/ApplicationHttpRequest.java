@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2007/01/22 17:48:07 $
+ * @version $Revision: 1.12 $ $Date: 2007/01/22 19:41:07 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -640,7 +640,12 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                 return (false);
             Session session = null;
             try {
-                session = manager.findSession(requestedSessionId);
+                if (manager.isSessionVersioningSupported()) {
+                    session = manager.findSession(requestedSessionId,
+                                                  requestedSessionVersion);
+                } else {
+                    session = manager.findSession(requestedSessionId);
+                }
             } catch (IOException e) {
                 session = null;
             }
