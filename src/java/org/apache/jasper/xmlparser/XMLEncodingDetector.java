@@ -296,8 +296,8 @@ public class XMLEncodingDetector {
         int b1 = b4[1] & 0xFF;
         if (b0 == 0xFE && b1 == 0xFF) {
             // UTF-16, big-endian, with a BOM
-            return new Object [] {"UTF-16BE", new Boolean(true),
-                                  new Boolean(true)};
+            return new Object [] {"UTF-16BE", Boolean.TRUE,
+                                  Boolean.TRUE};
         }
         /* SJSAS 6307968
         if (b0 == 0xFF && b1 == 0xFE) {
@@ -306,8 +306,8 @@ public class XMLEncodingDetector {
         if (count == 2 && b0 == 0xFF && b1 == 0xFE) {
         // END SJSAS 6307968
             // UTF-16, little-endian, with a BOM
-            return new Object [] {"UTF-16LE", new Boolean(false),
-                                  new Boolean(true)};
+            return new Object [] {"UTF-16LE", Boolean.FALSE,
+                                  Boolean.TRUE};
         }
 
         // default to UTF-8 if we don't have enough bytes to make a
@@ -319,7 +319,7 @@ public class XMLEncodingDetector {
         // UTF-8 with a BOM
         int b2 = b4[2] & 0xFF;
         if (b0 == 0xEF && b1 == 0xBB && b2 == 0xBF) {
-            return new Object [] {"UTF-8", null, new Boolean(true)};
+            return new Object [] {"UTF-8", null, Boolean.TRUE};
         }
 
         // default to UTF-8 if we don't have enough bytes to make a
@@ -332,11 +332,11 @@ public class XMLEncodingDetector {
         int b3 = b4[3] & 0xFF;
         if (b0 == 0x00 && b1 == 0x00 && b2 == 0x00 && b3 == 0x3C) {
             // UCS-4, big endian (1234)
-            return new Object [] {"ISO-10646-UCS-4", new Boolean(true), null};
+            return new Object [] {"ISO-10646-UCS-4", Boolean.TRUE, null};
         }
         if (b0 == 0x3C && b1 == 0x00 && b2 == 0x00 && b3 == 0x00) {
             // UCS-4, little endian (4321)
-            return new Object [] {"ISO-10646-UCS-4", new Boolean(false), null};
+            return new Object [] {"ISO-10646-UCS-4", Boolean.FALSE, null};
         }
         if (b0 == 0x00 && b1 == 0x00 && b2 == 0x3C && b3 == 0x00) {
             // UCS-4, unusual octet order (2143)
@@ -352,12 +352,12 @@ public class XMLEncodingDetector {
             // UTF-16, big-endian, no BOM
             // (or could turn out to be UCS-2...
             // REVISIT: What should this be?
-            return new Object [] {"UTF-16BE", new Boolean(true), null};
+            return new Object [] {"UTF-16BE", Boolean.TRUE, null};
         }
         if (b0 == 0x3C && b1 == 0x00 && b2 == 0x3F && b3 == 0x00) {
             // UTF-16, little-endian, no BOM
             // (or could turn out to be UCS-2...
-            return new Object [] {"UTF-16LE", new Boolean(false), null};
+            return new Object [] {"UTF-16LE", Boolean.FALSE, null};
         }
         if (b0 == 0x4C && b1 == 0x6F && b2 == 0xA7 && b3 == 0x94) {
             // EBCDIC
@@ -366,19 +366,19 @@ public class XMLEncodingDetector {
         }
         if (b0 == 0x00 && b1 == 0x00 && b2 == 0xFE && b3 == 0xFF) {
             // UTF-32, big-endian, with a BOM
-            return new Object [] {"UTF-32BE", new Boolean(true),
-                                  new Boolean(true)};
+            return new Object [] {"UTF-32BE", Boolean.TRUE,
+                                  Boolean.TRUE};
         }
         if (b0 == 0xFF && b1 == 0xFE && b2 == 0x00 && b3 == 0x00) {
             // UTF-32, little-endian, with a BOM
-            return new Object [] {"UTF-32LE", new Boolean(false),
-                                  new Boolean(true)};
+            return new Object [] {"UTF-32LE", Boolean.FALSE,
+                                  Boolean.TRUE};
         }
         // BEGIN SJSAS 6307968
         if (b0 == 0xFF && b1 == 0xFE) {
             // UTF-16, little-endian, with a BOM
-            return new Object [] {"UTF-16LE", new Boolean(false),
-                                  new Boolean(true)};
+            return new Object [] {"UTF-16LE", Boolean.FALSE,
+                                  Boolean.TRUE};
         }
         // END SJSAS 6307968
 
