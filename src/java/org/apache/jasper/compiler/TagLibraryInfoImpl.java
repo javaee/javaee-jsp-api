@@ -718,7 +718,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             throws JasperException {
 
         String validatorClass = null;
-	Map initParams = new Hashtable();
+	Map<String, Object> initParams = new Hashtable<String, Object>();
 
         Iterator list = elem.findChildren();
         while (list.hasNext()) {
