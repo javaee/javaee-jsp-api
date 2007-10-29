@@ -111,14 +111,20 @@ public interface Options {
      */
     public String getClassPath();
 
-    // START PWC 1.1 6281941
-    public String getSource();
-    // END PWC 1.1 6281941
-
     /**
      * Compiler to use.
      */
     public String getCompiler();
+
+    /**
+     * The compiler target VM, e.g. 1.1, 1.2, 1.3, 1.4, or 1.5.
+     */
+    public String getCompilerTargetVM();
+
+    /**
+     * Compiler source VM, e.g. 1.3, 1.4, or 1.5.
+     */
+    public String getCompilerSourceVM();   
 
     /**
      * The cache for the location of the TLD's

@@ -383,13 +383,15 @@ public class Compiler {
             info.append("    compiler=" + options.getCompiler() + "\n");
         }
 
-        // START PWC 1.1 6281941
-        // Set the source version to use
-        if (options.getSource() != null) {
-            javac.setSource(options.getSource());
-            info.append("    source=" + options.getSource() + "\n");
+        if (options.getCompilerTargetVM() != null) {
+            javac.setTarget(options.getCompilerTargetVM());
+            info.append("   compilerTargetVM=" + options.getCompilerTargetVM() + "\n");
         }
-        // END PWC 1.1 6281941
+
+        if (options.getCompilerSourceVM() != null) {
+            javac.setSource(options.getCompilerSourceVM());
+            info.append("   compilerSourceVM=" + options.getCompilerSourceVM() + "\n");
+        }
 
         // Build includes path
         PatternSet.NameEntry includes = javac.createInclude();

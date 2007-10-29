@@ -104,6 +104,8 @@ public class JspC implements Options {
     private static final String SWITCH_CLASS_NAME = "-c";
     private static final String SWITCH_FULL_STOP = "--";
     private static final String SWITCH_COMPILE = "-compile";
+    private static final String SWITCH_SOURCE = "-source";
+    private static final String SWITCH_TARGET = "-target";
     private static final String SWITCH_URI_BASE = "-uribase";
     private static final String SWITCH_URI_ROOT = "-uriroot";
     private static final String SWITCH_FILE_WEBAPP = "-webapp";
@@ -116,9 +118,6 @@ public class JspC implements Options {
     private static final String SWITCH_DIE = "-die";
     private static final String SWITCH_SMAP = "-smap";
     private static final String SWITCH_DUMP_SMAP = "-dumpsmap";
-    // START PWC 1.1 6281941
-    private static final String SWITCH_SOURCE = "-source";
-    // END PWC 1.1 6281941
     // START IASRI 4660687
     private static final String SWITCH_GENERATE_CLASSES = "-genclass";
     // END IASRI 4660687
@@ -157,16 +156,17 @@ public class JspC implements Options {
     private boolean compile = false;
     private boolean smapSuppressed = true;
     private boolean smapDumped = false;
+
     private String compiler = null;
+
+    private String compilerTargetVM = "1.5";
+    private String compilerSourceVM = "1.5";
+
     private boolean classDebugInfo = true;
     private Vector extensions;
     private Vector pages = new Vector();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
     
-    // START PWC 1.1 6281941
-    private String source;
-    // END PWC 1.1 6281941
-
     /**
      * The java file encoding.  Default
      * is UTF-8.  Added per bugzilla 19622.
@@ -287,14 +287,14 @@ public class JspC implements Options {
                 die = dieLevel;
             } else if (tok.equals(SWITCH_HELP)) {
                 helpNeeded = true;
+            } else if (tok.equals(SWITCH_SOURCE)) {
+                setCompilerSourceVM(nextArg());
+            } else if (tok.equals(SWITCH_TARGET)) {
+                setCompilerTargetVM(nextArg());
             } else if (tok.equals(SWITCH_SMAP)) {
                 smapSuppressed = false;
             } else if (tok.equals(SWITCH_DUMP_SMAP)) {
                 smapDumped = true;
-            // START PWC 1.1 6281941
-            } else if (tok.equals(SWITCH_SOURCE)) {
-                source = nextArg();
-            // END PWC 1.1 6281941
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -510,14 +510,33 @@ public class JspC implements Options {
         return compiler;
     }
 
-    // START PWC 1.1 6281941
-    public String getSource() {
-        return source;
-    }
-    // END PWC 1.1 6281941
-
     public void setCompiler(String c) {
         compiler=c;
+    }
+
+    /**
+     * @see Options#getCompilerTargetVM
+     */
+    public String getCompilerTargetVM() {
+        return compilerTargetVM;
+    }
+
+    public void setCompilerTargetVM(String vm) {
+        compilerTargetVM = vm;
+    }
+
+    /**
+     * @see Options#getCompilerSourceVM.
+     */
+     public String getCompilerSourceVM() {
+         return compilerSourceVM;
+     }
+        
+    /**
+     * @see Options#getCompilerSourceVM.
+     */
+    public void setCompilerSourceVM(String vm) {
+        compilerSourceVM = vm;
     }
 
     public TldLocationsCache getTldLocationsCache() {
