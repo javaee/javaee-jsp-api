@@ -38,7 +38,7 @@ import com.sun.el.util.ReflectionUtil;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public class FunctionMapperImpl extends FunctionMapper implements
         Externalizable {
@@ -164,7 +164,8 @@ public class FunctionMapperImpl extends FunctionMapper implements
         public Method getMethod() {
             if (this.m == null) {
                 try {
-                    Class t = Class.forName(this.owner);
+                    Class t = Class.forName(this.owner, false,
+                                Thread.currentThread().getContextClassLoader());
                     Class[] p = ReflectionUtil.toTypeArray(this.types);
                     this.m = t.getMethod(this.name, p);
                 } catch (Exception e) {
