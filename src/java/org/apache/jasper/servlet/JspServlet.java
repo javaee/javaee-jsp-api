@@ -229,7 +229,7 @@ public class JspServlet extends HttpServlet {
     			 HttpServletResponse response)
                 throws ServletException, IOException {
 
-        // STSART SJSWS 6232180
+        // START SJSWS 6232180
         if (httpMethodsSet != null) {
             String method = request.getMethod();
             if (method == null) {
@@ -237,11 +237,12 @@ public class JspServlet extends HttpServlet {
             }
             boolean isSupportedMethod = httpMethodsSet.contains(method);
             if (!isSupportedMethod) {
-                if (!method.equals("OPTIONS")) {
-                    return;
-                } else {
+                if (method.equals("OPTIONS")) {
                     response.addHeader("Allow", httpMethodsString);
+                } else {
+                    super.service(request, response);
                 }
+                return;
             }
         }
         // END SJSWS 6232180
