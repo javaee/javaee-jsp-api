@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -85,7 +86,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.5 $ $Date: 2005/09/08 02:18:01 $
+ * @version $Revision: 1.6 $ $Date: 2005/09/12 23:29:06 $
  */
 
 public class StandardSession
@@ -138,7 +139,7 @@ public class StandardSession
     /**
      * The collection of user data attributes associated with this Session.
      */
-    protected HashMap attributes = new HashMap();    
+    protected ConcurrentHashMap attributes = new ConcurrentHashMap();    
 
 
     /**
@@ -259,7 +260,7 @@ public class StandardSession
      * and event listeners.  <b>IMPLEMENTATION NOTE:</b> This object is
      * <em>not</em> saved and restored across session serializations!
      */
-    protected transient HashMap notes = new HashMap();
+    protected transient ConcurrentHashMap notes = new ConcurrentHashMap();
 
 
     /**
@@ -836,11 +837,7 @@ public class StandardSession
      * @param name Name of the note to be returned
      */
     public Object getNote(String name) {
-
-        synchronized (notes) {
-            return (notes.get(name));
-        }
-
+        return (notes.get(name));
     }
 
 
@@ -849,11 +846,7 @@ public class StandardSession
      * that exist for this session.
      */
     public Iterator getNoteNames() {
-
-        synchronized (notes) {
-            return (notes.keySet().iterator());
-        }
-
+        return (notes.keySet().iterator());
     }
 
 
@@ -888,11 +881,7 @@ public class StandardSession
      * @param name Name of the note to be removed
      */
     public void removeNote(String name) {
-
-        synchronized (notes) {
-            notes.remove(name);
-        }
-
+        notes.remove(name);
     }
 
 
@@ -916,11 +905,7 @@ public class StandardSession
      * @param value Object to be bound to the specified name
      */
     public void setNote(String name, Object value) {
-
-        synchronized (notes) {
-            notes.put(name, value);
-        }
-
+        notes.put(name, value);
     }
 
 
@@ -1076,10 +1061,7 @@ public class StandardSession
             throw new IllegalStateException
                 (sm.getString("standardSession.getAttribute.ise"));
 
-        synchronized (attributes) {
-            return (attributes.get(name));
-        }
-
+        return (attributes.get(name));
     }
 
 
@@ -1411,9 +1393,7 @@ public class StandardSession
 
         // Remove this attribute from our collection
         Object value = null;
-        synchronized (attributes) {
-            value = attributes.remove(name);
-        }
+        value = attributes.remove(name);
 
         // Do we need to do valueUnbound() and attributeRemoved() notification?
         if (!notify || (value == null)) {
@@ -1572,9 +1552,7 @@ public class StandardSession
 
         // Replace or add this attribute
         Object unbound = null;
-        synchronized (attributes) {
-            unbound = attributes.put(name, value);
-        }
+        unbound = attributes.put(name, value);
 
         // Call the valueUnbound() method if necessary
         if ((unbound != null) &&
@@ -1686,7 +1664,7 @@ public class StandardSession
 
         // Deserialize the attribute count and attribute values
         if (attributes == null)
-            attributes = new HashMap();
+            attributes = new ConcurrentHashMap();
         int n = ((Integer) stream.readObject()).intValue();
         boolean isValidSave = isValid;
         isValid = true;
@@ -1698,9 +1676,7 @@ public class StandardSession
             if (debug >= 2)
                 log("  loading attribute '" + name +
                     "' with value '" + value + "'");
-            synchronized (attributes) {
-                attributes.put(name, value);
-            }
+            attributes.put(name, value);
         }
         isValid = isValidSave;
 
@@ -1709,7 +1685,7 @@ public class StandardSession
         }
 
         if (notes == null) {
-            notes = new HashMap();
+            notes = new ConcurrentHashMap();
         }
     }
 
@@ -1752,9 +1728,7 @@ public class StandardSession
         ArrayList saveValues = new ArrayList();
         for (int i = 0; i < keys.length; i++) {
             Object value = null;
-            synchronized (attributes) {
-                value = attributes.get(keys[i]);
-            }
+            value = attributes.get(keys[i]);
 
             if (value == null) {
                 continue;            
@@ -1926,10 +1900,7 @@ public class StandardSession
      * zero-length array is returned.
      */
     protected String[] keys() {
-
-        synchronized (attributes) {
-            return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
-        }
+        return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
     }
 
 
@@ -1937,11 +1908,7 @@ public class StandardSession
      * Return the value of an attribute without a check for validity.
      */
     protected Object getAttributeInternal(String name) {
-
-        synchronized (attributes) {
-            return (attributes.get(name));
-        }
-
+        return (attributes.get(name));
     }
 
 
