@@ -61,7 +61,10 @@ public class JspApplicationContextImpl implements JspApplicationContext {
     }
 
     public ExpressionFactory getExpressionFactory() {
-        return ExpressionFactory.getExpressionFactory();
+        if (expressionFactory == null) {
+            expressionFactory = ExpressionFactory.getExpressionFactory();
+        }
+        return expressionFactory;
     }
 
     public void addELContextListener(ELContextListener listener) {
@@ -107,5 +110,6 @@ public class JspApplicationContextImpl implements JspApplicationContext {
     private ArrayList<ELContextListener> listeners =
             new ArrayList<ELContextListener>();
     private ServletContext context;
+    private ExpressionFactory expressionFactory;
 }
 
