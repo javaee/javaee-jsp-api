@@ -57,6 +57,9 @@ import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Loader;
+// START GlassFish 1343
+import org.apache.catalina.Valve;
+// END GlassFish 1343
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.catalina.util.Enumerator;
@@ -72,7 +75,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:01 $
+ * @version $Revision: 1.6 $ $Date: 2006/10/03 17:51:06 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -653,6 +656,27 @@ public class StandardWrapper
 
 
     // --------------------------------------------------------- Public Methods
+
+
+    // START GlassFish 1343
+    public synchronized void addValve(Valve valve) {
+        /*
+         * This exception should never be thrown in reality, because we never
+         * add any valves to a StandardWrapper. 
+         * This exception is added here as an alert mechanism only, should
+         * there ever be a need to add valves to a StandardWrapper in the
+         * future.
+         * In that case, the optimization in StandardContextValve related to
+         * GlassFish 1343 will need to be adjusted, by calling
+         * pipeline.getValves() and checking the pipeline's length to
+         * determine whether the basic valve may be invoked directly. The
+         * optimization currently avoids a call to pipeline.getValves(),
+         * because it is expensive.
+         */
+        throw new UnsupportedOperationException(
+            "Adding valves to wrappers not supported");
+    }
+    // END GlassFish 1343
 
 
     /**

@@ -52,6 +52,9 @@ import org.apache.catalina.HttpRequest;
 import org.apache.catalina.Logger;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
+// START GlassFish 1343
+import org.apache.catalina.Valve;
+// END GlassFish 1343
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
@@ -70,7 +73,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:01 $
+ * @version $Revision: 1.12 $ $Date: 2006/04/24 16:36:13 $
  */
 
 final class StandardContextValve
@@ -243,7 +246,16 @@ final class StandardContextValve
         }
 
         // START OF IASRI 4665318
+        /* GlassFish 1343
         wrapper.getPipeline().invoke(request, response);
+        */
+        // START GlassFish 1343
+        Valve basic = wrapper.getPipeline().getBasic();
+        if (basic != null) {
+            basic.invoke(request, response);
+            basic.postInvoke(request, response);
+        }
+        // END GlassFish 1343
         return END_PIPELINE;
         // END OF IASRI 4665318
 
