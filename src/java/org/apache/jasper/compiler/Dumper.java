@@ -171,7 +171,7 @@ class Dumper {
         }
         
         public void visit(Node.ELExpression n) throws JasperException {
-	    printString( "${" + new String( n.getText() ) + "}" );
+	    printString( n.getText());
         }
 
         public void visit(Node.CustomTag n) throws JasperException {
@@ -188,7 +188,7 @@ class Dumper {
         }
 
 	public void visit(Node.TemplateText n) throws JasperException {
-	    printString(new String(n.getText()));
+	    printString(n.getText());
 	}
 
 	private void printIndent() {
