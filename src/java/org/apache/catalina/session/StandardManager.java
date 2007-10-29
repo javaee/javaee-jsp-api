@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.6 $ $Date: 2005/12/14 23:29:11 $
+ * @version $Revision: 1.7 $ $Date: 2006/01/26 17:52:56 $
  */
 
 public class StandardManager
@@ -92,11 +92,14 @@ public class StandardManager
     private class PrivilegedDoUnload
         implements PrivilegedExceptionAction {
 
-        PrivilegedDoUnload() {
+        private boolean expire;
+
+        PrivilegedDoUnload(boolean expire) {
+            this.expire = expire;
         }
 
         public Object run() throws Exception{
-            doUnload();
+            doUnload(expire);
             return null;
         }            
            
@@ -472,9 +475,23 @@ public class StandardManager
      * @exception IOException if an input/output error occurs
      */
     public void unload() throws IOException {
+        unload(true);
+    }
+
+    /**
+     * Save any currently active sessions in the appropriate persistence
+     * mechanism, if any.  If persistence is not supported, this method
+     * returns without doing anything.
+     *
+     * @doExpire true if the unloaded sessions are to be expired, false
+     * otherwise
+     *
+     * @exception IOException if an input/output error occurs
+     */        
+    protected void unload(boolean doExpire) throws IOException {
         if (SecurityUtil.isPackageProtectionEnabled()){       
             try{
-                AccessController.doPrivileged( new PrivilegedDoUnload() );
+                AccessController.doPrivileged( new PrivilegedDoUnload(doExpire) );
             } catch (PrivilegedActionException ex){
                 Exception exception = ex.getException();
                 if (exception instanceof IOException){
@@ -485,19 +502,21 @@ public class StandardManager
                         + exception);                
             }        
         } else {
-            doUnload();
+            doUnload(doExpire);
         }       
     }
-        
         
     /**
      * Save any currently active sessions in the appropriate persistence
      * mechanism, if any.  If persistence is not supported, this method
      * returns without doing anything.
      *
+     * @doExpire true if the unloaded sessions are to be expired, false
+     * otherwise
+     *
      * @exception IOException if an input/output error occurs
      */
-    private void doUnload() throws IOException {   
+    private void doUnload(boolean doExpire) throws IOException {   
 
         if (log.isDebugEnabled())
             log.debug("Unloading persisted sessions");
@@ -591,16 +610,18 @@ public class StandardManager
             throw e;
         }
 
-        // Expire all the sessions we just wrote
-        if (log.isDebugEnabled())
-            log.debug("Expiring " + list.size() + " persisted sessions");
-        Iterator expires = list.iterator();
-        while (expires.hasNext()) {
-            StandardSession session = (StandardSession) expires.next();
-            try {
-                session.expire(false);
-            } catch (Throwable t) {
-                ;
+        if (doExpire) {
+            // Expire all the sessions we just wrote
+            if (log.isDebugEnabled())
+                log.debug("Expiring " + list.size() + " persisted sessions");
+            Iterator expires = list.iterator();
+            while (expires.hasNext()) {
+                StandardSession session = (StandardSession) expires.next();
+                try {
+                    session.expire(false);
+                } catch (Throwable t) {
+                    ;
+                }
             }
         }
 
@@ -726,12 +747,12 @@ public class StandardManager
 
         // Write out sessions
         try {
-            unload();
+            unload(false);
         } catch (IOException e) {
             log.error(sm.getString("standardManager.managerUnload"), e);
         }
 
-        // Expire all active sessions
+        // Expire all active sessions and notify their listeners
         Session sessions[] = findSessions();
         for (int i = 0; i < sessions.length; i++) {
             StandardSession session = (StandardSession) sessions[i];
