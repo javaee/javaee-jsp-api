@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:54 $
+ * @version $Revision: 1.7 $ $Date: 2006/01/18 19:23:47 $
  */
 
 public abstract class RealmBase
@@ -1005,10 +1005,7 @@ public abstract class RealmBase
                                     throws IOException {
         for(int i=0; i < constraints.length; i++) {
             if (constraints[i].getAuthConstraint()) {
-                if(disableProxyCaching) {
-                    disableProxyCaching(request, response,
-                                        securePagesWithPragma);
-                }
+                disableProxyCaching(request, response, disableProxyCaching, securePagesWithPragma);
                 return Realm.AUTHENTICATE_NEEDED;
             }
         }
@@ -1455,9 +1452,15 @@ public abstract class RealmBase
     //START SJSAS 6202703
     protected void disableProxyCaching(HttpRequest request,
                                        HttpResponse response, 
+                                       boolean disableProxyCaching,
                                        boolean securePagesWithPragma) {
         HttpServletRequest hsrequest = (HttpServletRequest) request.getRequest();
-        if (!hsrequest.isSecure() &&
+        // Make sure that constrained resources are not cached by web proxies
+        // or browsers as caching can provide a security hole
+        if (disableProxyCaching &&
+            // FIXME: Disabled for Mozilla FORM support over SSL
+            // (improper caching issue)
+            //!request.isSecure() &&
             !"POST".equalsIgnoreCase(hsrequest.getMethod())) {
             HttpServletResponse sresponse =
                     (HttpServletResponse) response.getResponse();
