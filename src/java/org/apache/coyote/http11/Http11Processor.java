@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.InetAddress;
-
+// START SJSAS 6415934
 import org.apache.catalina.util.ServerInfo;
-
+// END SJSAS 6415934
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
@@ -1370,8 +1370,11 @@ public class Http11Processor implements Processor, ActionHook {
         response.addHeader("Server", Constants.SERVER);
          */
         // START SJSAS 5022949
-        response.addHeader("Server", ServerInfo.getServerInfo());
+        //response.addHeader("Server", ServerInfo.getServerInfo());
         // END SJSAS 5022949
+        // START SJSAS 6415934
+        response.addHeader("Server", System.getProperty("product.name"));
+        // END SJSAS 6415934
 
         // Add transfer encoding header
         // FIXME

@@ -32,8 +32,6 @@ import java.io.OutputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.apache.catalina.security.SecurityUtil;
-
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
@@ -497,7 +495,7 @@ public class InternalOutputBuffer
         }
 
         // End the response status line
-        if (SecurityUtil.isPackageProtectionEnabled()){
+        if ( System.getSecurityManager() != null ){
            AccessController.doPrivileged(
                 new PrivilegedAction(){
                     public Object run(){
@@ -513,7 +511,7 @@ public class InternalOutputBuffer
     }
 
     private String getMessage(final int message){
-        if (SecurityUtil.isPackageProtectionEnabled()){
+        if (System.getSecurityManager() != null){
            return (String)AccessController.doPrivileged(
                 new PrivilegedAction(){
                     public Object run(){

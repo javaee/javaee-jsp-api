@@ -66,22 +66,6 @@ public final class Constants {
     // S1AS 4703023
     public static final int DEFAULT_MAX_DISPATCH_DEPTH = 20;
 
-    
-    // START SJSAS 6328909
-    /**
-     * The default response-type
-     */
-    public final static String DEFAULT_RESPONSE_TYPE = 
-            "text/plain; charset=iso-8859-1";
-
-
-    /**
-     * The forced response-type
-     */
-    public final static String FORCED_RESPONSE_TYPE = 
-           "text/plain; charset=iso-8859-1";
-    // END SJSAS 6328909
-
 
     // START SJSAS 6337561
     public final static String PROXY_JROUTE = "proxy-jroute";
