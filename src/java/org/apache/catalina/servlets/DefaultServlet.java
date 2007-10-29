@@ -78,7 +78,7 @@ import org.apache.catalina.core.ApplicationHttpResponse;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2005/05/12 02:13:08 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
  */
 
 public class DefaultServlet
@@ -827,13 +827,7 @@ public class DefaultServlet
                     // Silent catch
                 }
                 if (ostream != null) {
-                    // START SJSAS 6231069
-                    //copy(cacheEntry, renderResult, ostream);
-                    if (!sendFileWithNIO(request, response, cacheEntry,
-                                         contentLength, null)){
-                        copy(cacheEntry, renderResult, ostream);
-                    }
-                    // END SJSAS 6231069
+                    copy(cacheEntry, renderResult, ostream);
                 } else {
                     copy(cacheEntry, renderResult, writer);
                 }
@@ -873,14 +867,7 @@ public class DefaultServlet
                         // Silent catch
                     }
                     if (ostream != null) {
-                        // START SJSAS 6231069
-                        //copy(cacheEntry, ostream, range);
-                        if (!sendFileWithNIO(request, response, cacheEntry,
-                                             range.end - range.start + 1, 
-                                             range)){
-                            copy(cacheEntry, ostream, range);
-                        }
-                        // END SJSAS 6231069
+                        copy(cacheEntry, ostream, range);
                     } else {
                         copy(cacheEntry, writer, range);
                     }
@@ -2168,62 +2155,4 @@ public class DefaultServlet
         }
 
     }
-    // START SJSAS 6231069
-    // -------------------------------------------------------- NIO Support --//
-    
-    
-    /**
-     * Use NIO non blocking directly when sending static file. This mimic
-     * the approach used by Tomcat 5 when used in conjonction with APR and
-     * using sendFile
-     *
-     * @param request the current HttpServletRequest
-     * @param cacheEntry the JNDI CacheEntry element
-     * @param length the length of the static file
-     * @param range the static file range to send
-     */
-    protected boolean sendFileWithNIO(HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      CacheEntry entry,
-                                      long length,
-                                      Range range) throws IOException{
-        try{     
-            
-            if ( request.getAttribute("grizzly.inUse") == null ){
-                return false;
-            }
-            ByteBuffer byteBuffer = entry.resource.getResourceMappedBuffer();
-           
-            // In CoyoteAdapter, response.finishResponse() is invoked,
-            // which in turn invoke OutputBuffer.close(). The close()
-            // operation calculate the contentLength using the internal
-            // ByteChunk size. Since with are using a Mapped ByteBuffer,
-            // the ByteChunk size will always be equals to 0. So we
-            // have to make sure we properly set the content-length
-            // of the static resources when included. 
-            if ( response instanceof ApplicationHttpResponse){
-                ApplicationHttpResponse appResponse = 
-                                             (ApplicationHttpResponse)response;
-                if ( appResponse.isIncluded() ){
-                    appResponse.getResponse()
-                                        .setContentLength(byteBuffer.capacity());
-                }
-            }
-            
-            if ( range != null ){
-                byteBuffer.position((int)range.start);
-                byteBuffer.limit((int)range.end + 1);
-            }
-            request.setAttribute("grizzly.direct",byteBuffer); 
-            return true;
-        } catch (Throwable ex){
-            // Swallow any exception and go with the non direct nio way.
-            if ( debug > 0){
-                 log("Mapped ByteBuffer exception",ex);
-            }
-            return false;
-        }
-    }
-    // END SJSAS 6231069
-
 }
