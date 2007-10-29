@@ -277,9 +277,7 @@ public class JspCompilationContext {
             try {
                 jspCompiler = (Compiler) jdtCompilerClass.newInstance();
             } catch (Exception e) {
-                // Fallback
-                jspCompiler = new Compiler();
-                jspCompiler.setJspcMode(jspcMode);
+                throw new JasperException(e);
             }
         } else {
             jspCompiler = new Compiler();
