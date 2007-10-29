@@ -62,7 +62,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/03/07 22:30:07 $
+ * @version $Revision: 1.6 $ $Date: 2006/03/12 01:27:01 $
  */
 
 final class StandardWrapperValve
@@ -183,21 +183,7 @@ final class StandardWrapperValve
                 servlet = wrapper.allocate();
             }
         } catch (UnavailableException e) {
-            long available = wrapper.getAvailable();
-            if ((available > 0L) && (available < Long.MAX_VALUE)) {
-                hres.setDateHeader("Retry-After", available);
-                /* S1AS 4878272
-                hres.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-                           sm.getString("standardWrapper.isUnavailable",
-                                        wrapper.getName()));
-                */
-                // BEGIN S1AS 4878272
-                hres.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-                response.setDetailMessage(
-                                sm.getString("standardWrapper.isUnavailable",
-                                             wrapper.getName()));
-                // END S1AS 4878272
-            } else if (available == Long.MAX_VALUE) {
+            if (e.isPermanent()) {
                 /* S1AS 4878272
                 hres.sendError(HttpServletResponse.SC_NOT_FOUND,
                            sm.getString("standardWrapper.notFound",
@@ -207,6 +193,19 @@ final class StandardWrapperValve
                 hres.sendError(HttpServletResponse.SC_NOT_FOUND);
                 response.setDetailMessage(
                                 sm.getString("standardWrapper.notFound",
+                                             wrapper.getName()));
+                // END S1AS 4878272
+            } else {
+                hres.setDateHeader("Retry-After", e.getUnavailableSeconds());
+                /* S1AS 4878272
+                hres.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                           sm.getString("standardWrapper.isUnavailable",
+                                        wrapper.getName()));
+                */
+                // BEGIN S1AS 4878272
+                hres.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.setDetailMessage(
+                                sm.getString("standardWrapper.isUnavailable",
                                              wrapper.getName()));
                 // END S1AS 4878272
             }
