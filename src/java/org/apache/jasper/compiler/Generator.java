@@ -2303,7 +2303,8 @@ class Generator {
             out.print(" ");
             out.print(tagHandlerVar);
             out.print(" = ");
-            if (isPoolingEnabled) {
+            if (isPoolingEnabled &&
+                    !JspIdConsumer.class.isAssignableFrom(tagHandlerClass)) {
                 out.print("(");
                 out.print(tagHandlerClassName);
                 out.print(") ");
