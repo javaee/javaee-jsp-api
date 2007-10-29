@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.6 $ $Date: 2005/12/12 19:11:35 $
+ * @version $Revision: 1.7 $ $Date: 2006/02/27 23:44:36 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -970,7 +970,9 @@ public class ContextConfig
             for (int j = 0; j < roles.length; j++) {
                 if (!"*".equals(roles[j]) &&
                     !context.findSecurityRole(roles[j])) {
-                    log.info(sm.getString("contextConfig.role.auth", roles[j]));
+                    log.info ( sm.getString ("contextConfig.role.auth", 
+                                             roles[j],
+                                             context.getName()) );
                     context.addSecurityRole(roles[j]);
                 }
             }
@@ -982,20 +984,25 @@ public class ContextConfig
             Wrapper wrapper = (Wrapper) wrappers[i];
             String runAs = wrapper.getRunAs();
             if ((runAs != null) && !context.findSecurityRole(runAs)) {
-                log.info(sm.getString("contextConfig.role.runas", runAs));
+                log.info( sm.getString("contextConfig.role.runas", 
+                                       runAs,
+                                       context.getName()) );
                 context.addSecurityRole(runAs);
             }
             String names[] = wrapper.findSecurityReferences();
             for (int j = 0; j < names.length; j++) {
                 String link = wrapper.findSecurityReference(names[j]);
                 if ((link != null) && !context.findSecurityRole(link)) {
-                    log.info(sm.getString("contextConfig.role.link", link));
+                    log.info( sm.getString("contextConfig.role.link", 
+                                           link,
+                                           context.getName()) );
                     context.addSecurityRole(link);
                 }
             }
         }
 
     }
+
 } //end of public class
 
 // START PWC 6390776
