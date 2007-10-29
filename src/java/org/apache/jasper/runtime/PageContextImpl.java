@@ -452,8 +452,13 @@ public class PageContextImpl extends PageContext {
             return REQUEST_SCOPE;
 
         if (session != null) {
-            if (session.getAttribute(name) != null)
-                return SESSION_SCOPE;
+            try {
+                if (session.getAttribute(name) != null)
+                    return SESSION_SCOPE;
+            } catch (IllegalStateException ex) {
+ 	        // Session has been invalidated.
+                // Ignore and fall through to application scope.
+            }
         }
 
         if (context.getAttribute(name) != null)
@@ -494,11 +499,16 @@ public class PageContextImpl extends PageContext {
         if (o != null)
             return o;
 
-        if (session != null) {
-            o = session.getAttribute(name);
-            if (o != null)
-                return o;
-        }
+ 	if (session != null) {
+	    try {
+	        o = session.getAttribute(name);
+ 	    } catch (IllegalStateException ex) {
+ 	        // Session has been invalidated.
+                // Ignore and fall through to application scope.
+ 	    }
+
+ 	    if (o != null) return o;
+ 	}
 
         return context.getAttribute(name);
     }
@@ -559,21 +569,20 @@ public class PageContextImpl extends PageContext {
         }
     }
 
-
     private void doRemoveAttribute(String name){
-        try {
-            removeAttribute(name, PAGE_SCOPE);
-            removeAttribute(name, REQUEST_SCOPE);
-            if( session != null ) {
+        removeAttribute(name, PAGE_SCOPE);
+        removeAttribute(name, REQUEST_SCOPE);
+        if( session != null ) {
+            try {
                 removeAttribute(name, SESSION_SCOPE);
+            } catch (IllegalStateException ex) {
+                // Session has been invalidated.
+                // Ignore and fall through to application scope.
             }
-            removeAttribute(name, APPLICATION_SCOPE);
-        } catch (Exception ex) {
-            // we remove as much as we can, and
-            // simply ignore possible exceptions
         }
+        removeAttribute(name, APPLICATION_SCOPE);
     }
-
+        
     public JspWriter getOut() {
 	return out;
     }
