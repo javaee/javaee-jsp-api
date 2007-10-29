@@ -1060,7 +1060,7 @@ class Validator {
                                         jspAttrs[i].setValue(escapePound(
                                             jspAttrs[i].getValue()));
                                     }
-                                } else {
+                                } else if (!el.hasDollarExpression()){
                                     jspAttrs[i].setValue(escapePound(
                                         jspAttrs[i].getValue()));
                                 }
