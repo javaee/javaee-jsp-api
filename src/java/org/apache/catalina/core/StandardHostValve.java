@@ -83,7 +83,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.19 $ $Date: 2007/04/03 22:08:18 $
+ * @version $Revision: 1.20 $ $Date: 2007/04/10 17:09:56 $
  */
 
 final class StandardHostValve
@@ -200,9 +200,11 @@ final class StandardHostValve
         throws IOException, ServletException
         // END SJSAS 6374691
     {
+        // START SJSAS 6374990
         if (((ServletResponse) response).isCommitted()) {
             return;
         }
+        // END SJSAS 6374990
 
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
         // END OF IASRI 4665318
