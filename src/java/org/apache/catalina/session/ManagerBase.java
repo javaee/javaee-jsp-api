@@ -54,11 +54,19 @@ import javax.management.MBeanServer;
 import javax.servlet.http.HttpSession; 
 //END OF RIMOD# 4820359
 
+//START OF 6364900
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+//END OF 6364900
 import org.apache.catalina.Container;
 import org.apache.catalina.DefaultContext;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Session;
+//START OF 6364900
+import org.apache.catalina.SessionLocker;
+//END OF 6364900
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.util.StringManager;
@@ -78,7 +86,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:05 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:58 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -142,7 +150,14 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * the initialization of our random number generator.
      */
     protected String entropy = null;
-
+    
+    //START OF 6364900
+    /**
+     * A SessionLocker used to lock sessions (curently only
+     * in the request dispatcher forward/include use case)
+     */
+    protected SessionLocker sessionLocker = new BaseSessionLocker();
+    //END OF 6364900    
 
     /**
      * The descriptive information string for this implementation.
@@ -728,7 +743,16 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     }
     //END OF RIMOD# 5056989
 
-
+    //START OF 6364900
+    /**
+     * set the pluggable sessionLocker for this manager
+     * by default it is pre-set to no-op BaseSessionLocker
+     */    
+    public void setSessionLocker(SessionLocker sessLocker) {
+        sessionLocker = sessLocker;
+    }
+    //END OF 6364900
+    
     // --------------------------------------------------------- Public Methods
     public void destroy() {
         if( oname != null )
@@ -882,6 +906,12 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
                 return null;
             }
         }
+        
+        //START OF 6364900
+        StandardSession sess = (StandardSession) session;
+        //always lock
+        sess.lockForeground();        
+        //END OF 6364900        
 
         session.setId(sessionId);
         sessionCounter++;
@@ -1404,5 +1434,26 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
 
     public void postDeregister() {
     }
+    
+    //START OF 6364900
+    public void postRequestDispatcherProcess(ServletRequest request, ServletResponse response) {
+        //deliberate no-op
+        return;
+    }
+    
+    public boolean lockSession(ServletRequest request) throws ServletException {
+        boolean result = false;
+        if(sessionLocker != null) {
+            result = sessionLocker.lockSession(request);
+        }        
+        return result;
+    }
+    
+    public void unlockSession(ServletRequest request) {
+        if(sessionLocker != null) {
+            sessionLocker.unlockSession(request);
+        }
+    }
+    //END OF 6364900    
 
 }
