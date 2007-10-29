@@ -34,6 +34,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.jsp.JspWriter;
 
+import com.sun.enterprise.web.io.ByteWriter;
+
 /**
  * ServletResponseWrapper used by the JSP 'include' action.
  *
@@ -65,8 +67,14 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
 					 JspWriter jspWriter) {
 	super((HttpServletResponse)response);
 
-        this.printWriter = new PrintWriter(jspWriter);
         this.jspWriter = jspWriter;
+        if (jspWriter instanceof JspWriterImpl &&
+                ((JspWriterImpl)jspWriter).shouldOutputBytes()) {
+            this.printWriter = new PrintWriterWrapper((JspWriterImpl)jspWriter);
+        } else {
+            this.printWriter = new PrintWriter(jspWriter);
+        }
+            
         // START CR 6466049
         this.canFlushWriter = (jspWriter instanceof JspWriterImpl);
         // END CR 6466049
@@ -128,4 +136,19 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
     }
     // END PWC 6512276
 
+    static private class PrintWriterWrapper
+            extends PrintWriter implements ByteWriter {
+
+        private JspWriterImpl jspWriter;
+
+        PrintWriterWrapper(JspWriterImpl jspWriter) {
+            super(jspWriter);
+            this.jspWriter = jspWriter;
+        }
+
+        public void write(byte[] buff, int off, int len, int strlen)
+                throws IOException {
+            jspWriter.write(buff, off, len, strlen);
+        }
+    }
 }

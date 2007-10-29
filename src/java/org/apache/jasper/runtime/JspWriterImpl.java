@@ -267,6 +267,20 @@ public class JspWriterImpl extends JspWriter {
         write(str);
     }
 
+    /* Returns true if bytes should be outputted.
+     * Used by ServletResponseWrapperInclude.
+    */
+    boolean shouldOutputBytes() {
+        if (bufferSize > 0) {
+            return false;
+        }
+        try {
+            initByteOut();
+        } catch (IOException ex) {
+        }
+        return implementsByteWriter;
+    }
+
     private void initByteOut() throws IOException {
         initOut();
         if (byteOut == null) {
