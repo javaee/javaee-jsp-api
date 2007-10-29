@@ -482,6 +482,7 @@ public class Compiler {
                     // START GlassFish 750
                     if (include.endsWith(".tld")) {
                         ctxt.clearTaglibs();
+                        ctxt.clearTagFileJarUrls();
                     }
                     // END GlassFish 750
                     return true;

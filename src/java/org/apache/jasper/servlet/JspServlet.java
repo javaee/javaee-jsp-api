@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 // START GlassFish 750
+import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 // END GlassFish 750
 // START SJSWS 6232180
@@ -102,6 +103,7 @@ public class JspServlet extends HttpServlet {
 
     // START GlassFish 750
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    private ConcurrentHashMap<String, URL> tagFileJarUrls;
     // END GlassFish 750
 
     /*
@@ -134,6 +136,10 @@ public class JspServlet extends HttpServlet {
         // START GlassFish 750
         taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
         context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
+
+        tagFileJarUrls = new ConcurrentHashMap<String, URL>();
+        context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, 
+                             tagFileJarUrls);
         // END GlassFish 750
 
         if (log.isTraceEnabled()) {
@@ -368,6 +374,7 @@ public class JspServlet extends HttpServlet {
 
         // START GlassFish 750
         taglibs.clear();
+        tagFileJarUrls.clear();
         // END GlassFish 750
 
         // START GlassFish 747

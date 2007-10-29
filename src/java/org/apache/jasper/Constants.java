@@ -246,6 +246,8 @@ public class Constants {
 
     // START GlassFish 750
     public static final String JSP_TAGLIBRARY_CACHE = "com.sun.jsp.taglibraryCache";
+    public static final String JSP_TAGFILE_JAR_URLS_CACHE = 
+        "com.sun.jsp.tagFileJarUrlsCache";
     // END GlassFish 750
 
     // START GlassFish 740

@@ -270,6 +270,7 @@ public class JspC implements Options {
 
     // START GlassFish 750
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    private ConcurrentHashMap<String, URL> tagFileJarUrls;
     // END GlassFish 750
 
     // START SJSAS 6403017
@@ -1327,6 +1328,9 @@ public class JspC implements Options {
             if (taglibs != null) {
                 taglibs.clear();
             }
+            if (tagFileJarUrls != null) {
+                tagFileJarUrls.clear();
+            }
             // END GlassFish 750
         }
     }
@@ -1411,6 +1415,10 @@ public class JspC implements Options {
             // START GlassFish 750
             taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
             context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
+
+            tagFileJarUrls = new ConcurrentHashMap<String, URL>();
+            context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, 
+                                 tagFileJarUrls);
             // END GlassFish 750
         } catch (MalformedURLException me) {
             System.out.println("**" + me);

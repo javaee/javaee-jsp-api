@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Hashtable;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -64,7 +63,6 @@ import org.apache.jasper.servlet.JspServletWrapper;
  */
 public class JspCompilationContext {
 
-    private Hashtable tagFileJarUrls;
     private boolean isPackagedTagFile;
 
     private String className;
@@ -100,6 +98,7 @@ public class JspCompilationContext {
     private TagInfo tagInfo;
     private URL tagFileJarUrl;
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    private ConcurrentHashMap<String, URL> tagFileJarUrls;
 
     // jspURI _must_ be relative to the context
     public JspCompilationContext(String jspUri,
@@ -130,11 +129,12 @@ public class JspCompilationContext {
         }
 
         this.rctxt = rctxt;
-        this.tagFileJarUrls = new Hashtable();
         this.basePackageName = Constants.JSP_PACKAGE_NAME;
 
         taglibs = (ConcurrentHashMap<String, TagLibraryInfo>)
             context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE);
+        tagFileJarUrls = (ConcurrentHashMap<String, URL>)
+            context.getAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE);
     }
 
     public JspCompilationContext(String tagfile,
@@ -183,6 +183,15 @@ public class JspCompilationContext {
     public void clearTaglibs() {
         taglibs.clear();
     }
+
+    /**
+     * Clears the context-wide mappings from JAR packaged tag file paths to
+     * their corresponding URLs.
+     */
+    public void clearTagFileJarUrls() {
+        tagFileJarUrls.clear();
+    }
+
 
     /** ---------- Class path and loader ---------- */
 
@@ -300,14 +309,10 @@ public class JspCompilationContext {
     }
 
     /**
-     * Returns the tag-file-name-to-JAR-file map of this compilation unit,
-     * which maps tag file names to the JAR files in which the tag files are
-     * packaged.
-     *
-     * The map is populated when parsing the tag-file elements of the TLDs
-     * of any imported taglibs. 
+     * Gets the context-wide mappings from JAR packaged tag file paths to
+     * their corresponfing URLs.
      */
-    public Hashtable getTagFileJarUrls() {
+    public ConcurrentHashMap<String, URL> getTagFileJarUrls() {
         return this.tagFileJarUrls;
     }
 
