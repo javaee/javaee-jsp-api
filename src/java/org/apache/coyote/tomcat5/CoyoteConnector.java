@@ -99,7 +99,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.21 $ $Date: 2007/03/07 18:18:15 $
+ * @version $Revision: 1.22 $ $Date: 2007/05/05 05:32:42 $
  */
 
 
@@ -330,7 +330,8 @@ public class CoyoteConnector
      * ignored.  If <code>false</code>, then the <code>timeout</code>
      * parameter is used to control uploads.
      */
-    private boolean disableUploadTimeout = false;
+    private boolean disableUploadTimeout = true;
+    
 
     /**
      * Maximum number of Keep-Alive requests to honor per connection.
