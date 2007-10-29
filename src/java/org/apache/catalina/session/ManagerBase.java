@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -86,7 +87,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/12 01:27:05 $
+ * @version $Revision: 1.8 $ $Date: 2006/04/01 01:18:14 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -229,13 +230,13 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      */
     protected HashMap sessions = new HashMap();
     
-    //6406580 START
+    //SJSAS 6406580 START
     /**
      * The set of invalidated Sessions for this Manager, keyed by
-     * session identifier.(the value will be null we only care about the key)
+     * session identifier.
      */
-    protected HashMap invalidatedSessions = new HashMap();
-    //6406580 END    
+    protected HashSet invalidatedSessions = new HashSet();
+    //SJSAS 6406580 END    
 
     // Number of sessions created by this manager
     protected int sessionCounter=0;
@@ -810,43 +811,39 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         }
     }
     
-    //6406580 START
+    //START SJSAS 6406580
     /**
-     * Add this Session to the set of invalidated Sessions for this Manager.
+     * Add this Session id to the set of invalidated Session ids for this Manager.
      *
-     * @param session Session to be added
+     * @param sessionId session id to be added
      */
-    public void addToInvalidatedSessions(Session session) {
+    public void addToInvalidatedSessions(String sessionId) {
 
         synchronized (invalidatedSessions) {
-            invalidatedSessions.put( ((StandardSession)session).getIdInternal(), session);
+            invalidatedSessions.add(sessionId);
         }
     }
     
     /**
      * Remove this Session from the set of invalidated Sessions for this Manager.
      *
-     * @param session Session to be removed
+     * @param sessionId session id to be removed
      */
-    public void removeFromInvalidatedSessions(Session session) {
+    public void removeFromInvalidatedSessions(String sessionId) {
 
         synchronized (invalidatedSessions) {
-            invalidatedSessions.remove( ((StandardSession)session).getIdInternal());
+            invalidatedSessions.remove(sessionId);
         }
     }    
     
     public boolean isSessionIdValid(String sessionId) {
-        StandardSession sess = null;
+        boolean result = true;
         synchronized (invalidatedSessions) {
-            sess = (StandardSession)invalidatedSessions.get(sessionId);
+            result = !invalidatedSessions.contains(sessionId);
         }
-        if(sess == null) {
-            return true;
-        } else {
-            return false;
-        }
+        return result;
     }
-    //6406580 END    
+    //END SJSAS 6406580    
 
     /**
      * Add a property change listener to this component.

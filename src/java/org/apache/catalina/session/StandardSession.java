@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.14 $ $Date: 2006/02/13 19:12:31 $
+ * @version $Revision: 1.15 $ $Date: 2006/04/01 01:18:15 $
  */
 
 public class StandardSession
@@ -646,12 +646,12 @@ public class StandardSession
     public void setValid(boolean isValid) {
 
         this.isValid = isValid;
-        //6406580 START
+        //SJSAS 6406580 START
         if(!isValid) {
             ManagerBase mgr = (ManagerBase)this.getManager();
-            mgr.addToInvalidatedSessions(this);            
+            mgr.addToInvalidatedSessions(this.id);            
         }
-        //6406580 END        
+        //SJSAS 6406580 END        
     }
 
 
@@ -680,11 +680,7 @@ public class StandardSession
     public void endAccess() {
 
         isNew = false;
-        accessCount--;
-        //6406580 START
-        ManagerBase mgr = (ManagerBase)this.getManager();
-        mgr.removeFromInvalidatedSessions(this);
-        //6406580 END        
+        accessCount--;       
 
     }
 
@@ -913,6 +909,11 @@ public class StandardSession
         setPrincipal(null);
         isNew = false;
         isValid = false;
+        //START SJSAS 6406580
+        if (manager instanceof ManagerBase) {            
+            ((ManagerBase)manager).removeFromInvalidatedSessions(this.id);
+        }
+        //END SJSAS 6406580         
         manager = null;
 
     }
