@@ -1650,6 +1650,11 @@ class Validator {
                         err.jspError("jsp.error.nonPublicFunction",
                                      c.getName() + '.' + method.getName());
                     }
+                    // Make sure that this method is static 
+                    if (! Modifier.isStatic(method.getModifiers())) {
+                        err.jspError("jsp.error.nonStaticFunction",
+                                     c.getName() + '.' + method.getName());
+                    }
 		    fmapper.mapFunction(n.getPrefix() + ':' + n.getName(),
 					method);
 		}
