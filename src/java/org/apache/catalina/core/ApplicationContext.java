@@ -74,7 +74,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2007/03/15 21:40:37 $
+ * @version $Revision: 1.11 $ $Date: 2007/03/21 19:43:57 $
  */
 
 public class ApplicationContext
@@ -187,15 +187,10 @@ public class ApplicationContext
     // END PWC 6403328
 
     /**
-     * Thread local mapping data.
+     * Thread local data used during request dispatch.
      */
-    private ThreadLocal localMappingData = new ThreadLocal();
-
-
-    /**
-     * Thread local URI message bytes.
-     */
-    private ThreadLocal localUriMB = new ThreadLocal();
+    private ThreadLocal<DispatchData> dispatchData =
+        new ThreadLocal<DispatchData>();
 
 
     // --------------------------------------------------------- Public Methods
@@ -470,16 +465,15 @@ public class ApplicationContext
         if (path == null)
             return (null);
 
-        // Retrieve the thread local URI
-        MessageBytes uriMB = (MessageBytes) localUriMB.get();
-        if (uriMB == null) {
-            uriMB = new MessageBytes();
-            CharChunk uriCC = uriMB.getCharChunk();
-            uriCC.setLimit(-1);
-            localUriMB.set(uriMB);
-        } else {
-            uriMB.recycle();
+        // Use the thread local URI and mapping data
+        DispatchData dd = dispatchData.get();
+        if (dd == null) {
+            dd = new DispatchData();
+            dispatchData.set(dd);
         }
+
+        MessageBytes uriMB = dd.uriMB;
+        uriMB.recycle();
 
         // Get query string
         String queryString = null;
@@ -491,11 +485,7 @@ public class ApplicationContext
         }
  
         // Retrieve the thread local mapping data
-        MappingData mappingData = (MappingData) localMappingData.get();
-        if (mappingData == null) {
-            mappingData = new MappingData();
-            localMappingData.set(mappingData);
-        }
+        MappingData mappingData = dd.mappingData;
 
         // Map the URI
         CharChunk uriCC = uriMB.getCharChunk();
@@ -1158,5 +1148,23 @@ public class ApplicationContext
             return "/" + hostName + "/" + path;
         else
             return "/" + hostName + path;
+    }
+
+
+    /**
+     * Internal class used as thread-local storage when doing path
+     * mapping during dispatch.
+     */
+    private final class DispatchData {
+
+        public MessageBytes uriMB;
+        public MappingData mappingData;
+
+        public DispatchData() {
+            uriMB = MessageBytes.newInstance();
+            CharChunk uriCC = uriMB.getCharChunk();
+            uriCC.setLimit(-1);
+            mappingData = new MappingData();
+        }
     }
 }
