@@ -24,6 +24,7 @@
 package com.sun.el.parser;
 
 import javax.el.ELException;
+import javax.el.ELResolver;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
 import javax.el.MethodNotFoundException;
@@ -31,10 +32,12 @@ import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 
 import com.sun.el.lang.EvaluationContext;
+import com.sun.el.lang.ELSupport;
+
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jhook $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstIdentifier extends SimpleNode {
     public AstIdentifier(int id) {
@@ -88,7 +91,10 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        ctx.getELResolver().setValue(ctx, null, this.image, value);
+        ELResolver elResolver = ctx.getELResolver();
+        value = ELSupport.coerceToType(value,
+                    elResolver.getType(ctx, null, this.image));
+        elResolver.setValue(ctx, null, this.image, value);
     }
 
     private final Object invokeTarget(EvaluationContext ctx, Object target,

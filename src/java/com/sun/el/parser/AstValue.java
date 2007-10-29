@@ -32,12 +32,13 @@ import javax.el.MethodInfo;
 import javax.el.PropertyNotFoundException;
 
 import com.sun.el.lang.EvaluationContext;
+import com.sun.el.lang.ELSupport;
 import com.sun.el.util.MessageFactory;
 import com.sun.el.util.ReflectionUtil;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstValue extends SimpleNode {
 
@@ -131,7 +132,10 @@ public final class AstValue extends SimpleNode {
             throws ELException {
         Target t = getTarget(ctx);
         ctx.setPropertyResolved(false);
-        ctx.getELResolver().setValue(ctx, t.base, t.property, value);
+        ELResolver elResolver = ctx.getELResolver();
+        value = ELSupport.coerceToType(value,
+                    elResolver.getType(ctx, t.base, t.property));
+        elResolver.setValue(ctx, t.base, t.property, value);
     }
 
     public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes)
