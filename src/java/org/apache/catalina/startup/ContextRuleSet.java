@@ -61,7 +61,7 @@ import org.xml.sax.Attributes;
  * DefaultContext, be sure to specify a prefix that ends with "/Default".</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2007/02/20 20:16:56 $
+ * @version $Revision: 1.5 $ $Date: 2007/05/05 05:32:28 $
  */
 
 public class ContextRuleSet extends RuleSetBase {
@@ -235,8 +235,6 @@ public class ContextRuleSet extends RuleSetBase {
         digester.addSetNext(prefix + "Context/Valve",
                             "addValve",
                             "org.apache.catalina.Valve");
-        digester.addCallMethod(prefix + "Context/WatchedResource",
-                               "addWatchedResource", 0);
 
         digester.addCallMethod(prefix + "Context/WrapperLifecycle",
                                "addWrapperLifecycle", 0);
