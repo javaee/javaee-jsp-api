@@ -4,8 +4,8 @@
 -->
 <project name="WebContainer" default="all" basedir=".">
 
-    <property file="../glassfish/project.properties"/>
-    <property file="../glassfish/glassfish.properties"/>
+    <property file="${glassfish.maven}/project.properties"/>
+    <property file="${glassfish.maven}/glassfish.properties"/>
     <property file="./build.properties"/>
 
     <path id="catalina.classpath">
