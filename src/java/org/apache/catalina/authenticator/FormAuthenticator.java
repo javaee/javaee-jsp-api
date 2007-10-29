@@ -63,7 +63,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:27 $
+ * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:00 $
  */
 
 public class FormAuthenticator
@@ -271,20 +271,23 @@ public class FormAuthenticator
         // Redirect the user to the original request URI (which will cause
         // the original request to be restored)
         requestURI = savedRequestURL(session);
-        if (log.isDebugEnabled())
-            log.debug("Redirecting to original '" + requestURI + "'");
         if (requestURI == null) {
-            /* S1AS 4878272
-            hres.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                           sm.getString("authenticator.formlogin"));
-            */
-            // BEGIN S1AS 4878272
-            hres.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            response.setDetailMessage(sm.getString("authenticator.formlogin"));
-            // END S1AS 4878272
-        } else {
-            hres.sendRedirect(hres.encodeRedirectURL(requestURI));
+            // requestURI will be null if the login form is submitted
+            // directly, i.e., if there has not been any original request
+            // that was stored away before the redirect to the login form was
+            // issued. In this case, assume that the original request has been
+            // for the context root, and have the welcome page mechanism take
+            // care of it
+            requestURI = hreq.getContextPath() + "/";
+            saveRequest(requestURI, hreq.getMethod(), session);
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Redirecting to original '" + requestURI + "'");
+        }
+
+        hres.sendRedirect(hres.encodeRedirectURL(requestURI));
+
         return (false);
 
     }
@@ -501,5 +504,17 @@ public class FormAuthenticator
 
     }
 
+
+    /**
+     * Saves the given request URI in the given session
+     */
+    private void saveRequest(String requestURI, String method,
+                             Session session) {
+
+        SavedRequest saved = new SavedRequest();
+        saved.setMethod(method);
+        saved.setRequestURI(requestURI);
+        session.setNote(Constants.FORM_REQUEST_NOTE, saved);
+    }
 
 }
