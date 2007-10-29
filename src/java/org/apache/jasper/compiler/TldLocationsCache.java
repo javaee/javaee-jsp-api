@@ -278,8 +278,9 @@ public class TldLocationsCache {
             processTldsInFileSystem("/WEB-INF/");
             initialized = true;
         } catch (Exception ex) {
-            throw new JasperException(Localizer.getMessage(
-                    "jsp.error.internal.tldinit", ex.getMessage()));
+            throw new JasperException(
+                Localizer.getMessage("jsp.error.internal.tldinit"),
+                ex);
         }
     }
 
