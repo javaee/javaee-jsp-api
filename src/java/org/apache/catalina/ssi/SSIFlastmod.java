@@ -39,7 +39,7 @@ import org.apache.catalina.util.Strftime;
  *
  * @author Bip Thelin
  * @author Dan Sandberg
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $, $Date: 2005/12/08 01:28:03 $
  */
 public final class SSIFlastmod implements SSICommand {
     /**
@@ -51,7 +51,6 @@ public final class SSIFlastmod implements SSICommand {
 			PrintWriter writer) {
 
 	String configErrMsg = ssiMediator.getConfigErrMsg();
-	StringBuffer buf = new StringBuffer();
 
         for(int i=0;i<paramNames.length;i++) {
 	    String paramName = paramNames[i];
