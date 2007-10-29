@@ -27,8 +27,10 @@
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.Iterator;
+import java.util.Collections;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspApplicationContext;
@@ -72,9 +74,9 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         ELContext elContext = new ELContextImpl(resolver);
 
         // Notify the listeners
-        Iterator iter = listeners.iterator();
+        Iterator<ELContextListener> iter = listeners.iterator();
         while (iter.hasNext()) {
-            ELContextListener elcl = (ELContextListener) iter.next();
+            ELContextListener elcl = iter.next();
             elcl.contextCreated(new ELContextEvent(elContext));
         }
         return elContext;
@@ -82,8 +84,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
 
     protected static JspApplicationContextImpl findJspApplicationContext(ServletContext context) {
 
-        JspApplicationContextImpl jaContext =
-            (JspApplicationContextImpl)map.get(context);
+        JspApplicationContextImpl jaContext = map.get(context);
         if (jaContext == null) {
             jaContext = new JspApplicationContextImpl(context);
             map.put(context, jaContext);
@@ -91,15 +92,19 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         return jaContext;
     }
 
-    protected Iterator getELResolvers() {
+    protected Iterator<ELResolver> getELResolvers() {
         return elResolvers.iterator();
     }
 
     static ExpressionFactory expressionFactory = new ExpressionFactoryImpl();
 
-    private static HashMap map = new HashMap();
-    private ArrayList elResolvers = new ArrayList();
-    private ArrayList listeners = new ArrayList();
+    private static Map<ServletContext, JspApplicationContextImpl> map =
+            Collections.synchronizedMap(
+                new WeakHashMap<ServletContext, JspApplicationContextImpl>());
+
+    private ArrayList<ELResolver> elResolvers = new ArrayList<ELResolver>();
+    private ArrayList<ELContextListener> listeners =
+            new ArrayList<ELContextListener>();
     private ServletContext context;
 }
 

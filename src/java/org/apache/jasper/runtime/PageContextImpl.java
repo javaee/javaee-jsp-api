@@ -685,9 +685,9 @@ public class PageContextImpl extends PageContext {
             // Add ELResolvers registered in JspApplicationContext
             JspApplicationContextImpl jaContext =
                 (JspApplicationContextImpl) getJspApplicationContext();
-            Iterator it = jaContext.getELResolvers();
+            Iterator<ELResolver> it = jaContext.getELResolvers();
             while (it.hasNext()) {
-                celResolver.add((ELResolver) it.next());
+                celResolver.add(it.next());
             }
             celResolver.add(new MapELResolver());
             celResolver.add(new ResourceBundleELResolver());
