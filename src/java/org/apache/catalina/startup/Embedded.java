@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/09/29 22:10:16 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 20:19:13 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -489,10 +489,6 @@ public class Embedded  extends StandardService implements Lifecycle {
                 IntrospectionUtils.setProperty
                     (connector, "protocolHandlerClassName",
                      "org.apache.jk.server.JkCoyoteHandler");
-            } else if (protocol.equals("memory")) {
-                IntrospectionUtils.setProperty
-                    (connector, "protocolHandlerClassName",
-                     "org.apache.coyote.memory.MemoryProtocolHandler");
             } else if (protocol.equals("https")) {
                 connector.setScheme("https");
                 connector.setSecure(true);
