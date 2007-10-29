@@ -48,6 +48,9 @@ import org.apache.catalina.Valve;
 // START SJSAS 6324911
 import org.apache.catalina.deploy.ErrorPage;
 // END SJSAS 6324911
+// START GlassFish 862
+import org.apache.catalina.util.RequestUtil;
+// END GlassFish 862
 import org.apache.catalina.valves.ValveBase;
 import com.sun.org.apache.commons.modeler.Registry;
 
@@ -59,7 +62,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2006/01/24 21:17:03 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:01 $
  */
 
 public class StandardHost
@@ -659,6 +662,20 @@ public class StandardHost
         super.addChild(child);
 
     }
+
+
+    // START GlassFish 862
+    /**
+     * Returns the context deployed at the given context root.
+     *
+     * @param contextRoot The context root whose associated context to return
+     *
+     * @return The context deployed at the given context root, or null
+     */
+    public Container findChild(String contextRoot) {
+        return super.findChild(RequestUtil.URLDecode(contextRoot));
+    }
+    // END GlassFish 862
 
 
     /**
