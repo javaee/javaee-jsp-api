@@ -1,0 +1,55 @@
+<!--
+ Copyright 2004-2005 Sun Microsystems, Inc.  All rights reserved.
+ Use is subject to license terms.
+-->
+<project name="WebContainer" default="all" basedir=".">
+
+    <property file="../glassfish/project.properties"/>
+    <property file="../glassfish/glassfish.properties"/>
+    <property file="./build.properties"/>
+
+    <path id="catalina.classpath">
+        <pathelement location="${appserv-rt.jar}"/>
+        <pathelement location="${j2ee.jar}"/>
+        <pathelement location="${ant.jar}"/>
+        <pathelement location="${commons-logging.jar}"/>
+    </path>
+
+    <target name="build">      
+        <mkdir dir="target/classes"/>
+        <javac srcdir="src/java" destdir="target/classes"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               optimize="${javac.optimize}"
+               excludes="**/CVS/**">
+            <classpath refid="catalina.classpath" />
+        </javac>
+
+        <copy todir="target/classes" overwrite="true">
+            <fileset dir="./src/java">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+
+        <!-- Copy RAVE required mbeans-descriptor.xml -->
+        <copy file="./extension/rave/mbeans-descriptors.xml" 
+              tofile="src/java/org/apache/catalina/core/mbeans-descriptors.xml"
+              overwrite="true"/>
+    </target>
+
+    <target name="clean">
+        <delete failonerror="false" dir="target/classes"/>
+    </target>
+
+    <target name="all" depends="build">
+        <fileset dir="${classes.dir}">
+            <include name="**/LocalStrings_es.properties" />
+        </fileset>
+
+        <jar destfile="${glassfish.lib.home}/appserv-rt.jar"
+             update="true"
+             basedir="target/classes"/> 
+    </target>
+    
+</project>
+
