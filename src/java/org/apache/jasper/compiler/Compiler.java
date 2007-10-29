@@ -94,6 +94,10 @@ public class Compiler {
     private JasperAntLogger logger;
     private TagFileProcessor tfp;
 
+    // START GlassFish Issue 812
+    private boolean jspcMode;
+    // END GlassFish Issue 812
+
     protected Project project=null;
 
     protected Options options;
@@ -102,6 +106,7 @@ public class Compiler {
     // ------------------------------------------------------------ Constructor
 
 
+    /* GlassFish Issue 812
     public Compiler(JspCompilationContext ctxt) {
         this(ctxt, null);
     }
@@ -112,6 +117,16 @@ public class Compiler {
         this.ctxt = ctxt;
         this.options = ctxt.getOptions();
     }
+    */
+
+    // START GlassFish Issue 812
+    public void init(JspCompilationContext ctxt, JspServletWrapper jsw) {
+        this.jsw = jsw;
+        this.ctxt = ctxt;
+        this.options = ctxt.getOptions();
+    }
+    // END GlassFish Issue 812
+
 
     // Lazy eval - if we don't need to compile we probably don't need the project
     private Project getProject() {
@@ -333,10 +348,11 @@ public class Compiler {
         return smapStr;
     }
 
+
     /** 
      * Compile the servlet from .java file to .class file
      */
-    private void generateClass(String[] smap, boolean jspcMode)
+    private void generateClass(String[] smap)
         throws FileNotFoundException, JasperException, Exception {
 
         long t1 = 0;
@@ -572,24 +588,11 @@ public class Compiler {
     /**
      * Compile the jsp file from the current engine context.  As an side-
      * effect, tag files that are referenced by this page are also compiled.
+     *
      * @param compileClass If true, generate both .java and .class file
      *                     If false, generate only .java file
      */
     public void compile(boolean compileClass)
-        throws FileNotFoundException, JasperException, Exception
-    {
-        compile(compileClass, false);
-    }
-
-    /**
-     * Compile the jsp file from the current engine context.  As an side-
-     * effect, tag files that are referenced by this page are also compiled.
-     *
-     * @param compileClass If true, generate both .java and .class file
-     *                     If false, generate only .java file
-     * @param jspcMode true if invoked from JspC, false otherwise
-     */
-    public void compile(boolean compileClass, boolean jspcMode)
         throws FileNotFoundException, JasperException, Exception
     {
         if (errDispatcher == null) {
@@ -599,7 +602,7 @@ public class Compiler {
         try {
             String[] smap = generateJava();
             if (compileClass) {
-                generateClass(smap, jspcMode);
+                generateClass(smap);
             }
         } finally {
             if (tfp != null) {
@@ -873,4 +876,11 @@ public class Compiler {
         }
     }
     // END PWC 6441271
+
+
+    // START GlassFish Issue 812
+    public void setJspcMode(boolean jspcMode) {
+        this.jspcMode = jspcMode;
+    }
+    // END GlassFish Issue 812
 }

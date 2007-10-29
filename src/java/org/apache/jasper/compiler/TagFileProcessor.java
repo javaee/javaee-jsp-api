@@ -645,7 +645,12 @@ class TagFileProcessor {
                 Object tagIns = tagClazz.newInstance();
                 if (tagIns instanceof JspSourceDependent) {
                     Iterator iter = 
+                        /* GlassFish Issue 812
                         ((JspSourceDependent)tagIns).getDependants().iterator();
+                        */
+                        // START GlassFish Issue 812
+                        ((java.util.List) ((JspSourceDependent)tagIns).getDependants()).iterator();
+                        // END GlassFish Issue 812
                     while (iter.hasNext()) {
                         parentPageInfo.addDependant((String)iter.next());
                     }

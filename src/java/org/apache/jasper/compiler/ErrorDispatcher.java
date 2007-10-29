@@ -577,6 +577,58 @@ public class ErrorDispatcher {
     }
 
 
+    // START GlassFish Issue 812
+    /**
+     * @param fname
+     * @param page
+     * @param errMsgBuf
+     * @param lineNum
+     * @return JavacErrorDetail The error details
+     * @throws JasperException
+     */
+    public static JavacErrorDetail createJavacError(String fname,
+                                                    Node.Nodes page, 
+                                                    StringBuffer errMsgBuf,
+                                                    int lineNum)
+
+            throws JasperException {
+
+        JavacErrorDetail javacError;
+        // Attempt to map javac error line number to line in JSP page
+        ErrorVisitor errVisitor = new ErrorVisitor(lineNum);
+        page.visit(errVisitor);
+        Node errNode = errVisitor.getJspSourceNode();
+        if ((errNode != null) && (errNode.getStart() != null)) {
+            javacError = new JavacErrorDetail(
+                    fname,
+                    lineNum,
+                    errNode.getStart().getFile(),
+                    errNode.getStart().getLineNumber(),
+                    errMsgBuf);
+        } else {
+            /*
+             * javac error line number cannot be mapped to JSP page
+             * line number. For example, this is the case if a 
+             * scriptlet is missing a closing brace, which causes
+             * havoc with the try-catch-finally block that the code
+             * generator places around all generated code: As a result
+             * of this, the javac error line numbers will be outside
+             * the range of begin and end java line numbers that were
+             * generated for the scriptlet, and therefore cannot be
+             * mapped to the start line number of the scriptlet in the
+             * JSP page.
+             * Include just the javac error info in the error detail.
+             */
+            javacError = new JavacErrorDetail(
+                    fname,
+                    lineNum,
+                    errMsgBuf);
+        }
+        return javacError;
+    }
+    // END GlassFish Issue 812
+
+
     /*
      * Visitor responsible for mapping a line number in the generated servlet
      * source code to the corresponding JSP node.

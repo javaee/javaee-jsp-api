@@ -1097,14 +1097,14 @@ public class JspC implements Options {
             clctxt.setClassLoader(loader);
             clctxt.setClassPath(classPath);
 
-            Compiler clc = clctxt.createCompiler();
+            Compiler clc = clctxt.createCompiler(true);
 
             // If compile is set, generate both .java and .class, if
             // .jsp file is newer than .class file;
             // Otherwise only generate .java, if .jsp file is newer than
             // the .java file
             if( clc.isOutDated(compile) ) {
-                clc.compile(compile, true);
+                clc.compile(compile);
             }
 
             // START SJSAS 6393940
