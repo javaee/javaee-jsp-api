@@ -47,7 +47,12 @@ public class InternalInputBuffer implements InputBuffer {
 
 
     // ----------------------------------------------------------- Constructors
-
+    /**
+     * Void constructor.
+     */
+    public InternalInputBuffer() {
+       ;
+    }
 
     /**
      * Default constructor.
