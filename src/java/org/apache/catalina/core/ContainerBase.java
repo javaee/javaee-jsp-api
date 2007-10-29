@@ -190,7 +190,7 @@ public abstract class ContainerBase
      */
     protected ArrayList<ContainerListener> listeners =
         new ArrayList<ContainerListener>();
-    private ContainerListener[] listenersArray;
+    private ContainerListener[] listenersArray = new ContainerListener[0];
 
 
     /**
@@ -1003,7 +1003,7 @@ public abstract class ContainerBase
     public ContainerListener[] findContainerListeners() {
 
         synchronized (listeners) {
-            return getListenersArray();
+            return listenersArray;
         }
     }
 
@@ -1483,18 +1483,13 @@ public abstract class ContainerBase
             if (listeners.isEmpty()) {
                 return;
             }
-            list = getListenersArray();
+            list = listenersArray;
         }
 
         ContainerEvent event = new ContainerEvent(this, type, data);
         for (int i = 0; i < list.length; i++) {
             ((ContainerListener) list[i]).containerEvent(event);
         }
-    }
-
-
-    private ContainerListener[] getListenersArray() {
-        return listenersArray;
     }
 
 
