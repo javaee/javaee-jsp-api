@@ -326,6 +326,24 @@ public class MimeHeaders {
     }
 
     /**
+     * Removes the headers with the given name whose values contain the
+     * given string.
+     *
+     * @param name The name of the headers to be removed
+     * @param str The string to check the header values against
+     */
+    public void removeHeader(String name, String str) {
+        for (int i = 0; i < count; i++) {
+            if (headers[i].getName().equalsIgnoreCase(name)
+                    && getValue(i) != null
+                    && getValue(i).toString() != null
+                    && getValue(i).toString().indexOf(str) != -1) {
+                removeHeader(i--);
+            }
+        }
+    }
+
+    /**
      * reset and swap with last header
      * @param idx the index of the header to remove.
      */

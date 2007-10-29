@@ -86,7 +86,7 @@ public class SessionTracker implements SessionListener {
                 if (count == 0) {
                     trackedSessionId = null;
                     if (response != null) {
-                        response.removeCookie();
+                        response.removeSessionCookies();
                     }
                 }
             }

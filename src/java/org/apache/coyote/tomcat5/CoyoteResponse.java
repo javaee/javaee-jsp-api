@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.16 $ $Date: 2006/10/13 17:35:51 $
+ * @version $Revision: 1.17 $ $Date: 2006/11/09 00:40:08 $
  */
 
 public class CoyoteResponse
@@ -1711,8 +1711,12 @@ public class CoyoteResponse
 
 
     // START GlassFish 896
-    public void removeCookie() {
-        coyoteResponse.removeCookie();        
+    /**
+     * Removes any Set-Cookie response headers whose value contains the
+     * string JSESSIONID
+     */
+    public void removeSessionCookies() {
+        coyoteResponse.removeSessionCookies();        
     }
     // END GlassFish 896
 
