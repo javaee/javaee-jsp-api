@@ -51,6 +51,7 @@ import org.apache.catalina.Cluster;
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.ContainerListener;
+import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
@@ -63,6 +64,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Request;
 import org.apache.catalina.Response;
 import org.apache.catalina.Valve;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.logger.LoggerBase;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.util.StringManager;
@@ -1182,8 +1184,19 @@ public abstract class ContainerBase
             // Start our child containers, if any
             Container children[] = findChildren();
             for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle)
-                    ((Lifecycle) children[i]).start();
+                if (children[i] instanceof Lifecycle) {
+                    try {
+                        ((Lifecycle) children[i]).start();
+                    } catch (Throwable t) {
+                        log.error(sm.getString("containerBase.notStarted",
+                                               children[i]), t);
+                        if (children[i] instanceof Context) {
+                            ((Context) children[i]).setAvailable(false);
+                        } else if (children[i] instanceof Wrapper) {
+                            ((Wrapper) children[i]).setAvailable(Long.MAX_VALUE);
+                        }
+                    }
+                }
             }
 
             // Start the Valves in our pipeline (including the basic), if any
@@ -1241,9 +1254,16 @@ public abstract class ContainerBase
             // Stop our child containers, if any
             Container children[] = findChildren();
             for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle)
-                    ((Lifecycle) children[i]).stop();
+                if (children[i] instanceof Lifecycle) {
+                    try {
+                        ((Lifecycle) children[i]).stop();
+                    } catch (Throwable t) {
+                        log.error(sm.getString("containerBase.errorStopping",
+                                               children[i]), t);
+                    }
+                }
             }
+
             // Remove children - so next start can work
             children = findChildren();
             for (int i = 0; i < children.length; i++) {
