@@ -79,7 +79,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.14 $ $Date: 2006/10/31 22:58:06 $
+ * @version $Revision: 1.15 $ $Date: 2006/10/31 23:38:08 $
  */
 
 final class StandardHostValve
@@ -87,6 +87,10 @@ final class StandardHostValve
 
 
     private static Log log = LogFactory.getLog(StandardHostValve.class);
+
+    private static final ClassLoader standardHostValveClassLoader =
+        StandardHostValve.class.getClassLoader();
+
 
     // ----------------------------------------------------- Instance Variables
 
@@ -203,7 +207,7 @@ final class StandardHostValve
         }
 
         Thread.currentThread().setContextClassLoader
-            (StandardHostValve.class.getClassLoader());
+            (standardHostValveClassLoader);
 
         // START SJSAS 6374691
         if (errorReportValve != null) {

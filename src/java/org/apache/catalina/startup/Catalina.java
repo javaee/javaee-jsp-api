@@ -64,10 +64,14 @@ import org.xml.sax.InputSource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/12/12 19:11:35 $
+ * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:06 $
  */
 
 public class Catalina extends Embedded {
+
+
+    private static final ClassLoader standardServerClassLoader =
+        StandardServer.class.getClassLoader();
 
 
     // ----------------------------------------------------- Instance Variables
@@ -259,7 +263,7 @@ public class Catalina extends Embedded {
         if (debug>0)
             digester.setDebug(debug);
         digester.setValidating(false);
-        digester.setClassLoader(StandardServer.class.getClassLoader());
+        digester.setClassLoader(standardServerClassLoader);
 
         // Configure the actions we will be using
         digester.addObjectCreate("Server",

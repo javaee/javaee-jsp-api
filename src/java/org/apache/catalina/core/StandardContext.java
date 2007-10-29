@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.26 $ $Date: 2006/10/12 23:51:11 $
+ * @version $Revision: 1.27 $ $Date: 2006/10/26 18:17:41 $
  */
 
 public class StandardContext
@@ -136,6 +136,9 @@ public class StandardContext
     implements Context, Serializable
 {
     private static transient Log log = LogFactory.getLog(StandardContext.class);
+
+    private static final ClassLoader standardContextClassLoader =
+        StandardContext.class.getClassLoader();
 
 
     // ----------------------------------------------------------- Constructors
@@ -5362,7 +5365,7 @@ public class StandardContext
                 if (reloadable && (getLoader().modified())) {
                     try {
                         Thread.currentThread().setContextClassLoader
-                            (StandardContext.class.getClassLoader());
+                            (standardContextClassLoader);
                         reload();
                     } finally {
                         if (getLoader() != null) {

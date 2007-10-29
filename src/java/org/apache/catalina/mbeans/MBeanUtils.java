@@ -76,11 +76,15 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Amy Roh
- * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:03 $
+ * @version $Revision: 1.4 $ $Date: 2006/11/06 21:13:39 $
  */
 
 public class MBeanUtils {
+
     private static Log log = LogFactory.getLog(MBeanUtils.class);
+
+    private static final ClassLoader serverLifecycleListenerClassLoader =
+        ServerLifecycleListener.class.getClassLoader();
 
     // ------------------------------------------------------- Static Variables
 
@@ -1605,7 +1609,7 @@ public class MBeanUtils {
 
         if (registry == null) {
             registry = Registry.getRegistry();
-            ClassLoader cl=ServerLifecycleListener.class.getClassLoader();
+            ClassLoader cl = serverLifecycleListenerClassLoader;
 
             registry.loadDescriptors("org.apache.catalina.mbeans",  cl);
             registry.loadDescriptors("org.apache.catalina.authenticator", cl);
