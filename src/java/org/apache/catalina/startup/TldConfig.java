@@ -526,7 +526,7 @@ public final class TldConfig  {
             log.debug("Reusing tldCache " + tldCache + " " + list.length);
         }
         for( int i=0; list!=null && i<list.length; i++ ) {
-            // Load the listener class. Filaure to do so is an indication
+            // Load the listener class. Failure to do so is an indication
             // that the cache has become stale, in which case it must be
             // ignored. See GlassFish Issue 2653.
             context.getLoader().getClassLoader().loadClass(list[i]);
