@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -78,7 +79,7 @@ import org.apache.catalina.core.ApplicationHttpResponse;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/06/21 23:28:08 $
+ * @version $Revision: 1.4 $ $Date: 2005/09/12 23:29:04 $
  */
 
 public class DefaultServlet
@@ -679,13 +680,15 @@ public class DefaultServlet
             if (requestUri == null) {
                 requestUri = request.getRequestURI();
             } else {
-                // We're included, and the response.sendError() below is going
-                // to be ignored by the resource that is including us.
-                // Therefore, the only way we can let the including resource
-                // know is by including warning message in response
-                response.getWriter().write(
-                    sm.getString("defaultServlet.missingResource",
-                    requestUri));
+                /*
+                 * We're included, and the response.sendError() below is going
+                 * to be ignored by the including resource (see SRV.8.3,
+                 * "The Include Method").
+                 * Therefore, the only way we can let the including resource
+                 * know about the missing resource is by throwing an 
+                 * exception
+                 */
+                throw new FileNotFoundException(requestUri);
             }
 
             /* IASRI 4878272
