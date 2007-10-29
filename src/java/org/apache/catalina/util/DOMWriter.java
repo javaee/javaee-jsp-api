@@ -27,13 +27,16 @@
 
 package org.apache.catalina.util;
 
-import java.io.*;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * A sample DOM writer. This sample program illustrates how to
@@ -59,6 +62,8 @@ public class DOMWriter {
       "EBCDIC-CP-IS", "EBCDIC-CP-AR2", "UTF-16"
     };
 
+   /** Output qualified names */
+   private boolean qualifiedNames = true;
 
    /** Print writer. */
    protected PrintWriter out;
@@ -86,6 +91,14 @@ public class DOMWriter {
         out = new PrintWriter(writer);
         this.canonical = canonical;
     }
+
+   public boolean getQualifiedNames() {
+      return this.qualifiedNames;
+   }
+
+   public void setQualifiedNames(boolean qualifiedNames) {
+      this.qualifiedNames = qualifiedNames;
+   }
 
    public static String getWriterEncoding( ) {
       return (PRINTWRITER_ENCODING);
@@ -123,7 +136,7 @@ public class DOMWriter {
          // print document
          case Node.DOCUMENT_NODE: {
                if ( !canonical ) {
-                  String  Encoding = this.getWriterEncoding();
+                  String  Encoding = getWriterEncoding();
                   if( Encoding.equalsIgnoreCase( "DEFAULT" ) )
                      Encoding = "UTF-8";
                   else if( Encoding.equalsIgnoreCase( "Unicode" ) )
@@ -142,12 +155,21 @@ public class DOMWriter {
             // print element with attributes
          case Node.ELEMENT_NODE: {
                out.print('<');
-               out.print(node.getNodeName());
+               if (this.qualifiedNames) { 
+                  out.print(node.getNodeName());
+               } else {
+                  out.print(node.getLocalName());
+               }
                Attr attrs[] = sortAttributes(node.getAttributes());
                for ( int i = 0; i < attrs.length; i++ ) {
                   Attr attr = attrs[i];
                   out.print(' ');
-                  out.print(attr.getNodeName());
+                  if (this.qualifiedNames) {
+                     out.print(attr.getNodeName());
+                  } else {
+                     out.print(attr.getLocalName());
+                  }
+                  
                   out.print("=\"");
                   out.print(normalize(attr.getNodeValue()));
                   out.print('"');
@@ -175,7 +197,11 @@ public class DOMWriter {
                   }
                } else {
                   out.print('&');
-                  out.print(node.getNodeName());
+                  if (this.qualifiedNames) {
+                     out.print(node.getNodeName());
+                  } else {
+                     out.print(node.getLocalName());
+                  }
                   out.print(';');
                }
                break;
@@ -202,7 +228,12 @@ public class DOMWriter {
             // print processing instruction
          case Node.PROCESSING_INSTRUCTION_NODE: {
                out.print("<?");
-               out.print(node.getNodeName());
+               if (this.qualifiedNames) {
+                  out.print(node.getNodeName());
+               } else {
+                  out.print(node.getLocalName());
+               }
+               
                String data = node.getNodeValue();
                if ( data != null && data.length() > 0 ) {
                   out.print(' ');
@@ -215,7 +246,11 @@ public class DOMWriter {
 
       if ( type == Node.ELEMENT_NODE ) {
          out.print("</");
-         out.print(node.getNodeName());
+         if (this.qualifiedNames) {
+            out.print(node.getNodeName());
+         } else {
+            out.print(node.getLocalName());
+         }
          out.print('>');
       }
 
@@ -232,10 +267,20 @@ public class DOMWriter {
          array[i] = (Attr)attrs.item(i);
       }
       for ( int i = 0; i < len - 1; i++ ) {
-         String name  = array[i].getNodeName();
+         String name = null;
+         if (this.qualifiedNames) {
+            name  = array[i].getNodeName();
+         } else {
+            name  = array[i].getLocalName();
+         }
          int    index = i;
          for ( int j = i + 1; j < len; j++ ) {
-            String curName = array[j].getNodeName();
+            String curName = null;
+            if (this.qualifiedNames) {
+               curName = array[j].getNodeName();
+            } else {
+               curName = array[j].getLocalName();
+            }
             if ( curName.compareTo(name) < 0 ) {
                name  = curName;
                index = j;

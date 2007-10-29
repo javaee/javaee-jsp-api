@@ -1,5 +1,4 @@
 
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -24,7 +23,6 @@
  *
  * Portions Copyright Apache Software Foundation.
  */
-
 
 package org.apache.catalina.servlets;
 
@@ -76,7 +74,7 @@ import org.xml.sax.SAXException;
  * are handled by the DefaultServlet.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 303599 $ $Date: 2004-12-20 13:54:14 -0500 (Mon, 20 Dec 2004) $
  */
 
 public class WebdavServlet
@@ -981,7 +979,7 @@ public class WebdavServlet
                     case Node.ELEMENT_NODE:
                         strWriter = new StringWriter();
                         domWriter = new DOMWriter(strWriter, true);
-                        //domWriter.setQualifiedNames(false);
+                        domWriter.setQualifiedNames(false);
                         domWriter.print(currentNode);
                         lock.owner += strWriter.toString();
                         break;
