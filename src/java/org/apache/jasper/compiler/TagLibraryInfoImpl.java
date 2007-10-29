@@ -72,7 +72,7 @@ import org.apache.jasper.xmlparser.TreeNode;
  * @author Kin-man Chung
  * @author Jan Luehe
  */
-class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
+public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
     private JspCompilationContext ctxt;
     private ErrorDispatcher err;
     private ParserController parserController;
@@ -133,8 +133,60 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
        
     }
 
+
     /**
-     * Constructor.
+     * Constructor which populates a TagLibraryInfoImpl from a given
+     * TagLibraryInfoImpl, and associates the new TagLibraryInfoImpl with the
+     * given translation unit (pageInfo).
+     *
+     * @param prefix The taglib's namespace prefix
+     * @param uri The taglib's uri
+     * @param delegate The taglib from which the new TagLibraryInfoImpl is
+     * populated
+     * @pageInfo The translation unit with which the new TagLibraryInfoImpl is
+     * to be associated
+     */
+    public TagLibraryInfoImpl(String prefix,
+                              String uri,
+                              TagLibraryInfoImpl delegate,
+                              PageInfo pageInfo) {
+
+        super(prefix, uri);
+
+        this.pageInfo = pageInfo;
+
+        this.tagFiles = delegate.getTagFiles();
+        this.functions = delegate.getFunctions();
+        this.jspversion = delegate.getRequiredVersion();
+        this.shortname = delegate.getShortName();
+        this.urn = delegate.getReliableURN();
+        this.info = delegate.getInfoString();
+        this.tagLibraryValidator = delegate.getTagLibraryValidator();
+
+        TagInfo[] otherTags = delegate.getTags();
+        if (otherTags != null) {
+            this.tags = new TagInfo[otherTags.length];
+            for (int i=0; i<otherTags.length; i++) {
+                this.tags[i] = new TagInfo(
+                    otherTags[i].getTagName(),
+                    otherTags[i].getTagClassName(),
+                    otherTags[i].getBodyContent(),
+                    otherTags[i].getInfoString(),
+                    this, 
+                    otherTags[i].getTagExtraInfo(),
+                    otherTags[i].getAttributes(),
+                    otherTags[i].getDisplayName(),
+                    otherTags[i].getSmallIcon(),
+                    otherTags[i].getLargeIcon(),
+                    otherTags[i].getTagVariableInfos(),
+                    otherTags[i].hasDynamicAttributes());
+            }
+        }
+    }
+
+
+    /**
+     * Constructor which builds a TagLibraryInfoImpl by parsing a TLD.
      */
     public TagLibraryInfoImpl(JspCompilationContext ctxt,
 			      ParserController pc,
@@ -549,7 +601,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	return new TagFileInfo(name, path, tagInfo);
     }
 
-    TagAttributeInfo createAttribute(TreeNode elem, String jspVersion)
+    private TagAttributeInfo createAttribute(TreeNode elem, String jspVersion)
             throws JasperException {
 
         String name = null;
@@ -664,7 +716,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                                     methodSignature);
     }
 
-    TagVariableInfo createVariable(TreeNode elem)
+    private TagVariableInfo createVariable(TreeNode elem)
             throws JasperException {
 
         String nameGiven = null;
@@ -749,7 +801,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	return tlv;
     }
 
-    String[] createInitParam(TreeNode elem) throws JasperException {
+    private String[] createInitParam(TreeNode elem) throws JasperException {
 
         String[] initParam = new String[2];
         
@@ -771,7 +823,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	return initParam;
     }
 
-    FunctionInfo createFunctionInfo(TreeNode elem) throws JasperException {
+    private FunctionInfo createFunctionInfo(TreeNode elem)
+            throws JasperException {
 
         String name = null;
         String klass = null;

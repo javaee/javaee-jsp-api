@@ -777,28 +777,18 @@ class JspDocumentParser
      */
     public void startPrefixMapping(String prefix, String uri)
         throws SAXException {
-        TagLibraryInfo taglibInfo;
 
         if (directivesOnly && !(JSP_URI.equals(uri))) {
             return;
         }
 
         try {
-            taglibInfo = getTaglibInfo(prefix, uri);
+            addTaglibInfo(prefix, uri);
         } catch (JasperException je) {
             throw new SAXParseException(
                 Localizer.getMessage("jsp.error.could.not.add.taglibraries"),
                 locator,
                 je);
-        }
-
-        if (taglibInfo != null) {
-            if (pageInfo.getTaglib(uri) == null) {
-                pageInfo.addTaglib(uri, taglibInfo);
-            }
-            pageInfo.pushPrefixMapping(prefix, uri);
-        } else {
-            pageInfo.pushPrefixMapping(prefix, null);
         }
     }
 
@@ -1233,29 +1223,31 @@ class JspDocumentParser
     }
 
     /*
-     * Creates the tag library associated with the given uri namespace, and
-     * returns it.
+     * Adds the tag library associated with the given uri namespace to the
+     * translation unit that this parser is associated with.
+     *
+     * If the tag library does not exist, it is created.
      *
      * @param prefix The prefix of the xmlns attribute
      * @param uri The uri namespace (value of the xmlns attribute)
-     *
-     * @return The tag library associated with the given uri namespace
      */
-    private TagLibraryInfo getTaglibInfo(String prefix, String uri)
+    private void addTaglibInfo(String prefix, String uri)
         throws JasperException {
-
-        TagLibraryInfo result = null;
 
         if (uri.startsWith(URN_JSPTAGDIR)) {
             // uri (of the form "urn:jsptagdir:path") references tag file dir
             String tagdir = uri.substring(URN_JSPTAGDIR.length());
-            result =
-                new ImplicitTagLibraryInfo(
+            TagLibraryInfo taglibInfo = new ImplicitTagLibraryInfo(
                     ctxt,
                     parserController,
                     prefix,
                     tagdir,
                     err);
+            if (pageInfo.getTaglib(uri) == null) {
+                pageInfo.addTaglib(uri, taglibInfo);
+            }
+            pageInfo.pushPrefixMapping(prefix, uri);
+
         } else {
             // uri references TLD file
             boolean isPlainUri = false;
@@ -1267,13 +1259,13 @@ class JspDocumentParser
             }
 
             // START GlassFish 750
-            ConcurrentHashMap<String, TagLibraryInfo> taglibs =
+            ConcurrentHashMap<String, TagLibraryInfoImpl> taglibs =
                 ctxt.getTaglibs();
-            result = taglibs.get(uri);
-            if (result == null) {
+            TagLibraryInfoImpl taglibInfo = taglibs.get(uri);
+            if (taglibInfo == null) {
                 synchronized (taglibs) {
-                    result = taglibs.get(uri);
-                    if (result == null) {
+                    taglibInfo = taglibs.get(uri);
+                    if (taglibInfo == null) {
             // END GlassFish 750            
                         String[] location = ctxt.getTldLocation(uri);
                         if (location != null || !isPlainUri) {
@@ -1285,7 +1277,7 @@ class JspDocumentParser
                              * by the uri value must be treated as
                              * uninterpreted.
                              */
-                            result =
+                            taglibInfo =
                                 new TagLibraryInfoImpl(
                                     ctxt,
                                     parserController,
@@ -1294,7 +1286,8 @@ class JspDocumentParser
                                     location,
                                     err);
                             // START GlassFish 750
-                            ctxt.addTaglib(uri, result);
+                            ctxt.addTaglib(uri, taglibInfo);
+                            pageInfo.addTaglib(uri, taglibInfo);
                             // END GlassFish 750
                         }
             // START GlassFish 750
@@ -1302,9 +1295,20 @@ class JspDocumentParser
                 }
             }
             // END GlassFish 750
-        }
 
-        return result;
+            if (taglibInfo != null) {
+                if (pageInfo.getTaglib(uri) == null) {
+                    pageInfo.addTaglib(uri,
+                                       new TagLibraryInfoImpl(prefix,
+                                                              uri,
+                                                              taglibInfo,
+                                                              pageInfo));
+                }
+                pageInfo.pushPrefixMapping(prefix, uri);
+            } else {
+                pageInfo.pushPrefixMapping(prefix, null);
+            }
+        }
     }
 
     /*

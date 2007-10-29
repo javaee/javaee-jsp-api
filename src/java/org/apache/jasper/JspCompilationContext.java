@@ -44,6 +44,7 @@ import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.compiler.ServletWriter;
+import org.apache.jasper.compiler.TagLibraryInfoImpl;
 import org.apache.jasper.servlet.JasperLoader;
 import org.apache.jasper.servlet.JspServletWrapper;
 
@@ -96,7 +97,7 @@ public class JspCompilationContext {
     private boolean protoTypeMode;
     private TagInfo tagInfo;
     private URL tagFileJarUrl;
-    private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
+    private ConcurrentHashMap<String, TagLibraryInfoImpl> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
 
     // jspURI _must_ be relative to the context
@@ -130,7 +131,7 @@ public class JspCompilationContext {
         this.rctxt = rctxt;
         this.basePackageName = Constants.JSP_PACKAGE_NAME;
 
-        taglibs = (ConcurrentHashMap<String, TagLibraryInfo>)
+        taglibs = (ConcurrentHashMap<String, TagLibraryInfoImpl>)
             context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE);
         tagFileJarUrls = (ConcurrentHashMap<String, URL>)
             context.getAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE);
@@ -163,7 +164,7 @@ public class JspCompilationContext {
      * @param uri The tag library URI
      * @param taglib The tag library to add
      */
-    public void addTaglib(String uri, TagLibraryInfo taglib) {
+    public void addTaglib(String uri, TagLibraryInfoImpl taglib) {
         taglibs.put(uri, taglib);
     }
 
@@ -172,7 +173,7 @@ public class JspCompilationContext {
      *
      * @return The context-wide tag library cache
      */
-    public ConcurrentHashMap<String, TagLibraryInfo> getTaglibs() {
+    public ConcurrentHashMap<String, TagLibraryInfoImpl> getTaglibs() {
         return taglibs;
     }
 

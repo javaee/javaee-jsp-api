@@ -457,9 +457,9 @@ class Parser implements TagConstants {
 		}
                 */
                 // START GlassFish 750
-                ConcurrentHashMap<String, TagLibraryInfo> taglibs =
+                ConcurrentHashMap<String, TagLibraryInfoImpl> taglibs =
                     ctxt.getTaglibs();
-                TagLibraryInfo taglib = taglibs.get(uri);
+                TagLibraryInfoImpl taglib = taglibs.get(uri);
                 if (taglib == null) {
                     synchronized (taglibs) {
                         taglib = taglibs.get(uri);
@@ -477,11 +477,16 @@ class Parser implements TagConstants {
                                 err.throwException(reader.mark(), je);
                             }
                             ctxt.addTaglib(uri, taglib);
+                            pageInfo.addTaglib(uri, taglib);
                         }
                     }
                 }
                 if (pageInfo.getTaglib(uri) == null) {
-                    pageInfo.addTaglib(uri, taglib);
+                    pageInfo.addTaglib(uri,
+                                       new TagLibraryInfoImpl(prefix,
+                                                              uri,
+                                                              taglib,
+                                                              pageInfo));
                 }
                 // END GlassFish 750  
 		pageInfo.addPrefixMapping(prefix, uri);
