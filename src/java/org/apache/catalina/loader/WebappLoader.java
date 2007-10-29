@@ -91,7 +91,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2006/10/03 20:19:12 $
+ * @version $Revision: 1.7 $ $Date: 2006/11/21 17:39:39 $
  */
 
 public class WebappLoader
@@ -237,10 +237,10 @@ public class WebappLoader
     // START PE 4985680`
     /**
      * List of packages that may always be overridden, regardless of whether
-     * they belong to a protected namespace (i.e., a namespace that may never be
-     * overridden by a webapp)  
+     * they belong to a protected namespace (i.e., a namespace that may never
+     * be overridden by a webapp)  
      */
-    private static ArrayList overridablePackages;
+    private ArrayList overridablePackages;
     // END PE 4985680
 
 
@@ -293,7 +293,6 @@ public class WebappLoader
             setReloadable( ((Context) this.container).getReloadable() );
             ((Context) this.container).addPropertyChangeListener(this);
         }
-
     }
 
 
