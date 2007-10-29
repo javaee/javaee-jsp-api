@@ -6,7 +6,7 @@
             <!--Do not use Project Properties customizer when editing this file manually.-->
             <name>WebContainer</name>
             <properties>
-                <property-file>../glassfish/project.properties</property-file>
+                <property-file>../bootstrap/project.properties</property-file>
             </properties>
             <folders>
                 <source-folder>
