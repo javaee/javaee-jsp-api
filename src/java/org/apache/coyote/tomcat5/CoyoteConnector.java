@@ -86,7 +86,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.13 $ $Date: 2006/08/12 04:31:06 $
+ * @version $Revision: 1.14 $ $Date: 2006/10/03 16:05:26 $
  */
 
 
@@ -335,7 +335,7 @@ public class CoyoteConnector
     /**
      * Has this component been initialized yet?
      */
-    private boolean initialized = false;
+    protected boolean initialized = false;
 
 
     /**
@@ -381,16 +381,16 @@ public class CoyoteConnector
     private Adapter adapter = null;
 
 
-     /**
-      * Mapper.
-      */
-     private Mapper mapper = new Mapper();
+    /**
+     * Mapper.
+     */
+    private Mapper mapper = new Mapper();
 
 
     /**
      * Mapper listener.
      */
-    private MapperListener mapperListener = new MapperListener(mapper);
+    protected MapperListener mapperListener = new MapperListener(mapper);
 
 
     /**
