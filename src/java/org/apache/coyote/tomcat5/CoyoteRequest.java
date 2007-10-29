@@ -113,7 +113,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.19 $ $Date: 2006/03/10 19:19:23 $
+ * @version $Revision: 1.20 $ $Date: 2006/03/12 01:27:09 $
  */
 
 public class CoyoteRequest
@@ -411,6 +411,11 @@ public class CoyoteRequest
     /* CR 6309511
     protected Log log=null;
     */
+    
+    /**
+     * has findSession been called and returned null already
+     */
+    private boolean unsuccessfulSessionFind = false;    
 
     // START S1AS 4703023
     /**
@@ -480,6 +485,8 @@ public class CoyoteRequest
         attributes.clear();
         notes.clear();
         cookies = null;
+        
+        unsuccessfulSessionFind = false;
 
         if (session != null) {
             session.endAccess();
@@ -2508,12 +2515,17 @@ public class CoyoteRequest
             manager = context.getManager();
         if (manager == null)
             return (null);      // Sessions are not supported
-        if (requestedSessionId != null) {
-            try {
-                session = manager.findSession(requestedSessionId);
-            } catch (IOException e) {
-                session = null;
-            }
+        if (requestedSessionId != null) {            
+            if(!unsuccessfulSessionFind) {
+                try {
+                    session = manager.findSession(requestedSessionId);
+                    if(session == null) {
+                        unsuccessfulSessionFind = true;
+                    }
+                } catch (IOException e) {
+                    session = null;
+                }
+            }                        
             if ((session != null) && !session.isValid())
                 session = null;
             if (session != null) {
