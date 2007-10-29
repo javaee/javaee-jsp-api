@@ -203,17 +203,20 @@ class TagFileProcessor {
             boolean fragment = JspUtil.booleanValue(
                                         n.getAttributeValue("fragment"));
             String type = n.getAttributeValue("type");
-            boolean isDeferredValue = JspUtil.booleanValue(
-                                          n.getAttributeValue("deferredValue"));
-            boolean isDeferredMethod = JspUtil.booleanValue(
-                                         n.getAttributeValue("deferredMethod"));
+            String deferredValue = n.getAttributeValue("deferredValue");
+            String deferredMethod = n.getAttributeValue("deferredMethod");
             String expectedType = n.getAttributeValue("deferredValueType");
+            boolean isDeferredValue = JspUtil.booleanValue(deferredValue);
+            boolean isDeferredMethod = JspUtil.booleanValue(deferredMethod);
             if (expectedType == null) {
                 if (isDeferredValue) {
                     expectedType = "java.lang.Object";
                 }
             }
             else {
+                if (deferredValue != null && !isDeferredValue) {
+                    err.jspError("jsp.error.deferredvaluewithtype");
+                }
                 isDeferredValue = true;
             }
             String methodSignature = n.getAttributeValue("deferredMethodSignature");
@@ -223,6 +226,9 @@ class TagFileProcessor {
                 }
             }
             else {
+                if (deferredMethod != null && !isDeferredMethod) {
+                    err.jspError("jsp.error.deferredmethodwithsignature");
+                }
                 isDeferredMethod = true;
             }
 
