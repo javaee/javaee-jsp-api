@@ -135,7 +135,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.65 $ $Date: 2007/07/17 20:50:40 $
+ * @version $Revision: 1.66 $ $Date: 2007/07/18 15:58:44 $
  */
 
 public class CoyoteRequest
@@ -1620,7 +1620,22 @@ public class CoyoteRequest
      * Return the server port responding to this Request.
      */
     public int getServerPort() {
+        /* SJSAS 6586658
         return (coyoteRequest.getServerPort());
+        */
+        // START SJSAS 6586658
+        if (isSecure()) {
+            String host = getHeader("host");
+            if (host != null && host.indexOf(':') == -1) {
+                // No port number provided with Host header, use default
+                return 443;
+            } else {
+                return (coyoteRequest.getServerPort());
+            }
+        } else {
+            return (coyoteRequest.getServerPort());
+        }
+        // END SJSAS 6586658
     }
 
 
