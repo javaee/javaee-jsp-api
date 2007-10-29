@@ -1,4 +1,4 @@
- 
+
 
 /*
  * The contents of this file are subject to the terms
@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.13 $ $Date: 2007/02/13 20:01:26 $
+ * @version $Revision: 1.14 $ $Date: 2007/02/13 20:04:19 $
  */
 
 
@@ -528,23 +528,6 @@ public abstract class AuthenticatorBase
             }
         }
         
-        // Special handling for form-based logins to deal with the case
-        // where the login form (and therefore the "j_security_check" URI
-        // to which it submits) might be outside the secured area
-        String contextPath = this.context.getPath();
-        String requestURI = hrequest.getDecodedRequestURI();
-        if (requestURI.startsWith(contextPath) &&
-                requestURI.endsWith(Constants.FORM_ACTION)) {
-            if (!authenticate(hrequest, hresponse, config)) {
-                if (log.isDebugEnabled())
-                    log.debug(" Failed authenticate() test ??" + requestURI );
-                // START OF IASRI 4665318
-                // return;
-                return END_PIPELINE;
-                // END OF IASRI 4665318
-            }
-        }
-        
         Realm realm = this.context.getRealm();
         // Is this request URI subject to a security constraint?
         SecurityConstraint [] constraints = realm.
@@ -557,7 +540,7 @@ public abstract class AuthenticatorBase
             // START OF IASRI 4665318
             // context.invokeNext(request, response);
             // return;
-            return INVOKE_NEXT;
+            return processSecurityCheck(hrequest,hresponse,config);
             // END OF IASRI 4665318
         }
         
@@ -623,7 +606,7 @@ public abstract class AuthenticatorBase
                 securePagesWithPragma);
         
         if(preAuthenticateCheckResult == Realm.AUTHENTICATE_NOT_NEEDED) {
-            return INVOKE_NEXT;
+            return processSecurityCheck(hrequest,hresponse,config);
         } else if(preAuthenticateCheckResult == Realm.AUTHENTICATE_NEEDED) {
             if (log.isDebugEnabled()) {
                 log.debug(" Calling authenticate()");
@@ -998,7 +981,32 @@ public abstract class AuthenticatorBase
         
     }
     
-    
+    // ------------------------------------------------------ Private Methods
+
+    private int processSecurityCheck(HttpRequest hrequest,
+				     HttpResponse hresponse,
+				     LoginConfig config) 
+	throws IOException {
+
+        // Special handling for form-based logins to deal with the case
+        // where the login form (and therefore the "j_security_check" URI
+        // to which it submits) might be outside the secured area
+        String contextPath = this.context.getPath();
+        String requestURI = hrequest.getDecodedRequestURI();
+        if (requestURI.startsWith(contextPath) &&
+                requestURI.endsWith(Constants.FORM_ACTION)) {
+            if (!authenticate(hrequest, hresponse, config)) {
+                if (log.isDebugEnabled())
+                    log.debug(" Failed authenticate() test ??" + requestURI );
+                // START OF IASRI 4665318
+                // return;
+                return END_PIPELINE;
+                // END OF IASRI 4665318
+            }
+        }
+	return INVOKE_NEXT;
+    }
+        
     // ------------------------------------------------------ Lifecycle Methods
     
     
