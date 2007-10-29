@@ -308,22 +308,14 @@ public final class CGIServlet extends HttpServlet {
         if (servletName.startsWith("org.apache.catalina.INVOKER."))
             throw new UnavailableException
                 ("Cannot invoke CGIServlet through the invoker");
-
-        boolean passShellEnvironment = false;
         
         // Set our properties from the initialization parameters
         String value = null;
-        try {
-            value = getServletConfig().getInitParameter("debug");
-            debug = Integer.parseInt(value);
-            cgiPathPrefix =
-                getServletConfig().getInitParameter("cgiPathPrefix");
-            value = getServletConfig().getInitParameter("passShellEnvironment");
-            passShellEnvironment = Boolean.valueOf(value).booleanValue();
-        } catch (Throwable t) {
-            //NOOP
-        }
-        log("init: loglevel set to " + debug);
+        if (getServletConfig().getInitParameter("debug") != null)
+            debug = Integer.parseInt(getServletConfig().getInitParameter("debug"));
+        cgiPathPrefix = getServletConfig().getInitParameter("cgiPathPrefix");
+        boolean passShellEnvironment =
+            Boolean.valueOf(getServletConfig().getInitParameter("passShellEnvironment")).booleanValue();
 
         if (passShellEnvironment) {
             try {
@@ -335,19 +327,16 @@ public final class CGIServlet extends HttpServlet {
             }
         }
 
-        value = getServletConfig().getInitParameter("executable");
-        if (value != null) {
-            cgiExecutable = value;
+        if (getServletConfig().getInitParameter("executable") != null) {
+            cgiExecutable = getServletConfig().getInitParameter("executable"); 
         }
 
-        value = getServletConfig().getInitParameter("parameterEncoding");
-        if (value != null) {
-            parameterEncoding = value;
+        if (getServletConfig().getInitParameter("parameterEncoding") != null) {
+            parameterEncoding = getServletConfig().getInitParameter("parameterEncoding");
         }
 
-        value = getServletConfig().getInitParameter("stripRequestURI");
-        if (value != null) {
-            stripRequestURI = value;
+        if (getServletConfig().getInitParameter("stripRequestURI") != null) {
+            stripRequestURI = getServletConfig().getInitParameter("stripRequestURI");
         }
     }
 
@@ -620,42 +609,37 @@ public final class CGIServlet extends HttpServlet {
         }
  
         if (debug >= 10) {
-            try {
-                ServletOutputStream out = res.getOutputStream();
-                out.println("<HTML><HEAD><TITLE>$Name:  $</TITLE></HEAD>");
-                out.println("<BODY>$Header$<p>");
+            ServletOutputStream out = res.getOutputStream();
+            out.println("<HTML><HEAD><TITLE>$Name:  $</TITLE></HEAD>");
+            out.println("<BODY>$Header$<p>");
 
-                if (cgiEnv.isValid()) {
-                    out.println(cgiEnv.toString());
-                } else {
-                    out.println("<H3>");
-                    out.println("CGI script not found or not specified.");
-                    out.println("</H3>");
-                    out.println("<H4>");
-                    out.println("Check the <b>HttpServletRequest ");
-                    out.println("<a href=\"#pathInfo\">pathInfo</a></b> ");
-                    out.println("property to see if it is what you meant ");
-                    out.println("it to be.  You must specify an existant ");
-                    out.println("and executable file as part of the ");
-                    out.println("path-info.");
-                    out.println("</H4>");
-                    out.println("<H4>");
-                    out.println("For a good discussion of how CGI scripts ");
-                    out.println("work and what their environment variables ");
-                    out.println("mean, please visit the <a ");
-                    out.println("href=\"http://cgi-spec.golux.com\">CGI ");
-                    out.println("Specification page</a>.");
-                    out.println("</H4>");
+            if (cgiEnv.isValid()) {
+                out.println(cgiEnv.toString());
+            } else {
+                out.println("<H3>");
+                out.println("CGI script not found or not specified.");
+                out.println("</H3>");
+                out.println("<H4>");
+                out.println("Check the <b>HttpServletRequest ");
+                out.println("<a href=\"#pathInfo\">pathInfo</a></b> ");
+                out.println("property to see if it is what you meant ");
+                out.println("it to be.  You must specify an existant ");
+                out.println("and executable file as part of the ");
+                out.println("path-info.");
+                out.println("</H4>");
+                out.println("<H4>");
+                out.println("For a good discussion of how CGI scripts ");
+                out.println("work and what their environment variables ");
+                out.println("mean, please visit the <a ");
+                out.println("href=\"http://cgi-spec.golux.com\">CGI ");
+                out.println("Specification page</a>.");
+                out.println("</H4>");
 
-                }
-
-                printServletEnvironment(out, req, res);
-
-                out.println("</BODY></HTML>");
-
-            } catch (IOException ignored) {
             }
 
+            printServletEnvironment(out, req, res);
+
+            out.println("</BODY></HTML>");
         } //debugging
 
 
@@ -825,30 +809,22 @@ public final class CGIServlet extends HttpServlet {
                 this.pathInfo = this.servletPath;
             }
             
-            // If request is HEAD or GET and Query String does not contain
-            // an unencoded "=" this is an indexed query. Parsed Query String
-            // forms command line parameters for cgi command.
-            if (!"GET".equals(req.getMethod()) &&
-                    !"HEAD".equals(req.getMethod()))
-                return;
-            
-            String qs = req.getQueryString();
-            
-            if (qs == null || qs.indexOf("=")>0)
-                return;
-            
-            int delimIndex = 0;
-            int lastDelimIndex = 0;
-            delimIndex = qs.indexOf("+");
-            
-            while (delimIndex >0) {
-                cmdLineParameters.add(URLDecoder.decode(qs.substring(
-                        lastDelimIndex,delimIndex),parameterEncoding));
-                lastDelimIndex = delimIndex + 1;
-                delimIndex = qs.indexOf("+",lastDelimIndex);
+            // If the request method is GET, POST or HEAD and the query string
+            // does not contain an unencoded "=" this is an indexed query.
+            // The parsed query string becomes the command line parameters
+            // for the cgi command.
+            if (req.getMethod().equals("GET")
+                || req.getMethod().equals("POST")
+                || req.getMethod().equals("HEAD")) {
+                String qs = req.getQueryString();
+                if (qs != null && qs.indexOf("=") == -1) {
+                    StringTokenizer qsTokens = new StringTokenizer(qs, "+");
+                    while ( qsTokens.hasMoreTokens() ) {
+                        cmdLineParameters.add(URLDecoder.decode(qsTokens.nextToken(),
+                                              parameterEncoding));
+                    }
+                }
             }
-            cmdLineParameters.add(URLDecoder.decode(qs.substring(
-                    lastDelimIndex),parameterEncoding));
         }
 
 
@@ -923,7 +899,7 @@ public final class CGIServlet extends HttpServlet {
             String path = null;
             String name = null;
             String scriptname = null;
-            String cginame = null;
+            String cginame = "";
 
             if ((webAppRootDir != null)
                 && (webAppRootDir.lastIndexOf(File.separator) ==
@@ -1171,7 +1147,9 @@ public final class CGIServlet extends HttpServlet {
             command = fCGIFullPath.getCanonicalPath();
 
             envp.put("X_TOMCAT_SCRIPT_PATH", command);  //for kicks
-
+            
+            envp.put("SCRIPT_FILENAME", command);  //for PHP
+            
             this.env = envp;
 
             return true;
@@ -1830,7 +1808,7 @@ public final class CGIServlet extends HttpServlet {
             }
             catch (IOException e){
                 log ("Caught exception " + e);
-                throw new IOException (e.toString());
+                throw e;
             }
             finally{
                 if (debug > 4) {
