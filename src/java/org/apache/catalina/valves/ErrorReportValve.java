@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.13 $ $Date: 2006/07/13 19:19:02 $
+ * @version $Revision: 1.14 $ $Date: 2006/07/13 23:59:56 $
  */
 
 public class ErrorReportValve
@@ -452,9 +452,10 @@ public class ErrorReportValve
         sb.append("</u></p>");
 
         if (throwable != null) {
-
+            /* GlassFish 823
             String stackTrace = JdkCompat.getJdkCompat()
                 .getPartialServletStackTrace(throwable);
+            */
             sb.append("<p><b>");
             /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.exception"));
@@ -467,14 +468,21 @@ public class ErrorReportValve
             /* SJSAS 6387790
             sb.append(stackTrace);
             */
+            /* GlassFish 823
             // START SJSAS 6387790
             sb.append(RequestUtil.filter(stackTrace));
             // END SJSAS 6387790
+            */
+            // START GlassFish 823
+            sb.append(throwable);
+            // END GlassFish 823
             sb.append("</pre></p>");
 
             while (rootCause != null) {
+                /* GlassFish 823
                 stackTrace = JdkCompat.getJdkCompat()
                     .getPartialServletStackTrace(rootCause);
+                */
                 sb.append("<p><b>");
                 /* SJSAS 6412710
                 sb.append(sm.getString("errorReportValve.rootCause"));
@@ -487,9 +495,14 @@ public class ErrorReportValve
                 /* SJSAS 6387790
                 sb.append(stackTrace);
                 */
+                /* GlassFish 823
                 // START SJSAS 6387790
                 sb.append(RequestUtil.filter(stackTrace));
                 // END SJSAS 6387790
+                */
+                // START GlassFish 823
+                sb.append(rootCause);
+                // END GlassFish 823
                 sb.append("</pre></p>");
 
                 /* GlassFish 823
