@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.15 $ $Date: 2006/03/13 21:51:44 $
+ * @version $Revision: 1.16 $ $Date: 2006/04/10 20:04:21 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1956,9 +1956,27 @@ public class WebappClassLoader
 
         synchronized (this) {
             if (entry.loadedClass == null) {
+                /* START GlassFish [680]
                 clazz = defineClass(name, entry.binaryContent, 0,
                         entry.binaryContent.length, 
                         codeSource);
+                */
+                // START GlassFish [680]
+                // We use a temporary byte[] so that we don't change the
+                // content of entry in case bytecode preprocessing takes place.
+                byte[] binaryContent = entry.binaryContent;
+                if (!byteCodePreprocessors.isEmpty()) {
+                    // ByteCodePreprpcessor expects name as java/lang/Object.class
+                    String resourceName = name.replace('.', '/') + ".class";
+                    for(BytecodePreprocessor preprocessor : byteCodePreprocessors) {
+                        binaryContent = preprocessor.preprocess(resourceName,
+                                binaryContent);
+                    }
+                }
+                clazz = defineClass(name, binaryContent, 0,
+                        binaryContent.length,
+                        codeSource);
+                // END GlassFish [680]
                 entry.loadedClass = clazz;
                 entry.binaryContent = null;
                 entry.source = null;
@@ -2209,12 +2227,6 @@ public class WebappClassLoader
                         PreprocessorUtil.processClass(name, binaryContent);
                 }
                 // END OF IASRI 4709374
-
-                // START SJSAS 6344989
-                for(BytecodePreprocessor preprocessor : byteCodePreprocessors) {
-                    binaryContent = preprocessor.preprocess(name, binaryContent);
-                }
-                // END SJSAS 6344989
 
                 entry.binaryContent = binaryContent;
 
