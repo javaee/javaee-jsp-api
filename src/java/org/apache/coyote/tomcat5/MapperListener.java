@@ -453,7 +453,7 @@ public class MapperListener
     /**
      * Register host.
      */
-    private void registerHost(ObjectName objectName)
+    public void registerHost(ObjectName objectName)
         throws Exception {
         String name=objectName.getKeyProperty("host");
         if( name != null ) {
@@ -500,7 +500,7 @@ public class MapperListener
     /**
      * Unregister host.
      */
-    private void unregisterHost(ObjectName objectName)
+    public void unregisterHost(ObjectName objectName)
         throws Exception {
         String name=objectName.getKeyProperty("host");
         // BEGIN S1AS 5000999
