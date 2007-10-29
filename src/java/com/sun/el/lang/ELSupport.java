@@ -266,6 +266,9 @@ public class ELSupport {
             return coerceToNumber((String) obj, type);
         }
         if (ELArithmetic.isNumber(obj)) {
+            if (obj.getClass().equals(type)) {
+                return (Number) obj;
+            }
             return coerceToNumber((Number) obj, type);
         }
 
@@ -331,9 +334,6 @@ public class ELSupport {
         if (type == null || Object.class.equals(type)) {
             return obj;
         }
-        if (obj != null && type.isAssignableFrom(obj.getClass())) {
-            return obj;
-        }
         if (String.class.equals(type)) {
             return coerceToString(obj);
         }
@@ -348,6 +348,9 @@ public class ELSupport {
         }
         if (type.isEnum()) {
             return coerceToEnum(obj, type);
+        }
+        if (obj != null && type.isAssignableFrom(obj.getClass())) {
+            return obj;
         }
 
         // new to spec
