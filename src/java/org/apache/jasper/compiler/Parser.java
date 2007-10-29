@@ -774,11 +774,12 @@ class Parser implements TagConstants {
 
     /*
      * ELExpressionBody
-     * (following "${" to first unquoted "}")
+     * (following "${" or "#{"to first unquoted "}")
      * // XXX add formal production and confirm implementation against it,
      * //     once it's decided
      */
-    private void parseELExpression(Node parent) throws JasperException {
+    private void parseELExpression(Node parent, String typeEL)
+            throws JasperException {
         start = reader.mark();
         Mark last = null;
         boolean singleQuoted = false, doubleQuoted = false;
@@ -793,12 +794,17 @@ class Parser implements TagConstants {
                 currentChar = reader.nextChar();
             }
             if (currentChar == -1)
-                err.jspError(start, "jsp.error.unterminated", "${");
+                err.jspError(start, "jsp.error.unterminated", typeEL);
             if (currentChar == '"')
                 doubleQuoted = !doubleQuoted;
             if (currentChar == '\'')
                 singleQuoted = !singleQuoted;
         } while (currentChar != '}' || (singleQuoted || doubleQuoted));
+
+        // It's illegal to have #{} in template text, unless escaped.
+        if (typeEL.equals("#{")) {
+            err.jspError(start, "jsp.error.not.in.template", "#{...}");
+        }
 
         new Node.ELExpression(reader.getText(start, last), start, parent);
     }
@@ -1392,7 +1398,7 @@ class Parser implements TagConstants {
 
     /*
      * Parse for a template text string until '<' or "${" is encountered, 
-     * recognizing escape sequences "\%" and "\$".
+     * recognizing escape sequences "\%" ,"\$", and \#.
      */
     private void parseTemplateText(Node parent) throws JasperException {
 
@@ -1414,18 +1420,17 @@ class Parser implements TagConstants {
                 reader.pushChar();
                 break;
             }
-	    else if( ch == '$' ) {
+	    else if( ch == '$' || ch == '#') {
 		if (!reader.hasMoreInput()) {
-		    ttext.write('$');
+		    ttext.write(ch);
 		    break;
                 }
-		ch = reader.nextChar();
-		if (ch == '{') {
+		if (reader.nextChar() == '{') {
 		    reader.pushChar();
 		    reader.pushChar();
 		    break;
 		}
-		ttext.write('$');
+		ttext.write(ch);
 		reader.pushChar();
 		continue;
 	    }
@@ -1439,7 +1444,7 @@ class Parser implements TagConstants {
                 // TODO: only recognize \$ if isELIgnored is false, but since
                 // it can be set in a page directive, it cannot be determined
                 // here.  Argh!
-                if (next == '%' || next == '$') {
+                if (next == '%' || next == '$' || next == '#') {
                     ch = reader.nextChar();
                 }
 	    }
@@ -1487,19 +1492,18 @@ class Parser implements TagConstants {
                         break;
 		    }
                     ch = reader.nextChar();
-                    if (ch != '$' ) {
+                    if (ch != '$' && ch != '#') {
                         ttext.write('\\');
                     }
                     ttext.write(ch);
                 }
-                else if( ch == '$' ) {
+                else if( ch == '$' || ch == '#') {
                     if (!reader.hasMoreInput()) {
-                        ttext.write('$');
+                        ttext.write(ch);
                         break;
                     }
-                    ch = reader.nextChar();
-                    if (ch != '{') {
-                        ttext.write('$');
+                    if (reader.nextChar() != '{') {
+                        ttext.write(ch);
                         reader.pushChar();
                         continue;
                     }
@@ -1508,7 +1512,7 @@ class Parser implements TagConstants {
 
                     // Mark and parse the EL expression and create its node:
                     start = reader.mark();
-                    parseELExpression(parent);
+                    parseELExpression(parent, (ch == '$')? "${": "#{");
 
                     start = reader.mark();
                     ttext = new CharArrayWriter();
@@ -1579,7 +1583,9 @@ class Parser implements TagConstants {
         } else if (reader.matches("<jsp:text")) {
             parseXMLTemplateText(parent);
         } else if (reader.matches("${")) {
-            parseELExpression(parent);
+            parseELExpression(parent, "${");
+        } else if (reader.matches("#{")) {
+            parseELExpression(parent, "#{");
 	} else if (reader.matches("<jsp:")) {
 	    parseStandardAction(parent);
 	} else if (!parseCustomTag(parent)) {
@@ -1634,7 +1640,9 @@ class Parser implements TagConstants {
         } else if (reader.matches("<jsp:text")) {
             parseXMLTemplateText(parent);
 	} else if (reader.matches("${")) {
-	    parseELExpression(parent);
+	    parseELExpression(parent, "${");
+	} else if (reader.matches("#{")) {
+	    parseELExpression(parent, "#{");
 	} else if (reader.matches("<jsp:")) {
 	    parseStandardAction(parent);
 	} else if (!parseCustomTag(parent)) {
@@ -1691,7 +1699,7 @@ class Parser implements TagConstants {
         } else if (reader.matches("<jsp:text")) {
             err.jspError( reader.mark(), "jsp.error.not.in.template",
 		"&lt;jsp:text" );
-        } else if (reader.matches("${")) {
+        } else if (reader.matches("${") || reader.matches("#{")) {
             err.jspError( reader.mark(), "jsp.error.not.in.template",
 		"Expression language" );
         } else if (reader.matches("<jsp:")) {
