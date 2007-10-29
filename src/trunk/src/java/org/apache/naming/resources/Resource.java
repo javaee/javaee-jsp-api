@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import java.nio.ByteBuffer;
 /**
  * Encapsultes the contents of a resource.
  * 
@@ -77,12 +76,9 @@ public class Resource {
      */
     public InputStream streamContent()
         throws IOException {
-        // START SJSAS 6231069
-        /*if (binaryContent != null) {
+        if (binaryContent != null) {
             return new ByteArrayInputStream(binaryContent);
-        }*/
-        // END SJSAS 6231069
-        inputStream.reset();
+        }
         return inputStream;
     }
     
@@ -93,15 +89,6 @@ public class Resource {
      * @return binary content
      */
     public byte[] getContent() {
-        // START SJSAS 6231069
-        if (binaryContent == null && inputStream != null){
-            try{
-                inputStream.reset();
-                binaryContent = new byte[inputStream.available()];
-                inputStream.read(binaryContent);
-            } catch (IOException ex){}
-        }
-        // END SJSAS 6231069     
         return binaryContent;
     }
     
@@ -125,17 +112,5 @@ public class Resource {
         this.binaryContent = binaryContent;
     }
     
-   
-    // START SJSAS 6231069
-    /**
-     * Return the byteBuffer used to map the resource, to possibly be used for 
-     * direct file serving. Implementations which support this should override
-     * it to return the byteBuffer
-     * 
-     * @return the mapped byteBuffer representing the resource.
-     */
-    public ByteBuffer getResourceMappedBuffer() throws IOException{
-        return null;
-    }
-    // END SJSAS 6231069
+    
 }

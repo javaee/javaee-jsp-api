@@ -44,7 +44,7 @@ import org.apache.naming.StringManager;
  * Proxy Directory Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/12 00:56:53 $
+ * @version $Revision: 1.5 $ $Date: 2004/07/14 18:15:05 $
  */
 
 public class ProxyDirContext implements DirContext {
@@ -1568,9 +1568,7 @@ public class ProxyDirContext implements DirContext {
             // The entry size is 1 + the resource size in KB, if it will be 
             // cached
             entry.size += (entry.attributes.getContentLength() / 1024);
-            // START SJSAS 6231069
-            // DO NOT BUFFER THE BYTES IN MEMORY
-            /*InputStream is = null;
+            InputStream is = null;
             try {
                 is = entry.resource.streamContent();
                 int pos = 0;
@@ -1591,8 +1589,7 @@ public class ProxyDirContext implements DirContext {
                 } catch (IOException e) {
                     ; // Ignore
                 }
-            }*/
-            // END SJSAS 6231069
+            }
         }
 
         // Set existence flag
