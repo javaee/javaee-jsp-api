@@ -68,6 +68,9 @@ import org.apache.tomcat.util.net.URL;
 // START S1AS 6170450
 import com.sun.appserv.ProxyHandler;
 // END S1AS 6170450
+// START GlassFish 896
+import org.apache.catalina.Globals;
+// END GlassFish 896
 
 /**
  * Wrapper object for the Coyote response.
@@ -524,6 +527,19 @@ public class CoyoteResponse
      */
     public void finishResponse() 
         throws IOException {
+
+        // START GlassFish 896
+        if (getContext().getCookies()) {
+            SessionTracker sc = request.getSessionTracker();
+            if (sc != null && sc.getActiveSessions() > 0) {
+                Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
+                                           sc.getSessionId());
+                request.configureSessionCookie(cookie);
+                addCookie(cookie);
+            }
+        }
+        // END GlassFish 896
+
         // Writing leftover bytes
         try {
             outputBuffer.close();

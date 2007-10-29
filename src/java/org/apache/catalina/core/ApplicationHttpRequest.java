@@ -49,6 +49,9 @@ import org.apache.catalina.Manager;
 import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
+// START GlassFish 896
+import org.apache.coyote.tomcat5.SessionTracker;
+// END GlassFish 896
 
 
 /**
@@ -65,7 +68,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:32 $
+ * @version $Revision: 1.5 $ $Date: 2006/01/27 19:35:20 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -547,7 +550,7 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                     //START OF 6364900
                     localSession = 
                         context.getManager().createSession(other.getId());
-                    //END OF 6364900                    
+                    //END OF 6364900
                     /* CR 6364900
                     localSession = context.getManager().createEmptySession();
                     localSession.setNew(true);
@@ -556,7 +559,12 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                     localSession.setMaxInactiveInterval
                         (context.getManager().getMaxInactiveIntervalSeconds());
                     localSession.setId(other.getId());
-                     */
+                    */
+                    // START GlassFish 896
+                    SessionTracker tracker = (SessionTracker) getAttribute(
+                        Globals.SESSION_TRACKER);
+                    tracker.track(localSession);
+                    // END GlassFish 896
                 }
                 if (localSession != null) {
                     localSession.access();

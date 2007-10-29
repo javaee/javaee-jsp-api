@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/06/15 23:34:41 $
+ * @version $Revision: 1.4 $ $Date: 2006/06/20 18:34:01 $
  */
 
 public final class Globals {
@@ -343,4 +343,9 @@ public final class Globals {
     public static final String JSP_TLD_URI_TO_LOCATION_MAP =
         "com.sun.jsp.tldUriToLocationMap";
     // END GlassFish 747
+
+    // START GlassFish 896
+    public static final String SESSION_TRACKER =
+        "com.sun.enterprise.http.sessionTracker";    
+    // END GlassFish 896
 }

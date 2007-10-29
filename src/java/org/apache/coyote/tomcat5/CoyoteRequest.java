@@ -463,10 +463,13 @@ public class CoyoteRequest
     private static final char[] SESSION_ID = match.toCharArray();
     // END CR 6309511
 
-
     // START SJSAS 6346226
     private String jrouteId;
     // END SJSAS 6346226
+
+    // START GlassFish 896
+    private SessionTracker sessionTracker = new SessionTracker();
+    // END GlassFish 896
 
 
     // --------------------------------------------------------- Public Methods
@@ -486,6 +489,7 @@ public class CoyoteRequest
            }
         }        
         // END SJSAS 6406580
+
         context = null;
         wrapper = null;
 
@@ -524,6 +528,11 @@ public class CoyoteRequest
         requestedSessionCookie = false;
         requestedSessionId = null;
         requestedSessionURL = false;
+
+        // START GlassFish 896
+        sessionTracker.reset();
+        // END GlassFish 896
+
         /* CR 6309511
         log = null;
         */
@@ -2605,6 +2614,17 @@ public class CoyoteRequest
         // START S1AS8PE 4817642
         if (requestedSessionId != null && context.getReuseSessionID()) {
             session = manager.createSession(requestedSessionId);
+        // END S1AS8PE 4817642
+        // START GlassFish 896
+        } else if (sessionTracker.getActiveSessions() > 0) {
+            synchronized (sessionTracker) {
+                if (sessionTracker.getActiveSessions() > 0) {
+                    session = manager.createSession(
+                        sessionTracker.getSessionId());
+                }
+            }
+        // END GlassFish 896
+        // START S1AS8PE 4817642
         } else {
         // END S1AS8PE 4817642
             session = manager.createSession();
@@ -2612,6 +2632,11 @@ public class CoyoteRequest
         }
         // END S1AS8PE 4817642
 
+        // START GlassFish 896
+        sessionTracker.track(session);
+        // END GlassFish 896
+
+        /* GlassFish 896: Delay cookie generation to CoyoteResponse.finishResponse()
         // Creating a new session cookie based on that session
         if ((session != null) && (getContext() != null)
                 && getContext().getCookies()) {
@@ -2620,6 +2645,7 @@ public class CoyoteRequest
             configureSessionCookie(cookie);
             ((HttpServletResponse) response).addCookie(cookie);
         }
+        */
 
         if (session != null) {
             session.access();
@@ -3300,4 +3326,16 @@ public class CoyoteRequest
         }
     }
     // END SJSAS 6419950
+
+
+    // START GlassFish 896
+    void initSessionTracker() {
+        setAttribute(Globals.SESSION_TRACKER, sessionTracker);
+    }
+
+    SessionTracker getSessionTracker() {
+        return sessionTracker;
+    }    
+    // END GlassFish 896
+
 }
