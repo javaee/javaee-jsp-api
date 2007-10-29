@@ -54,7 +54,7 @@ public class JspFactoryImpl extends JspFactory {
     // Logger
     private static Log log = LogFactory.getLog(JspFactoryImpl.class);
 
-    private static final String SPEC_VERSION = "2.0";
+    private static final String SPEC_VERSION = "2.1";
     private static final boolean USE_POOL = true;
 
     private SimplePool pool = new SimplePool( 100 );
