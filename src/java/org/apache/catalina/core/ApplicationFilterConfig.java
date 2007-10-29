@@ -38,6 +38,7 @@ import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.Context;
 import org.apache.catalina.deploy.FilterDef;
 import org.apache.catalina.util.Enumerator;
@@ -51,7 +52,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * is first started.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:31 $
+ * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:00 $
  */
 
 final class ApplicationFilterConfig implements FilterConfig, Serializable {
@@ -222,7 +223,8 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         this.filter = (Filter) clazz.newInstance();
 
         // START PWC 1.2
-        context.fireContainerEvent("beforeFilterInitialized", filter);
+        context.fireContainerEvent(ContainerEvent.BEFORE_FILTER_INITIALIZED,
+                                   filter);
         // END PWC 1.2
 
         if (context.getSwallowOutput()) {
@@ -240,7 +242,8 @@ final class ApplicationFilterConfig implements FilterConfig, Serializable {
         }
 
         // START PWC 1.2
-        context.fireContainerEvent("afterFilterInitialized", filter);
+        context.fireContainerEvent(ContainerEvent.AFTER_FILTER_INITIALIZED,
+                                   filter);
         // END PWC 1.2
 
         return (this.filter);

@@ -36,11 +36,91 @@ import java.util.EventObject;
  * General event for notifying listeners of significant changes on a Container.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:14 $
  */
 
-public final class ContainerEvent
-    extends EventObject {
+public final class ContainerEvent extends EventObject {
+
+    public static final String BEFORE_CONTEXT_INITIALIZED
+        = "beforeContextInitialized";
+
+    public static final String AFTER_CONTEXT_INITIALIZED
+        = "afterContextInitialized";
+    
+    public static final String BEFORE_CONTEXT_DESTROYED
+        = "beforeContextDestroyed";
+
+    public static final String AFTER_CONTEXT_DESTROYED
+        = "afterContextDestroyed";
+
+    public static final String BEFORE_CONTEXT_ATTRIBUTE_ADDED
+        = "beforeContextAttributeAdded";
+
+    public static final String AFTER_CONTEXT_ATTRIBUTE_ADDED
+        = "afterContextAttributeAdded";
+
+    public static final String BEFORE_CONTEXT_ATTRIBUTE_REMOVED
+        = "beforeContextAttributeRemoved";
+
+    public static final String AFTER_CONTEXT_ATTRIBUTE_REMOVED
+        = "afterContextAttributeRemoved";
+
+    public static final String BEFORE_CONTEXT_ATTRIBUTE_REPLACED
+        = "beforeContextAttributeReplaced";
+
+    public static final String AFTER_CONTEXT_ATTRIBUTE_REPLACED
+        = "afterContextAttributeReplaced";
+
+    public static final String BEFORE_REQUEST_INITIALIZED
+        = "beforeRequestInitialized";
+
+    public static final String AFTER_REQUEST_INITIALIZED
+        = "afterRequestInitialized";
+
+    public static final String BEFORE_REQUEST_DESTROYED
+        = "beforeRequestDestroyed";
+
+    public static final String AFTER_REQUEST_DESTROYED
+        = "afterRequestDestroyed";
+
+    public static final String BEFORE_SESSION_CREATED
+        = "beforeSessionCreated";
+
+    public static final String AFTER_SESSION_CREATED
+        = "afterSessionCreated";
+
+    public static final String BEFORE_SESSION_DESTROYED
+        = "beforeSessionDestroyed";
+
+    public static final String AFTER_SESSION_DESTROYED
+        = "afterSessionDestroyed";
+
+    public static final String BEFORE_SESSION_ATTRIBUTE_ADDED
+        = "beforeSessionAttributeAdded";
+
+    public static final String AFTER_SESSION_ATTRIBUTE_ADDED
+        = "afterSessionAttributeAdded";
+
+    public static final String BEFORE_SESSION_ATTRIBUTE_REMOVED
+        = "beforeSessionAttributeRemoved";
+
+    public static final String AFTER_SESSION_ATTRIBUTE_REMOVED
+        = "afterSessionAttributeRemoved";
+
+    public static final String BEFORE_SESSION_ATTRIBUTE_REPLACED
+        = "beforeSessionAttributeReplaced";
+
+    public static final String AFTER_SESSION_ATTRIBUTE_REPLACED
+        = "afterSessionAttributeReplaced";
+
+    public static final String BEFORE_FILTER_INITIALIZED
+        = "beforeFilterInitialized";
+
+    public static final String AFTER_FILTER_INITIALIZED
+        = "afterFilterInitialized";
+
+    public static final String AFTER_LISTENER_INSTANTIATED
+        = "afterListenerInstantiated";
 
 
     /**

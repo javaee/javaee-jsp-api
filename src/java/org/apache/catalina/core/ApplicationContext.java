@@ -50,6 +50,7 @@ import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 
 import org.apache.catalina.Globals;
+import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.Context;
 import org.apache.catalina.Host;
 import org.apache.catalina.Logger;
@@ -73,7 +74,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/09/28 19:55:12 $
+ * @version $Revision: 1.10 $ $Date: 2007/03/15 21:40:37 $
  */
 
 public class ApplicationContext
@@ -848,14 +849,17 @@ public class ApplicationContext
             ServletContextAttributeListener listener =
                 (ServletContextAttributeListener) listeners[i];
             try {
-                context.fireContainerEvent("beforeContextAttributeRemoved",
-                                           listener);
+                context.fireContainerEvent(
+                    ContainerEvent.BEFORE_CONTEXT_ATTRIBUTE_REMOVED,
+                    listener);
                 listener.attributeRemoved(event);
-                context.fireContainerEvent("afterContextAttributeRemoved",
-                                           listener);
+                context.fireContainerEvent(
+                    ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_REMOVED,
+                    listener);
             } catch (Throwable t) {
-                context.fireContainerEvent("afterContextAttributeRemoved",
-                                           listener);
+                context.fireContainerEvent(
+                    ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_REMOVED,
+                    listener);
                 // FIXME - should we do anything besides log these?
                 log(sm.getString("applicationContext.attributeEvent"), t);
             }
@@ -923,25 +927,32 @@ public class ApplicationContext
                 (ServletContextAttributeListener) listeners[i];
             try {
                 if (replaced) {
-                    context.fireContainerEvent
-                        ("beforeContextAttributeReplaced", listener);
+                    context.fireContainerEvent(
+                        ContainerEvent.BEFORE_CONTEXT_ATTRIBUTE_REPLACED,
+                        listener);
                     listener.attributeReplaced(event);
-                    context.fireContainerEvent("afterContextAttributeReplaced",
-                                               listener);
+                    context.fireContainerEvent(
+                        ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_REPLACED,
+                        listener);
                 } else {
-                    context.fireContainerEvent("beforeContextAttributeAdded",
-                                               listener);
+                    context.fireContainerEvent(
+                        ContainerEvent.BEFORE_CONTEXT_ATTRIBUTE_ADDED,
+                        listener);
                     listener.attributeAdded(event);
-                    context.fireContainerEvent("afterContextAttributeAdded",
-                                               listener);
+                    context.fireContainerEvent(
+                        ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_ADDED,
+                        listener);
                 }
             } catch (Throwable t) {
-                if (replaced)
-                    context.fireContainerEvent("afterContextAttributeReplaced",
-                                               listener);
-                else
-                    context.fireContainerEvent("afterContextAttributeAdded",
-                                               listener);
+                if (replaced) {
+                    context.fireContainerEvent(
+                        ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_REPLACED,
+                        listener);
+                } else {
+                    context.fireContainerEvent(
+                        ContainerEvent.AFTER_CONTEXT_ATTRIBUTE_ADDED,
+                        listener);
+                }
                 // FIXME - should we do anything besides log these?
                 log(sm.getString("applicationContext.attributeEvent"), t);
             }

@@ -46,6 +46,7 @@ import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.naming.ContextBindings;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 import org.apache.catalina.Container;
+import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.HttpRequest;
@@ -73,7 +74,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.16 $ $Date: 2006/12/15 18:53:39 $
+ * @version $Revision: 1.17 $ $Date: 2007/02/20 21:09:06 $
  */
 
 final class StandardContextValve
@@ -220,8 +221,9 @@ final class StandardContextValve
                 ServletRequestListener listener =
                     (ServletRequestListener) instances[i];
                 // START SJSAS 6329662
-                container.fireContainerEvent("beforeRequestInitialized",
-                                             listener);
+                container.fireContainerEvent(
+                    ContainerEvent.BEFORE_REQUEST_INITIALIZED,
+                    listener);
                 // END SJSAS 6329662
                 try {
                     listener.requestInitialized(event);
@@ -238,8 +240,9 @@ final class StandardContextValve
                     // END OF IASRI 4665318
                 // START SJSAS 6329662
                 } finally {
-                    container.fireContainerEvent("afterRequestInitialized",
-                                                 listener);
+                    container.fireContainerEvent(
+                        ContainerEvent.AFTER_REQUEST_INITIALIZED,
+                        listener);
                 // END SJSAS 6329662
                 }
             }
@@ -282,8 +285,9 @@ final class StandardContextValve
                 ServletRequestListener listener =
                     (ServletRequestListener) instances[i];
                 // START SJSAS 6329662
-                container.fireContainerEvent("beforeRequestDestroyed",
-                                             listener);
+                container.fireContainerEvent(
+                    ContainerEvent.BEFORE_REQUEST_DESTROYED,
+                    listener);
                 // END SJSAS 6329662
                 try {
                     listener.requestDestroyed(event);
@@ -296,8 +300,9 @@ final class StandardContextValve
                     sreq.setAttribute(Globals.EXCEPTION_ATTR,t);
                 // START SJSAS 6329662
                 } finally {
-                    container.fireContainerEvent("afterRequestDestroyed",
-                                                 listener);
+                    container.fireContainerEvent(
+                        ContainerEvent.AFTER_REQUEST_DESTROYED,
+                        listener);
                 // END SJSAS 6329662
                 }
             }

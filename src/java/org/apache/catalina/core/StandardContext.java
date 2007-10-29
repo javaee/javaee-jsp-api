@@ -67,6 +67,7 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.apache.catalina.Auditor;// IASRI 4823322
 import org.apache.catalina.Container;
+import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -130,7 +131,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.41 $ $Date: 2007/03/15 21:40:37 $
+ * @version $Revision: 1.42 $ $Date: 2007/03/19 19:37:47 $
  */
 
 public class StandardContext
@@ -4435,7 +4436,8 @@ public class StandardContext
                 Class clazz = loader.loadClass(listeners[i]);
                 results[i] = clazz.newInstance();
                 // START PWC 1.2 6310695
-                fireContainerEvent("afterListenerInstantiated", results[i]);
+                fireContainerEvent(ContainerEvent.AFTER_LISTENER_INSTANTIATED,
+                                   results[i]);
                 // END PWC 1.2 6310695
             } catch (Throwable t) {
                 getServletContext().log
@@ -4486,11 +4488,14 @@ public class StandardContext
             ServletContextListener listener =
                 (ServletContextListener) instances[i];
             try {
-                fireContainerEvent("beforeContextInitialized", listener);
+                fireContainerEvent(ContainerEvent.BEFORE_CONTEXT_INITIALIZED,
+                                   listener);
                 listener.contextInitialized(event);
-                fireContainerEvent("afterContextInitialized", listener);
+                fireContainerEvent(ContainerEvent.AFTER_CONTEXT_INITIALIZED,
+                                   listener);
             } catch (Throwable t) {
-                fireContainerEvent("afterContextInitialized", listener);
+                fireContainerEvent(ContainerEvent.AFTER_CONTEXT_INITIALIZED,
+                                   listener);
                 getServletContext().log
                     (sm.getString("standardContext.listenerStart",
                                   instances[i].getClass().getName()), t);
@@ -4527,11 +4532,14 @@ public class StandardContext
             ServletContextListener listener =
                 (ServletContextListener) listeners[j];
             try {
-                fireContainerEvent("beforeContextDestroyed", listener);
+                fireContainerEvent(ContainerEvent.BEFORE_CONTEXT_DESTROYED,
+                                   listener);
                 listener.contextDestroyed(event);
-                fireContainerEvent("afterContextDestroyed", listener);
+                fireContainerEvent(ContainerEvent.AFTER_CONTEXT_DESTROYED,
+                                   listener);
             } catch (Throwable t) {
-                fireContainerEvent("afterContextDestroyed", listener);
+                fireContainerEvent(ContainerEvent.AFTER_CONTEXT_DESTROYED,
+                                   listener);
                 getServletContext().log
                     (sm.getString("standardContext.listenerStop",
                                   listeners[j].getClass().getName()), t);
