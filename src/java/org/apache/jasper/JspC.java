@@ -251,7 +251,7 @@ public class JspC implements Options {
     private String args[];
 
     // START SJSAS 6384538
-    private boolean isTldValidationEnabled;
+    private boolean isValidationEnabled;
     // END SJSAS 6384538
 
     // START SJSAS 6329723
@@ -805,17 +805,17 @@ public class JspC implements Options {
         org.apache.jasper.xmlparser.ParserUtils.validating=b;
         */
         // START SJSAS 6384538
-        setIsTldValidationEnabled(b);
+        setIsValidationEnabled(b);
         // END SJSAS 6384538
     }
 
     // START SJSAS 6384538
-    public void setIsTldValidationEnabled(boolean b) {
-        isTldValidationEnabled = b;
+    public void setIsValidationEnabled(boolean b) {
+        isValidationEnabled = b;
     }
 
-    public boolean isTldValidationEnabled() {
-        return isTldValidationEnabled;
+    public boolean isValidationEnabled() {
+        return isValidationEnabled;
     }
     // END SJSAS 6384538
 
@@ -1412,7 +1412,12 @@ public class JspC implements Options {
             System.out.println("**" + me);
         }
         rctxt = new JspRuntimeContext(context, this);
+        /* SJSAS 6384538
         jspConfig = new JspConfig(context);
+        */
+        // START SJSAS 6384538
+        jspConfig = new JspConfig(context, this);
+        // END SJSAS 6384538
         tagPluginManager = new TagPluginManager(context);
     }
 

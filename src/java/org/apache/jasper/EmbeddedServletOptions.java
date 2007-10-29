@@ -198,7 +198,7 @@ public final class EmbeddedServletOptions implements Options {
     // END S1AS 6181923
 
     // START SJSAS 6384538
-    private boolean isTldValidationEnabled;
+    private boolean isValidationEnabled;
     // END SJSAS 6384538
 
     // START SJSWS
@@ -415,8 +415,8 @@ public final class EmbeddedServletOptions implements Options {
 
 
     // START SJSAS 6384538
-    public boolean isTldValidationEnabled() {
-        return isTldValidationEnabled;
+    public boolean isValidationEnabled() {
+        return isValidationEnabled;
     }
     // END SJSAS 6384538
 
@@ -453,11 +453,11 @@ public final class EmbeddedServletOptions implements Options {
         // START SJSAS 6384538
         String validating=config.getInitParameter("validating");
         if ("true".equals(validating)) {
-            isTldValidationEnabled = true;
+            isValidationEnabled = true;
         }
         validating = config.getInitParameter("enableTldValidation");
         if ("true".equals(validating)) {
-            isTldValidationEnabled = true;
+            isValidationEnabled = true;
         }
         // END SJSAS 6384538
 
@@ -852,7 +852,12 @@ public final class EmbeddedServletOptions implements Options {
         // END SJSAS 6384538
 
 	// Setup the jsp config info for this web app.
+        /* SJSAS 6384538
 	jspConfig = new JspConfig(context);
+        */
+        // START SJSAS 6384538
+        jspConfig = new JspConfig(context, this);
+        // END SJSAS 6384538
 
 	// Create a Tag plugin instance
 	tagPluginManager = new TagPluginManager(context);

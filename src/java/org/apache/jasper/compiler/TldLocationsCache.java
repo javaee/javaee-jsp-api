@@ -577,7 +577,7 @@ public class TldLocationsCache {
         */
         // START SJSAS 6384538
         TreeNode tld = new ParserUtils().parseXMLDocument(
-            resourcePath, in, true, options.isTldValidationEnabled());
+            resourcePath, in, options.isValidationEnabled());
         // END SJSAS 6384538
         TreeNode uri = tld.findChild("uri");
         if (uri != null) {

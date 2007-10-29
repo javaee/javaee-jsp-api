@@ -159,6 +159,10 @@ public class Constants {
         "web-jsptaglibrary_2_1.xsd";
     public static final String TAGLIB_SCHEMA_RESOURCE_PATH_21 =
         "/javax/servlet/jsp/resources/web-jsptaglibrary_2_1.xsd";
+    public static final String SCHEMA_LOCATION_JSP_20
+        = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd";
+    public static final String SCHEMA_LOCATION_JSP_21
+        = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
 
     /**
      * Public Id and the Resource path (of the cached copy) 
@@ -180,6 +184,10 @@ public class Constants {
         "web-app_2_5.xsd";
     public static final String WEBAPP_SCHEMA_RESOURCE_PATH_25 =
         "/javax/servlet/resources/web-app_2_5.xsd";
+    public static final String SCHEMA_LOCATION_WEBAPP_24
+        = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd";
+    public static final String SCHEMA_LOCATION_WEBAPP_25
+        = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd";
 
     /**
      * List of the Public IDs that we cache, and their

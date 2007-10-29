@@ -67,7 +67,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/16 20:10:58 $
+ * @version $Revision: 1.8 $ $Date: 2006/06/20 22:28:21 $
  */
 
 public class ParserUtils {
@@ -92,10 +92,6 @@ public class ParserUtils {
     static String schemaResourcePrefix;
 
     private static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
-    private static final String SCHEMA_LOCATION_JSP_20
-        = "http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd";
-    private static final String SCHEMA_LOCATION_JSP_21
-        = "http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
 
     private static HashMap<String, Schema> schemaCache =
         new HashMap<String, Schema>();
@@ -167,7 +163,7 @@ public class ParserUtils {
      */
     public TreeNode parseXMLDocument(String uri, InputSource is)
             throws JasperException {
-        return parseXMLDocument(uri, is, false, false);
+        return parseXMLDocument(uri, is, false);
     }
 
     /**
@@ -176,15 +172,13 @@ public class ParserUtils {
      *
      * @param uri URI of the XML document being parsed
      * @param is Input source containing the deployment descriptor
-     * @param isTld true if the XML document to be parsed is a TLD, false
-     * otherwise
      * @param validate true if the XML document needs to be validated against
      * its DTD or schema, false otherwise
      *
      * @exception JasperException if an I/O or parsing error has occurred
      */
     public TreeNode parseXMLDocument(String uri, InputSource is,
-                                     boolean isTld, boolean validate)
+                                     boolean validate)
             throws JasperException {
 
         Document document = null;
@@ -204,8 +198,8 @@ public class ParserUtils {
             builder.setErrorHandler(errorHandler);
             document = builder.parse(is);
             document.setDocumentURI(uri);
-            if (isTld && validate) {
-                Schema schema = getTaglibSchema(document);
+            if (validate) {
+                Schema schema = getSchema(document);
                 if (schema != null) {
                     // Validate TLD against specified schema
                     schema.newValidator().validate(new DOMSource(document));
@@ -251,7 +245,7 @@ public class ParserUtils {
      */
     public TreeNode parseXMLDocument(String uri, InputStream is)
             throws JasperException {
-        return parseXMLDocument(uri, new InputSource(is), false, false);
+        return parseXMLDocument(uri, new InputSource(is), false);
     }
 
     /**
@@ -260,17 +254,15 @@ public class ParserUtils {
      *
      * @param uri URI of the XML document being parsed
      * @param is Input stream containing the deployment descriptor
-     * @param isTld true if the XML document to be parsed is a TLD, false
-     * otherwise
      * @param validate true if the XML document needs to be validated against
      * its DTD or schema, false otherwise
      *
      * @exception JasperException if an I/O or parsing error has occurred
      */
     public TreeNode parseXMLDocument(String uri, InputStream is,
-                                     boolean isTld, boolean validate)
+                                     boolean validate)
             throws JasperException {
-        return  parseXMLDocument(uri, new InputSource(is), isTld, validate);
+        return  parseXMLDocument(uri, new InputSource(is), validate);
     }
 
 
@@ -329,13 +321,13 @@ public class ParserUtils {
     // -------------------------------------------------------- Private Methods
 
     /*
-     * Gets the compiled schema referenced by the given TLD.
+     * Gets the compiled schema referenced by the given XML document.
      *
-     * @param document The TLD to validate
+     * @param document The XML document to validate
      *
      * @return The schema against which to validate
      */
-    private static Schema getTaglibSchema(Document document)
+    private static Schema getSchema(Document document)
             throws SAXException, JasperException {
 
         Schema schema = null;
@@ -343,13 +335,25 @@ public class ParserUtils {
         NamedNodeMap map = root.getAttributes();
         for (int i=0; map!=null && i<map.getLength(); i++) {
             if (SCHEMA_LOCATION_ATTR.equals(map.item(i).getLocalName())) {
-                if (SCHEMA_LOCATION_JSP_20.equals(map.item(i).getNodeValue())) {
-                    schema = getTaglibSchema(
+                String schemaLocation = map.item(i).getNodeValue();
+                if (Constants.SCHEMA_LOCATION_JSP_20.equals(schemaLocation)) {
+                    schema = getSchema(
                             Constants.TAGLIB_SCHEMA_PUBLIC_ID_20);
                     break;
-                } else if (SCHEMA_LOCATION_JSP_21.equals(map.item(i).getNodeValue())) {
-                    schema = getTaglibSchema(
+                } else if (Constants.SCHEMA_LOCATION_JSP_21.equals(
+                                                schemaLocation)) {
+                    schema = getSchema(
                             Constants.TAGLIB_SCHEMA_PUBLIC_ID_21);
+                    break;
+                } else if (Constants.SCHEMA_LOCATION_WEBAPP_24.equals(
+                                                schemaLocation)) {
+                    schema = getSchema(
+                            Constants.WEBAPP_SCHEMA_PUBLIC_ID_24);
+                    break;
+                } else if (Constants.SCHEMA_LOCATION_WEBAPP_25.equals(
+                                                schemaLocation)) {
+                    schema = getSchema(
+                            Constants.WEBAPP_SCHEMA_PUBLIC_ID_25);
                     break;
                 } else {
                     throw new JasperException(Localizer.getMessage(
@@ -372,7 +376,7 @@ public class ParserUtils {
      *
      * @return The compiled schema
      */
-    private static Schema getTaglibSchema(String schemaPublicId)
+    private static Schema getSchema(String schemaPublicId)
             throws SAXException {
 
         Schema schema = schemaCache.get(schemaPublicId);
@@ -478,6 +482,7 @@ class MyLSResourceResolver implements LSResourceResolver {
 
         MyLSInput ls = new MyLSInput();
         ls.setByteStream(is);
+        ls.setSystemId(systemId); // See CR 6402288
 
         return ls;
     }

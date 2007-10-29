@@ -38,6 +38,9 @@ import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
 import org.apache.catalina.Globals;
 import org.apache.jasper.JasperException;
+// START SJSAS 6384538
+import org.apache.jasper.Options;
+// END SJSAS 6384538
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
 import org.xml.sax.InputSource;
@@ -56,6 +59,9 @@ public class JspConfig {
     // Logger
     private static Log log = LogFactory.getLog(JspConfig.class);
 
+    // START SJSAS 6384538
+    private Options options;
+    // END SJSAS 6384538
     private Vector jspProperties = null;
     private ServletContext ctxt;
     private boolean initialized = false;
@@ -67,8 +73,16 @@ public class JspConfig {
     private String defaultPoundAllowed = "false";
     private JspProperty defaultJspProperty;
 
+    /* SJSAS 6384538
     public JspConfig(ServletContext ctxt) {
+    */
+    // START SJSAS 6384538
+    public JspConfig(ServletContext ctxt, Options options) {
+    // END SJSAS 6384538
 	this.ctxt = ctxt;
+        // START SJSAS 6384538
+        this.options = options;
+        // END SJSAS 6384538
     }
 
     private void processWebDotXml(ServletContext ctxt) throws JasperException {
@@ -87,7 +101,13 @@ public class JspConfig {
             ip.setSystemId(uri.toExternalForm()); 
 
             ParserUtils pu = new ParserUtils();
+            /* SJSAS 6384538
             TreeNode webApp = pu.parseXMLDocument(WEB_XML, ip);
+            */
+            // START SJSAS 6384538
+            TreeNode webApp = pu.parseXMLDocument(WEB_XML, ip,
+                                                  options.isValidationEnabled());
+            // END SJSAS 6384538
             if (webApp == null ||
                 webApp.findAttribute("version") == null ||
                 Double.valueOf(webApp.findAttribute("version")).doubleValue() < 2.4) {
