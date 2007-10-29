@@ -70,7 +70,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public final class JspRuntimeContext implements Runnable {
 
@@ -433,6 +433,14 @@ public final class JspRuntimeContext implements Runnable {
      */
     private void checkCompile() {
         for (JspServletWrapper jsw: jsps.values()) {
+            if (jsw.isTagFile()) {
+                // Skip tag files in background compiliations, since modified
+                // tag files will be recompiled anyway when their client JSP
+                // pages are compiled.  This also avoids problems when the
+                // tag files and their clients are not modified simultaneously.
+                continue;
+            }
+
             JspCompilationContext ctxt = jsw.getJspEngineContext();
             // JspServletWrapper also synchronizes on this when
             // it detects it has to do a reload

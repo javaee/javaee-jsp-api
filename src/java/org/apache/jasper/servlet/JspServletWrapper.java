@@ -229,20 +229,7 @@ public class JspServletWrapper {
     public Class loadTagFile() throws JasperException {
 
         try {
-            if (ctxt.isRemoved()) {
-                throw new FileNotFoundException(jspUri);
-            }
-            if (options.getDevelopment() || firstTime ) {
-                synchronized (this) {
-                    firstTime = false;
-                    ctxt.compile();
-                }
-            } else {
-                if (compileException != null) {
-                    throw compileException;
-                }
-            }
-
+            ctxt.compile();
             if (reload) {
                 tagHandlerClass = ctxt.load();
             }
