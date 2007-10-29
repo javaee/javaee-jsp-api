@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.32 $ $Date: 2007/01/04 19:36:19 $
+ * @version $Revision: 1.33 $ $Date: 2007/01/10 17:18:15 $
  */
 
 public class StandardContext
@@ -4669,7 +4669,12 @@ public class StandardContext
      * @param children Array of wrappers for all currently defined
      *  servlets (including those not declared load on startup)
      */
+    /* SJSAS 6377790
     public void loadOnStartup(Container children[]){
+    */
+    // START SJSAS 6377790
+    public void loadOnStartup(Container children[]) throws LifecycleException {
+    // END SJSAS 6377790
         // Collect "load on startup" servlets that need to be initialized
         TreeMap map = new TreeMap();
         for (int i = 0; i < children.length; i++) {
@@ -4706,6 +4711,10 @@ public class StandardContext
                     // NOTE: load errors (including a servlet that throws
                     // UnavailableException from tht init() method) are NOT
                     // fatal to application startup
+                    // START SJSAS 6377790
+                    throw new LifecycleException(
+                        StandardWrapper.getRootCause(e));
+                    // END SJSAS 6377790
                 }
             }
         }
