@@ -58,6 +58,18 @@ public class CoyoteWriter
     }
 
 
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+    * Prevent cloning the facade.
+    */
+    protected Object clone()
+        throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+    
+    
     // -------------------------------------------------------- Package Methods
 
 

@@ -49,7 +49,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:29:00 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:11 $
  */
 
 
@@ -109,7 +109,16 @@ public class CoyoteResponseFacade
 
     // --------------------------------------------------------- Public Methods
 
-
+    
+    /**
+    * Prevent cloning the facade.
+    */
+    protected Object clone()
+        throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+      
+    
     /**
      * Clear facade.
      */

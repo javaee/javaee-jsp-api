@@ -56,7 +56,7 @@ import org.apache.catalina.security.SecurityUtil;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:59 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:11 $
  */
 public class CoyoteRequestFacade 
     extends RequestFacade
@@ -244,8 +244,17 @@ public class CoyoteRequestFacade
 
 
     // --------------------------------------------------------- Public Methods
-
-
+   
+    
+    /**
+    * Prevent cloning the facade.
+    */
+    protected Object clone()
+        throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+    
+    
     /**
      * Clear facade.
      */
