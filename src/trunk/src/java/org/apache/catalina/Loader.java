@@ -54,7 +54,7 @@ import java.beans.PropertyChangeListener;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:41 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public interface Loader {
@@ -186,5 +186,8 @@ public interface Loader {
     // END PE 4985680
 
 
+    // START PWC 1.1 6314481
+    public void setIgnoreHiddenJarFiles(boolean ignoreHiddenJarFiles);
+    // END PWC 1.1 6314481
 }
    
