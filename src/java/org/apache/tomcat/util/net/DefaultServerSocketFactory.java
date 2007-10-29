@@ -76,5 +76,10 @@ class DefaultServerSocketFactory extends ServerSocketFactory {
  	; // NOOP
     }
  	    
-        
+    
+    // START SJSAS 6439313
+    public void init() throws IOException{
+        ;
+    }
+    // END SJSAS 6439313      
  }

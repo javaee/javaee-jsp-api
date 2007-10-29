@@ -29,6 +29,9 @@ package org.apache.tomcat.util.net.jsse;
 
 import java.net.Socket;
 import javax.net.ssl.SSLSocket;
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 import org.apache.tomcat.util.net.SSLSupport;
 import org.apache.tomcat.util.net.ServerSocketFactory;
 
@@ -49,13 +52,19 @@ public class JSSE14Factory implements JSSEFactory {
     public JSSE14Factory() {
     // END SJSAS 6240885
     }
-    
 
     public ServerSocketFactory getSocketFactory() {
 	return new JSSE14SocketFactory();
     }
-
+    
+    
     public SSLSupport getSSLSupport(Socket socket) {
-	return new JSSE14Support((SSLSocket)socket);
+        return new JSSE14Support((SSLSocket)socket);
     }
+
+    // START SJSAS 6439313
+    public SSLSupport getSSLSupport(SSLEngine sslEngine) {
+        return new JSSE14Support(sslEngine);
+    }
+    // END SJSAS 6439313
 }

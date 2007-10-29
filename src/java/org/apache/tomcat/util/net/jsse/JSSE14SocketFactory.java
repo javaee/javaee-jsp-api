@@ -67,13 +67,18 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
         StringManager.getManager("org.apache.tomcat.util.net.jsse.res");
 
     public JSSE14SocketFactory () {
-        super();
     }
 
+    
     /**
      * Reads the keystore and initializes the SSL socket factory.
      */
-    void init() throws IOException {
+    /* SJSAS 6439313
+    void init() throws IOException{
+     */
+    // START SJSAS 6439313
+    public void init() throws IOException{
+    // END SJSAS 6439313
         try {
 
             String clientAuthStr = (String) attributes.get("clientauth");
@@ -94,8 +99,14 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
             }
 
             // Create and init SSLContext
+            /* SJSAS 6439313
             SSLContext context = SSLContext.getInstance(protocol);
- 
+             */
+            
+            // START SJSAS 6439313
+            context = SSLContext.getInstance(protocol);
+            // END SJSAS 6439313 
+            
             // Configure SSL session timeout and cache size
             configureSSLSessionContext(context.getServerSessionContext());
                 

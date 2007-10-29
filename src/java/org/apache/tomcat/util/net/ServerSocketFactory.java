@@ -30,6 +30,9 @@ package org.apache.tomcat.util.net;
 import java.io.*;
 import java.net.*;
 import java.util.Hashtable;
+// START SJSAS 6439313
+import javax.net.ssl.SSLContext;
+// End SJSAS 6439313
 
 /**
  * This class creates server sockets.  It may be subclassed by other
@@ -56,7 +59,9 @@ import java.util.Hashtable;
  * @author Harish Prabandham
  */
 public abstract class ServerSocketFactory implements Cloneable {
-
+    // START SJSAS 6439313
+    protected SSLContext context;   
+    // END SJSAS 6439313
     //
     // NOTE:  JDK 1.1 bug in class GC, this can get collected
     // even though it's always accessible via getDefault().
@@ -177,5 +182,20 @@ public abstract class ServerSocketFactory implements Cloneable {
      */ 
      public abstract void handshake(Socket sock)
  	throws IOException;
+    
+     
+     // START SJSAS 6439313
+    /**
+      * Return the <code>SSLContext</code> required when implementing SSL over
+      * NIO non-blocking.
+      * @return SSLContext
+      */
+    public SSLContext getSSLContext(){
+        return context;
+    }
+    
+    // START SJSAS 6439313
+    public abstract void init() throws IOException ;
+    // END SJSAS 6439313     
 }
 

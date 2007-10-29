@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/03/07 18:36:37 $
+ * @version $Revision: 1.10 $ $Date: 2006/03/12 01:27:09 $
  */
 
 
@@ -289,6 +289,16 @@ public class CoyoteConnector
      */
     private boolean secure = false;
 
+    
+    // START SJSAS 6439313     
+    /**
+     * The blocking connection flag that will be set on all requests received
+     * through this connector.
+     */
+    private boolean blocking = false;
+    // END SJSAS 6439313     
+    
+    
     /** For jk, do tomcat authentication if true, trust server if false 
      */ 
     private boolean tomcatAuthentication = true;
@@ -1135,6 +1145,31 @@ public class CoyoteConnector
 
     }
 
+    // START SJSAS 6439313     
+    /**
+     * Return the blocking connection flag that will be assigned to requests
+     * received through this connector.  Default value is "false".
+     */
+    public boolean getBlocking() {
+        return (this.blocking);
+    }
+
+
+    /**
+     * Set the blocking connection flag that will be assigned to requests
+     * received through this connector.
+     *
+     * @param blocking The new blocking connection flag
+     */
+    public void setBlocking(boolean blocking) {
+
+        this.blocking = blocking;
+        setProperty("blocking", String.valueOf(blocking));
+
+    }
+    // END SJSAS 6439313     
+    
+    
     public boolean getTomcatAuthentication() {
         return tomcatAuthentication;
     }
@@ -1456,7 +1491,17 @@ public class CoyoteConnector
         if ( protocolHandler == null ) {
             try {
                 Class clazz = Class.forName(protocolHandlerClassName);
+                /* SJSAS 6439313
                 protocolHandler = (ProtocolHandler) clazz.newInstance();
+                 */
+                // START SJSAS 6439313                
+                Constructor constructor = 
+                        clazz.getConstructor(new Class[]{Boolean.TYPE,
+                                                         Boolean.TYPE});
+
+                protocolHandler = (ProtocolHandler) 
+                    constructor.newInstance(secure,blocking);
+                // END SJSAS 6439313                                
             } catch (Exception e) {
                 throw new LifecycleException
                     (sm.getString

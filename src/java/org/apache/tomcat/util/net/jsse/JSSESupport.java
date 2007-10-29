@@ -27,6 +27,9 @@
 
 package org.apache.tomcat.util.net.jsse;
 
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 import org.apache.tomcat.util.net.SSLSupport;
 import java.io.*;
 import java.net.*;
@@ -56,15 +59,39 @@ class JSSESupport implements SSLSupport {
 	com.sun.org.apache.commons.logging.LogFactory.getLog(JSSESupport.class);
 
     protected SSLSocket ssl;
+    
+    // START SJSAS 6439313
+    /**
+     * The SSLEngine used to support SSL over NIO.
+     */
+    protected SSLEngine sslEngine;
+    
 
-
+    /**
+     * The SSLSession contains SSL information.
+     */
+    protected SSLSession session;
+    // END SJSAS 6439313
+    
     JSSESupport(SSLSocket sock){
-        ssl=sock;
+       ssl=sock;
+        // START SJSAS 6439313
+       session = ssl.getSession();
+        // END SJSAS 6439313
     }
+    
+    // START SJSAS 6439313
+    JSSESupport(SSLEngine sslEngine){
+        this.sslEngine = sslEngine;
+        session = sslEngine.getSession();
+    }
+    // END SJSAS 6439313
 
     public String getCipherSuite() throws IOException {
         // Look up the current SSLSession
+        /* SJSAS 6439313
         SSLSession session = ssl.getSession();
+         */
         if (session == null)
             return null;
         return session.getCipherSuite();
@@ -113,7 +140,9 @@ class JSSESupport implements SSLSupport {
     public Object[] getPeerCertificateChain(boolean force)
         throws IOException {
         // Look up the current SSLSession
-	SSLSession session = ssl.getSession();
+        /* SJSAS 6439313
+        SSLSession session = ssl.getSession();
+         */
         if (session == null)
             return null;
 
@@ -129,14 +158,22 @@ class JSSESupport implements SSLSupport {
 	if(jsseCerts.length <= 0 && force) {
 	    session.invalidate();
 	    handShake();
-	    session = ssl.getSession();
+            /* SJSAS 6439313
+            session = ssl.getSession();
+            */     
+            // START SJSAS 6439313
+            if ( ssl == null)
+                session = sslEngine.getSession();
+            else
+                session = ssl.getSession();
+            // END SJSAS 6439313
 	}
         return getX509Certificates(session);
     }
 
     protected void handShake() throws IOException {
         ssl.setNeedClientAuth(true);
-        ssl.startHandshake();
+        ssl.startHandshake();        
     }
     /**
      * Copied from <code>org.apache.catalina.valves.CertificateValve</code>
@@ -144,7 +181,9 @@ class JSSESupport implements SSLSupport {
     public Integer getKeySize() 
         throws IOException {
         // Look up the current SSLSession
+        /* SJSAS 6439313
         SSLSession session = ssl.getSession();
+         */
         SSLSupport.CipherData c_aux[]=ciphers;
         if (session == null)
             return null;
@@ -167,7 +206,9 @@ class JSSESupport implements SSLSupport {
     public String getSessionId()
         throws IOException {
         // Look up the current SSLSession
+        /* SJSAS 6439313
         SSLSession session = ssl.getSession();
+         */
         if (session == null)
             return null;
         // Expose ssl_session (getId)

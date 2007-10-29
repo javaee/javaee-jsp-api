@@ -29,6 +29,9 @@ package org.apache.tomcat.util.net.jsse;
 
 import java.net.Socket;
 import javax.net.ssl.SSLSocket;
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 import org.apache.tomcat.util.net.SSLSupport;
 import org.apache.tomcat.util.net.ServerSocketFactory;
 
@@ -51,4 +54,10 @@ class JSSE13Factory implements JSSEFactory {
     public SSLSupport getSSLSupport(Socket socket) {
         return new JSSESupport((SSLSocket)socket);
     }
+
+    // START SJSAS 6439313
+    public SSLSupport getSSLSupport(SSLEngine sslEngine) {
+        throw new IllegalStateException("Not Supported");
+    }
+    // END SJSAS 6439313
 }

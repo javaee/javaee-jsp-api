@@ -54,10 +54,23 @@ import javax.management.MBeanRegistration;
  */
 public class Http11Protocol implements ProtocolHandler, MBeanRegistration
 {
+    // START SJSAS 6439313     
+    protected boolean blocking = false;
+    // END SJSAS 6439313     
+       
     public Http11Protocol() {
-        create();
+        // START SJSAS 6439313 
+        this(false,false);
     }
 
+    
+    public Http11Protocol(boolean secure, boolean blocking) {
+        this.secure = secure;
+        this.blocking = blocking; 
+        // END SJSAS 6439313
+        create();
+    }
+   
     protected void create() {
         cHandler = new Http11ConnectionHandler( this );
         setSoLinger(Constants.DEFAULT_CONNECTION_LINGER);
@@ -461,7 +474,18 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
     	secure=b;
         setAttribute("secure", "" + b);
     }
+    
+    // START SJSAS 6439313     
+    public boolean getBlocking() {
+        return blocking;
+    }
 
+    public void setBlocking( boolean b ) {
+    	blocking=b;
+        setAttribute("blocking", "" + b);
+    }
+    // END SJSAS 6439313     
+    
     public String getCiphers() {
         return getProperty("ciphers");
     }

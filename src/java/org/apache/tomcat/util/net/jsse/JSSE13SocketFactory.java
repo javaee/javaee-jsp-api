@@ -63,6 +63,14 @@ public class JSSE13SocketFactory extends JSSESocketFactory
     public JSSE13SocketFactory () {
         super();
     }
+    
+    
+    // START SJSAS 6439313
+    public void initialize() throws IOException{
+        init();
+    }
+    // END SJSAS 6439313
+
 
     /**
      * Reads the keystore and initializes the SSL socket factory.
@@ -75,7 +83,12 @@ public class JSSE13SocketFactory extends JSSESocketFactory
      * javax.net.ssl, and explicitly registers the required security providers,
      * which come standard in a 1.4 JVM.
      */
-     void init() throws IOException {
+    /* SJSAS 6439313
+    void init() throws IOException{
+     */
+    // START SJSAS 6439313
+    public void init() throws IOException{
+    // END SJSAS 6439313
         try {
             Security.addProvider (new sun.security.provider.Sun());
             Security.addProvider (new com.sun.net.ssl.internal.ssl.Provider());

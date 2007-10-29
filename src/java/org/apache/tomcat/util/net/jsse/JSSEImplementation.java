@@ -27,6 +27,9 @@
 
 package org.apache.tomcat.util.net.jsse;
 
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 import org.apache.tomcat.util.compat.JdkCompat;
 import org.apache.tomcat.util.net.SSLImplementation;
 import org.apache.tomcat.util.net.SSLSupport;
@@ -59,16 +62,26 @@ public class JSSEImplementation extends SSLImplementation
         Class.forName(SSLSocketClass);
         if( JdkCompat.isJava14() ) {
             try {
-                Class factcl = Class.forName(JSSE14Factory);
+                Class factcl = Class.forName(JSSE14Factory);           
                 factory = (JSSEFactory)factcl.newInstance();
             } catch(Exception ex) {
+                /* SJSAS 6439313
                 factory = new JSSE13Factory();
+                 
                 if(logger.isDebugEnabled()) {
                     logger.debug("Error getting factory: " + JSSE14Factory, ex);
-                }
+                }*/
+                // START SJSAS 6439313
+                throw new RuntimeException(ex);
+                // END SJSAS 6439313
             }
         } else {
+            /* SJSAS 6439313
             factory = new JSSE13Factory();
+             **/
+            // START SJSAS 6439313
+            throw new RuntimeException("JDK 1.3 not supported");
+            // END SJSAS 6439313
         }
     }
 
@@ -86,4 +99,10 @@ public class JSSEImplementation extends SSLImplementation
         SSLSupport ssls = factory.getSSLSupport(s);
         return ssls;
     }
+
+    // START SJSAS 6439313    
+    public SSLSupport getSSLSupport(SSLEngine sslEngine) {
+        return factory.getSSLSupport(sslEngine);
+    }
+    // END SJSAS 6439313    
 }

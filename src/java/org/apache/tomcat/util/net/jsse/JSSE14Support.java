@@ -40,7 +40,9 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.HandshakeCompletedEvent;
 import java.security.cert.CertificateFactory;
-
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 
 /* JSSESupport
 
@@ -68,9 +70,15 @@ class JSSE14Support extends JSSESupport {
         sock.addHandshakeCompletedListener(listener);
     }
 
+    // START SJSAS 6439313
+    public JSSE14Support(SSLEngine sslEngine){
+        super(sslEngine);
+    }
+    // END SJSAS 6439313
+    
     protected void handShake() throws IOException {
         ssl.setNeedClientAuth(true);
-        synchronousHandshake(ssl);
+        synchronousHandshake(ssl);        
     }
 
     /**

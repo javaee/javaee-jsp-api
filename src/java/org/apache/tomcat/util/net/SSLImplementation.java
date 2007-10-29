@@ -27,8 +27,10 @@
 
 package org.apache.tomcat.util.net;
 
-import java.io.*;
-import java.net.*;
+import java.net.Socket;
+// START SJSAS 6439313
+import javax.net.ssl.SSLEngine;
+// END SJSAS 6439313
 
 /* SSLImplementation:
 
@@ -95,4 +97,7 @@ abstract public class SSLImplementation {
     abstract public String getImplementationName();
     abstract public ServerSocketFactory getServerSocketFactory();
     abstract public SSLSupport getSSLSupport(Socket sock);
+    // START SJSAS 6439313
+    public abstract SSLSupport getSSLSupport(SSLEngine sslEngine);
+    // END SJSAS 6439313
 }    

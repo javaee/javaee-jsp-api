@@ -74,10 +74,10 @@ public abstract class JSSESocketFactory
     protected boolean clientAuth = false;
     protected SSLServerSocketFactory sslProxy = null;
     protected String[] enabledCiphers;
-   
 
     public JSSESocketFactory () {
     }
+    
 
     public ServerSocket createSocket (int port)
         throws IOException
@@ -302,7 +302,12 @@ public abstract class JSSESocketFactory
      *
      * Place holder method to initialize the KeyStore, etc.
      */
+    /* SJSAS 6439313
     abstract void init() throws IOException ;
+     */
+    // START SJSAS 6439313
+    public abstract void init() throws IOException ;
+    // END SJSAS 6439313
 
     /*
      * Determines the SSL protocol variants to be enabled.
