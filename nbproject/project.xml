@@ -6,7 +6,6 @@
             <!--Do not use Project Properties customizer when editing this file manually.-->
             <name>WebContainer</name>
             <properties>
-                <property-file>/home/kchung/build.properties</property-file>
                 <property-file>../bootstrap/project.properties</property-file>
             </properties>
             <folders>
@@ -44,12 +43,11 @@
                     <ide-action name="rebuild"/>
                 </context-menu>
             </view>
-            <subprojects/>
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
             <compilation-unit>
                 <package-root>src/java</package-root>
-                <classpath mode="compile">/home/kchung/work/publish/glassfish/lib/appserv-rt.jar:/home/kchung/work/publish/glassfish/lib/javaee.jar:/home/kchung/work/publish/glassfish/lib/ant/lib/ant.jar:/home/kchung/work/publish/glassfish/lib/commons-logging.jar</classpath>
+                <classpath mode="compile">${ant.jar};${j2ee.jar}</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
