@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2005/09/27 14:32:17 $
+ * @version $Revision: 1.8 $ $Date: 2005/10/25 17:33:17 $
  */
 
 public class StandardContext
@@ -2088,6 +2088,20 @@ public class StandardContext
         }
 
         super.addChild(child);
+
+        // START SJSAS 6342808
+        if (started) {
+            /*
+             * If this StandardContext has already been started, we need to
+             * register the newly added child with JMX. Any children that were
+             * added before this StandardContext was started have already been
+             * registered with JMX (as part of StandardContext.start()).
+             */
+            if (wrapper instanceof StandardWrapper) {
+                ((StandardWrapper) wrapper).registerJMX( this );
+            }
+        }
+        // END SJSAS 6342808
 
         if (isJspServlet && oldJspServlet != null) {
             /*
