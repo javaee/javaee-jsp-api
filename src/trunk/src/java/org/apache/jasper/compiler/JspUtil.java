@@ -505,6 +505,10 @@ public class JspUtil {
 
         if (expectedType == javax.el.ValueExpression.class) {
 
+            if (expectedDeferredType == null) {
+                expectedDeferredType = "java.lang.Object";
+            }
+
             return "org.apache.jasper.runtime.PageContextImpl.getValueExpression"
                + "(" + Generator.quote(expression) + ", "
                + "(PageContext)" + jspCtxt + ", "
