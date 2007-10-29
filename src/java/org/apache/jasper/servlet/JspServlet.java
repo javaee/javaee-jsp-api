@@ -40,6 +40,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 // END SJSWS 6232180
+// START GlassFish 747
+import java.util.HashMap;
+// END GlassFish 747
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -52,6 +55,10 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
 
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
+
+// START GlassFish 747
+import org.apache.catalina.Globals;
+// END GlassFish 747
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
@@ -365,6 +372,14 @@ public class JspServlet extends HttpServlet {
         // START GlassFish 750
         taglibs.clear();
         // END GlassFish 750
+
+        // START GlassFish 747
+        HashMap tldUriToLocationMap = (HashMap) context.getAttribute(
+            Globals.JSP_TLD_URI_TO_LOCATION_MAP);
+        if (tldUriToLocationMap != null) {
+            tldUriToLocationMap.clear();
+        }
+        // END GlassFish 747
     }
 
 
