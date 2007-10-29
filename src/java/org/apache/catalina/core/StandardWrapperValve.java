@@ -30,6 +30,7 @@ package org.apache.catalina.core;
 
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.servlet.Servlet;
@@ -62,7 +63,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/17 00:18:38 $
+ * @version $Revision: 1.8 $ $Date: 2006/08/31 23:34:08 $
  */
 
 final class StandardWrapperValve
@@ -79,7 +80,7 @@ final class StandardWrapperValve
     private long processingTimeMillis;
     private long maxTimeMillis;
     private volatile long minTimeMillis = Long.MAX_VALUE;
-    private int requestCount;
+    private AtomicInteger requestCount = new AtomicInteger(0);
     private int errorCount;
 
 
@@ -118,7 +119,7 @@ final class StandardWrapperValve
         Throwable throwable = null;
         // This should be a Request attribute...
         long t1=System.currentTimeMillis();
-        requestCount++;
+        requestCount.incrementAndGet();
         StandardWrapper wrapper = (StandardWrapper) getContainer();
         HttpRequest hrequest = (HttpRequest) request;
         Servlet servlet = null;
@@ -502,11 +503,11 @@ final class StandardWrapperValve
     }
 
     public int getRequestCount() {
-        return requestCount;
+        return requestCount.get();
     }
 
-    public void setRequestCount(int requestCount) {
-        this.requestCount = requestCount;
+    public void setRequestCount(int count) {
+        this.requestCount.set(count);
     }
 
     public int getErrorCount() {
