@@ -73,7 +73,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.15 $ $Date: 2006/12/13 18:07:17 $
+ * @version $Revision: 1.16 $ $Date: 2006/12/15 18:53:39 $
  */
 
 final class StandardContextValve
@@ -301,47 +301,6 @@ final class StandardContextValve
                 // END SJSAS 6329662
                 }
             }
-        }
-
-    }
-
-
-    /**
-     * Report a "bad request" error for the specified resource.  FIXME:  We
-     * should really be using the error reporting settings for this web
-     * application, but currently that code runs at the wrapper level rather
-     * than the context level.
-     *
-     * @param requestURI The request URI for the requested resource
-     * @param response The response we are creating
-     */
-    private void badRequest(String requestURI, HttpServletResponse response) {
-
-        try {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, requestURI);
-        } catch (IllegalStateException e) {
-            ;
-        } catch (IOException e) {
-            ;
-        }
-
-    }
-    
-    
-    /**
-     * Report a "forbidden" error for the specified resource. 
-     *
-     * @param requestURI The request URI for the requested resource
-     * @param response The response we are creating
-     */
-    private void forbidden(String requestURI, HttpServletResponse response) {
-
-        try {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, requestURI);
-        } catch (IllegalStateException e) {
-            ;
-        } catch (IOException e) {
-            ;
         }
 
     }
