@@ -93,7 +93,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.12 $ $Date: 2006/01/17 17:21:16 $
+ * @version $Revision: 1.13 $ $Date: 2006/01/18 00:26:25 $
  */
 
 public class StandardSession
@@ -362,12 +362,7 @@ public class StandardSession
      */
     public String getId() {
 
-         if ( !isValid() ) {
-             throw new IllegalStateException
-                 (sm.getString("standardSession.getId.ise"));
-         }
-
-        return (this.id);
+        return getIdInternal();
 
     }
 
