@@ -58,7 +58,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/08/23 00:05:44 $
+ * @version $Revision: 1.5 $ $Date: 2005/08/29 17:23:23 $
  */
 
 public class CoyoteAdapter
@@ -360,6 +360,12 @@ public class CoyoteAdapter
         // END SJSAS 6253524
             String redirectPath = redirectPathMB.toString();
             String query = request.getQueryString();
+            if (request.isRequestedSessionIdFromURL()) {
+                // This is not optimal, but as this is not very common, it
+                // shouldn't matter
+                redirectPath = redirectPath + ";jsessionid=" 
+                    + request.getRequestedSessionId();
+            }            
             if (query != null) {
                 // This is not optimal, but as this is not very common, it
                 // shouldn't matter
