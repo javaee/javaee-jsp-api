@@ -84,7 +84,7 @@ import javax.naming.directory.DirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:14 $
  */
 
 public interface Container {
@@ -374,6 +374,15 @@ public interface Container {
      * @param listener The listener to add
      */
     public void addContainerListener(ContainerListener listener);
+
+
+    /**
+     * Notifies all event listeners of this Container of the given event.
+     *
+     * @param type Event type
+     * @param data Event data
+     */
+    public void fireContainerEvent(String type, Object data);
 
 
     /**
