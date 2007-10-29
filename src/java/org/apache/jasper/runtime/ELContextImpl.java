@@ -21,7 +21,11 @@ public class ELContextImpl
      * Constructs a new ELContext associated with the given ELResolver.
      */
     public ELContextImpl(ELResolver resolver) {
-        super(resolver);
+        this.resolver = resolver;
+    }
+
+    public ELResolver getELResolver() {
+        return resolver;
     }
 
     public void setFunctionMapper(FunctionMapper fnMapper) {
@@ -42,4 +46,5 @@ public class ELContextImpl
 
     private FunctionMapper functionMapper;
     private VariableMapper variableMapper;
+    private ELResolver resolver;
 }
