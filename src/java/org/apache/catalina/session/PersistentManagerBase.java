@@ -34,7 +34,8 @@ import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
@@ -61,7 +62,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.12 $ $Date: 2007/02/05 20:50:08 $
+ * @version $Revision: 1.13 $ $Date: 2007/03/05 22:18:02 $
  */
 
 public abstract class PersistentManagerBase
@@ -212,13 +213,17 @@ public abstract class PersistentManagerBase
     private int rejectedSessions = 0;
 
 
-    // SJSAS 6406580 START
+    // START SJSAS 6406580
     /**
      * The set of invalidated Sessions for this Manager, keyed by
      * session identifier.
      */
-    protected HashSet invalidatedSessions = new HashSet();
-    // SJSAS 6406580 END    
+    protected ConcurrentHashMap<String, Long> invalidatedSessions
+        = new ConcurrentHashMap<String, Long>();
+
+    // Specifies for how long we're going to remember invalidated session ids
+    private long rememberInvalidatedSessionIdMilliSecs = 60000L;
+    // END SJSAS 6406580
 
 
     // ------------------------------------------------------------- Properties
@@ -229,6 +234,9 @@ public abstract class PersistentManagerBase
     public void backgroundProcess() {
         this.processExpires();
         this.processPersistenceChecks();
+        // START SJSAS 6406580
+        this.processInvalidatedSessions();
+        // END SJSAS 6406580
         if ((this.getStore() != null)
             && (this.getStore() instanceof StoreBase)) {
             ((StoreBase) this.getStore()).processExpires();
@@ -361,6 +369,20 @@ public abstract class PersistentManagerBase
             ((Context) this.container).addPropertyChangeListener(this);
         }
 
+        // START SJSAS 6406580
+        if (container instanceof StandardContext) {
+            // Determine for how long we're going to remember invalidated
+            // session ids
+            StandardContext ctx = (StandardContext) container;
+            int frequency = ctx.getManagerChecksFrequency();
+            int reapIntervalSeconds = ctx.getBackgroundProcessorDelay();
+            rememberInvalidatedSessionIdMilliSecs
+                = frequency * reapIntervalSeconds * 1000L * 2;
+            if (rememberInvalidatedSessionIdMilliSecs <= 0) {
+                rememberInvalidatedSessionIdMilliSecs = 60000L;
+            }
+        }
+        // END SJSAS 6406580
     }
 
 
@@ -613,6 +635,30 @@ public abstract class PersistentManagerBase
 
 
     /**
+     * Purges those session ids from the map of invalidated session ids whose
+     * time has come up
+     */
+    protected void processInvalidatedSessions() {
+
+        if (!started) {
+            return;
+        }
+
+        long timeNow = System.currentTimeMillis();
+        Iterator<String> iter = invalidatedSessions.keySet().iterator();
+        while (iter.hasNext()) {
+            String id = iter.next();
+            Long timeAdded = invalidatedSessions.get(id);
+            if ((timeAdded == null)
+                    || (timeNow - timeAdded.longValue() >
+                                    rememberInvalidatedSessionIdMilliSecs)) {
+                removeFromInvalidatedSessions(id);
+            }
+        }
+    }        
+
+
+    /**
      * Return a new session object as long as the number of active
      * sessions does not exceed <b>maxActiveSessions</b>. If there
      * aren't too many active sessions, or if there is no limit,
@@ -832,29 +878,27 @@ public abstract class PersistentManagerBase
      * @param sessionId session id to be added
      */
     public void addToInvalidatedSessions(String sessionId) {
-        synchronized (invalidatedSessions) {
-            invalidatedSessions.add(sessionId);
-        }
+        invalidatedSessions.put(sessionId,
+                                Long.valueOf(System.currentTimeMillis()));
     }
+
     
     /**
-     * Remove this Session from the set of invalidated Sessions for this
-     * Manager.
+     * Removes the given session id from the map of invalidated session ids.
      *
-     * @param sessionId session id to be removed
+     * @param sessionId The session id to remove
      */
     public void removeFromInvalidatedSessions(String sessionId) {       
-        synchronized (invalidatedSessions) {
-            invalidatedSessions.remove(sessionId);
-        }
+        invalidatedSessions.remove(sessionId);
     }    
     
+
+    /**
+     * @return true if the given session id is not contained in the map of
+     * invalidated session ids, false otherwise
+     */
     public boolean isSessionIdValid(String sessionId) {       
-        boolean result = true;
-        synchronized (invalidatedSessions) {
-            result = !invalidatedSessions.contains(sessionId);
-        }
-        return result;
+        return (!invalidatedSessions.containsKey(sessionId));
     }
     // END SJSAS 6406580    
 

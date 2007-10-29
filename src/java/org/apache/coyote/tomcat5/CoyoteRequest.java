@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.53 $ $Date: 2007/03/05 22:18:03 $
+ * @version $Revision: 1.54 $ $Date: 2007/03/07 19:35:51 $
  */
 
 public class CoyoteRequest
@@ -499,16 +499,6 @@ public class CoyoteRequest
      */
     public void recycle() {
         
-        // START SJSAS 6406580
-        if (context != null && requestedSessionId != null) {
-            Manager manager = context.getManager();
-            if (manager instanceof PersistentManagerBase) { 
-                ((PersistentManagerBase) manager).removeFromInvalidatedSessions(
-                    requestedSessionId);
-            }
-        }        
-        // END SJSAS 6406580
-
         context = null;
         wrapper = null;
 

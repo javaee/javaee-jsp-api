@@ -92,7 +92,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.31 $ $Date: 2007/02/15 17:23:39 $
+ * @version $Revision: 1.32 $ $Date: 2007/03/05 22:18:02 $
  */
 
 public class StandardSession
@@ -913,11 +913,6 @@ public class StandardSession
         setPrincipal(null);
         isNew = false;
         isValid = false;
-        //START SJSAS 6406580
-        if (manager instanceof PersistentManagerBase) {            
-            ((PersistentManagerBase)manager).removeFromInvalidatedSessions(this.id);
-        }
-        //END SJSAS 6406580
 
         listeners.clear();
 
