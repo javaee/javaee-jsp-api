@@ -59,7 +59,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  * any property setting and lifecycle methods required for configuration.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:45 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/12 01:27:02 $
  */
 
 public class LoggerBase
@@ -499,8 +499,10 @@ public class LoggerBase
         if ( getObjectName()==null ) {   
             ObjectName oname = createObjectName();   
             try {   
-                Registry.getRegistry().registerComponent(this, oname, null); 
-                log.debug( "registering logger " + oname );   
+                Registry.getRegistry().registerComponent(this, oname, null);
+                if (log.isDebugEnabled()) {
+                    log.debug("Registering logger " + oname);
+                }
             } catch( Exception ex ) {   
                 log.error( "Can't register logger " + oname, ex);   
             }      
@@ -524,7 +526,9 @@ public class LoggerBase
             ObjectName oname = createObjectName();   
             try {   
                 Registry.getRegistry().unregisterComponent(oname); 
-                log.info( "unregistering logger " + oname );   
+                if (log.isDebugEnabled()) {
+                    log.debug("Unregistering logger " + oname);
+                }
             } catch( Exception ex ) {   
                 log.error( "Can't unregister logger " + oname, ex);   
             }      
