@@ -31,7 +31,7 @@ import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstInteger extends SimpleNode {
     public AstInteger(int id) {
@@ -43,7 +43,7 @@ public final class AstInteger extends SimpleNode {
     protected Number getInteger() {
         if (this.number == null) {
             try {
-                this.number = new Long(this.image);
+                this.number = Long.valueOf(this.image);
             } catch (ArithmeticException e1) {
                 this.number = new BigInteger(this.image);
             }

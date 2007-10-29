@@ -31,7 +31,7 @@ import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstFloatingPoint extends SimpleNode {
     public AstFloatingPoint(int id) {
@@ -43,7 +43,7 @@ public final class AstFloatingPoint extends SimpleNode {
     public Number getFloatingPoint() {
         if (this.number == null) {
             try {
-                this.number = new Double(this.image);
+                this.number = Double.valueOf(this.image);
             } catch (ArithmeticException e0) {
                 this.number = new BigDecimal(this.image);
             }
