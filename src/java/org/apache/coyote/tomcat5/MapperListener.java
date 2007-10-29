@@ -28,7 +28,7 @@ package org.apache.coyote.tomcat5;
 
 import java.util.Iterator;
 import java.util.Set;
-
+import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 // START SJSAS 6290785
@@ -101,6 +101,7 @@ public class MapperListener
     // BEGIN S1AS 5000999
     private int port;
     private String defaultHost;
+    private ConcurrentHashMap<ObjectName,int[]> virtualServerPorts;
     // END S1AS 5000999
 
 
@@ -117,6 +118,7 @@ public class MapperListener
      */
     public MapperListener(Mapper mapper) {
         this.mapper = mapper;
+        virtualServerPorts = new ConcurrentHashMap<ObjectName,int[]>();
     }
 
 
@@ -469,6 +471,10 @@ public class MapperListener
             if (!portMatch) {
                 return;
             }
+
+            if (ports != null) {
+                virtualServerPorts.put(objectName, ports);
+            }
             // END S1AS 5000999
 
             String[] aliases = host.findAliases();
@@ -486,10 +492,10 @@ public class MapperListener
         String name=objectName.getKeyProperty("host");
         // BEGIN S1AS 5000999
         if (name != null) {
-            int[] ports = (int[]) mBeanServer.invoke
-                    (objectName, "findPorts", null, null);
+            int[] ports = virtualServerPorts.get(objectName);
             boolean portMatch = false;
             if (ports != null) {
+                virtualServerPorts.remove(objectName);
                 for (int i=0; i<ports.length; i++) {
                     if (ports[i] == this.port) {
                         portMatch = true;
