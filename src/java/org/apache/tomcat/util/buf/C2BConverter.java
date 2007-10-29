@@ -112,7 +112,7 @@ public class C2BConverter {
     
     /** Create a converter, with bytes going to a byte buffer
      */
-    protected C2BConverter(ByteChunk output, String encoding) throws IOException {
+    public C2BConverter(ByteChunk output, String encoding) throws IOException {
         this.bb=output;
         this.enc=encoding;
         encoder = Charset.forName(enc).newEncoder();
@@ -120,7 +120,7 @@ public class C2BConverter {
 
     /** Create a converter
      */
-    protected C2BConverter(String encoding) throws IOException {
+    public C2BConverter(String encoding) throws IOException {
         this( new ByteChunk(1024), encoding );
     }
 
