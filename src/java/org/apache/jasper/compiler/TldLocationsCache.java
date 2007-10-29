@@ -109,13 +109,13 @@ public class TldLocationsCache {
     private static final String JAR_FILE_SUFFIX = ".jar";
 
     // Names of JARs that are known not to contain any TLDs
-    private static HashSet noTldJars;
+    private static HashSet<String> noTldJars;
 
     // Names of system jar files that are ignored if placed under WEB-INF
-    private static HashSet systemJars;
+    private static HashSet<String> systemJars = new HashSet<String>();
 
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
-    private static HashSet<String> systemUris;
+    private static HashSet<String> systemUris = new HashSet<String>();
 
     /**
      * The mapping of the 'global' tag library URI to the location (resource
@@ -149,66 +149,9 @@ public class TldLocationsCache {
      * Initializes the set of JARs that are known not to contain any TLDs
      */
     static {
-        noTldJars = new HashSet();
-        noTldJars.add("ant.jar");
-        noTldJars.add("catalina.jar");
-        noTldJars.add("catalina-ant.jar");
-        noTldJars.add("catalina-cluster.jar");
-        noTldJars.add("catalina-optional.jar");
-        noTldJars.add("catalina-i18n-fr.jar");
-        noTldJars.add("catalina-i18n-ja.jar");
-        noTldJars.add("catalina-i18n-es.jar");
-        noTldJars.add("commons-dbcp.jar");
-        noTldJars.add("commons-modeler.jar");
-        noTldJars.add("commons-logging-api.jar");
-        noTldJars.add("commons-beanutils.jar");
-        noTldJars.add("commons-fileupload-1.0.jar");
-        noTldJars.add("commons-pool.jar");
-        noTldJars.add("commons-digester.jar");
-        noTldJars.add("commons-logging.jar");
-        noTldJars.add("commons-collections.jar");
-        noTldJars.add("commons-el.jar");
-        noTldJars.add("jakarta-regexp-1.2.jar");
-        noTldJars.add("jasper-compiler.jar");
-        noTldJars.add("jasper-runtime.jar");
-        noTldJars.add("jmx.jar");
-        noTldJars.add("jmx-tools.jar");
-        noTldJars.add("jsp-api.jar");
-        noTldJars.add("jkshm.jar");
-        noTldJars.add("jkconfig.jar");
-        noTldJars.add("naming-common.jar");
-        noTldJars.add("naming-resources.jar");
-        noTldJars.add("naming-factory.jar");
-        noTldJars.add("naming-java.jar");
-        noTldJars.add("servlet-api.jar");
-        noTldJars.add("servlets-default.jar");
-        noTldJars.add("servlets-invoker.jar");
-        noTldJars.add("servlets-common.jar");
-        noTldJars.add("servlets-webdav.jar");
-        noTldJars.add("tomcat-util.jar");
-        noTldJars.add("tomcat-http11.jar");
-        noTldJars.add("tomcat-jni.jar");
-        noTldJars.add("tomcat-jk.jar");
-        noTldJars.add("tomcat-jk2.jar");
-        noTldJars.add("tomcat-coyote.jar");
-        noTldJars.add("xercesImpl.jar");
-        noTldJars.add("xmlParserAPIs.jar");
-        // JARs from J2SE runtime
-        noTldJars.add("sunjce_provider.jar");
-        noTldJars.add("ldapsec.jar");
-        noTldJars.add("localedata.jar");
-        noTldJars.add("dnsns.jar");
-    }
-
-    static {
-        systemJars = new HashSet();
         systemJars.add("standard.jar");
         systemJars.add("appserv-jstl.jar");
         systemJars.add("jsf-impl.jar");
-    }
-
-    static {
-        systemUris = new HashSet();
         systemUris.add("http://java.sun.com/jsf/core");
         systemUris.add("http://java.sun.com/jsf/html");
         systemUris.add("http://java.sun.com/jsp/jstl/core");
@@ -257,19 +200,39 @@ public class TldLocationsCache {
     }
 
     /**
-     * Sets the list of JARs that are known not to contain any TLDs.
+     * Sets the list of JAR files that are known not to contain any TLDs.
+     *
+     * Only shared JAR files (that is, those loaded by a delegation parent
+     * of the webapp's classloader) will be checked against this list.
      *
      * @param jarNames List of comma-separated names of JAR files that are 
      * known not to contain any TLDs 
      */
     public static void setNoTldJars(String jarNames) {
         if (jarNames != null) {
-            noTldJars.clear();
+            if (noTldJars == null) {
+                noTldJars = new HashSet<String>();
+            } else {
+                noTldJars.clear();
+            }
             StringTokenizer tokenizer = new StringTokenizer(jarNames, ",");
             while (tokenizer.hasMoreElements()) {
                 noTldJars.add(tokenizer.nextToken());
             }
         }
+    }
+
+    /**
+     * Sets the list of JAR files that are known not to contain any TLDs.
+     *
+     * Only shared JAR files (that is, those loaded by a delegation parent
+     * of the webapp's classloader) will be checked against this list.
+     *
+     * @param set HashSet containing the names of JAR files known not to
+     * contain any TLDs
+     */
+    public static void setNoTldJars(HashSet<String> set) {
+        noTldJars = set;
     }
 
     /**
@@ -670,6 +633,6 @@ public class TldLocationsCache {
         if (slash >= 0) {
             jarName = jarPath.substring(slash + 1);
         }
-        return (!noTldJars.contains(jarName));
+        return ((noTldJars == null) || !noTldJars.contains(jarName));
     }
 }

@@ -75,10 +75,10 @@ import org.xml.sax.InputSource;
 public final class TldConfig  {
 
     // Names of JARs that are known not to contain any TLDs with listeners
-    private static HashSet noTldJars;
+    private static HashSet<String> noTldListeners;
 
     // Names of system jar files that are ignored if placed under WEB-INF
-    private static HashSet systemJars;
+    private static HashSet<String> systemJars = new HashSet<String>();
 
     private static com.sun.org.apache.commons.logging.Log log=
         com.sun.org.apache.commons.logging.LogFactory.getLog( TldConfig.class );
@@ -95,72 +95,13 @@ public final class TldConfig  {
     // END CR 6402120   
 
     // Names of system TLD URIs
-    private static HashSet<String> systemTldUris;
+    private static HashSet<String> systemTldUris = new HashSet<String>();
 
     static {
-        systemTldUris = new HashSet();
         systemTldUris.add("http://java.sun.com/jsf/core");
         systemTldUris.add("http://java.sun.com/jsf/html");
         systemTldUris.add("http://java.sun.com/jsp/jstl/core");
-    }
 
-    /*
-     * Initializes the set of JARs that are known not to contain any TLDs
-     */
-    static {
-        noTldJars = new HashSet();
-        noTldJars.add("ant.jar");
-        noTldJars.add("catalina.jar");
-        noTldJars.add("catalina-ant.jar");
-        noTldJars.add("catalina-cluster.jar");
-        noTldJars.add("catalina-optional.jar");
-        noTldJars.add("catalina-i18n-fr.jar");
-        noTldJars.add("catalina-i18n-ja.jar");
-        noTldJars.add("catalina-i18n-es.jar");
-        noTldJars.add("commons-dbcp.jar");
-        noTldJars.add("commons-modeler.jar");
-        noTldJars.add("commons-logging-api.jar");
-        noTldJars.add("commons-beanutils.jar");
-        noTldJars.add("commons-fileupload-1.0.jar");
-        noTldJars.add("commons-pool.jar");
-        noTldJars.add("commons-digester.jar");
-        noTldJars.add("commons-logging.jar");
-        noTldJars.add("commons-collections.jar");
-        noTldJars.add("commons-el.jar");
-        noTldJars.add("jakarta-regexp-1.2.jar");
-        noTldJars.add("jasper-compiler.jar");
-        noTldJars.add("jasper-runtime.jar");
-        noTldJars.add("jmx.jar");
-        noTldJars.add("jmx-tools.jar");
-        noTldJars.add("jsp-api.jar");
-        noTldJars.add("jkshm.jar");
-        noTldJars.add("jkconfig.jar");
-        noTldJars.add("naming-common.jar");
-        noTldJars.add("naming-resources.jar");
-        noTldJars.add("naming-factory.jar");
-        noTldJars.add("naming-java.jar");
-        noTldJars.add("servlet-api.jar");
-        noTldJars.add("servlets-default.jar");
-        noTldJars.add("servlets-invoker.jar");
-        noTldJars.add("servlets-common.jar");
-        noTldJars.add("servlets-webdav.jar");
-        noTldJars.add("tomcat-util.jar");
-        noTldJars.add("tomcat-http11.jar");
-        noTldJars.add("tomcat-jni.jar");
-        noTldJars.add("tomcat-jk.jar");
-        noTldJars.add("tomcat-jk2.jar");
-        noTldJars.add("tomcat-coyote.jar");
-        noTldJars.add("xercesImpl.jar");
-        noTldJars.add("xmlParserAPIs.jar");
-        // JARs from J2SE runtime
-        noTldJars.add("sunjce_provider.jar");
-        noTldJars.add("ldapsec.jar");
-        noTldJars.add("localedata.jar");
-        noTldJars.add("dnsns.jar");
-    }
-
-    static {
-        systemJars = new HashSet();
         systemJars.add("standard.jar");
         systemJars.add("appserv-jstl.jar");
         systemJars.add("jsf-impl.jar");
@@ -231,22 +172,42 @@ public final class TldConfig  {
     // --------------------------------------------------------- Public Methods
 
     /**
-     * Sets the list of JARs that are known not to contain any TLDs with
-     * listeners.
+     * Sets the list of JAR files that are known not to contain any
+     * TLDs that declare servlet listeners.
+     *
+     * Only shared JAR files (that is, those loaded by a delegation parent
+     * of the webapp's classloader) will be checked against this list.
      *
      * @param jarNames List of comma-separated names of JAR files that are 
-     * known not to contain any TLDs with listeners
+     * known not to contain any TLDs that declare servlet listeners
      */
     public static void setNoTldListeners(String jarNames) {
         if (jarNames != null) {
-            noTldJars.clear();
+            if (noTldListeners == null) {
+                noTldListeners = new HashSet<String>();
+            } else {
+                noTldListeners.clear();
+            }
             StringTokenizer tokenizer = new StringTokenizer(jarNames, ",");
             while (tokenizer.hasMoreElements()) {
-                noTldJars.add(tokenizer.nextToken());
+                noTldListeners.add(tokenizer.nextToken());
             }
         }
     }
 
+    /**
+     * Sets the list of JAR files that are known not to contain any
+     * TLDs that declare servlet listeners.
+     *
+     * Only shared JAR files (that is, those loaded by a delegation parent
+     * of the webapp's classloader) will be checked against this list.
+     *
+     * @param set HashSet containing the names of JAR file known not to
+     * contain any TLDs that declare servlet listeners
+     */
+    public static void setNoTldListeners(HashSet set) {
+        noTldListeners = set;
+    }
     
     // START SJSAS 8.1 5049111   
     /**
@@ -850,8 +811,9 @@ public final class TldConfig  {
      * <CATALINA_HOME>/common/lib).
      *
      * The set of shared JARs to be scanned for TLDs is narrowed down by
-     * the <tt>noTldJars</tt> class variable, which contains the names of JARs
-     * that are known not to contain any TLDs with listeners.
+     * the <tt>noTldListeners</tt> class variable, which contains the names
+     * of JARs that are known not to contain any TLDs that declare servlet
+     * listeners.
      *
      * @return Map of JAR file paths
      */
@@ -891,8 +853,8 @@ public final class TldConfig  {
                     if ((loader != webappLoader
                                 || !systemJars.contains(file.getName()))
                             && (loader == webappLoader
-                                || noTldJars == null
-                                || !noTldJars.contains(file.getName()))) {
+                                || noTldListeners == null
+                                || !noTldListeners.contains(file.getName()))) {
                         JarPathElement elem = new JarPathElement(
                                 file, loader == webappLoader);
                         if (jarPathMap == null) {
