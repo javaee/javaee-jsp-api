@@ -398,10 +398,6 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 					 JspCompilationContext ctxt)
                 throws JasperException {
 
-        if (uri.startsWith(TagConstants.URN_JSPTLD)) {
-            uri = uri.substring(TagConstants.URN_JSPTLD.length());
-        }
-
 	int uriType = TldLocationsCache.uriType(uri);
 	if (uriType == TldLocationsCache.ABS_URI) {
 	    err.jspError("jsp.error.taglibDirective.absUriCannotBeResolved",

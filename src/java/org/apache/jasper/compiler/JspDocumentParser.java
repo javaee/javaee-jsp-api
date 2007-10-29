@@ -1154,6 +1154,10 @@ class JspDocumentParser
         Node parent)
         throws SAXException {
 
+        if (uri.startsWith(TagConstants.URN_JSPTLD)) {
+            uri = uri.substring(TagConstants.URN_JSPTLD.length());
+        }
+
         // Check if this is a user-defined (custom) tag
         TagLibraryInfo tagLibInfo = pageInfo.getTaglib(uri);
         if (tagLibInfo == null) {
@@ -1251,7 +1255,9 @@ class JspDocumentParser
         } else {
             // uri references TLD file
             boolean isPlainUri = false;
-            if (!uri.startsWith(URN_JSPTLD)) {
+            if (uri.startsWith(TagConstants.URN_JSPTLD)) {
+                uri = uri.substring(TagConstants.URN_JSPTLD.length());
+            } else {
                 isPlainUri = true;
             }
 
