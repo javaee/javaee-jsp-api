@@ -149,7 +149,7 @@ public class ServerCookie implements Serializable {
     // from RFC 2068, token special case characters
     //
     // private static final String tspecials = "()<>@,;:\\\"/[]?={} \t";
-    private static final String tspecials = ",;";
+    private static final String tspecials = ",; ";
 
     /*
      * Tests a string and returns true if the string counts as a
@@ -301,7 +301,7 @@ public class ServerCookie implements Serializable {
 	
     }
 
-// START OF IASRI 4830338
+    // START OF IASRI 4830338
     public static void appendEncodedCookieValue( StringBuffer buf,
 					  int version,
 					  String name,
@@ -403,23 +403,19 @@ public class ServerCookie implements Serializable {
 	
 	
     }
-// END OF IASRI 4830338
+    // END OF IASRI 4830338
 
     public static void maybeQuote (int version, StringBuffer buf,
-                                    String value)
+                                   String value)
     {
-	// special case - a \n or \r  shouldn't happen in any case
-	if ( isToken (value))
-	  buf.append (value);
-	else {
-	    if(version==0)
-		throw new IllegalArgumentException( value );
-	    else {
-		buf.append ('"');
-		buf.append (value);
-		buf.append ('"');
-	    }
-	}
+        // special case - a \n or \r  shouldn't happen in any case
+        if (isToken(value)) {
+            buf.append(value);
+        } else {
+            buf.append('"');
+            buf.append(escapeDoubleQuotes(value));
+            buf.append('"');
+        }
     }
 
     // log
@@ -427,6 +423,31 @@ public class ServerCookie implements Serializable {
     public static void log(String s ) {
         if (log.isDebugEnabled())
 	    log.debug("ServerCookie: " + s);
+    }
+
+    /**
+     * Escapes any double quotes in the given string.
+     *
+     * @param s the input string
+     *
+     * @return The (possibly) escaped string
+     */
+    private static String escapeDoubleQuotes(String s) {
+
+        if (s == null || s.length() == 0 || s.indexOf('"') == -1) {
+            return s;
+        }
+
+        StringBuffer b = new StringBuffer();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '"')
+                b.append('\\').append('"');
+            else
+                b.append(c);
+        }
+
+        return b.toString();
     }
 
 }
