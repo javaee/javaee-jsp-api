@@ -48,6 +48,9 @@ import com.sun.org.apache.commons.logging.LogFactory;
 
 import com.sun.org.apache.commons.modeler.Registry;
 
+import org.apache.catalina.Host;
+import org.apache.catalina.core.StandardHost;
+
 import org.apache.tomcat.util.http.mapper.Mapper;
 
 import org.apache.tomcat.util.res.StringManager;
@@ -426,13 +429,21 @@ public class MapperListener
         throws Exception {
         String name=objectName.getKeyProperty("host");
         if( name != null ) {
+
+            Host host = (Host) mBeanServer.invoke(objectName,
+                                                  "findMappingObject",
+                                                  null,
+                                                  null);
+            if (host == null) {
+                throw new Exception("No host registered for " + objectName);
+            }
+
             // BEGIN S1AS 5000999
             /*
              * Register the given Host only if one of its associated port
              * numbers matches the port number of this MapperListener
              */
-            int[] ports = (int[]) mBeanServer.invoke
-                    (objectName, "findPorts", null, null);
+            int[] ports = ((StandardHost) host).findPorts();
             boolean portMatch = false;
             if (ports != null) {
                 for (int i=0; i<ports.length; i++) {
@@ -446,9 +457,10 @@ public class MapperListener
                 return;
             }
             // END S1AS 5000999
-            String[] aliases = (String[])
-                mBeanServer.invoke(objectName, "findAliases", null, null);
-            mapper.addHost(name, aliases, objectName);
+
+            String[] aliases = host.findAliases();
+
+            mapper.addHost(name, aliases, host);
         }
     }
 

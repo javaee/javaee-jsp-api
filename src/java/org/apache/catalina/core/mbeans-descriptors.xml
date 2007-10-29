@@ -387,6 +387,11 @@
                returnType="[Lint;">
     </operation>
 
+    <operation name="findMappingObject"
+               description="Return an object which may be utilized for mapping to this component"
+               impact="INFO"
+               returnType="org.apache.catalina.Host">    
+    </operation>
     
     <operation name="start" description="Start" impact="ACTION" returnType="void" />
     <operation name="stop" description="Stop" impact="ACTION" returnType="void" />
@@ -1175,6 +1180,12 @@
                description="Returns the ports that this StandardHost is associated with"
                impact="INFO"
                returnType="[I;"/>
+
+    <operation name="findMappingObject"
+               description="Return an object which may be utilized for mapping to this component"
+               impact="INFO"
+               returnType="org.apache.catalina.Host">    
+    </operation>
 
     <operation name="addChild"
                description="Add a context"

@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.49 $ $Date: 2007/01/29 22:19:19 $
+ * @version $Revision: 1.50 $ $Date: 2007/02/16 18:10:32 $
  */
 
 public class CoyoteRequest
@@ -690,10 +690,7 @@ public class CoyoteRequest
      * Return the Host within which this Request is being processed.
      */
     public Host getHost() {
-        if (getContext() == null)
-            return null;
-        return (Host) getContext().getParent();
-        //return ((Host) mappingData.host);
+        return (Host) mappingData.host;
     }
 
 

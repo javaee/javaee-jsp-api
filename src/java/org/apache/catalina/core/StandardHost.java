@@ -62,7 +62,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2006/10/03 17:51:05 $
+ * @version $Revision: 1.11 $ $Date: 2007/02/15 20:40:46 $
  */
 
 public class StandardHost
@@ -710,6 +710,11 @@ public class StandardHost
         return getPorts();
     }
     // END S1AS 5000999
+
+
+    public Host findMappingObject() {
+        return (Host) getMappingObject();
+    }
 
 
     /**
