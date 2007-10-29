@@ -301,7 +301,12 @@ public class XMLEncodingDetector {
             return new Object [] {"UTF-16BE", new Boolean(true),
                                   new Boolean(true)};
         }
+        /* SJSAS 6307968
         if (b0 == 0xFF && b1 == 0xFE) {
+        */
+        // BEGIN SJSAS 6307968
+        if (count == 2 && b0 == 0xFF && b1 == 0xFE) {
+        // END SJSAS 6307968
             // UTF-16, little-endian, with a BOM
             return new Object [] {"UTF-16LE", new Boolean(false),
                                   new Boolean(true)};
@@ -371,6 +376,13 @@ public class XMLEncodingDetector {
             return new Object [] {"UTF-32LE", new Boolean(false),
                                   new Boolean(true)};
         }
+        // BEGIN SJSAS 6307968
+        if (b0 == 0xFF && b1 == 0xFE) {
+            // UTF-16, little-endian, with a BOM
+            return new Object [] {"UTF-16LE", new Boolean(false),
+                                  new Boolean(true)};
+        }
+        // END SJSAS 6307968
 
         // default encoding
         return new Object [] {"UTF-8", null, null};
