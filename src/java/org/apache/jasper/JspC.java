@@ -107,23 +107,14 @@ public class JspC implements Options {
             "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
 
     // START SJSAS 6402545
-    /** Version constant for Java 1.0 */
     private static final String JAVA_1_0 = "1.0";
-    /** Version constant for Java 1.1 */
     private static final String JAVA_1_1 = "1.1";
-    /** Version constant for Java 1.2 */
     private static final String JAVA_1_2 = "1.2";
-    /** Version constant for Java 1.3 */
     private static final String JAVA_1_3 = "1.3";
-    /** Version constant for Java 1.4 */
     private static final String JAVA_1_4 = "1.4";
-    /** Version constant for Java 1.5 */
     private static final String JAVA_1_5 = "1.5";
-    /** Version constant for Java 1.6 */
     private static final String JAVA_1_6 = "1.6";
-    /** Version constant for Java 5 */
     private static final String JAVA_5 = "5";
-    /** Version constant for Java 6 */
     private static final String JAVA_6 = "6";
     // END SJSAS 6402545
 
@@ -261,6 +252,32 @@ public class JspC implements Options {
     // START SJSAS 6329723
     private List<JasperException> jspErrors = new ArrayList<JasperException>();
     // END SJSAS 6329723
+
+    // START SJSAS 6403017
+    private static String myJavaVersion;
+    // END SJSAS 6403017
+
+    // START SJSAS 6403017
+    static {
+        try {
+            myJavaVersion = JAVA_1_0;
+            Class.forName("java.lang.Void");
+            myJavaVersion = JAVA_1_1;
+            Class.forName("java.lang.ThreadLocal");
+            myJavaVersion = JAVA_1_2;
+            Class.forName("java.lang.StrictMath");
+            myJavaVersion = JAVA_1_3;
+            Class.forName("java.lang.CharSequence");
+            myJavaVersion = JAVA_1_4;
+            Class.forName("java.lang.Readable");
+            myJavaVersion = JAVA_1_5;
+            Class.forName("java.util.Service");
+            myJavaVersion = JAVA_1_6;
+        } catch (Throwable t) {
+            // Do nothing
+        }
+    }
+    // END SJSAS 6403017
 
     public static void main(String arg[]) {
         if (arg.length == 0) {
@@ -602,6 +619,13 @@ public class JspC implements Options {
                 Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
         }
         // END SJSAS 6402545
+        // START SJSAS 6403017
+        Double targetVersion = Double.valueOf(vm);
+        if (targetVersion.compareTo(Double.valueOf(myJavaVersion)) > 0) {
+            throw new IllegalArgumentException(
+                Localizer.getMessage("jspc.compilerTargetVMTooHigh", vm));
+        }
+        // END SJSAS 6403017
         compilerTargetVM = vm;
     }
 
