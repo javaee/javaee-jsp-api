@@ -1,0 +1,62 @@
+<!--
+ The contents of this file are subject to the terms 
+ of the Common Development and Distribution License 
+ (the License).  You may not use this file except in
+ compliance with the License.
+ 
+ You can obtain a copy of the license at 
+ https://glassfish.dev.java.net/public/CDDLv1.0.html or
+ glassfish/bootstrap/legal/CDDLv1.0.txt.
+ See the License for the specific language governing 
+ permissions and limitations under the License.
+ 
+ When distributing Covered Code, include this CDDL 
+ Header Notice in each file and include the License file 
+ at glassfish/bootstrap/legal/CDDLv1.0.txt.  
+ If applicable, add the following below the CDDL Header, 
+ with the fields enclosed by brackets [] replaced by
+ you own identifying information: 
+ "Portions Copyrighted [year] [name of copyright owner]"
+ 
+ Copyright 2006 Sun Microsystems, Inc. All rights reserved.
+-->
+<project name="JMX Reload" default="all" basedir=".">
+
+    <property file="../../../bootstrap/project.properties"/>
+
+    <path id="jmxReload.classpath">
+        <pathelement location="${appserv-admin.jar}"/>
+        <pathelement location="${appserv-rt.jar}"/>
+        <pathelement location="${javaee.jar}"/>
+        <pathelement location="${commons-logging.jar}"/>
+    </path>
+
+    <target name="build">      
+        <mkdir dir="target/classes"/>
+        <javac srcdir="src/java/org/glassfish/deployment/util" destdir="target/classes"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               optimize="${javac.optimize}"
+               excludes="**/CVS/**">
+            <classpath refid="jmxReload.classpath" />
+        </javac>
+    
+        <copy todir="target/classes" overwrite="true">
+            <fileset dir="./src/java">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <delete failonerror="false" dir="target/classes"/>
+    </target>
+
+    <target name="all" depends="build">
+        <fileset dir="${classes.dir}">
+            <include name="**/LocalStrings_es.properties" />
+        </fileset>
+    </target>
+    
+</project>
+
