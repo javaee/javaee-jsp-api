@@ -79,7 +79,7 @@ import org.apache.naming.NamingContextEnumeration;
  * Filesystem Directory Context implementation helper class.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2006/11/14 18:11:48 $
+ * @version $Revision: 1.7 $ $Date: 2007/05/05 05:33:00 $
  */
 
 public class FileDirContext extends BaseDirContext {
@@ -1081,6 +1081,8 @@ public class FileDirContext extends BaseDirContext {
 
         public FileResourceAttributes(File file) {
             this.file = file;
+            getCreation();
+            getLastModified();
         }
         
         // --------------------------------------------------- Member Variables
@@ -1128,7 +1130,7 @@ public class FileDirContext extends BaseDirContext {
         public long getCreation() {
             if (creation != -1L)
                 return creation;
-            creation = file.lastModified();
+            creation = getLastModified();
             return creation;
         }
         
