@@ -28,8 +28,6 @@
 
 package org.apache.catalina.session;
 
-
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -94,7 +92,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.27 $ $Date: 2007/01/11 21:00:26 $
+ * @version $Revision: 1.28 $ $Date: 2007/01/20 18:23:36 $
  */
 
 public class StandardSession
@@ -295,14 +293,6 @@ public class StandardSession
 
 
     /**
-     * The property change support for this component.  NOTE:  This value
-     * is not included in the serialized version of this object.
-     */
-    protected transient PropertyChangeSupport support =
-        new PropertyChangeSupport(this);
-
-
-    /**
      * The current accessed time for this session.
      */
     protected long thisAccessedTime = creationTime;
@@ -345,8 +335,6 @@ public class StandardSession
 
         String oldAuthType = this.authType;
         this.authType = authType;
-        support.firePropertyChange("authType", oldAuthType, this.authType);
-
     }
 
 
@@ -576,8 +564,6 @@ public class StandardSession
 
         Principal oldPrincipal = this.principal;
         this.principal = principal;
-        support.firePropertyChange("principal", oldPrincipal, this.principal);
-
     }
 
 
@@ -1736,7 +1722,6 @@ public class StandardSession
     private void readObject(ObjectInputStream stream)
         throws ClassNotFoundException, IOException {
 
-        support = new PropertyChangeSupport(this);
         listeners = new ArrayList();
         notes = new Hashtable();
 
@@ -2047,7 +2032,11 @@ public class StandardSession
      * zero-length array is returned.
      */
     protected String[] keys() {
-        return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
+        if (attributes.size() > 0) {
+            return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
+        } else {
+            return EMPTY_ARRAY;
+        }
     }
 
 
