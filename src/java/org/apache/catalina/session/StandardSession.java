@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.23 $ $Date: 2006/11/09 01:12:51 $
+ * @version $Revision: 1.24 $ $Date: 2006/11/11 00:42:57 $
  */
 
 public class StandardSession
@@ -1982,12 +1982,10 @@ public class StandardSession
      *
      * @exception Exception occurred during event firing
      */
-    protected void fireContainerEvent(Context context,
-                                    String type, Object data)
-        throws Exception {
+    protected void fireContainerEvent(Context context, String type, Object data)
+            throws Exception {
 
-        if (!"org.apache.catalina.core.StandardContext".equals
-            (context.getClass().getName())) {
+        if (!(context instanceof StandardContext)) {
             return; // Container events are not supported
         }
         // NOTE:  Race condition is harmless, so do not synchronize
