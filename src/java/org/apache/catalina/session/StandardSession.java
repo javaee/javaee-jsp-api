@@ -92,7 +92,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.29 $ $Date: 2007/01/29 20:00:22 $
+ * @version $Revision: 1.30 $ $Date: 2007/02/02 18:11:43 $
  */
 
 public class StandardSession
@@ -1488,6 +1488,12 @@ public class StandardSession
      */
     public void removeAttribute(String name, boolean notify, 
                                 boolean checkValid) {
+
+        // Name must not be null
+        if (name == null) {
+            throw new IllegalArgumentException
+                (sm.getString("standardSession.removeAttribute.namenull"));
+        }
 
         // Validate our current state
         if (!isValid() && checkValid)
