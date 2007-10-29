@@ -438,7 +438,6 @@ class MimeHeaderField {
     // speed up name enumerations and search ( both cpu and
     // GC)
     MimeHeaderField next;
-    MimeHeaderField prev; 
     
     protected final MessageBytes nameB = MessageBytes.newInstance();
     protected final MessageBytes valueB = MessageBytes.newInstance();

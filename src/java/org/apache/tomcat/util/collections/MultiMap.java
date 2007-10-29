@@ -232,10 +232,6 @@ public class MultiMap {
 	// speed up multiple name enumerations and search.
 	int nextPos;
 
-	// hashkey
-	int hash;
-	Field nextSameHash;
-
 	Field() {
 	    nextPos=MultiMap.NEED_NEXT;
 	}
