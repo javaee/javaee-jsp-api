@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:13 $
  */
 
 public class StandardContext
@@ -4098,6 +4098,9 @@ public class StandardContext
             try {
                 Class clazz = loader.loadClass(listeners[i]);
                 results[i] = clazz.newInstance();
+                // START PWC 1.2 6310695
+                fireContainerEvent("afterListenerInstantiated", results[i]);
+                // END PWC 1.2 6310695
             } catch (Throwable t) {
                 getServletContext().log
                     (sm.getString("standardContext.applicationListener",
