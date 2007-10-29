@@ -57,9 +57,14 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * The response contents are then committed, to comply with SRV.8.4
  * ("The Forward Method"):
  * 
- *   Before the forward method of the RequestDispatcher interface returns, the
- *   response content must be sent and committed, and closed by the servlet
- *   container
+ *   Before the forward method of the <code>RequestDispatcher</code>
+ *   interface returns without exception, the response content must be
+ *   sent and committed, and closed by the servlet container.
+ *
+ *   If an error occurs in the target of the
+ *   <code>RequestDispatcher.forward()</code> the exception may be
+ *   propogated back through all the calling filters and servlets and
+ *   eventually back to the container.
  */
 class ApplicationDispatcherForward {
 
@@ -76,30 +81,40 @@ class ApplicationDispatcherForward {
                        Wrapper wrapper)
             throws IOException, ServletException {
 
-        int statusCode = getStatus(response);
-        if (statusCode >= 400
-                && request.getAttribute(Globals.EXCEPTION_ATTR) == null) {
-            boolean matchFound = status(request, response, context, wrapper,
-                                        statusCode);
+        CoyoteResponseFacade responseFacade = getResponseFacade(response);
+        int statusCode = responseFacade.getStatus();
+        Object exception = request.getAttribute(Globals.EXCEPTION_ATTR);
+
+        if (statusCode >= 400 && exception == null) {
+            boolean matchFound = status(request, response, responseFacade,
+                                        context, wrapper, statusCode);
             if (!matchFound) {
-                serveDefaultErrorPage(request, response, statusCode);
+                serveDefaultErrorPage(request, response, responseFacade,
+                                      statusCode);
             }
         }
 
-        try {
-            PrintWriter writer = response.getWriter();
-            writer.close();
-        } catch (IllegalStateException e) {
+        /*
+         * Commit the response only if no exception
+         */
+        if (statusCode < 400 || exception == null) {
             try {
-                ServletOutputStream stream = response.getOutputStream();
-                stream.close();
-            } catch (IllegalStateException f) {
-                ;
-            } catch (IOException f) {
+                PrintWriter writer = response.getWriter();
+                writer.flush();
+                writer.close();
+            } catch (IllegalStateException e) {
+                try {
+                    ServletOutputStream stream = response.getOutputStream();
+                    stream.flush();
+                    stream.close();
+                } catch (IllegalStateException f) {
+                    ;
+                } catch (IOException f) {
+                    ;
+                }
+            } catch (IOException e) {
                 ;
             }
-        } catch (IOException e) {
-            ;
         }
     }
 
@@ -120,9 +135,18 @@ class ApplicationDispatcherForward {
      */
     private static boolean status(HttpServletRequest request,
                                   HttpServletResponse response,
+                                  CoyoteResponseFacade responseFacade,
                                   Context context,
                                   Wrapper wrapper,
                                   int statusCode) {
+
+        /*
+         * Attempt error-page mapping only if response.sendError(), as
+         * opposed to response.setStatus(), was called.
+         */
+        if (!responseFacade.isError()) {
+            return false;
+        }
 
         boolean matchFound = false;
 
@@ -136,7 +160,7 @@ class ApplicationDispatcherForward {
                 ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR);
             if (requestPath == null
                     || !requestPath.equals(errorPage.getLocation())) {
-                String message = RequestUtil.filter(getMessage(response));
+                String message = RequestUtil.filter(responseFacade.getMessage());
                 if (message == null) {
                     message = "";
                 }
@@ -145,7 +169,7 @@ class ApplicationDispatcherForward {
                                           errorPage.getLocation(),
                                           statusCode,
                                           message);
-                custom(request, response, errorPage, context);
+                custom(request, response, responseFacade, errorPage, context);
             }
         } else {
             errorPage = ((StandardHost) context.getParent()).findErrorPage(
@@ -170,6 +194,7 @@ class ApplicationDispatcherForward {
      */
     private static void custom(HttpServletRequest request,
                                HttpServletResponse response,
+                               CoyoteResponseFacade responseFacade,
                                ErrorPage errorPage,
                                Context context) {
         try {
@@ -182,7 +207,7 @@ class ApplicationDispatcherForward {
                  * page will cause an IllegalStateException.
                  * Uncommit the response.
                  */
-                resetResponse(response);
+                resetResponse(responseFacade);
             }
             ServletContext servletContext = context.getServletContext();
             RequestDispatcher rd =
@@ -287,15 +312,17 @@ class ApplicationDispatcherForward {
      */
     private static void serveDefaultErrorPage(HttpServletRequest request,
                                               HttpServletResponse response,
+                                              CoyoteResponseFacade responseFacade,
                                               int statusCode)
             throws IOException, ServletException {
 
         // Do nothing on a 1xx, 2xx and 3xx status
-        if (response.isCommitted() || statusCode < 400) {
+        if (response.isCommitted() || statusCode < 400
+                || responseFacade.getContentCount() > 0) {
             return;
         }
 
-        String message = RequestUtil.filter(getMessage(response));
+        String message = RequestUtil.filter(responseFacade.getMessage());
         if (message == null) {
             message = "";
         }
@@ -326,35 +353,20 @@ class ApplicationDispatcherForward {
         }
     }
 
-
-    private static int getStatus(ServletResponse response) {
+    
+    private static CoyoteResponseFacade getResponseFacade(
+            ServletResponse response) {
    
         while (response instanceof ServletResponseWrapper) {
             response = ((ServletResponseWrapper) response).getResponse();
         }
 
-        return ((CoyoteResponseFacade) response).getStatus();
+        return ((CoyoteResponseFacade) response);
     }
 
-
-    private static String getMessage(ServletResponse response) {
-   
-        while (response instanceof ServletResponseWrapper) {
-            response = ((ServletResponseWrapper) response).getResponse();
-        }
-
-        return ((CoyoteResponseFacade) response).getMessage();
+    
+    private static void resetResponse(CoyoteResponseFacade responseFacade) {
+        responseFacade.setSuspended(false);
+        responseFacade.setAppCommitted(false);
     }
-
-
-    private static void resetResponse(ServletResponse response) {
-   
-        while (response instanceof ServletResponseWrapper) {
-            response = ((ServletResponseWrapper) response).getResponse();
-        }
-
-        ((CoyoteResponseFacade) response).setSuspended(false);
-        ((CoyoteResponseFacade) response).setAppCommitted(false);
-    }
-
 }

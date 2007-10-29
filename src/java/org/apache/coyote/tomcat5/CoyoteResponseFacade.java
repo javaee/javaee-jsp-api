@@ -56,7 +56,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.6 $ $Date: 2006/09/29 22:10:17 $
+ * @version $Revision: 1.7 $ $Date: 2006/11/21 17:39:41 $
  */
 
 
@@ -536,6 +536,14 @@ public class CoyoteResponseFacade
 
     public void setAppCommitted(boolean appCommitted) {
         response.setAppCommitted(appCommitted);
+    }
+
+    public int getContentCount() {
+        return response.getContentCount();
+    }
+
+    public boolean isError() {
+        return response.isError();
     }
     // END SJSAS 6374990
 
