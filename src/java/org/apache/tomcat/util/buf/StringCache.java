@@ -69,7 +69,7 @@ public class StringCache {
     /**
      * Statistics hash map for byte chunk.
      */
-    protected static HashMap bcStats = new HashMap(cacheSize);
+    protected static final HashMap bcStats = new HashMap(cacheSize);
 
     
     /**
@@ -87,7 +87,7 @@ public class StringCache {
     /**
      * Statistics hash map for char chunk.
      */
-    protected static HashMap ccStats = new HashMap(cacheSize);
+    protected static final HashMap ccStats = new HashMap(cacheSize);
 
 
     /**
