@@ -127,7 +127,6 @@ public final class Cookies { // extends MultiMap {
 
     public int getCookieCount() {
         if( unprocessed ) {
-            unprocessed=false;
             processCookies(headers);
         }
         return cookieCount;
@@ -161,6 +160,7 @@ public final class Cookies { // extends MultiMap {
     /** Add all Cookie found in the headers of a request.
      */
     public  void processCookies( MimeHeaders headers ) {
+        unprocessed=false;
         if( headers==null )
             return;// nothing to process
         // process each "cookie" header
@@ -195,8 +195,9 @@ public final class Cookies { // extends MultiMap {
     /** Process a byte[] header - allowing fast processing of the
      *  raw data
      */
-    void processCookieHeader(  byte bytes[], int off, int len )
+    public void processCookieHeader(  byte bytes[], int off, int len )
     {
+        unprocessed=false;
         if( len<=0 || bytes==null ) return;
         int end=off+len;
         int pos=off;
