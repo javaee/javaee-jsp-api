@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/10/28 19:13:40 $
+ * @version $Revision: 1.5 $ $Date: 2005/12/08 01:28:35 $
  */
 
 public class CoyoteResponse
@@ -986,6 +986,7 @@ public class CoyoteResponse
 
         cookies.add(cookie);
 
+        /* GlassFish 898
         final StringBuffer sb = new StringBuffer();
         if (SecurityUtil.isPackageProtectionEnabled()) {
             AccessController.doPrivileged(new PrivilegedAction() {
@@ -1004,12 +1005,20 @@ public class CoyoteResponse
                      cookie.getPath(), cookie.getDomain(), cookie.getComment(), 
                      cookie.getMaxAge(), cookie.getSecure());
         }
+        */
+        // START GlassFish 898
+        String cookieValue = getCookieString(cookie);
+        // END GlassFish 898
 
         // the header name is Set-Cookie for both "old" and v.1 ( RFC2109 )
         // RFC2965 is not supported by browsers and the Servlet spec
         // asks for 2109.
+        /* GlassFish 898
         addHeader("Set-Cookie", sb.toString());
-
+        */
+        // START GlassFish 898
+        addHeader("Set-Cookie", cookieValue);
+        // END GlassFish 898
     }
 
 
@@ -1617,5 +1626,55 @@ public class CoyoteResponse
     }
 
 
+    // START GlassFish 898
+    /**
+     * Gets the string representation of the given cookie.
+     *
+     * @param cookie The cookie whose string representation to get
+     *
+     * @return The cookie's string representation
+     */
+    protected String getCookieString(Cookie cookie) {
+        return getCookieString(cookie, false);
+    }
+
+    /**
+     * Gets the string representation of the given cookie.
+     *
+     * @param cookie The cookie whose string representation to get
+     * @param encode true for URL encoding to take place, false otherwise
+     *
+     * @return The cookie's string representation
+     */
+    protected String getCookieString(final Cookie cookie,
+                                     final boolean encode) {
+
+        String cookieValue = null;
+        final StringBuffer sb = new StringBuffer();
+
+        if (SecurityUtil.isPackageProtectionEnabled()) {
+            cookieValue = (String) AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run(){
+                        ServerCookie.appendCookieValue
+                            (sb, cookie.getVersion(), cookie.getName(), 
+                             cookie.getValue(), cookie.getPath(), 
+                             cookie.getDomain(), cookie.getComment(), 
+                             cookie.getMaxAge(), cookie.getSecure(),
+                             encode);
+                        return sb.toString();
+                    }
+                });
+        } else {
+            ServerCookie.appendCookieValue
+                (sb, cookie.getVersion(), cookie.getName(), cookie.getValue(),
+                 cookie.getPath(), cookie.getDomain(), cookie.getComment(), 
+                 cookie.getMaxAge(), cookie.getSecure(), encode);
+            cookieValue = sb.toString();
+        }
+
+        return cookieValue;
+    }
+    // END GlassFish 898
 }
 
