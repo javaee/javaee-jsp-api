@@ -105,7 +105,7 @@ import com.sun.appserv.server.util.PreprocessorUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:28 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -166,6 +166,8 @@ public class WebappClassLoader
         "org.w3c.dom",                               // DOM 1 & 2
         "org.apache.xerces",                         // Xerces 1 & 2
         "org.apache.xalan",                          // Xalan
+        "org.apache.taglibs.standard",               // JSTL (Java EE 5)
+        "com.sun.faces",                             // JSF (Java EE 5)
         // START S1AS 6220818
         "org.apache.commons.logging"                 // Commons logging
         // END S1AS 6220818
