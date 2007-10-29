@@ -60,6 +60,9 @@ public class ServerCookie implements Serializable {
     private static final String NULL_VALUE = "null";
     // END PWC 6392327
 
+    private static final String ANCIENT_DATE =
+        DateTool.formatOldCookie(new Date(10000));
+
     private MessageBytes name=MessageBytes.newInstance();
     private MessageBytes value=MessageBytes.newInstance();
 
@@ -218,31 +221,80 @@ public class ServerCookie implements Serializable {
         }
     }
 
-    private static final String ancientDate=DateTool.formatOldCookie(new Date(10000));
 
-    public static void appendCookieValue( StringBuffer buf,
-					  int version,
-					  String name,
-					  String value,
-					  String path,
-					  String domain,
-					  String comment,
-					  int maxAge,
-					  boolean isSecure )
-    {
+    public static void appendCookieValue(StringBuffer buf,
+                                         int version,
+                                         String name,
+                                         String value,
+                                         String path,
+                                         String domain,
+                                         String comment,
+                                         int maxAge,
+                                         boolean isSecure) {
+        appendCookieValue(buf, version, name, value, path, domain, comment,
+                          maxAge, isSecure, false);
+    }
+
+
+    public static void appendCookieValue(StringBuffer buf,
+                                         int version,
+                                         String name,
+                                         String value,
+                                         String path,
+                                         String domain,
+                                         String comment,
+                                         int maxAge,
+                                         boolean isSecure,
+                                         boolean encode) {
+
         // this part is the same for all cookies
-	buf.append( name );
-        buf.append("=");
-        /* PWC 6392327
-        maybeQuote(version, buf, value);
-        */
-        // START PWC 6392327
-        if (value != null) {
-            maybeQuote(version, buf, value);
+        if (encode) {
+            try {
+                buf.append(URLEncoder.encode(name, "UTF-8"));
+                buf.append("=");
+                /* PWC 6392327
+                maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
+                */
+                // START PWC 6392327
+                if (value != null) {
+                    maybeQuote(version, buf,
+                               URLEncoder.encode(value, "UTF-8"));
+                } else {
+                    maybeQuote(version, buf,
+                               URLEncoder.encode(ServerCookie.NULL_VALUE,
+                                                 "UTF-8"));
+                }
+                // END PWC 6392327
+            } catch (UnsupportedEncodingException e) {
+                buf.append(URLEncoder.encode(name));
+                buf.append("=");
+                /* PWC 6392327
+                maybeQuote(version, buf, URLEncoder.encode(value));
+                */
+                // START PWC 6392327
+                if (value != null) {
+                    maybeQuote(version, buf,
+                               URLEncoder.encode(value));
+                } else {
+                    maybeQuote(version, buf,
+                               URLEncoder.encode(ServerCookie.NULL_VALUE));
+                }
+                // END PWC 6392327
+            }
         } else {
-            maybeQuote(version, buf, ServerCookie.NULL_VALUE);
+            buf.append( name );
+            buf.append("=");
+            /* PWC 6392327
+            maybeQuote(version, buf, value);
+            */
+            // START PWC 6392327
+            if (value != null) {
+                maybeQuote(version, buf, value);
+            } else {
+                maybeQuote(version, buf, ServerCookie.NULL_VALUE);
+            }
+            // END PWC 6392327
         }
-        // END PWC 6392327
 
 	// XXX Netscape cookie: "; "
  	// add version 1 specific information
@@ -251,11 +303,21 @@ public class ServerCookie implements Serializable {
 	    buf.append ("; Version=1");
 
 	    // Comment=comment
-	    if ( comment!=null ) {
-		buf.append ("; Comment=");
-		maybeQuote (version, buf, comment);
-	    }
-	}
+	    if (comment!=null) {
+                buf.append ("; Comment=");
+                if (encode) {
+                    try {
+                        maybeQuote(version, buf,
+                                   URLEncoder.encode(comment, "UTF-8"));
+                    } catch(UnsupportedEncodingException e) {
+                        maybeQuote(version, buf,
+                                   URLEncoder.encode(comment));
+                    }
+	        } else {
+                    maybeQuote (version, buf, comment);
+                }
+            }
+        }
 	
 	// add domain information, if present
 
@@ -274,7 +336,7 @@ public class ServerCookie implements Serializable {
 		// To expire we need to set the time back in future
 		// ( pfrieden@dChain.com )
                 if (maxAge == 0)
-		    buf.append( ancientDate );
+		    buf.append( ANCIENT_DATE );
 		else
                     DateTool.formatOldCookie
                         (new Date( System.currentTimeMillis() +
@@ -300,6 +362,7 @@ public class ServerCookie implements Serializable {
 	
 	
     }
+
 
     // START OF IASRI 4830338
     public static void appendEncodedCookieValue( StringBuffer buf,
@@ -310,100 +373,12 @@ public class ServerCookie implements Serializable {
 					  String domain,
 					  String comment,
 					  int maxAge,
-					  boolean isSecure )
-    {
-        // this part is the same for all cookies
-        try {
-            buf.append(URLEncoder.encode(name, "UTF-8"));
-            buf.append("=");
-            /* PWC 6392327
-            maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
-            */
-            // START PWC 6392327
-            if (value != null) {
-                maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
-            } else {
-                maybeQuote(version, buf, URLEncoder.encode(ServerCookie.NULL_VALUE, "UTF-8"));
-            }
-            // END PWC 6392327
-        }
-        catch (UnsupportedEncodingException e) {
-            buf.append(URLEncoder.encode(name));
-            buf.append("=");
-            /* PWC 6392327
-            maybeQuote(version, buf, URLEncoder.encode(value));
-            */
-            // START PWC 6392327
-            if (value != null) {
-                maybeQuote(version, buf, URLEncoder.encode(value));
-            } else {
-                maybeQuote(version, buf, URLEncoder.encode(ServerCookie.NULL_VALUE));
-            }
-            // END PWC 6392327
-        }
-
-	// XXX Netscape cookie: "; "
- 	// add version 1 specific information
-	if (version == 1) {
-	    // Version=1 ... required
-	    buf.append ("; Version=1");
-
-	    // Comment=comment
-	    if ( comment!=null ) {
-            buf.append ("; Comment=");
-            try {
-                maybeQuote(version, buf, URLEncoder.encode(comment, "UTF-8"));
-            }
-            catch(UnsupportedEncodingException e) {
-                maybeQuote(version, buf, URLEncoder.encode(comment));
-            }
-	    }
-	}
-	
-	// add domain information, if present
-
-	if (domain!=null) {
-	    buf.append("; Domain=");
-	    maybeQuote (version, buf, domain);
-	}
-
-	// Max-Age=secs/Discard ... or use old "Expires" format
-	if (maxAge >= 0) {
-	    if (version == 0) {
-		// XXX XXX XXX We need to send both, for
-		// interoperatibility (long word )
-		buf.append ("; Expires=");
-		// Wdy, DD-Mon-YY HH:MM:SS GMT ( Expires netscape format )
-		// To expire we need to set the time back in future
-		// ( pfrieden@dChain.com )
-                if (maxAge == 0)
-		    buf.append( ancientDate );
-		else
-                    DateTool.formatOldCookie
-                        (new Date( System.currentTimeMillis() +
-                                   maxAge *1000L), buf,
-                         new FieldPosition(0));
-
-	    } else {
-		buf.append ("; Max-Age=");
-		buf.append (maxAge);
-	    }
-	}
-
-	// Path=path
-	if (path!=null) {
-	    buf.append ("; Path=");
-	    maybeQuote (version, buf, path);
-	}
-
-	// Secure
-	if (isSecure) {
-	  buf.append ("; Secure");
-	}
-	
-	
+					  boolean isSecure) {
+        appendCookieValue(buf, version, name, value, path, domain, comment,
+                          maxAge, isSecure, true);
     }
     // END OF IASRI 4830338
+
 
     public static void maybeQuote (int version, StringBuffer buf,
                                    String value)
