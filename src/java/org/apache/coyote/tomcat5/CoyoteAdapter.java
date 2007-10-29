@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.27 $ $Date: 2007/02/26 20:15:10 $
+ * @version $Revision: 1.28 $ $Date: 2007/03/28 19:34:19 $
  */
 
 public class CoyoteAdapter
@@ -500,10 +500,6 @@ public class CoyoteAdapter
         // START SJSAS 6346226
         request.parseJrouteCookie();
         // END SJSAS 6346226
-
-        request.parseSessionVersionCookie();
-
-        request.determineSessionVersionPerContext();
 
         return true;
     }

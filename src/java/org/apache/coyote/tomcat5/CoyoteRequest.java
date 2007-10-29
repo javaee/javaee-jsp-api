@@ -122,7 +122,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.58 $ $Date: 2007/04/10 17:30:31 $
+ * @version $Revision: 1.59 $ $Date: 2007/04/17 21:33:22 $
  */
 
 public class CoyoteRequest
@@ -501,8 +501,6 @@ public class CoyoteRequest
 
     private String requestURI = null;
 
-    private String requestedSessionVersionString = null;
-
 
     // --------------------------------------------------------- Public Methods
 
@@ -551,7 +549,6 @@ public class CoyoteRequest
         requestedSessionCookie = false;
         requestedSessionId = null;
         requestedSessionVersion = null;
-        requestedSessionVersionString = null;
         requestedSessionURL = false;
 
         // START GlassFish 896
@@ -3223,21 +3220,24 @@ public class CoyoteRequest
 
             int start = uriCC.getStart();
             int end = uriCC.getEnd();
+            String sessionVersionString = null;
 
             int sessionVersionStart = start + semicolon
                 + Globals.SESSION_VERSION_PARAMETER.length();
             int semicolon2 = uriCC.indexOf(';', sessionVersionStart);
             if (semicolon2 >= 0) {
-                requestedSessionVersionString = new String(
+                sessionVersionString = new String(
                     uriCC.getBuffer(),
                     sessionVersionStart, 
                     semicolon2 - semicolon - Globals.SESSION_VERSION_PARAMETER.length());
             } else {
-                requestedSessionVersionString = new String(
+                sessionVersionString = new String(
                     uriCC.getBuffer(),
                     sessionVersionStart, 
                     end - sessionVersionStart);
             }
+
+            parseSessionVersionString(sessionVersionString);
 
             if (!coyoteRequest.requestURI().getByteChunk().isNull()) {
                 removeSessionVersionFromRequestURI();
@@ -3310,21 +3310,27 @@ public class CoyoteRequest
 
 
     /*
-     * Determines the requested session version for each context
-     * (including the context associated with this request) as specified
-     * in the session version string parsed from the request URI or cookie.
+     * Parses the given session version string into its components. Each
+     * component is stored as an entry in a HashMap, which maps a context
+     * path to its session version number. The HashMap is stored as a 
+     * request attribute, to make it available to any target contexts to which
+     * this request may be dispatched.
+     *
+     * This method also sets the session version number for the context with
+     * which this request has been associated.
      */
-    void determineSessionVersionPerContext() {
-        if (isSessionVersionSupported()
-                && requestedSessionVersionString != null) {
-            HashMap<String, String> sessionVersions =
-                RequestUtil.parseSessionVersions(requestedSessionVersionString);
-            if (sessionVersions != null) {
-                attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
-                               sessionVersions);
-                this.requestedSessionVersion =
-                    sessionVersions.get(context.getPath());
-            }
+    private void parseSessionVersionString(String sessionVersionString) {
+        if (sessionVersionString == null || !isSessionVersionSupported()) {
+            return;
+        }
+
+        HashMap<String, String> sessionVersions =
+            RequestUtil.parseSessionVersions(sessionVersionString);
+        if (sessionVersions != null) {
+            attributes.put(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                           sessionVersions);
+            this.requestedSessionVersion =
+                sessionVersions.get(context.getPath());
         }
     }
 
@@ -3381,8 +3387,9 @@ public class CoyoteRequest
         // Parse session id from cookies
         Cookies serverCookies = coyoteRequest.getCookies();
         int count = serverCookies.getCookieCount();
-        if (count <= 0)
+        if (count <= 0) {
             return;
+        }
 
         for (int i = 0; i < count; i++) {
             ServerCookie scookie = serverCookies.getCookie(i);
@@ -3393,18 +3400,28 @@ public class CoyoteRequest
                     B2CConverter.convertASCII(scookie.getValue());
                     setRequestedSessionId
                         (scookie.getValue().toString());
+                    // TODO: Pass cookie path into
+                    // getSessionVersionFromCookie()
+                    String sessionVersionString = getSessionVersionFromCookie();
+                    parseSessionVersionString(sessionVersionString);
                     setRequestedSessionCookie(true);
                     setRequestedSessionURL(false);
-                    if (log.isDebugEnabled())
-                        log.debug(" Requested cookie session id is " +
-                            ((HttpServletRequest) getRequest())
-                            .getRequestedSessionId());
+                    if (log.isDebugEnabled()) {
+                        log.debug("Requested cookie session id is " +
+                                  ((HttpServletRequest) getRequest())
+                                  .getRequestedSessionId());
+                    }
                 } else {
                     if (!isRequestedSessionIdValid()) {
                         // Replace the session id until one is valid
                         B2CConverter.convertASCII(scookie.getValue());
                         setRequestedSessionId
                             (scookie.getValue().toString());
+                        // TODO: Pass cookie path into
+                        // getSessionVersionFromCookie()
+                        String sessionVersionString =
+                            getSessionVersionFromCookie();
+                        parseSessionVersionString(sessionVersionString);
                     }
                 }
             }
@@ -3414,29 +3431,33 @@ public class CoyoteRequest
 
 
     /*
-     * Searches for the JSESSIONIDVERSION cookie (if any) with the least
-     * specific path (this is important for cross-context request dispatches),
-     * and reads the session version string from it
+     * Returns the value of the first JSESSIONIDVERSION cookie, or null
+     * if no such cookie present in the request.
+     *
+     * TODO: Add cookie path argument, and return value of JSESSIONIDVERSION
+     * cookie with the specified path.
      */
-    void parseSessionVersionCookie() {
+    private String getSessionVersionFromCookie() {
 
         if (!isSessionVersionSupported()) {
-            return;
+            return null;
         }
 
         Cookies serverCookies = coyoteRequest.getCookies();
         int count = serverCookies.getCookieCount();
         if (count <= 0) {
-            return;
+            return null;
         }
 
         for (int i = 0; i < count; i++) {
             ServerCookie scookie = serverCookies.getCookie(i);
             if (scookie.getName().equals(
-                                    Globals.SESSION_VERSION_COOKIE_NAME)) {
-                requestedSessionVersionString = scookie.getValue().toString();
+                                Globals.SESSION_VERSION_COOKIE_NAME)) {
+                return scookie.getValue().toString();
             }
         }
+
+        return null;
     }
 
 
