@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.10 $ $Date: 2006/04/18 21:04:58 $
+ * @version $Revision: 1.11 $ $Date: 2006/04/18 21:11:30 $
  */
 
 public class ErrorReportValve
@@ -194,10 +194,6 @@ public class ErrorReportValve
             ((HttpServletResponse) sresponse).sendError
                 (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             // END GlassFish 6386229
-        // START SJSAS 6412710
-        } else {
-            sresp.setLocale(sm.getLocale());
-        // END SJSAS 6412710
         }
 
         response.setSuspended(false);
@@ -283,7 +279,13 @@ public class ErrorReportValve
         // Do nothing if there is no report for the specified status code
         String report = null;
         try {
+            /* SJSAS
             report = sm.getString("http." + statusCode, message);
+            */
+            // START SJSAS 6412710
+            report = sm.getString("http." + statusCode, message,
+                                  hres.getLocale());
+            // END SJSAS 6412710
         } catch (Throwable t) {
             ;
         }
@@ -292,7 +294,19 @@ public class ErrorReportValve
 
         String errorPage = makeErrorPage(statusCode, message,
                                          throwable, rootCause,
-                                         report);
+                                         report, hres);
+
+        // START SJSAS 6412710
+        if (throwable == null) {
+            // If throwable is not null, we've preserved the response char
+            // encoding in postInvoke(), so that the throwable's exception
+            // message can be delivered to the client without any loss of
+            // information. 
+            // If throwable is null, set the response charset to match that
+            // of the resource bundle locale
+            hres.setLocale(sm.getResourceBundleLocale(hres.getLocale()));
+        }
+        // END SJSAS 6412710
 
         /* PWC 6254469
         // set the charset part of content type before getting the writer
@@ -362,35 +376,77 @@ public class ErrorReportValve
                                        String message,
                                        Throwable throwable,
                                        Throwable rootCause,
-                                       String report) {
+                                       String report,
+                                       HttpServletResponse response) {
+
+        // START SJSAS 6412710
+        Locale responseLocale = response.getLocale();
+        // END SJSAS 6412710
 
         StringBuffer sb = new StringBuffer();
 
         sb.append("<html><head><title>");
         sb.append(ServerInfo.getServerInfo()).append(" - ");
+        /* 6412710
         sb.append(sm.getString("errorReportValve.errorReport"));
+        */
+        // START SJSAS 6412710
+        sb.append(sm.getString("errorReportValve.errorReport",
+                               responseLocale));
+        // END SJSAS 6412710
         sb.append("</title>");
         sb.append("<style><!--");
         sb.append(org.apache.catalina.util.TomcatCSS.TOMCAT_CSS);
         sb.append("--></style> ");
         sb.append("</head><body>");
         sb.append("<h1>");
+        /* SJSAS 6412710
         sb.append(sm.getString("errorReportValve.statusHeader",
                                "" + statusCode, message)).append("</h1>");
+        */
+        // START SJSAS 6412710
+        sb.append(sm.getString("errorReportValve.statusHeader",
+                               "" + statusCode, message,
+                               responseLocale)).append("</h1>");
+        // END SJSAS 6412710
         sb.append("<HR size=\"1\" noshade>");
         sb.append("<p><b>type</b> ");
         if (throwable != null) {
+            /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.exceptionReport"));
+            */
+            // START SJJAS 6412710
+            sb.append(sm.getString("errorReportValve.exceptionReport",
+                                   responseLocale));
+            // END SJSAS 6412710
         } else {
+            /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.statusReport"));
+            */
+            // START SJSAS 6412710
+            sb.append(sm.getString("errorReportValve.statusReport",
+                                   responseLocale));
+            // END SJSAS 6412710
         }
         sb.append("</p>");
         sb.append("<p><b>");
+        /* SJSAS 6412710
         sb.append(sm.getString("errorReportValve.message"));
+        */
+        // START SJSAS 6412710
+        sb.append(sm.getString("errorReportValve.message",
+                               responseLocale));
+        // END SJSAS 6412710
         sb.append("</b> <u>");
         sb.append(message).append("</u></p>");
         sb.append("<p><b>");
+        /* SJSAS 6412710
         sb.append(sm.getString("errorReportValve.description"));
+        */
+        // START SJSAS 6412710
+        sb.append(sm.getString("errorReportValve.description",
+                               responseLocale));
+        // END SJSAS 6412710
         sb.append("</b> <u>");
         sb.append(report);
         sb.append("</u></p>");
@@ -400,7 +456,13 @@ public class ErrorReportValve
             String stackTrace = JdkCompat.getJdkCompat()
                 .getPartialServletStackTrace(throwable);
             sb.append("<p><b>");
+            /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.exception"));
+            */
+            // START SJSAS 6412710
+            sb.append(sm.getString("errorReportValve.exception",
+                                   responseLocale));
+            // END SJSAS 6412710
             sb.append("</b> <pre>");
             /* SJSAS 6387790
             sb.append(stackTrace);
@@ -414,7 +476,13 @@ public class ErrorReportValve
                 stackTrace = JdkCompat.getJdkCompat()
                     .getPartialServletStackTrace(rootCause);
                 sb.append("<p><b>");
+                /* SJSAS 6412710
                 sb.append(sm.getString("errorReportValve.rootCause"));
+                */
+                // START SJSAS 6412710
+                sb.append(sm.getString("errorReportValve.rootCause",
+                                       responseLocale));
+                // END SJSAS 6412710
                 sb.append("</b> <pre>");
                 /* SJSAS 6387790
                 sb.append(stackTrace);
@@ -439,10 +507,23 @@ public class ErrorReportValve
             }
 
             sb.append("<p><b>");
+            /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.note"));
+            */
+            // START SJSAS 6412710
+            sb.append(sm.getString("errorReportValve.note",
+                                   responseLocale));
+            // END SJAS 6412710
             sb.append("</b> <u>");
+            /* SJSAS 6412710
             sb.append(sm.getString("errorReportValve.rootCauseInLogs",
                                    ServerInfo.getServerInfo()));
+            */
+            // START SJSAS 6412710
+            sb.append(sm.getString("errorReportValve.rootCauseInLogs",
+                                   ServerInfo.getServerInfo(),
+                                   responseLocale));
+            // END SJSAS 6412710
             sb.append("</u></p>");
 
         }

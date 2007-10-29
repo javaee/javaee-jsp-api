@@ -312,7 +312,11 @@ class ApplicationDispatcherForward {
 
         String responseContents =
             ErrorReportValve.makeErrorPage(statusCode, message, null, null,
-                                           report);
+                                           report, response);
+        // START SJSAS 6412710
+        response.setLocale(sm.getResourceBundleLocale(response.getLocale()));
+        // END SJSAS 6412710
+
         try {
             response.setContentType("text/html");
             response.getWriter().write(responseContents);

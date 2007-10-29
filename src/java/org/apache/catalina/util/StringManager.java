@@ -30,6 +30,7 @@ package org.apache.catalina.util;
 
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -69,6 +70,13 @@ public class StringManager {
 
     private ResourceBundle bundle;
 
+    // START SJSAS 6412710
+    private HashMap<Locale, ResourceBundle> bundles =
+        new HashMap<Locale, ResourceBundle>(5);
+    private String bundleName = null;
+    // END SJSAS 6412710
+
+
     /**
      * Creates a new StringManager for a given package. This is a
      * private method and all access to it is arbitrated by the
@@ -79,10 +87,21 @@ public class StringManager {
      */
 
     private StringManager(String packageName) {
+        /* 6412710
         String bundleName = packageName + ".LocalStrings";
+        */
+        // START SJSAS 6412710
+        this.bundleName = packageName + ".LocalStrings";
+        // END SJSAS 6412710
+        /* SJSAS 6412710
         try {
+        */
             bundle = ResourceBundle.getBundle(bundleName);
+            // START SJSAS 6412710
+            bundles.put(Locale.getDefault(), bundle);
+            // END SJSAS 6412710
             return;
+        /* SJSAS 6412710
         } catch( MissingResourceException ex ) {
             // Try from the current loader ( that's the case for trusted apps )
             ClassLoader cl=Thread.currentThread().getContextClassLoader();
@@ -104,22 +123,8 @@ public class StringManager {
                     log.debug( ((URLClassLoader)cl).getURLs());
             }
         }
+        */
     }
-
-
-    // START SJSAS 6412710
-    /**
-     * Returns the locale of the resource bundle from which this 
-     * StringManager is retrieving localized messages
-     */
-    public Locale getLocale() {
-        if (bundle != null) {
-            return bundle.getLocale();
-        } else {
-            return Locale.getDefault();
-        }
-    }
-    // END SJSAS 6412710
 
 
     /**
@@ -128,11 +133,29 @@ public class StringManager {
      * @param key
      */
     public String getString(String key) {
+        /* SJSAS 6412710
         return MessageFormat.format(getStringInternal(key),(Object[]) null);
+        */
+        // START SJSAS 6412710
+        return getString(key, Locale.getDefault());
+        // END SJSAS 6412710
     }
+
+    // START SJSAS 6412710
+    public String getString(String key, Locale locale) {
+        return MessageFormat.format(getStringInternal(key, locale),
+                                    (Object[]) null);
+    }
+    // END SJSAS 6412710
 
 
     protected String getStringInternal(String key) {
+        // START SJSAS 6412710
+        return getStringInternal(key, Locale.getDefault());
+    }
+
+    protected String getStringInternal(String key, Locale locale) {
+        // END SJSAS 6412710
         if (key == null) {
             String msg = "key is null";
 
@@ -143,6 +166,20 @@ public class StringManager {
 
         if( bundle==null )
             return key;
+
+        // START SJSAS 6412710
+        ResourceBundle bundle = bundles.get(locale);
+        if (bundle == null) {
+            synchronized (bundles) {
+                bundle = bundles.get(locale);
+                if (bundle == null) {
+                    bundle = ResourceBundle.getBundle(this.bundleName, locale);
+                    bundles.put(locale, bundle);
+                }
+            }
+        }
+        // END SJSAS 6412710
+
         try {
             str = bundle.getString(key);
         } catch (MissingResourceException mre) {
@@ -161,8 +198,19 @@ public class StringManager {
      */
 
     public String getString(String key, Object[] args) {
+        // START SJSAS 6412710
+        return getString(key, args, Locale.getDefault());
+    }
+
+    public String getString(String key, Object[] args, Locale locale) {
+        // END SJSAS 6412710
         String iString = null;
+        /*
         String value = getStringInternal(key);
+        */
+        // START SJSAS 6412710
+        String value = getStringInternal(key, locale);
+        // END SJSAS 6412710
 
         // this check for the runtime exception is some pre 1.1.6
         // VM's don't do an automatic toString() on the passed in
@@ -200,9 +248,21 @@ public class StringManager {
      */
 
     public String getString(String key, Object arg) {
+        /* SJSAS 6412710
         Object[] args = new Object[] {arg};
         return getString(key, args);
+        */
+        // START SJSAS 6412710
+        return getString(key, arg, Locale.getDefault());
+        // END SJSAS 6412710
     }
+
+    // START SJSAS 6412710
+    public String getString(String key, Object arg, Locale locale) {
+        Object[] args = new Object[] {arg};
+        return getString(key, args, locale);
+    }
+    // END SJSAS 6412710
 
     /**
      * Get a string from the underlying resource bundle and format it
@@ -215,9 +275,22 @@ public class StringManager {
      */
 
     public String getString(String key, Object arg1, Object arg2) {
+        /* SJSAS 6412710
         Object[] args = new Object[] {arg1, arg2};
         return getString(key, args);
+        */
+        // START SJSAS 6412710
+        return getString(key, arg1, arg2, Locale.getDefault());
+        // END SJSAS 6412710
     }
+
+    // START SJSAS 6412710
+    public String getString(String key, Object arg1, Object arg2,
+                            Locale locale) {
+        Object[] args = new Object[] {arg1, arg2};
+        return getString(key, args, locale);
+    }
+    // END SJSAS 6412710
 
     /**
      * Get a string from the underlying resource bundle and format it
@@ -232,9 +305,22 @@ public class StringManager {
 
     public String getString(String key, Object arg1, Object arg2,
                             Object arg3) {
+        /* SJSAS 6412710
         Object[] args = new Object[] {arg1, arg2, arg3};
         return getString(key, args);
+        */
+        // START SJSAS 6412710
+        return getString(key, arg1, arg2, arg3, Locale.getDefault());
+        // END SJSAS 6412710
     }
+
+    // START SJSAS 6412710
+    public String getString(String key, Object arg1, Object arg2,
+                            Object arg3, Locale locale) {
+        Object[] args = new Object[] {arg1, arg2, arg3};
+        return getString(key, args, locale);
+    }
+    // END SJSAS 6412710
 
     /**
      * Get a string from the underlying resource bundle and format it
@@ -250,9 +336,43 @@ public class StringManager {
 
     public String getString(String key, Object arg1, Object arg2,
                             Object arg3, Object arg4) {
+        /* SJSAS 6412710
         Object[] args = new Object[] {arg1, arg2, arg3, arg4};
         return getString(key, args);
+        */
+        // START SJSAS 6412710
+        return getString(key, arg1, arg2, arg3, arg4, Locale.getDefault());
+        // END SJSAS 6412710
     }
+
+    // START SJSAS 6412710
+    public String getString(String key, Object arg1, Object arg2,
+                            Object arg3, Object arg4, Locale locale) {
+        Object[] args = new Object[] {arg1, arg2, arg3, arg4};
+        return getString(key, args, locale);
+    }
+    // END SJSAS 6412710
+
+    // START SJSAS 6412710
+    /**
+     * Returns the locale of the resource bundle for the given request locale.
+     */
+    public Locale getResourceBundleLocale(Locale requestLocale) {
+        ResourceBundle bundle = bundles.get(requestLocale);
+        if (bundle == null) {
+            synchronized (bundles) {
+                bundle = bundles.get(requestLocale);
+                if (bundle == null) {
+                    bundle = ResourceBundle.getBundle(this.bundleName,
+                                                      requestLocale);
+                    bundles.put(requestLocale, bundle);
+                }
+            }
+        }
+        return bundle.getLocale();
+    }
+    // END SJSAS 6412710
+
     // --------------------------------------------------------------
     // STATIC SUPPORT METHODS
     // --------------------------------------------------------------
