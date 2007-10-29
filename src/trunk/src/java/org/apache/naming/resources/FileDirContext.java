@@ -58,7 +58,7 @@ import org.apache.naming.NamingContextEnumeration;
  * Filesystem Directory Context implementation helper class.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2004/12/07 21:38:34 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/14 22:50:47 $
  */
 
 public class FileDirContext extends BaseDirContext {
@@ -242,6 +242,8 @@ public class FileDirContext extends BaseDirContext {
         if (file.isDirectory()) {
             FileDirContext tempContext = new FileDirContext(env);
             tempContext.setDocBase(file.getPath());
+            tempContext.setAllowLinking(getAllowLinking());
+            tempContext.setCaseSensitive(isCaseSensitive());
             result = tempContext;
         } else {
             result = new FileResource(file);
@@ -973,6 +975,8 @@ public class FileDirContext extends BaseDirContext {
             if (currentFile.isDirectory()) {
                 FileDirContext tempContext = new FileDirContext(env);
                 tempContext.setDocBase(file.getPath());
+                tempContext.setAllowLinking(getAllowLinking());
+                tempContext.setCaseSensitive(isCaseSensitive());
                 object = tempContext;
             } else {
                 object = new FileResource(currentFile);
