@@ -128,7 +128,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.25 $ $Date: 2006/10/03 17:51:05 $
+ * @version $Revision: 1.26 $ $Date: 2006/10/12 23:51:11 $
  */
 
 public class StandardContext
@@ -2127,7 +2127,10 @@ public class StandardContext
             results[applicationListeners.length] = listener;
             applicationListeners = results;
         }
-        fireContainerEvent("addApplicationListener", listener);
+
+        if (notifyContainerListeners) {
+            fireContainerEvent("addApplicationListener", listener);
+        }
 
         // FIXME - add instance if already started?
 
@@ -2155,8 +2158,10 @@ public class StandardContext
             results[applicationParameters.length] = parameter;
             applicationParameters = results;
         }
-        fireContainerEvent("addApplicationParameter", parameter);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addApplicationParameter", parameter);
+        }
     }
 
 
@@ -2279,8 +2284,10 @@ public class StandardContext
     public void addEjb(ContextEjb ejb) {
 
         namingResources.addEjb(ejb);
-        fireContainerEvent("addEjb", ejb.getName());
 
+        if (notifyContainerListeners) {
+           fireContainerEvent("addEjb", ejb.getName());
+        }
     }
 
 
@@ -2295,8 +2302,10 @@ public class StandardContext
         if ((env != null) && !env.getOverride())
             return;
         namingResources.addEnvironment(environment);
-        fireContainerEvent("addEnvironment", environment.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addEnvironment", environment.getName());
+        }
     }
 
 
@@ -2308,8 +2317,11 @@ public class StandardContext
     public void addResourceParams(ResourceParams resourceParameters) {
 
         namingResources.addResourceParams(resourceParameters);
-        fireContainerEvent("addResourceParams", resourceParameters.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addResourceParams",
+                               resourceParameters.getName());
+        }
     }
 
 
@@ -2353,8 +2365,10 @@ public class StandardContext
                                 errorPage);
             }
         }
-        fireContainerEvent("addErrorPage", errorPage);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addErrorPage", errorPage);
+        }
     }
 
 
@@ -2368,8 +2382,10 @@ public class StandardContext
         synchronized (filterDefs) {
             filterDefs.put(filterDef.getFilterName(), filterDef);
         }
-        fireContainerEvent("addFilterDef", filterDef);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addFilterDef", filterDef);
+        }
     }
 
 
@@ -2411,8 +2427,10 @@ public class StandardContext
             results[filterMaps.length] = filterMap;
             filterMaps = results;
         }
-        fireContainerEvent("addFilterMap", filterMap);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addFilterMap", filterMap);
+        }
     }
 
 
@@ -2431,8 +2449,10 @@ public class StandardContext
             results[instanceListeners.length] = listener;
             instanceListeners = results;
         }
-        fireContainerEvent("addInstanceListener", listener);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addInstanceListener", listener);
+        }
     }
 
     /**
@@ -2480,8 +2500,10 @@ public class StandardContext
     public void addLocalEjb(ContextLocalEjb ejb) {
 
         namingResources.addLocalEjb(ejb);
-        fireContainerEvent("addLocalEjb", ejb.getName());
-
+        
+        if (notifyContainerListeners) {
+            fireContainerEvent("addLocalEjb", ejb.getName());
+        }
     }
 
 
@@ -2495,8 +2517,10 @@ public class StandardContext
         synchronized (messageDestinations) {
             messageDestinations.put(md.getName(), md);
         }
-        fireContainerEvent("addMessageDestination", md.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addMessageDestination", md.getName());
+        }
     }
 
 
@@ -2509,8 +2533,10 @@ public class StandardContext
         (MessageDestinationRef mdr) {
 
         namingResources.addMessageDestinationRef(mdr);
-        fireContainerEvent("addMessageDestinationRef", mdr.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addMessageDestinationRef", mdr.getName());
+        }
     }
 
 
@@ -2526,8 +2552,10 @@ public class StandardContext
         synchronized (mimeMappings) {
             mimeMappings.put(extension, mimeType);
         }
-        fireContainerEvent("addMimeMapping", extension);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addMimeMapping", extension);
+        }
     }
 
 
@@ -2554,8 +2582,10 @@ public class StandardContext
         synchronized (parameters) {
             parameters.put(name, value);
         }
-        fireContainerEvent("addParameter", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addParameter", name);
+        }
     }
 
 
@@ -2567,8 +2597,10 @@ public class StandardContext
     public void addResource(ContextResource resource) {
 
         namingResources.addResource(resource);
-        fireContainerEvent("addResource", resource.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addResource", resource.getName());
+        }
     }
 
 
@@ -2581,8 +2613,10 @@ public class StandardContext
     public void addResourceEnvRef(String name, String type) {
 
         namingResources.addResourceEnvRef(name, type);
-        fireContainerEvent("addResourceEnvRef", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addResourceEnvRef", name);
+        }
     }
 
 
@@ -2594,8 +2628,10 @@ public class StandardContext
     public void addResourceLink(ContextResourceLink resourceLink) {
 
         namingResources.addResourceLink(resourceLink);
-        fireContainerEvent("addResourceLink", resourceLink.getName());
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addResourceLink", resourceLink.getName());
+        }
     }
 
 
@@ -2610,8 +2646,10 @@ public class StandardContext
         synchronized (roleMappings) {
             roleMappings.put(role, link);
         }
-        fireContainerEvent("addRoleMapping", role);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addRoleMapping", role);
+        }
     }
 
 
@@ -2629,8 +2667,10 @@ public class StandardContext
             results[securityRoles.length] = role;
             securityRoles = results;
         }
-        fireContainerEvent("addSecurityRole", role);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addSecurityRole", role);
+        }
     }
 
 
@@ -2689,8 +2729,9 @@ public class StandardContext
         // Update context mapper
         mapper.addWrapper(pattern, wrapper, jspWildCard);
 
-        fireContainerEvent("addServletMapping", pattern);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("addServletMapping", pattern);
+        }
     }
 
 
@@ -2705,8 +2746,10 @@ public class StandardContext
         synchronized (taglibs) {
             taglibs.put(uri, location);
         }
-        fireContainerEvent("addTaglib", uri);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addTaglib", uri);
+        }
     }
 
 
@@ -2731,8 +2774,10 @@ public class StandardContext
             welcomeFiles = results;
         }
         postWelcomeFiles();
-        fireContainerEvent("addWelcomeFile", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addWelcomeFile", name);
+        }
     }
 
 
@@ -2751,8 +2796,10 @@ public class StandardContext
             results[wrapperLifecycles.length] = listener;
             wrapperLifecycles = results;
         }
-        fireContainerEvent("addWrapperLifecycle", listener);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addWrapperLifecycle", listener);
+        }
     }
 
 
@@ -2771,8 +2818,10 @@ public class StandardContext
             results[wrapperListeners.length] = listener;
             wrapperListeners = results;
         }
-        fireContainerEvent("addWrapperListener", listener);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addWrapperListener", listener);
+        }
     }
 
 
@@ -3541,7 +3590,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeApplicationListener", listener);
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeApplicationListener", listener);
+        }
 
         // FIXME - behavior if already started?
 
@@ -3582,8 +3633,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeApplicationParameter", name);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeApplicationParameter", name);
+        }
     }
 
 
@@ -3603,7 +3655,6 @@ public class StandardContext
                 (sm.getString("standardContext.notWrapper"));
 
         super.removeChild(child);
-
     }
 
 
@@ -3640,8 +3691,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeConstraint", constraint);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeConstraint", constraint);
+        }
     }
 
 
@@ -3653,8 +3705,10 @@ public class StandardContext
     public void removeEjb(String name) {
 
         namingResources.removeEjb(name);
-        fireContainerEvent("removeEjb", name);
-
+     
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeEjb", name);
+        }
     }
 
 
@@ -3674,8 +3728,10 @@ public class StandardContext
         }
 
         namingResources.removeEnvironment(name);
-        fireContainerEvent("removeEnvironment", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeEnvironment", name);
+        }
     }
 
 
@@ -3700,8 +3756,10 @@ public class StandardContext
                 statusPages.remove(Integer.valueOf(errorPage.getErrorCode()));
             }
         }
-        fireContainerEvent("removeErrorPage", errorPage);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeErrorPage", errorPage);
+        }
     }
 
 
@@ -3716,8 +3774,10 @@ public class StandardContext
         synchronized (filterDefs) {
             filterDefs.remove(filterDef.getFilterName());
         }
-        fireContainerEvent("removeFilterDef", filterDef);
-
+ 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeFilterDef", filterDef);
+        }
     }
 
 
@@ -3751,8 +3811,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeFilterMap", filterMap);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeFilterMap", filterMap);
+        }
     }
 
 
@@ -3789,8 +3850,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeInstanceListener", listener);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeInstanceListener", listener);
+        }
     }
 
 
@@ -3802,8 +3864,10 @@ public class StandardContext
     public void removeLocalEjb(String name) {
 
         namingResources.removeLocalEjb(name);
-        fireContainerEvent("removeLocalEjb", name);
-
+        
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeLocalEjb", name);
+        }
     }
 
 
@@ -3817,8 +3881,10 @@ public class StandardContext
         synchronized (messageDestinations) {
             messageDestinations.remove(name);
         }
-        fireContainerEvent("removeMessageDestination", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeMessageDestination", name);
+        }
     }
 
 
@@ -3830,8 +3896,10 @@ public class StandardContext
     public void removeMessageDestinationRef(String name) {
 
         namingResources.removeMessageDestinationRef(name);
-        fireContainerEvent("removeMessageDestinationRef", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeMessageDestinationRef", name);
+        }
     }
 
 
@@ -3846,8 +3914,10 @@ public class StandardContext
         synchronized (mimeMappings) {
             mimeMappings.remove(extension);
         }
-        fireContainerEvent("removeMimeMapping", extension);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeMimeMapping", extension);
+        }
     }
 
 
@@ -3862,8 +3932,10 @@ public class StandardContext
         synchronized (parameters) {
             parameters.remove(name);
         }
-        fireContainerEvent("removeParameter", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeParameter", name);
+        }
     }
 
 
@@ -3884,8 +3956,10 @@ public class StandardContext
         }
 
         namingResources.removeResource(name);
-        fireContainerEvent("removeResource", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeResource", name);
+        }
     }
 
 
@@ -3897,8 +3971,10 @@ public class StandardContext
     public void removeResourceEnvRef(String name) {
 
         namingResources.removeResourceEnvRef(name);
-        fireContainerEvent("removeResourceEnvRef", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeResourceEnvRef", name);
+        }
     }
 
 
@@ -3919,8 +3995,10 @@ public class StandardContext
         }
 
         namingResources.removeResourceLink(name);
-        fireContainerEvent("removeResourceLink", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeResourceLink", name);
+        }
     }
 
 
@@ -3934,8 +4012,10 @@ public class StandardContext
         synchronized (roleMappings) {
             roleMappings.remove(role);
         }
-        fireContainerEvent("removeRoleMapping", role);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeRoleMapping", role);
+        }
     }
 
 
@@ -3971,8 +4051,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeSecurityRole", role);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeSecurityRole", role);
+        }
     }
 
 
@@ -3993,8 +4074,10 @@ public class StandardContext
             wrapper.removeMapping(pattern);
         }
         mapper.removeWrapper(pattern);
-        fireContainerEvent("removeServletMapping", pattern);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeServletMapping", pattern);
+        }
     }
 
 
@@ -4008,7 +4091,10 @@ public class StandardContext
         synchronized (taglibs) {
             taglibs.remove(uri);
         }
-        fireContainerEvent("removeTaglib", uri);
+
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeTaglib", uri);
+        }
     }
 
 
@@ -4046,8 +4132,10 @@ public class StandardContext
 
         // Inform interested listeners
         postWelcomeFiles();
-        fireContainerEvent("removeWelcomeFile", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeWelcomeFile", name);
+        }
     }
 
 
@@ -4085,8 +4173,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeWrapperLifecycle", listener);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeWrapperLifecycle", listener);
+        }
     }
 
 
@@ -4124,8 +4213,9 @@ public class StandardContext
         }
 
         // Inform interested listeners
-        fireContainerEvent("removeWrapperListener", listener);
-
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeWrapperListener", listener);
+        }
     }
 
 
@@ -6347,5 +6437,4 @@ public class StandardContext
     public boolean isStatisticsProvider() {
         return false;
     }
-    
 }

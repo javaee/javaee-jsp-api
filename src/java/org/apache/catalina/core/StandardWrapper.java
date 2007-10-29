@@ -75,7 +75,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2006/10/03 17:51:06 $
+ * @version $Revision: 1.7 $ $Date: 2006/10/19 22:01:39 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -506,6 +506,8 @@ public class StandardWrapper
                 (sm.getString("standardWrapper.notContext"));
         if (container instanceof StandardContext) {
             swallowOutput = ((StandardContext)container).getSwallowOutput();
+            notifyContainerListeners =
+                ((StandardContext)container).isNotifyContainerListeners();
         }
         super.setParent(container);
 
@@ -728,8 +730,10 @@ public class StandardWrapper
         synchronized (parameters) {
             parameters.put(name, value);
         }
-        fireContainerEvent("addInitParameter", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addInitParameter", name);
+        }
     }
 
 
@@ -755,8 +759,10 @@ public class StandardWrapper
         synchronized (mappings) {
             mappings.add(mapping);
         }
-        fireContainerEvent("addMapping", mapping);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addMapping", mapping);
+        }
     }
 
 
@@ -772,8 +778,10 @@ public class StandardWrapper
         synchronized (references) {
             references.put(name, link);
         }
-        fireContainerEvent("addSecurityReference", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("addSecurityReference", name);
+        }
     }
 
 
@@ -1222,7 +1230,10 @@ public class StandardWrapper
                 if (instancePool == null)
                     instancePool = new Stack();
             }
-            fireContainerEvent("load", this);
+
+            if (notifyContainerListeners) {
+                fireContainerEvent("load", this);
+            }
 
             loadTime=System.currentTimeMillis() -t1;
         } finally {
@@ -1252,8 +1263,10 @@ public class StandardWrapper
         synchronized (parameters) {
             parameters.remove(name);
         }
-        fireContainerEvent("removeInitParameter", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeInitParameter", name);
+        }
     }
 
 
@@ -1279,8 +1292,10 @@ public class StandardWrapper
         synchronized (mappings) {
             mappings.remove(mapping);
         }
-        fireContainerEvent("removeMapping", mapping);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeMapping", mapping);
+        }
     }
 
 
@@ -1294,8 +1309,10 @@ public class StandardWrapper
         synchronized (references) {
             references.remove(name);
         }
-        fireContainerEvent("removeSecurityReference", name);
 
+        if (notifyContainerListeners) {
+            fireContainerEvent("removeSecurityReference", name);
+        }
     }
 
 
@@ -1410,7 +1427,9 @@ public class StandardWrapper
             instance = null;
             instancePool = null;
             nInstances = 0;
-            fireContainerEvent("unload", this);
+            if (notifyContainerListeners) {
+                fireContainerEvent("unload", this);
+            }
             unloading = false;
             throw new ServletException
                 (sm.getString("standardWrapper.destroyException", getName()),
@@ -1453,7 +1472,9 @@ public class StandardWrapper
                 instancePool = null;
                 nInstances = 0;
                 unloading = false;
-                fireContainerEvent("unload", this);
+                if (notifyContainerListeners) {
+                    fireContainerEvent("unload", this);
+                }
                 throw new ServletException
                     (sm.getString("standardWrapper.destroyException",
                                   getName()), t);
@@ -1469,8 +1490,10 @@ public class StandardWrapper
         singleThreadModel = false;
 
         unloading = false;
-        fireContainerEvent("unload", this);
-
+   
+        if (notifyContainerListeners) {
+            fireContainerEvent("unload", this);
+        }
     }
 
 

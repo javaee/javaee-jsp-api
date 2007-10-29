@@ -281,7 +281,22 @@ public abstract class ContainerBase
     private boolean threadDone = false;
 
 
+    /**
+     * Indicates whether ContainerListener instances need to be notified
+     * of a particular configuration event.
+     */
+    protected boolean notifyContainerListeners = true;
+
+
     // ------------------------------------------------------------- Properties
+
+    /**
+     * @return true if ContainerListener instances need to be notified
+     * of a particular configuration event, and false otherwise
+     */
+    boolean isNotifyContainerListeners() {
+        return notifyContainerListeners;
+    }    
 
 
     /**
@@ -911,7 +926,9 @@ public abstract class ContainerBase
             }
             children.put(child.getName(), child);
 
-            fireContainerEvent(ADD_CHILD_EVENT, child);
+            if (notifyContainerListeners) {
+                fireContainerEvent(ADD_CHILD_EVENT, child);
+            }
         }
 
     }
@@ -1039,8 +1056,10 @@ public abstract class ContainerBase
             }
         }
         
-        fireContainerEvent(REMOVE_CHILD_EVENT, child);
-        
+        if (notifyContainerListeners) {
+            fireContainerEvent(REMOVE_CHILD_EVENT, child);
+        }
+    
         // child.setParent(null);
     }
 
@@ -1364,7 +1383,10 @@ public abstract class ContainerBase
     public synchronized void addValve(Valve valve) {
 
         pipeline.addValve(valve);
-        fireContainerEvent(ADD_VALVE_EVENT, valve);
+
+        if (notifyContainerListeners) {
+            fireContainerEvent(ADD_VALVE_EVENT, valve);
+        }
     }
 
     public ObjectName[] getValveObjectNames() {
@@ -1403,7 +1425,10 @@ public abstract class ContainerBase
     public synchronized void removeValve(Valve valve) {
 
         pipeline.removeValve(valve);
-        fireContainerEvent(REMOVE_VALVE_EVENT, valve);
+ 
+        if (notifyContainerListeners) {
+            fireContainerEvent(REMOVE_VALVE_EVENT, valve);
+        }
     }
 
 
