@@ -71,7 +71,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:09 $
+ * @version $Revision: 1.12 $ $Date: 2006/03/13 19:29:45 $
  */
 
 public class CoyoteAdapter
@@ -231,23 +231,54 @@ public class CoyoteAdapter
                 connector.getContainer().invoke(request, response);
               
             }
-
+         /* GlassFish Issue 79    
             response.finishResponse();
             req.action( ActionCode.ACTION_POST_REQUEST , null);
 
-        } catch (IOException e) {
+         } catch (IOException e) {
             ;
+         } catch (Throwable t) {
+             log.error(sm.getString("coyoteAdapter.service"), t);
+         } finally {
+             // Recycle the wrapper request and response
+             request.recycle();
+             response.recycle();
+         }*/
+        // START GlassFish Issue 798
+        } catch (IOException e) {
+            // Recycle the wrapper request and response
+            request.recycle();
+            response.recycle();
         } catch (Throwable t) {
+            log.error(sm.getString("coyoteAdapter.service"), t);
+                        // Recycle the wrapper request and response
+            request.recycle();
+            response.recycle();
+        } 
+        // END GlassFish Issue 798
+    }
+
+    // START GlassFish Issue 798
+    /**
+     * Finish the response and close the connection based on the connection
+     * header.
+     */
+    public void afterService(Request req,Response res) throws Exception{
+        CoyoteRequest request = (CoyoteRequest) req.getNote(ADAPTER_NOTES);
+        CoyoteResponse response = (CoyoteResponse) res.getNote(ADAPTER_NOTES);
+        
+        try{
+            response.finishResponse();
+            req.action( ActionCode.ACTION_POST_REQUEST , null);
+        }catch (Throwable t) {
             log.error(sm.getString("coyoteAdapter.service"), t);
         } finally {
             // Recycle the wrapper request and response
             request.recycle();
             response.recycle();
         }
-
     }
-
-
+    // END GlassFish Issue 798
     // ------------------------------------------------------ Protected Methods
 
 

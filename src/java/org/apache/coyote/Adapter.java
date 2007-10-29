@@ -66,6 +66,16 @@ public interface Adapter {
      */
     public void service(Request req, Response res)
 	throws Exception;
+    
+    
+    // START GlassFish Issue 798
+    /** 
+     * Finish the response and recycle the request/response tokens. Base on
+     * the connection header, the underlying socket transport will be closed
+     */   
+    public void afterService(Request req, Response res) throws Exception;
+    // END GlassFish Issue 798
+
 
     // START SJSAS 6349248   
     /**

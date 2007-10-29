@@ -65,7 +65,24 @@ public class InternalOutputBuffer
         this(response, Constants.DEFAULT_HTTP_HEADER_BUFFER_SIZE);
     }
 
-
+    
+    // START GlassFish Issue 798
+    /**
+     * Create a new InternalOutputBuffer and configure the enable/disable the 
+     * socketBuffer mechanism.
+     */
+    public InternalOutputBuffer(Response response, int headerBufferSize, 
+            boolean useSocketBuffer) {
+        
+        this(response,headerBufferSize);
+        this.useSocketBuffer = useSocketBuffer;
+        if ( useSocketBuffer ){
+            socketBuffer.allocate(headerBufferSize, headerBufferSize);
+        }
+    }
+    // END GlassFish Issue 798
+    
+    
     /**
      * Alternate constructor.
      */

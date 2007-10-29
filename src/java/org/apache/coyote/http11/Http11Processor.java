@@ -704,6 +704,11 @@ public class Http11Processor implements Processor, ActionHook {
                     thrA.setCurrentStage(threadPool, "service");
                     rp.setStage(org.apache.coyote.Constants.STAGE_SERVICE);
                     adapter.service(request, response);
+                    
+                    // START GlassFish Issue 798
+                    adapter.afterService(request, response);
+                    // END GlassFish Issue 798
+                    
                     // Handle when the response was committed before a serious
                     // error occurred.  Throwing a ServletException should both
                     // set the status to 500 and set the errorException.
