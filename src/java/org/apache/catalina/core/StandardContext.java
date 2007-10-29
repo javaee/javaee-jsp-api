@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.20 $ $Date: 2006/03/17 17:11:57 $
+ * @version $Revision: 1.21 $ $Date: 2006/03/17 21:44:04 $
  */
 
 public class StandardContext
@@ -4999,7 +4999,6 @@ public class StandardContext
         // END SJSAS 6359401
 
         instanceListeners = new String[0];
-        applicationListeners = new String[0];
     }
     
     private void resetContext() throws Exception, MBeanRegistrationException {
@@ -5012,6 +5011,10 @@ public class StandardContext
 
         // Bugzilla 32867
         distributable = false;
+
+        applicationListeners = new String[0];
+        applicationEventListenersObjects = new Object[0];
+        applicationLifecycleListenersObjects = new Object[0];
 
         if (log.isDebugEnabled()) {
             log.debug("resetContext " + oname + " " + mserver);

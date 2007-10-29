@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.8 $ $Date: 2006/03/08 20:40:19 $
+ * @version $Revision: 1.9 $ $Date: 2006/03/12 01:27:00 $
  */
 
 final class ApplicationDispatcher
@@ -528,7 +528,7 @@ final class ApplicationDispatcher
                      origServletPath);
                 outerRequest.setAttribute
                     (ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                     new Integer(ApplicationFilterFactory.FORWARD));
+                     Integer.valueOf(ApplicationFilterFactory.FORWARD));
                 invoke(outerRequest, response);
             } else {
                 invoke(outerRequest, response);
@@ -587,7 +587,7 @@ final class ApplicationDispatcher
             if ( log.isDebugEnabled() )
                 log.debug(" Non-HTTP Include");
             request.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                                             new Integer(ApplicationFilterFactory.INCLUDE));
+                                             Integer.valueOf(ApplicationFilterFactory.INCLUDE));
             request.setAttribute(ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR, origServletPath);
             invoke(request, outerResponse);
             unwrapResponse();
@@ -610,7 +610,7 @@ final class ApplicationDispatcher
             if (servletPath != null)
                 wrequest.setServletPath(servletPath);
             wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                                             new Integer(ApplicationFilterFactory.INCLUDE));
+                                             Integer.valueOf(ApplicationFilterFactory.INCLUDE));
             wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR, origServletPath);
             invoke(outerRequest, outerResponse);
 
@@ -649,7 +649,7 @@ final class ApplicationDispatcher
             }
             
             wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                                             new Integer(ApplicationFilterFactory.INCLUDE));
+                                             Integer.valueOf(ApplicationFilterFactory.INCLUDE));
             wrequest.setAttribute(ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR, origServletPath);
             invoke(outerRequest, outerResponse);
 
@@ -837,7 +837,7 @@ final class ApplicationDispatcher
                         throw new ServletException(sm.getString(
                             "applicationDispatcher.maxDispatchDepthReached",
                             new Object[] {
-                                new Integer(origRequest.getMaxDispatchDepth())}));
+                                Integer.valueOf(origRequest.getMaxDispatchDepth())}));
                 }
                 // END OF S1AS 4703023 
                 /* IASRI 4665318
