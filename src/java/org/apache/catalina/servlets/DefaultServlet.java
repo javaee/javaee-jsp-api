@@ -1,5 +1,4 @@
 
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -25,7 +24,6 @@
  * Portions Copyright Apache Software Foundation.
  */
 
-
 package org.apache.catalina.servlets;
 
 
@@ -34,7 +32,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,10 +41,9 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.ByteBuffer;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -79,13 +75,14 @@ import org.apache.naming.resources.ResourceAttributes;
 import org.apache.catalina.core.ApplicationHttpResponse;
 // END SJSAS 6231069
 
+
 /**
  * The default resource-serving servlet for most web applications,
  * used to serve static resources such as HTML pages and images.
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2005/12/12 19:11:33 $
+ * @version $Revision: 332127 $ $Date: 2005-11-09 20:50:47 +0100 (mer., 09 nov. 2005) $
  */
 
 public class DefaultServlet
@@ -128,7 +125,7 @@ public class DefaultServlet
     /**
      * Array containing the safe characters set.
      */
-    protected static final URLEncoder urlEncoder;
+    protected static URLEncoder urlEncoder;
 
 
     /**
@@ -161,6 +158,13 @@ public class DefaultServlet
      */
     protected String fileEncoding = null;
     
+    
+    /**
+     * Full range marker.
+     */
+    protected static ArrayList FULL = new ArrayList();
+    
+    
     // ----------------------------------------------------- Static Initializer
 
 
@@ -192,14 +196,14 @@ public class DefaultServlet
     /**
      * The string manager for this package.
      */
-    protected static final StringManager sm =
+    protected static StringManager sm =
         StringManager.getManager(Constants.Package);
 
 
     /**
      * Size of file transfer buffer in bytes.
      */
-    private static final int BUFFER_SIZE = 4096;
+    protected static final int BUFFER_SIZE = 4096;
 
 
     // --------------------------------------------------------- Public Methods
@@ -348,6 +352,7 @@ public class DefaultServlet
 
         // Serve the requested resource, including the data content
         serveResource(request, response, true);
+
     }
 
 
@@ -673,15 +678,13 @@ public class DefaultServlet
             if (requestUri == null) {
                 requestUri = request.getRequestURI();
             } else {
-                /*
-                 * We're included, and the response.sendError() below is going
-                 * to be ignored by the including resource (see SRV.8.3,
-                 * "The Include Method").
-                 * Therefore, the only way we can let the including resource
-                 * know about the missing resource is by throwing an 
-                 * exception
-                 */
-                throw new FileNotFoundException(requestUri);
+                // We're included, and the response.sendError() below is going
+                // to be ignored by the resource that is including us.
+                // Therefore, the only way we can let the including resource
+                // know is by including warning message in response
+                response.getWriter().write(
+                    sm.getString("defaultServlet.missingResource",
+                    requestUri));
             }
 
             /* IASRI 4878272
@@ -705,13 +708,8 @@ public class DefaultServlet
                 if (requestUri == null) {
                     requestUri = request.getRequestURI();
                 }
-                /* IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
                                    requestUri);
-                */
-                // BEGIN IASRI 4878272
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                // END IASRI 4878272
                 return;
             }
         }
@@ -737,7 +735,7 @@ public class DefaultServlet
             cacheEntry.attributes.setMimeType(contentType);
         }
 
-        Vector ranges = null;
+        ArrayList ranges = null;
         long contentLength = -1L;
 
         if (cacheEntry.context != null) {
@@ -746,8 +744,8 @@ public class DefaultServlet
             // suppress them
             if (!listings) {
                 /* IASRI 4878272
-                response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                                   request.getRequestURI());
+                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                                    request.getRequestURI());
                 */
                 // BEGIN IASRI 4878272
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -801,9 +799,10 @@ public class DefaultServlet
 
         }
 
-        if ( (cacheEntry.context != null) ||
-             ( ((ranges == null) || (ranges.isEmpty()))
-               && (request.getHeader("Range") == null) ) ) {
+        if ( (cacheEntry.context != null) 
+                || ( ((ranges == null) || (ranges.isEmpty()))
+                        && (request.getHeader("Range") == null) )
+                || (ranges == FULL) ) {
 
             // Set the appropriate output headers
             if (contentType != null) {
@@ -816,7 +815,12 @@ public class DefaultServlet
                 if (debug > 0)
                     log("DefaultServlet.serveFile:  contentLength=" +
                         contentLength);
-                response.setContentLength((int) contentLength);
+                if (contentLength < Integer.MAX_VALUE) {
+                    response.setContentLength((int) contentLength);
+                } else {
+                    // Set the content-length as String to be able to use a long
+                    response.setHeader("content-length", "" + contentLength);
+                }
             }
 
             InputStream renderResult = null;
@@ -855,14 +859,18 @@ public class DefaultServlet
 
             if (ranges.size() == 1) {
 
-                Range range = (Range) ranges.elementAt(0);
+                Range range = (Range) ranges.get(0);
                 response.addHeader("Content-Range", "bytes "
                                    + range.start
                                    + "-" + range.end + "/"
                                    + range.length);
-                               System.out.println("2- " + contentLength);
- 
-                response.setContentLength((int) (range.end - range.start + 1));
+                long length = range.end - range.start + 1;
+                if (length < Integer.MAX_VALUE) {
+                    response.setContentLength((int) length);
+                } else {
+                    // Set the content-length as String to be able to use a long
+                    response.setHeader("content-length", "" + length);
+                }
 
                 if (contentType != null) {
                     if (debug > 0)
@@ -896,10 +904,10 @@ public class DefaultServlet
                         // Silent catch
                     }
                     if (ostream != null) {
-                        copy(cacheEntry, ostream, ranges.elements(),
+                        copy(cacheEntry, ostream, ranges.iterator(),
                              contentType);
                     } else {
-                        copy(cacheEntry, writer, ranges.elements(),
+                        copy(cacheEntry, writer, ranges.iterator(),
                              contentType);
                     }
                 }
@@ -979,7 +987,7 @@ public class DefaultServlet
      * @param response The servlet response we are creating
      * @return Vector of ranges
      */
-    protected Vector parseRange(HttpServletRequest request,
+    protected ArrayList parseRange(HttpServletRequest request,
                                 HttpServletResponse response,
                                 ResourceAttributes resourceAttributes)
         throws IOException {
@@ -1004,7 +1012,7 @@ public class DefaultServlet
                 // If the ETag the client gave does not match the entity
                 // etag, then the entire entity is returned.
                 if (!eTag.equals(headerValue.trim()))
-                    return null;
+                    return FULL;
 
             } else {
 
@@ -1012,7 +1020,7 @@ public class DefaultServlet
                 // the last modification date of the entity, the entire entity
                 // is returned.
                 if (lastModified > (headerValueTime + 1000))
-                    return null;
+                    return FULL;
 
             }
 
@@ -1041,7 +1049,7 @@ public class DefaultServlet
 
         // Vector which will contain all the ranges which are successfully
         // parsed.
-        Vector result = new Vector();
+        ArrayList result = new ArrayList();
         StringTokenizer commaTokenizer = new StringTokenizer(rangeHeader, ",");
 
         // Parsing the range list
@@ -1104,7 +1112,7 @@ public class DefaultServlet
                 return null;
             }
 
-            result.addElement(currentRange);
+            result.add(currentRange);
         }
 
         return result;
@@ -1158,8 +1166,8 @@ public class DefaultServlet
 
             // Render the directory entries within this directory
             NamingEnumeration enumeration = resources.list(cacheEntry.name);
-        
-            //rewriteUrl(contextPath) is expensive. cache result for later reuse
+            
+            // rewriteUrl(contextPath) is expensive. cache result for later reuse
             String rewrittenContextPath =  rewriteUrl(contextPath);
 
             while (enumeration.hasMoreElements()) {
@@ -1272,7 +1280,7 @@ public class DefaultServlet
         PrintWriter writer = new PrintWriter(osWriter);
 
         StringBuffer sb = new StringBuffer();
-             
+        
         // rewriteUrl(contextPath) is expensive. cache result for later reuse
         String rewrittenContextPath =  rewriteUrl(contextPath);
 
@@ -1337,7 +1345,6 @@ public class DefaultServlet
             // Render the directory entries within this directory
             NamingEnumeration enumeration = resources.list(cacheEntry.name);
             boolean shade = false;
-            
             while (enumeration.hasMoreElements()) {
 
                 NameClassPair ncPair = (NameClassPair) enumeration.nextElement();
@@ -1510,7 +1517,7 @@ public class DefaultServlet
     }
 
 
-    // -------------------------------------------------------- Private Methods
+    // -------------------------------------------------------- protected Methods
 
 
     /**
@@ -1523,7 +1530,7 @@ public class DefaultServlet
      * and false if the condition is not satisfied, in which case request
      * processing is stopped
      */
-    private boolean checkIfMatch(HttpServletRequest request,
+    protected boolean checkIfMatch(HttpServletRequest request,
                                  HttpServletResponse response,
                                  ResourceAttributes resourceAttributes)
         throws IOException {
@@ -1568,7 +1575,7 @@ public class DefaultServlet
      * and false if the condition is not satisfied, in which case request
      * processing is stopped
      */
-    private boolean checkIfModifiedSince(HttpServletRequest request,
+    protected boolean checkIfModifiedSince(HttpServletRequest request,
                                          HttpServletResponse response,
                                          ResourceAttributes resourceAttributes)
         throws IOException {
@@ -1605,7 +1612,7 @@ public class DefaultServlet
      * and false if the condition is not satisfied, in which case request
      * processing is stopped
      */
-    private boolean checkIfNoneMatch(HttpServletRequest request,
+    protected boolean checkIfNoneMatch(HttpServletRequest request,
                                      HttpServletResponse response,
                                      ResourceAttributes resourceAttributes)
         throws IOException {
@@ -1663,7 +1670,7 @@ public class DefaultServlet
      * and false if the condition is not satisfied, in which case request
      * processing is stopped
      */
-    private boolean checkIfUnmodifiedSince(HttpServletRequest request,
+    protected boolean checkIfUnmodifiedSince(HttpServletRequest request,
                                            HttpServletResponse response,
                                            ResourceAttributes resourceAttributes)
         throws IOException {
@@ -1696,7 +1703,7 @@ public class DefaultServlet
      *
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, InputStream is,
+    protected void copy(CacheEntry cacheEntry, InputStream is,
                       ServletOutputStream ostream)
         throws IOException {
 
@@ -1746,7 +1753,7 @@ public class DefaultServlet
      *
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, InputStream is, PrintWriter writer)
+    protected void copy(CacheEntry cacheEntry, InputStream is, PrintWriter writer)
         throws IOException {
 
         IOException exception = null;
@@ -1793,7 +1800,7 @@ public class DefaultServlet
      * @param range Range the client wanted to retrieve
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, ServletOutputStream ostream,
+    protected void copy(CacheEntry cacheEntry, ServletOutputStream ostream,
                       Range range)
         throws IOException {
 
@@ -1828,7 +1835,7 @@ public class DefaultServlet
      * @param range Range the client wanted to retrieve
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, PrintWriter writer,
+    protected void copy(CacheEntry cacheEntry, PrintWriter writer,
                       Range range)
         throws IOException {
 
@@ -1871,19 +1878,19 @@ public class DefaultServlet
      * @param contentType Content type of the resource
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, ServletOutputStream ostream,
-                      Enumeration ranges, String contentType)
+    protected void copy(CacheEntry cacheEntry, ServletOutputStream ostream,
+                      Iterator ranges, String contentType)
         throws IOException {
 
         IOException exception = null;
 
-        while ( (exception == null) && (ranges.hasMoreElements()) ) {
+        while ( (exception == null) && (ranges.hasNext()) ) {
 
             InputStream resourceInputStream = cacheEntry.resource.streamContent();
             InputStream istream =
                 new BufferedInputStream(resourceInputStream, input);
 
-            Range currentRange = (Range) ranges.nextElement();
+            Range currentRange = (Range) ranges.next();
 
             // Writing MIME header.
             ostream.println();
@@ -1928,13 +1935,13 @@ public class DefaultServlet
      * @param contentType Content type of the resource
      * @exception IOException if an input/output error occurs
      */
-    private void copy(CacheEntry cacheEntry, PrintWriter writer,
-                      Enumeration ranges, String contentType)
+    protected void copy(CacheEntry cacheEntry, PrintWriter writer,
+                      Iterator ranges, String contentType)
         throws IOException {
 
         IOException exception = null;
 
-        while ( (exception == null) && (ranges.hasMoreElements()) ) {
+        while ( (exception == null) && (ranges.hasNext()) ) {
 
             InputStream resourceInputStream = cacheEntry.resource.streamContent();
             
@@ -1946,7 +1953,7 @@ public class DefaultServlet
                                                fileEncoding);
             }
 
-            Range currentRange = (Range) ranges.nextElement();
+            Range currentRange = (Range) ranges.next();
 
             // Writing MIME header.
             writer.println();
@@ -1989,7 +1996,7 @@ public class DefaultServlet
      * @param ostream The output stream to write to
      * @return Exception which occurred during processing
      */
-    private IOException copyRange(InputStream istream,
+    protected IOException copyRange(InputStream istream,
                                   ServletOutputStream ostream) {
 
         // Copy the input stream to the output stream
@@ -2022,7 +2029,7 @@ public class DefaultServlet
      * @param writer The writer to write to
      * @return Exception which occurred during processing
      */
-    private IOException copyRange(Reader reader, PrintWriter writer) {
+    protected IOException copyRange(Reader reader, PrintWriter writer) {
 
         // Copy the input stream to the output stream
         IOException exception = null;
@@ -2056,7 +2063,7 @@ public class DefaultServlet
      * @param end End of the range which will be copied
      * @return Exception which occurred during processing
      */
-    private IOException copyRange(InputStream istream,
+    protected IOException copyRange(InputStream istream,
                                   ServletOutputStream ostream,
                                   long start, long end) {
 
@@ -2108,7 +2115,7 @@ public class DefaultServlet
      * @param end End of the range which will be copied
      * @return Exception which occurred during processing
      */
-    private IOException copyRange(Reader reader, PrintWriter writer,
+    protected IOException copyRange(Reader reader, PrintWriter writer,
                                   long start, long end) {
 
         try {
@@ -2149,7 +2156,7 @@ public class DefaultServlet
     // ------------------------------------------------------ Range Inner Class
 
 
-    private class Range {
+    protected class Range {
 
         public long start;
         public long end;
@@ -2172,4 +2179,6 @@ public class DefaultServlet
         }
 
     }
+
+
 }

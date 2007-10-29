@@ -89,6 +89,12 @@ public final class Constants {
 
 
     /**
+     * SEMI_COLON.
+     */
+    public static final byte SEMI_COLON = (byte) ';';
+
+
+    /**
      * 'A'.
      */
     public static final byte A = (byte) 'A';
