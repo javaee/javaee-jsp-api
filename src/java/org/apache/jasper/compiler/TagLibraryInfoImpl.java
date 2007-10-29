@@ -57,6 +57,7 @@ import javax.servlet.jsp.tagext.VariableInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.xmlparser.ParserUtils;
@@ -75,8 +76,6 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 
     // Logger
     private static Log log = LogFactory.getLog(TagLibraryInfoImpl.class);
-
-    private static final Double JSP_VERSION_2_0 = Double.valueOf("2.0");
 
     private Hashtable jarEntries;
     private JspCompilationContext ctxt;
@@ -463,7 +462,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
         // "JSP", "tagdependent", "empty", and "scriptless" may be specified
         // as body-content values.
         Double jspVersionDouble = Double.valueOf(jspversion);
-        if (Double.compare(jspVersionDouble, JSP_VERSION_2_0) >= 0) {
+        if (Double.compare(jspVersionDouble, Constants.JSP_VERSION_2_0) >= 0) {
             if (!bodycontent.equals(TagInfo.BODY_CONTENT_JSP)
                     && !bodycontent.equals(TagInfo.BODY_CONTENT_EMPTY)
                     && !bodycontent.equals(TagInfo.BODY_CONTENT_TAG_DEPENDENT)

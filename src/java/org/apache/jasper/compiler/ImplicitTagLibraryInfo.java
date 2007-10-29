@@ -35,6 +35,7 @@ import javax.servlet.jsp.tagext.FunctionInfo;
 import javax.servlet.jsp.tagext.TagLibraryInfo;
 import javax.servlet.jsp.tagext.TagInfo;
 import javax.servlet.jsp.tagext.TagFileInfo;
+import org.apache.jasper.Constants;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.xmlparser.ParserUtils;
@@ -210,6 +211,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
             throws JasperException {
 
         InputStream is = null;
+        TreeNode tld = null;
 
         try {
             URL uri = ctxt.getResource(path);
@@ -219,26 +221,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
             }
 
             is = uri.openStream();
-            TreeNode tld = new ParserUtils().parseXMLDocument(IMPLICIT_TLD,
-                                                              is);
-            this.jspversion = tld.findAttribute("version");
-
-            Iterator list = tld.findChildren();
-            while (list.hasNext()) {
-                TreeNode element = (TreeNode) list.next();
-                String tname = element.getName();
-                if ("tlibversion".equals(tname)
-                        || "tlib-version".equals(tname)) {
-                    this.tlibversion = element.getBody();
-                } else if ("jspversion".equals(tname)
-                        || "jsp-version".equals(tname)) {
-                    this.jspversion = element.getBody();
-                } else if (!"shortname".equals(tname)
-                        && !"short-name".equals(tname)) {
-                    err.jspError("jsp.error.invalidImplicitTld", path, tname);
-                }
-            }
-
+            tld = new ParserUtils().parseXMLDocument(IMPLICIT_TLD, is);
         } catch (Exception ex) {
             throw new JasperException(ex);
         } finally {
@@ -247,6 +230,32 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
                     is.close();
                 } catch (Throwable t) {}
             }
+        }
+
+        this.jspversion = tld.findAttribute("version");
+
+        Iterator list = tld.findChildren();
+        while (list.hasNext()) {
+            TreeNode element = (TreeNode) list.next();
+            String tname = element.getName();
+            if ("tlibversion".equals(tname)
+                    || "tlib-version".equals(tname)) {
+                this.tlibversion = element.getBody();
+            } else if ("jspversion".equals(tname)
+                    || "jsp-version".equals(tname)) {
+                this.jspversion = element.getBody();
+            } else if (!"shortname".equals(tname)
+                    && !"short-name".equals(tname)) {
+                err.jspError("jsp.error.implicitTld.additionalElements",
+                             path, tname);
+            }
+        }
+
+        // JSP version in implicit.tld must be 2.0 or greater
+        Double jspVersionDouble = Double.valueOf(this.jspversion);
+        if (Double.compare(jspVersionDouble, Constants.JSP_VERSION_2_0) < 0) {
+            err.jspError("jsp.error.implicitTld.jspVersion", path,
+                         this.jspversion);
         }
     }
 

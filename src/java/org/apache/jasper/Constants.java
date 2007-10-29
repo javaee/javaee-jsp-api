@@ -225,6 +225,8 @@ public class Constants {
     public static final char ESC='\u001b';
     public static final String ESCStr="'\\u001b'";
 
+    public static final Double JSP_VERSION_2_0 = Double.valueOf("2.0");
+
     // START SJSWS
     /*
      * Default initial capacity of HashMap which maps JSPs to their
