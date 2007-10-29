@@ -29,7 +29,7 @@ import java.io.IOException;
  * of a request by a remote client.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:04 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
  */
 
 public final class ClientAbortException extends IOException {
@@ -117,9 +117,9 @@ public final class ClientAbortException extends IOException {
 
 
     /**
-     * Returns the throwable that caused this exception, if any.
+     * Returns the cause that caused this exception, if any.
      */
-    public Throwable getThrowable() {
+    public Throwable getCause() {
 
         return (throwable);
 
