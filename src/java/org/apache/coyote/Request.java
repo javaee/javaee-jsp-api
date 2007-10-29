@@ -87,7 +87,9 @@ public final class Request {
 
         schemeMB.setString("http");
         methodMB.setString("GET");
+        /* SJSWS 6376484
         uriMB.setString("/");
+        */
         queryMB.setString("");
         protoMB.setString("HTTP/1.0");
 
@@ -509,7 +511,9 @@ public final class Request {
 	// XXX Do we need such defaults ?
         schemeMB.recycle();
 	methodMB.setString("GET");
+        /* SJSWS 6376484
         uriMB.setString("/");
+        */
         queryMB.setString("");
         protoMB.setString("HTTP/1.0");
         //remoteAddrMB.setString("127.0.0.1");

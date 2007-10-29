@@ -116,7 +116,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.23 $ $Date: 2006/04/24 22:02:59 $
+ * @version $Revision: 1.24 $ $Date: 2006/05/04 01:25:02 $
  */
 
 public class CoyoteRequest
@@ -3002,6 +3002,7 @@ public class CoyoteRequest
 
             setRequestedSessionURL(true);
 
+            /* SJSWS 6376484
             // Extract session ID from request URI
             ByteChunk uriBC = coyoteRequest.requestURI().getByteChunk();
             start = uriBC.getStart();
@@ -3023,6 +3024,15 @@ public class CoyoteRequest
                                    + (end - start - semicolon2));
                 }
             }
+            */
+            // START SJSWS 6376484
+            /*
+             * Parse the session id from the encoded URI only if the encoded
+             * URI is not null, to allow for lazy evaluation
+             */
+            if (!coyoteRequest.requestURI().getByteChunk().isNull())
+                parseSessionIdFromRequestURI();
+            // END SJSWS 6376484
 
         } else {
             setRequestedSessionId(null);
@@ -3031,6 +3041,38 @@ public class CoyoteRequest
 
     }
     // END CR 6309511
+
+
+    // START SJSWS 6376484
+    /**
+     * Extracts the session ID from the request URI.
+     */
+    protected void parseSessionIdFromRequestURI() {
+
+        int start, end, sessionIdStart, semicolon, semicolon2;
+
+        ByteChunk uriBC = coyoteRequest.requestURI().getByteChunk();
+        start = uriBC.getStart();
+        end = uriBC.getEnd();
+        semicolon = uriBC.indexOf(match, 0, match.length(), 0);
+        
+        if (semicolon > 0) {
+            sessionIdStart = start + semicolon;
+            semicolon2 = uriBC.indexOf
+                (';', start + semicolon + match.length());
+            uriBC.setEnd(start + semicolon);
+            byte[] buf = uriBC.getBuffer();
+            if (semicolon2 >= 0) {
+                for (int i = 0; i < end - start - semicolon2; i++) {
+                    buf[start + semicolon + i] 
+                        = buf[start + i + semicolon2];
+                }
+                uriBC.setBytes(buf, start, semicolon 
+                               + (end - start - semicolon2));
+            }
+        }
+    }
+    // END SJSWS 6376484
 
 
     // START SJSAS 6346226
