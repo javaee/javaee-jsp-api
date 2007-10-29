@@ -88,7 +88,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.16 $ $Date: 2007/01/04 01:31:58 $
+ * @version $Revision: 1.17 $ $Date: 2007/01/18 20:44:25 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -837,7 +837,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * @param sessionId session id to be added
      */
     public void addToInvalidatedSessions(String sessionId) {
-
         synchronized (invalidatedSessions) {
             invalidatedSessions.add(sessionId);
         }
@@ -848,14 +847,13 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      *
      * @param sessionId session id to be removed
      */
-    public void removeFromInvalidatedSessions(String sessionId) {
-
+    public void removeFromInvalidatedSessions(String sessionId) {       
         synchronized (invalidatedSessions) {
             invalidatedSessions.remove(sessionId);
         }
     }    
     
-    public boolean isSessionIdValid(String sessionId) {
+    public boolean isSessionIdValid(String sessionId) {       
         boolean result = true;
         synchronized (invalidatedSessions) {
             result = !invalidatedSessions.contains(sessionId);
@@ -1085,9 +1083,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     public void remove(Session session) {
 
         synchronized (sessions) {
-            //setting invalid safeguards against multiple copies of
-            //a removed session
-            session.setValid(false);
             sessions.remove(session.getIdInternal());
         }
 
