@@ -66,7 +66,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:39 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
  */
 
 public class ErrorReportValve
@@ -159,12 +159,24 @@ public class ErrorReportValve
             // The response is an error
             response.setError();
 
+            // START PWC 6254469
+            // Save (and later restore) the response encoding, because the
+            // following call to reset() will reset it to the default
+            // encoding (ISO-8859-1).
+            String responseCharEnc = sresp.getCharacterEncoding();
+            // END PWC 6254469
+
             // Reset the response (if possible)
             try {
                 sresp.reset();
             } catch (IllegalStateException e) {
                 ;
             }
+
+            // START PWC 6254469
+            // Restore the previously saved encoding
+            sresp.setCharacterEncoding(responseCharEnc);
+            // END PWC 6254469
 
             ServletResponse sresponse = (ServletResponse) response;
             if (sresponse instanceof HttpServletResponse)
@@ -336,10 +348,14 @@ public class ErrorReportValve
         sb.append("<h3>").append(ServerInfo.getServerInfo()).append("</h3>");
         sb.append("</body></html>");
 
-        // set the charset part of content type before getting the writer 
+        /* PWC 6254469
+        // set the charset part of content type before getting the writer
+        */
         try {
             hres.setContentType("text/html");
+            /* PWC 6254469
             hres.setCharacterEncoding("UTF-8");
+            */
         } catch (Throwable t) {
             if (debug >= 1)
                 log("status.setContentType", t);
