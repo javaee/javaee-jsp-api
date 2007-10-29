@@ -159,6 +159,10 @@ class TagFileProcessor {
              * version. 
              */
             String jspRootVersion = n.getTextAttribute("version");
+            if (jspRootVersion == null) {
+                err.jspError(n, "jsp.error.mandatory.attribute", n.getQName(),
+                             "version");
+            }
             if (!jspRootVersion.equals(jspVersionDouble.toString())) {
                 err.jspError(n, "jsp.error.tagfile.jspVersionMismatch",
                              jspRootVersion, jspVersionDouble.toString());
