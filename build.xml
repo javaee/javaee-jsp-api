@@ -19,7 +19,7 @@
         <javac srcdir="src/java" destdir="target/classes"
                debug="${javac.debug}" deprecation="${javac.deprecation}"
                optimize="${javac.optimize}"
-               excludes="**/CVS/**">
+               excludes="**/CVS/**,org/apache/jasper/compiler/JDTJavaCompiler.java">
             <classpath refid="catalina.classpath" />
         </javac>
 
