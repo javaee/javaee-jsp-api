@@ -1819,7 +1819,8 @@ class Generator {
                 out.print(n.getQName());
                 out.println(">\");");
             } else {
-                out.println("/>\");");
+                // Needs a space before "/>" to fix 6334245
+                out.println(" />\");");
             }
 
             n.setEndJavaLine(out.getJavaLine());
