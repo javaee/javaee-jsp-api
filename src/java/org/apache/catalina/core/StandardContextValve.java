@@ -64,7 +64,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * when processing HTTP requests.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/21 23:28:08 $
  */
 
 final class StandardContextValve
@@ -207,8 +207,10 @@ final class StandardContextValve
                 try {
                     listener.requestInitialized(event);
                 } catch (Throwable t) {
-                    log(sm.getString("requestListenerValve.requestInit",
-                                     instances[i].getClass().getName()), t);
+                    log(sm.getString(
+                        "standardContextValve.requestListener.requestInit",
+                        instances[i].getClass().getName()),
+                        t);
                     ServletRequest sreq = request.getRequest();
                     sreq.setAttribute(Globals.EXCEPTION_ATTR,t);
                     // START OF IASRI 4665318
@@ -250,8 +252,10 @@ final class StandardContextValve
                 try {
                     listener.requestDestroyed(event);
                 } catch (Throwable t) {
-                    log(sm.getString("requestListenerValve.requestDestroy",
-                                     instances[i].getClass().getName()), t);
+                    log(sm.getString(
+                        "standardContextValve.requestListener.requestDestroyed",
+                        instances[i].getClass().getName()),
+                        t);
                     ServletRequest sreq = request.getRequest();
                     sreq.setAttribute(Globals.EXCEPTION_ATTR,t);
                 }
