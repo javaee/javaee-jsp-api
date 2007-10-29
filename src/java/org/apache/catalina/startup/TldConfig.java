@@ -394,9 +394,12 @@ public final class TldConfig  {
         if( ! rescan ) {
             // find the cache
             if( tldCache!= null && tldCache.exists()) {
-                // just read it...
-                processCache(tldCache);
-                return;
+                try {
+                    processCache(tldCache);
+                    return;
+                } catch (Throwable t) {
+                    log.warn("Error scanning " + tldCache, t);
+                }
             }
         }
 
@@ -411,8 +414,12 @@ public final class TldConfig  {
         if (tldCache != null && tldCache.exists()) {
             long lastModified = getLastModified(resourcePaths, jarPaths);
             if (lastModified < tldCache.lastModified()) {
-                processCache(tldCache);
-                return;
+                try {
+                    processCache(tldCache);
+                    return;
+                } catch (Throwable t) {
+                    log.warn("Error scanning " + tldCache, t);
+                }
             }
         }
 
@@ -508,21 +515,24 @@ public final class TldConfig  {
         return lastModified;
     }
 
-    private void processCache(File tldCache ) throws IOException {
-        // read the cache and return;
-        try {
-            FileInputStream in=new FileInputStream(tldCache);
-            ObjectInputStream ois=new ObjectInputStream( in );
-            String list[]=(String [])ois.readObject();
-            if( log.isDebugEnabled() )
-                log.debug("Reusing tldCache " + tldCache + " " + list.length);
-            for( int i=0; list!=null && i<list.length; i++ ) {
-                context.addApplicationListener(list[i]);
-            }
-            ois.close();
-        } catch( ClassNotFoundException ex ) {
-            ex.printStackTrace();
+    /**
+     * Reads the cache of listeners specified in TLD files.
+     */
+    private void processCache(File tldCache ) throws Exception {
+        FileInputStream in=new FileInputStream(tldCache);
+        ObjectInputStream ois=new ObjectInputStream( in );
+        String list[]=(String [])ois.readObject();
+        if( log.isDebugEnabled() ) {
+            log.debug("Reusing tldCache " + tldCache + " " + list.length);
         }
+        for( int i=0; list!=null && i<list.length; i++ ) {
+            // Load the listener class. Filaure to do so is an indication
+            // that the cache has become stale, in which case it must be
+            // ignored. See GlassFish Issue 2653.
+            context.getLoader().getClassLoader().loadClass(list[i]);
+            context.addApplicationListener(list[i]);
+        }
+        ois.close();
     }
 
     /**
