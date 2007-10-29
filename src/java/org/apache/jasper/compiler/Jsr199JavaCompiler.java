@@ -87,6 +87,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;
         rtctxt = ctxt.getRuntimeContext();
+        options.add("-proc:none");  // Disable annotation processing
     }
 
     public void setClassPath(List<File> path) {
