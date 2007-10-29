@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/08/13 00:07:51 $
+ * @version $Revision: 1.4 $ $Date: 2005/09/03 01:18:52 $
  */
 
 public class StandardContext
@@ -683,7 +683,7 @@ public class StandardContext
     /**
      * Array containing the safe characters set.
      */
-    protected static URLEncoder urlEncoder;
+    protected static final URLEncoder urlEncoder;
 
 
     /**

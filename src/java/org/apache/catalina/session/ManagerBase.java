@@ -72,7 +72,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -160,7 +160,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static String name = "ManagerBase";
+    protected static final String name = "ManagerBase";
 
 
     /**
@@ -221,7 +221,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
     /**

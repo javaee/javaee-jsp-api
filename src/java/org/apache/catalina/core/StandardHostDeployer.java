@@ -53,7 +53,7 @@ import org.xml.sax.SAXParseException;
  * <code>StandardHost</code> implementation class.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:12 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 public class StandardHostDeployer implements Deployer {
@@ -132,7 +132,7 @@ public class StandardHostDeployer implements Deployer {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

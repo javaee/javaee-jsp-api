@@ -74,7 +74,7 @@ import org.apache.commons.modeler.Registry;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:45 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/11 03:34:03 $
  */
 
 public abstract class RealmBase
@@ -152,7 +152,7 @@ public abstract class RealmBase
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

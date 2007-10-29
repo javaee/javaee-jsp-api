@@ -85,7 +85,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.4 $ $Date: 2005/06/26 18:35:14 $
+ * @version $Revision: 1.5 $ $Date: 2005/09/08 02:18:01 $
  */
 
 public class StandardSession
@@ -273,7 +273,7 @@ public class StandardSession
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

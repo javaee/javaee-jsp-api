@@ -55,7 +55,7 @@ import org.apache.commons.logging.LogFactory;
  * management and lifecycle support.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:41 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:10 $
  */
 
 public abstract class ValveBase
@@ -81,7 +81,7 @@ public abstract class ValveBase
      * Descriptive information about this Valve implementation.  This value
      * should be overridden by subclasses.
      */
-    protected static String info =
+    protected static final String info =
         "org.apache.catalina.core.ValveBase/1.0";
 
 

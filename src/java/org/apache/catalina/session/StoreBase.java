@@ -45,7 +45,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.2 $, $Date: 2005/04/29 01:27:58 $
+ * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
  */
 
 public abstract class StoreBase
@@ -56,12 +56,12 @@ public abstract class StoreBase
     /**
      * The descriptive information about this implementation.
      */
-    protected static String info = "StoreBase/1.0";
+    protected static final String info = "StoreBase/1.0";
 
     /**
      * Name to register for this Store, used for logging.
      */
-    protected static String storeName = "StoreBase";
+    protected static final String storeName = "StoreBase";
 
     /**
      * The debugging detail level for this component.
@@ -86,7 +86,8 @@ public abstract class StoreBase
     /**
      * The string manager for this package.
      */
-    protected StringManager sm = StringManager.getManager(Constants.Package);
+    protected static final StringManager sm = StringManager.getManager(
+                                                    Constants.Package);
 
     /**
      * The Manager with which this JDBCStore is associated.

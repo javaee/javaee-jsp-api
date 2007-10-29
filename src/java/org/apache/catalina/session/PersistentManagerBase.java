@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
  */
 
 public abstract class PersistentManagerBase
@@ -153,7 +153,7 @@ public abstract class PersistentManagerBase
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static String name = "PersistentManagerBase";
+    protected static final String name = "PersistentManagerBase";
 
 
     /**

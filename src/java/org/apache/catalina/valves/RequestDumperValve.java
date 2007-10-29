@@ -53,7 +53,7 @@ import org.apache.catalina.util.StringManager;
  * of the logging you wish to perform.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:41 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
  */
 
 public class RequestDumperValve
@@ -73,7 +73,7 @@ public class RequestDumperValve
     /**
      * The StringManager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

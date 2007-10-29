@@ -33,7 +33,7 @@ package org.apache.catalina.session;
  * <li>Limit the number of active sessions kept in memory by
  *     swapping less active sessions out to disk.</li>
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1.1.1 $
  * @author Kief Morris (kief@kief.com)
  */
 
@@ -52,7 +52,7 @@ public final class PersistentManager extends PersistentManagerBase {
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static String name = "PersistentManager";
+    protected static final String name = "PersistentManager";
 
 
     // ------------------------------------------------------------- Properties

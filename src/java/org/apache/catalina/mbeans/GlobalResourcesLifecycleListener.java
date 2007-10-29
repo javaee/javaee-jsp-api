@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
  * management.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:34 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:05 $
  * @since 4.1
  */
 
@@ -67,7 +67,7 @@ public class GlobalResourcesLifecycleListener
     /**
      * The configuration information registry for our managed beans.
      */
-    protected static Registry registry = MBeanUtils.createRegistry();
+    protected static final Registry registry = MBeanUtils.createRegistry();
 
 
     // ------------------------------------------------------------- Properties

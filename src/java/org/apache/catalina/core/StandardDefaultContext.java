@@ -67,7 +67,7 @@ import org.apache.naming.ContextAccessController;
  * <CODE>override="true"</CODE>.
  *
  * @author Glenn Nielsen
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:11 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 public class StandardDefaultContext 
@@ -272,7 +272,7 @@ public class StandardDefaultContext
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

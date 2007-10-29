@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
  * with each context and server.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:10 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 public class NamingContextListener
@@ -142,7 +142,7 @@ public class NamingContextListener
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

@@ -47,7 +47,7 @@ import org.apache.catalina.util.StringManager;
  * keep these two classes in synchronization when making changes!
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:08 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 /** START OF PWC 4858179
@@ -101,7 +101,7 @@ public class ApplicationResponse extends ServletResponseWrapper {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

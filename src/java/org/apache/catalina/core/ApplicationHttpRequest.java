@@ -59,7 +59,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:13 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -82,7 +82,7 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

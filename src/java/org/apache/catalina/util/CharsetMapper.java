@@ -44,7 +44,7 @@ import java.util.Properties;
  * your own version for a particular web application.
  *
  * @author Craig R. McClanahan
- * @revision $Date: 2005/05/27 22:55:09 $ $Version$
+ * @revision $Date: 2005/08/11 22:53:42 $ $Version$
  */
 
 /* SJSAS 6292972
@@ -156,7 +156,7 @@ public class CharsetMapper implements Cloneable {
 
 
     // START SJSAS 6292972
-    public Object clone() {
+    public final Object clone() {
         
         try {
             CharsetMapper clone = (CharsetMapper)super.clone();

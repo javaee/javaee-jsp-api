@@ -78,7 +78,7 @@ import org.apache.catalina.core.ApplicationHttpResponse;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/06/08 21:53:14 $
+ * @version $Revision: 1.3 $ $Date: 2005/06/21 23:28:08 $
  */
 
 public class DefaultServlet
@@ -121,7 +121,7 @@ public class DefaultServlet
     /**
      * Array containing the safe characters set.
      */
-    protected static URLEncoder urlEncoder;
+    protected static final URLEncoder urlEncoder;
 
 
     /**
@@ -185,7 +185,7 @@ public class DefaultServlet
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

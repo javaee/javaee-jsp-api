@@ -44,10 +44,10 @@ import java.util.TimeZone;
  *
  * @author Bip Thelin
  * @author Dan Sandberg
- * @version $Revision: 1.2 $, $Date: 2005/04/29 01:28:31 $
+ * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:09 $
  */
 public class Strftime {
-    protected static Properties translate;
+    protected static final Properties translate;
     protected SimpleDateFormat simpleDateFormat;
 
     /**

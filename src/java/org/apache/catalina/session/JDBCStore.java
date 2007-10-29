@@ -51,7 +51,7 @@ import org.apache.catalina.util.CustomObjectInputStream;
  * saved are still subject to being expired based on inactivity.
  *
  * @author Bip Thelin
- * @version $Revision: 1.2 $, $Date: 2005/04/29 01:27:56 $
+ * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
  */
 
 public class JDBCStore
@@ -60,7 +60,7 @@ public class JDBCStore
     /**
      * The descriptive information about this implementation.
      */
-    protected static String info = "JDBCStore/1.0";
+    protected static final String info = "JDBCStore/1.0";
 
     /**
      * Context name associated with this Store
@@ -70,7 +70,7 @@ public class JDBCStore
     /**
      * Name to register for this Store, used for logging.
      */
-    protected static String storeName = "JDBCStore";
+    protected static final String storeName = "JDBCStore";
 
     /**
      * Name to register for the background thread.

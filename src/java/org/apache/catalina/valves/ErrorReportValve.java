@@ -66,7 +66,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
+ * @version $Revision: 1.2 $ $Date: 2005/07/26 01:56:30 $
  */
 
 public class ErrorReportValve
@@ -92,7 +92,7 @@ public class ErrorReportValve
     /**
      * The StringManager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

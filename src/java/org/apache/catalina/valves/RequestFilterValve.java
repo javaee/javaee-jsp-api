@@ -68,7 +68,7 @@ import org.apache.catalina.util.StringManager;
  * of the filtering you wish to perform.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:09 $
+ * @version $Revision: 1.2 $ $Date: 2005/07/12 16:36:20 $
  */
 
 public abstract class RequestFilterValve
@@ -88,7 +88,7 @@ public abstract class RequestFilterValve
     /**
      * The StringManager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

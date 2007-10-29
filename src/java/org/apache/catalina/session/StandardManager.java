@@ -63,7 +63,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
  */
 
 public class StandardManager
@@ -121,7 +121,7 @@ public class StandardManager
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static String name = "StandardManager";
+    protected static final String name = "StandardManager";
 
 
     /**

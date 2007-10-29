@@ -89,7 +89,7 @@ import org.apache.commons.logging.LogFactory;
  * the functionality required of a <code>Realm</code> implementation.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:42 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
  */
 
 public class JAASMemoryLoginModule extends MemoryRealm implements LoginModule, Realm {
@@ -145,7 +145,7 @@ public class JAASMemoryLoginModule extends MemoryRealm implements LoginModule, R
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
     /**
