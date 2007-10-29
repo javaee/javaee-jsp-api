@@ -98,7 +98,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.15 $ $Date: 2007/05/05 05:32:18 $
+ * @version $Revision: 1.16 $ $Date: 2007/06/06 16:01:12 $
  */
 
 public class DefaultServlet
@@ -702,7 +702,7 @@ public class DefaultServlet
         if (alternateDocBases == null
                 || alternateDocBases.size() == 0) {
             cacheEntry = resources.lookupCache(path);
-	} else {
+        } else {
             AlternateDocBase match = AlternateDocBase.findMatch(
                                             path, alternateDocBases);
             if (match != null) {
