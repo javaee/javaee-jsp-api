@@ -101,10 +101,8 @@ public class SmapUtil {
             String name = entry.getClassName();  // class name
             // Compute the class name and output file name for inner classes
             if (!className.equals(name)) {
-                className = className + '$' + name;
-                classFileName =
-                    classFileName.substring(0, classFileName.indexOf(".class"))+
-                    '$' + name + ".class";
+                classFileName = ctxt.getOutputDir() + 
+                    name.substring(name.lastIndexOf('.')+1) + ".class";
             }
             entry.setClassFileName(classFileName);
             entry.setSmap(g.getString());
