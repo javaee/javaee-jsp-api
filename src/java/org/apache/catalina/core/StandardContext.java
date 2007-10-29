@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2005/10/25 17:33:17 $
+ * @version $Revision: 1.9 $ $Date: 2005/11/02 23:51:34 $
  */
 
 public class StandardContext
@@ -4863,15 +4863,28 @@ public class StandardContext
             if ((logger != null) && (logger instanceof Lifecycle)) {
                 ((Lifecycle) logger).stop();
             }
+            /* SJSAS 6347606 
             if ((loader != null) && (loader instanceof Lifecycle)) {
                 ((Lifecycle) loader).stop();
             }
-
+            */
         } finally {
 
             // Unbinding thread
             unbindThread(oldCCL);
 
+            // START SJSAS 6347606 
+            /*
+             * Delay the stopping of the webapp classloader until this point,
+             * because unbindThread() calls the security-checked
+             * Thread.setContextClassLoader(), which may ask the current thread
+             * context classloader (i.e., the webapp classloader) to load
+             * Principal classes specified in the security policy file
+             */
+            if ((loader != null) && (loader instanceof Lifecycle)) {
+                ((Lifecycle) loader).stop();
+            }
+            // END SJSAS 6347606 
         }
 
         // Send j2ee.state.stopped notification 
