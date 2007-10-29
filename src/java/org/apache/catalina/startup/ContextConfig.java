@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.8 $ $Date: 2006/02/28 03:18:24 $
+ * @version $Revision: 1.9 $ $Date: 2006/03/01 22:47:44 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -336,7 +336,8 @@ public class ContextConfig
                     webDigester.setUseContextClassLoader(false);
                     webDigester.push(context);
                     // START PWC 6390776
-                    webDigester.setLogger(new DigesterLogger());
+                    webDigester.setLogger(
+                                    new DigesterLogger(context.getName()));
                     // END PWC 6390776
                     webDigester.parse(is);
                 } else {
@@ -1029,61 +1030,63 @@ public class ContextConfig
 class DigesterLogger implements Log {
 
     public Log log;
+    public String contextMsg = null;
 
-    public DigesterLogger() {
+    public DigesterLogger(String contextName) {
         log = LogFactory.getLog("org.apache.commons.digester.Digester");
+        contextMsg = "In context [" + contextName + "]: ";
     }
     
     public void debug(Object message) {
-        log.debug(message);
+        log.debug(contextMsg + message);
     }
 
     public void debug(Object message, Throwable t) {
-        log.debug(message,t);
+        log.debug(contextMsg + message,t);
     }
 
     public void error(Object message) {
-        log.error(message);
+        log.error(contextMsg + message);
     }
 
     public void error(Object message, Throwable t) {
         if (log.isDebugEnabled()) {
-            log.error(message,t);
+            log.error(contextMsg + message,t);
         } else {
-            log.error(message);
+            log.error(contextMsg + message);
         }
     }
 
     public void fatal(Object message) {
-        log.fatal(message);
+        log.fatal(contextMsg + message);
     }
 
     public void fatal(Object message, Throwable t) {
-        log.fatal(message,t);
+        log.fatal(contextMsg + message,t);
     }
 
     public void info(Object message) {
-        log.info(message);
+        log.info(contextMsg + message);
     }
 
     public void info(Object message, Throwable t) {
-        log.info(message, t);
+        log.info(contextMsg + message, t);
     }
 
     public void trace(Object message) {
-        log.trace(message);
+        log.trace(contextMsg + message);
     }
 
     public void trace(Object message, Throwable t) {
-        log.trace(message, t);
+        log.trace(contextMsg + message, t);
     }
 
     public void warn(Object message) {
-        log.warn(message);
+        log.warn(contextMsg + message);
     }
 
     public void warn(Object message, Throwable t) {
-        log.warn(message, t);
+        log.warn(contextMsg + message, t);
     }
 
     public boolean isDebugEnabled() {
