@@ -32,13 +32,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /**
  * Utility class to read the bootstrap Catalina configuration.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:06 $
  */
 
 public class CatalinaProperties {
@@ -135,6 +136,18 @@ public class CatalinaProperties {
         if ((is == null) || (error != null)) {
             // Do something
             log.warn("Failed to load catalina.properties", error);
+            // That's fine - we have reasonable defaults.
+            properties = new Properties();
+        }
+
+        // Register the properties as system properties
+        Enumeration enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            String name = (String) enumeration.nextElement();
+            String value = properties.getProperty(name);
+            if (value != null) {
+                System.setProperty(name, value);
+            }
         }
 
     }

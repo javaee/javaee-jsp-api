@@ -74,7 +74,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.4 $ $Date: 2005/11/14 20:28:10 $
+ * @version $Revision: 1.5 $ $Date: 2005/12/08 01:28:06 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -608,7 +608,20 @@ public class ContextConfig
                     source = new InputSource
                             (getClass().getClassLoader()
                             .getResource(defaultWebXml).toString());
-                } else {
+                } 
+
+                if( stream== null ) { 
+                    // maybe embedded
+                    stream = getClass().getClassLoader()
+                        .getResourceAsStream("web-embed.xml");
+                    if( stream != null ) {
+                        source = new InputSource
+                        (getClass().getClassLoader()
+                                .getResource("web-embed.xml").toString());
+                    }                                         
+                }
+
+                if( stream== null ) {
                     log.info("No default web.xml");
                     // no default web.xml
                     return;

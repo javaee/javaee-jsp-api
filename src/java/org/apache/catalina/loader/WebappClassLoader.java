@@ -34,6 +34,8 @@ import java.io.FileOutputStream;
 import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -44,6 +46,9 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.PrivilegedAction;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -120,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2005/11/14 20:03:03 $
+ * @version $Revision: 1.10 $ $Date: 2005/12/08 01:27:44 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1054,16 +1059,17 @@ public class WebappClassLoader
 
         // Looking at the JAR files
         synchronized (jarFiles) {
-            openJARs();
-            for (i = 0; i < jarFilesLength; i++) {
-                JarEntry jarEntry = jarFiles[i].getJarEntry(name);
-                if (jarEntry != null) {
-                    try {
-                        String jarFakeUrl = getURI(jarRealFiles[i]).toString();
-                        jarFakeUrl = "jar:" + jarFakeUrl + "!/" + name;
-                        result.addElement(new URL(jarFakeUrl));
-                    } catch (MalformedURLException e) {
-                        // Ignore
+            if (openJARs()) {
+                for (i = 0; i < jarFilesLength; i++) {
+                    JarEntry jarEntry = jarFiles[i].getJarEntry(name);
+                    if (jarEntry != null) {
+                        try {
+                            String jarFakeUrl = getURI(jarRealFiles[i]).toString();
+                            jarFakeUrl = "jar:" + jarFakeUrl + "!/" + name;
+                            result.addElement(new URL(jarFakeUrl));
+                        } catch (MalformedURLException e) {
+                            // Ignore
+                        }
                     }
                 }
             }
@@ -1609,20 +1615,9 @@ public class WebappClassLoader
      */
     public void stop() throws LifecycleException {
 
-        /*
-         * Clear the IntrospectionUtils cache.
-         *
-         * Implementation note:
-         * Any reference to IntrospectionUtils which may cause the static
-         * initalizer of that class to be invoked must occur prior to setting
-         * the started flag to FALSE, because the static initializer of
-         * IntrospectionUtils makes a call to
-         * org.apache.commons.logging.LogFactory.getLog(), which ultimately
-         * calls the loadClass() method of the thread context classloader,
-         * which is the same as this classloader, whose impl throws a
-         * ThreadDeath if the started flag has been set to FALSE.
-         */
-        IntrospectionUtils.clear();
+        // Clearing references should be done before setting started to
+        // false, due to possible side effects
+        clearReferences();
 
         // START SJSAS 6258619
         ClassLoaderUtil.releaseLoader(this);
@@ -1669,13 +1664,6 @@ public class WebappClassLoader
             deleteDir(loaderDir);
         }
 
-        // START S1AS 5032338
-        // Clear the classloader reference in commons-logging.
-        LogFactory.release(this);
-        // END S1AS 5032338
-
-        // Clear the classloader reference in the VM's bean introspector
-        java.beans.Introspector.flushCaches();
     }
 
 
@@ -1695,7 +1683,9 @@ public class WebappClassLoader
                                 jarFiles[i] = null;
                             }
                         } catch (IOException e) {
-                            log.warn("Failed to close JAR", e);
+                            if (log.isDebugEnabled()) {
+                                log.warn("Failed to close JAR", e);
+                            }
                         }
                     }
                 }
@@ -1704,13 +1694,128 @@ public class WebappClassLoader
     }
 
 
+    /**
+     * Clear references.
+     */
+    protected void clearReferences() {
+
+        // Unregister any JDBC drivers loaded by this classloader
+        Enumeration drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = (Driver) drivers.nextElement();
+            if (driver.getClass().getClassLoader() == this) {
+                try {
+                    DriverManager.deregisterDriver(driver);
+                } catch (SQLException e) {
+                    log.warn("SQL driver deregistration failed", e);
+                }
+            }
+        }
+        
+        // Null out any static or final fields from loaded classes,
+        // as a workaround for apparent garbage collection bugs
+        Iterator loadedClasses = ((HashMap) resourceEntries.clone()).values().
+                                    iterator();
+        while (loadedClasses.hasNext()) {
+            ResourceEntry entry = (ResourceEntry) loadedClasses.next();
+            if (entry.loadedClass != null) {
+                Class clazz = entry.loadedClass;
+                try {
+                    Field[] fields = clazz.getDeclaredFields();
+                    for (int i = 0; i < fields.length; i++) {
+                        Field field = fields[i];
+                        int mods = field.getModifiers();
+                        if (field.getType().isPrimitive() 
+                                || (field.getName().indexOf("$") != -1)) {
+                            continue;
+                        }
+                        if (Modifier.isStatic(mods)) {
+                            try {
+                                field.setAccessible(true);
+                                if (Modifier.isFinal(mods)) {
+                                    if (!((field.getType().getName().startsWith("java."))
+                                            || (field.getType().getName().startsWith("javax.")))) {
+                                        nullInstance(field.get(null));
+                                    }
+                                } else {
+                                    field.set(null, null);
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Set field " + field.getName() 
+                                                + " to null in class " + clazz.getName());
+                                    }
+                                }
+                            } catch (Throwable t) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Could not set field " + field.getName() 
+                                            + " to null in class " + clazz.getName(), t);
+                                }
+                            }
+                        }
+                    }
+                } catch (Throwable t) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Could not clean fields for class " + clazz.getName(), t);
+                    }
+                }
+            }
+        }
+        
+         // Clear the IntrospectionUtils cache.
+        IntrospectionUtils.clear();
+       
+        // START S1AS 5032338
+        //org.apache.commons.logging.LogFactory.release(this);
+        // Clear the classloader reference in commons-logging.
+        LogFactory.release(this);
+        // END S1AS 5032338
+        
+        // Clear the classloader reference in the VM's bean introspector
+        java.beans.Introspector.flushCaches();
+
+    }
+
+
+    protected void nullInstance(Object instance) {
+        if (instance == null) {
+            return;
+        }
+        Field[] fields = instance.getClass().getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            int mods = field.getModifiers();
+            if (field.getType().isPrimitive() 
+                    || (field.getName().indexOf("$") != -1)) {
+                continue;
+            }
+            try {
+                field.setAccessible(true);
+                if (Modifier.isStatic(mods) && Modifier.isFinal(mods)) {
+                    // Doing something recursively is too risky
+                    continue;
+                } else {
+                    field.set(instance, null);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Set field " + field.getName() 
+                                + " to null in class " + instance.getClass().getName());
+                    }
+                }
+            } catch (Throwable t) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not set field " + field.getName() 
+                            + " to null in object instance of class " 
+                            + instance.getClass().getName(), t);
+                }
+            }
+        }
+    }
+    
     // ------------------------------------------------------ Protected Methods
 
 
     /**
      * Used to periodically signal to the classloader to release JAR resources.
      */
-    protected void openJARs() {
+    protected boolean openJARs() {
         if (started && (jarFiles.length > 0)) {
             lastJarAccessed = System.currentTimeMillis();
             if (jarFiles[0] == null) {
@@ -1718,11 +1823,15 @@ public class WebappClassLoader
                     try {
                         jarFiles[i] = new JarFile(jarRealFiles[i]);
                     } catch (IOException e) {
-                        log.warn("Failed to open JAR", e);
+                        if (log.isDebugEnabled()) {
+                            log.warn("Failed to open JAR", e);
+                        }
+                        return false;
                     }
                 }
             }
         }
+        return true;
     }
 
 
@@ -1944,9 +2053,10 @@ public class WebappClassLoader
 
         synchronized (jarFiles) {
 
-            openJARs();
+            if (!openJARs()){
+                return null;
+            }
             for (i = 0; (entry == null) && (i < jarFilesLength); i++) {
-
                 jarEntry = jarFiles[i].getJarEntry(path);
 
                 if (jarEntry != null) {

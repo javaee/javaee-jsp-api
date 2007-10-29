@@ -49,7 +49,7 @@ import org.apache.catalina.security.SecurityClassLoad;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:05 $
  */
 
 public final class Bootstrap {
@@ -100,6 +100,12 @@ public final class Bootstrap {
         try {
             ClassLoaderFactory.setDebug(debug);
             commonLoader = createClassLoader("common", null);
+            if( commonLoader == null ) {
+                // no config file, default to this loader 
+                // - we might be in a 'single' env.
+                commonLoader=this.getClass().getClassLoader();
+            }
+
             catalinaLoader = createClassLoader("server", commonLoader);
             sharedLoader = createClassLoader("shared", commonLoader);
         } catch (Throwable t) {

@@ -64,7 +64,7 @@ import org.xml.sax.InputSource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:05 $
  */
 
 public class Catalina extends Embedded {
@@ -448,8 +448,9 @@ public class Catalina extends Embedded {
         Exception ex = null;
         InputSource inputSource = null;
         InputStream inputStream = null;
+        File file = null;
         try {
-            File file = configFile();
+            file = configFile();
             inputStream = new FileInputStream(file);
             inputSource = new InputSource("file://" + file.getAbsolutePath());
         } catch (Exception e) {
@@ -467,8 +468,22 @@ public class Catalina extends Embedded {
             }
         }
 
-        if (inputStream == null) {
-            log.warn("Can't load server.xml");
+        // This should be included in catalina.jar
+        // Alternative: don't bother with xml, just create it manually.
+        if( inputStream==null ) {
+            try {
+                inputStream = getClass().getClassLoader()
+                .getResourceAsStream("server-embed.xml");
+                inputSource = new InputSource
+                (getClass().getClassLoader()
+                        .getResource("server-embed.xml").toString());
+            } catch (Exception e) {
+                ;
+            }
+        }
+
+        if (inputStream == null && file != null) {
+            log.warn("Can't load server.xml from " + file.getAbsolutePath());
             return;
         }
 
