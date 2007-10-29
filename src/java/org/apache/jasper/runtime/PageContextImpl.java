@@ -103,7 +103,6 @@ public class PageContextImpl extends PageContext {
     private JspFactory factory;
     private boolean needsSession;
     private String errorPageURL;
-    private boolean autoFlush;
     private int	bufferSize;
     private JspApplicationContextImpl jspApplicationContext;
     private ELResolver elResolver;
@@ -159,7 +158,6 @@ public class PageContextImpl extends PageContext {
 	this.needsSession = needsSession;
 	this.errorPageURL = errorPageURL;
 	this.bufferSize = bufferSize;
-	this.autoFlush = autoFlush;
 	this.request = request;
  	this.response = response;
 
@@ -224,7 +222,6 @@ public class PageContextImpl extends PageContext {
 	needsSession = false;
 	errorPageURL = null;
 	bufferSize = JspWriter.DEFAULT_BUFFER;
-	autoFlush = true;
 	request = null;
 	response = null;
         depth = -1;

@@ -87,7 +87,6 @@ class Generator {
     private boolean isPoolingEnabled;
     private boolean breakAtLF;
     private PageInfo pageInfo;
-    private int maxTagNesting;
     private Vector tagHandlerPoolNames;
     private GenBuffer charArrayBuffer;
 
@@ -591,10 +590,6 @@ class Generator {
         out.printil("ServletConfig config = null;");
         out.printil("JspWriter out = null;");
         out.printil("Object page = this;");
-
-        // Number of tag object that need to be popped
-        // XXX TODO: use a better criteria
-        maxTagNesting = pageInfo.getMaxTagNesting();
         out.printil("JspWriter _jspx_out = null;");
         out.printil("PageContext _jspx_page_context = null;");
         out.println();
@@ -741,8 +736,6 @@ class Generator {
         private ArrayList methodsBuffered;
         private FragmentHelperClass fragmentHelperClass;
         private int methodNesting;
-        private TagInfo tagInfo;
-        private ClassLoader loader;
         private int charArrayCount;
         private HashMap textMap;
 
@@ -753,16 +746,12 @@ class Generator {
             boolean isTagFile,
             ServletWriter out,
             ArrayList methodsBuffered,
-            FragmentHelperClass fragmentHelperClass,
-            ClassLoader loader,
-            TagInfo tagInfo) {
+            FragmentHelperClass fragmentHelperClass) {
 
             this.isTagFile = isTagFile;
             this.out = out;
             this.methodsBuffered = methodsBuffered;
             this.fragmentHelperClass = fragmentHelperClass;
-            this.loader = loader;
-            this.tagInfo = tagInfo;
             methodNesting = 0;
             handlerInfos = new Hashtable();
             tagVarNumbers = new Hashtable();
@@ -3404,9 +3393,7 @@ class Generator {
                     gen.ctxt.isTagFile(),
                     out,
                     gen.methodsBuffered,
-                    gen.fragmentHelperClass,
-                    gen.ctxt.getClassLoader(),
-                    tagInfo));
+                    gen.fragmentHelperClass));
             gen.generateTagHandlerPostamble(tagInfo);
         } else {
             gen.generatePreamble(page);
@@ -3417,9 +3404,7 @@ class Generator {
                     gen.ctxt.isTagFile(),
                     out,
                     gen.methodsBuffered,
-                    gen.fragmentHelperClass,
-                    gen.ctxt.getClassLoader(),
-                    null));
+                    gen.fragmentHelperClass));
             gen.generatePostamble(page);
         }
     }
@@ -3524,10 +3509,6 @@ class Generator {
             out.printil("_jspInit(config);");
         }
         generatePageScopedVariables(tagInfo);
-
-        // Number of tag object that need to be popped
-        // XXX TODO: use a better criteria
-        maxTagNesting = pageInfo.getMaxTagNesting();
 
         declareTemporaryScriptingVars(tag);
         out.println();

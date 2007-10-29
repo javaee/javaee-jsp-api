@@ -1671,14 +1671,12 @@ class Validator {
      */
     static class TagExtraInfoVisitor extends Node.Visitor {
 
-	private PageInfo pageInfo;
 	private ErrorDispatcher err;
 
 	/*
 	 * Constructor
 	 */
 	TagExtraInfoVisitor(Compiler compiler) {
-	    this.pageInfo = compiler.getPageInfo();
 	    this.err = compiler.getErrorDispatcher();
 	}
 

@@ -36,14 +36,10 @@ import org.apache.jasper.compiler.Localizer;
 /**
  * @author Andy Clark, IBM
  *
- * @version $Id: UTF8Reader.java,v 1.2 2005/12/08 01:29:01 kchung Exp $
+ * @version $Id: UTF8Reader.java,v 1.3 2006/03/12 01:27:12 jluehe Exp $
  */
 public class UTF8Reader
     extends Reader {
-
-
-    private static com.sun.org.apache.commons.logging.Log log=
-        com.sun.org.apache.commons.logging.LogFactory.getLog( UTF8Reader.class );
 
     //
     // Constants
@@ -51,11 +47,6 @@ public class UTF8Reader
 
     /** Default byte buffer size (2048). */
     public static final int DEFAULT_BUFFER_SIZE = 2048;
-
-    // debugging
-
-    /** Debug read. */
-    private static final boolean DEBUG_READ = false;
 
     //
     // Data
@@ -219,10 +210,6 @@ public class UTF8Reader
         }
 
         // return character
-        if (DEBUG_READ) {
-            if (log.isDebugEnabled())
-                log.debug("read(): 0x"+Integer.toHexString(c));
-        }
         return c;
 
     } // read():int
@@ -504,10 +491,6 @@ public class UTF8Reader
         }
 
         // return number of characters converted
-        if (DEBUG_READ) {
-            if (log.isDebugEnabled())
-                log.debug("read(char[],"+offset+','+length+"): count="+count);
-        }
         return count;
 
     } // read(char[],int,int)
