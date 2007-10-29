@@ -93,7 +93,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/08/17 19:48:30 $
+ * @version $Revision: 1.5 $ $Date: 2005/08/18 02:23:45 $
  */
 
 public class CoyoteRequest
@@ -1556,8 +1556,6 @@ public class CoyoteRequest
      *                 ServletRequest is still in a state where a
      *                 character encoding may be set, but the specified
      *                 encoding is invalid
-     * @throws         IllegalStateException if request parameters have
-     *                 already been read or getReader() has been called
      *
      * @since Servlet 2.3
      */
@@ -1565,10 +1563,12 @@ public class CoyoteRequest
         throws UnsupportedEncodingException {
 
         // START SJSAS 4936855
+        /*
         if (requestParametersParsed || usingReader) {
             throw new IllegalStateException
               (sm.getString("coyoteRequest.setCharacterEncoding.ise"));
         }
+        */
         // END SJSAS 4936855
 
         // Ensure that the specified encoding is valid
@@ -2531,18 +2531,13 @@ public class CoyoteRequest
      */
     protected void parseRequestParameters() {
 
-        /* SJSAS 4936855
         requestParametersParsed = true;
-        */
 
         Parameters parameters = coyoteRequest.getParameters();
 
         // getCharacterEncoding() may have been overridden to search for
         // hidden form field containing request encoding
         String enc = getCharacterEncoding();
-        // START SJSAS 4936855
-        requestParametersParsed = true;
-        // END SJSAS 4936855
         if (enc != null) {
             parameters.setEncoding(enc);
             parameters.setQueryStringEncoding(enc);
