@@ -161,6 +161,7 @@ public class JspC implements Options {
     // END SJSAS 6393940
 
     private static final String SHOW_SUCCESS ="-s";
+    private static final String LIST_ERRORS = "-l";
     private static final int NO_WEBXML = 0;
     private static final int INC_WEBXML = 10;
     private static final int ALL_WEBXML = 20;
@@ -243,6 +244,7 @@ public class JspC implements Options {
     private TagPluginManager tagPluginManager = null;
 
     private boolean verbose = false;
+    private boolean listErrors = false;
     private boolean showSuccess = false;
     private int argPos;
     private boolean fullstop = false;
@@ -326,6 +328,7 @@ public class JspC implements Options {
             if (tok.equals(SWITCH_VERBOSE)) {
                 verbose = true;
                 showSuccess = true;
+                listErrors = true;
             } else if (tok.equals(SWITCH_OUTPUT_DIR)) {
                 tok = nextArg();
                 setOutputDir( tok );
@@ -347,6 +350,8 @@ public class JspC implements Options {
                 setUriroot( nextArg());
             } else if ( tok.equals( SHOW_SUCCESS ) ) {
                 showSuccess = true;
+            } else if ( tok.equals( LIST_ERRORS ) ) {
+                listErrors = true;
             } else if (tok.equals(SWITCH_WEBAPP_INC)) {
                 webxmlFile = nextArg();
                 if (webxmlFile != null) {
@@ -795,6 +800,7 @@ public class JspC implements Options {
         if (level > 0) {
             verbose = true;
             showSuccess = true;
+            listErrors = true;
         }
     }
 
@@ -816,6 +822,10 @@ public class JspC implements Options {
         return isValidationEnabled;
     }
     // END SJSAS 6384538
+
+    public void setListErrors( boolean b ) {
+        listErrors = b;
+    }
 
     public void setOutputDir( String s ) {
         if( s!= null ) {
@@ -1138,7 +1148,7 @@ public class JspC implements Options {
                     && ((JasperException) rootCause).getRootCause() != null) {
                 rootCause = ((JasperException) rootCause).getRootCause();
             }
-            if (rootCause != je) {
+            if (listErrors && rootCause != je) {
                 log.error(Localizer.getMessage("jspc.error.generalException",
                                                file),
                           rootCause);
@@ -1148,7 +1158,7 @@ public class JspC implements Options {
             if (getFailOnError() && !ignoreJspFragmentErrors) {
                 throw je;
             } else {
-                if (!ignoreJspFragmentErrors) {
+                if (listErrors && !ignoreJspFragmentErrors) {
                     log.error(je.getMessage());
                 }
                 // START SJAS 6329723
