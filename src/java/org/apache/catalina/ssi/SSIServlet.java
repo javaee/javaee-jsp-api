@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -23,213 +21,202 @@
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
  *
  * Portions Copyright Apache Software Foundation.
- */
-
+*/
 package org.apache.catalina.ssi;
 
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.apache.catalina.Globals;
 /**
- * Servlet to process SSI requests within a webpage.
- * Mapped to a path from within web.xml.
- *
+ * Servlet to process SSI requests within a webpage. Mapped to a path from
+ * within web.xml.
+ * 
  * @author Bip Thelin
  * @author Amy Roh
  * @author Dan Sandberg
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:08 $
+ * @author David Becker
+ * @version $Revision: 467222 $, $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
  */
 public class SSIServlet extends HttpServlet {
     /** Debug level for this servlet. */
     protected int debug = 0;
-
     /** Should the output be buffered. */
     protected boolean buffered = false;
-
     /** Expiration time in seconds for the doc. */
     protected Long expires = null;
-
     /** virtual path can be webapp-relative */
     protected boolean isVirtualWebappRelative = false;
+    /** Input encoding. If not specified, uses platform default */
+    protected String inputEncoding = null;
+    /** Output encoding. If not specified, uses platform default */
+    protected String outputEncoding = "UTF-8";
+
 
     //----------------- Public methods.
-
     /**
      * Initialize this servlet.
-     * @exception ServletException if an error occurs
+     * 
+     * @exception ServletException
+     *                if an error occurs
      */
     public void init() throws ServletException {
-        String value = null;
-        try {
-            value = getServletConfig().getInitParameter("debug");
-            debug = Integer.parseInt(value);
-        } catch (Throwable t) {
-            ;
-        }
-
-        try {
-            value = getServletConfig().getInitParameter("isVirtualWebappRelative");
-            isVirtualWebappRelative = Integer.parseInt(value) > 0 ? true : false;
-        } catch (Throwable t) {
-            ;
-        }
-
-        try {
-            value = getServletConfig().getInitParameter("expires");
-            expires = Long.valueOf(value);
-        } catch (NumberFormatException e) {
-            expires = null;
-            log("Invalid format for expires initParam; expected integer (seconds)");
-        } catch (Throwable t) {
-            ;
-        }
-        try {
-            value = getServletConfig().getInitParameter("buffered");
-            buffered = Integer.parseInt(value) > 0 ? true : false;
-        } catch (Throwable t) {
-            ;
-        }
+        
+        if (getServletConfig().getInitParameter("debug") != null)
+            debug = Integer.parseInt(getServletConfig().getInitParameter("debug"));
+        
+        isVirtualWebappRelative = 
+            Boolean.parseBoolean(getServletConfig().getInitParameter("isVirtualWebappRelative"));
+        
+        if (getServletConfig().getInitParameter("expires") != null)
+            expires = Long.valueOf(getServletConfig().getInitParameter("expires"));
+        
+        buffered = Boolean.parseBoolean(getServletConfig().getInitParameter("buffered"));
+        
+        inputEncoding = getServletConfig().getInitParameter("inputEncoding");
+        
+        if (getServletConfig().getInitParameter("outputEncoding") != null)
+            outputEncoding = getServletConfig().getInitParameter("outputEncoding");
+        
         if (debug > 0)
-            log("SSIServlet.init() SSI invoker started with 'debug'="
-                + debug);
+            log("SSIServlet.init() SSI invoker started with 'debug'=" + debug);
+
     }
 
+
     /**
-     * Process and forward the GET request
-     * to our <code>requestHandler()</code>     *
-     * @param req a value of type 'HttpServletRequest'
-     * @param res a value of type 'HttpServletResponse'
-     * @exception IOException if an error occurs
-     * @exception ServletException if an error occurs
+     * Process and forward the GET request to our <code>requestHandler()</code>*
+     * 
+     * @param req
+     *            a value of type 'HttpServletRequest'
+     * @param res
+     *            a value of type 'HttpServletResponse'
+     * @exception IOException
+     *                if an error occurs
+     * @exception ServletException
+     *                if an error occurs
      */
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-        throws IOException, ServletException {
-
-        if (debug > 0)
-            log("SSIServlet.doGet()");
+            throws IOException, ServletException {
+        if (debug > 0) log("SSIServlet.doGet()");
         requestHandler(req, res);
     }
+
 
     /**
-     * Process and forward the POST request
-     * to our <code>requestHandler()</code>.
-     *
-     * @param req a value of type 'HttpServletRequest'
-     * @param res a value of type 'HttpServletResponse'
-     * @exception IOException if an error occurs
-     * @exception ServletException if an error occurs
+     * Process and forward the POST request to our
+     * <code>requestHandler()</code>.
+     * 
+     * @param req
+     *            a value of type 'HttpServletRequest'
+     * @param res
+     *            a value of type 'HttpServletResponse'
+     * @exception IOException
+     *                if an error occurs
+     * @exception ServletException
+     *                if an error occurs
      */
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-        throws IOException, ServletException {
-
-        if (debug > 0)
-            log("SSIServlet.doPost()");
+            throws IOException, ServletException {
+        if (debug > 0) log("SSIServlet.doPost()");
         requestHandler(req, res);
     }
+
 
     /**
      * Process our request and locate right SSI command.
-     * @param req a value of type 'HttpServletRequest'
-     * @param res a value of type 'HttpServletResponse'
+     * 
+     * @param req
+     *            a value of type 'HttpServletRequest'
+     * @param res
+     *            a value of type 'HttpServletResponse'
      */
     protected void requestHandler(HttpServletRequest req,
-                                HttpServletResponse res)
-        throws IOException, ServletException {
-
+            HttpServletResponse res) throws IOException, ServletException {
         ServletContext servletContext = getServletContext();
-        String path = SSIServletRequestUtil.getRelativePath( req );
-
+        String path = SSIServletRequestUtil.getRelativePath(req);
         if (debug > 0)
-            log("SSIServlet.requestHandler()\n" +
-                "Serving " + (buffered ? "buffered " : "unbuffered ") +
-                "resource '" + path + "'");
-
+            log("SSIServlet.requestHandler()\n" + "Serving "
+                    + (buffered?"buffered ":"unbuffered ") + "resource '"
+                    + path + "'");
         // Exclude any resource in the /WEB-INF and /META-INF subdirectories
         // (the "toUpperCase()" avoids problems on Windows systems)
-        if ( path == null ||
-             path.toUpperCase().startsWith("/WEB-INF") ||
-             path.toUpperCase().startsWith("/META-INF") ) {
-
-            res.sendError(res.SC_NOT_FOUND  , path);
-            log( "Can't serve file: " + path );
+        if (path == null || path.toUpperCase().startsWith("/WEB-INF")
+                || path.toUpperCase().startsWith("/META-INF")) {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND, path);
+            log("Can't serve file: " + path);
             return;
         }
-    
         URL resource = servletContext.getResource(path);
-        if (resource==null) {
-            res.sendError(res.SC_NOT_FOUND, path);
-            log( "Can't find file: " + path );
+        if (resource == null) {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND, path);
+            log("Can't find file: " + path);
             return;
         }
-
-        res.setContentType("text/html;charset=UTF-8");
-
-        if (expires != null) {
-            res.setDateHeader("Expires", (
-                new java.util.Date()).getTime() + expires.longValue() * 1000);
+        String resourceMimeType = servletContext.getMimeType(path);
+        if (resourceMimeType == null) {
+            resourceMimeType = "text/html";
         }
-
-        processSSI( req, res, resource );
+        res.setContentType(resourceMimeType + ";charset=" + outputEncoding);
+        if (expires != null) {
+            res.setDateHeader("Expires", (new java.util.Date()).getTime()
+                    + expires.longValue() * 1000);
+        }
+        req.setAttribute(Globals.SSI_FLAG_ATTR, "true");
+        processSSI(req, res, resource);
     }
 
-    protected void processSSI( HttpServletRequest req,
-                   HttpServletResponse res,
-                   URL resource ) throws IOException {
-                   
-        SSIExternalResolver ssiExternalResolver = 
-            new SSIServletExternalResolver( this, req, res,
-                                            isVirtualWebappRelative,
-                                            debug );
-        SSIProcessor ssiProcessor = new SSIProcessor( ssiExternalResolver, debug );
 
+    protected void processSSI(HttpServletRequest req, HttpServletResponse res,
+            URL resource) throws IOException {
+        SSIExternalResolver ssiExternalResolver =
+            new SSIServletExternalResolver(getServletContext(), req, res,
+                    isVirtualWebappRelative, debug, inputEncoding);
+        SSIProcessor ssiProcessor = new SSIProcessor(ssiExternalResolver,
+                debug);
         PrintWriter printWriter = null;
         StringWriter stringWriter = null;
         if (buffered) {
             stringWriter = new StringWriter();
-            printWriter = new PrintWriter( stringWriter );
+            printWriter = new PrintWriter(stringWriter);
         } else {
             printWriter = res.getWriter();
         }
 
         URLConnection resourceInfo = resource.openConnection();
         InputStream resourceInputStream = resourceInfo.getInputStream();
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( resourceInputStream ) );
-        Date lastModifiedDate = new Date( resourceInfo.getLastModified() );
-        ssiProcessor.process( bufferedReader, lastModifiedDate, printWriter );
+        String encoding = resourceInfo.getContentEncoding();
+        if (encoding == null) {
+            encoding = inputEncoding;
+        }
+        InputStreamReader isr;
+        if (encoding == null) {
+            isr = new InputStreamReader(resourceInputStream);
+        } else {
+            isr = new InputStreamReader(resourceInputStream, encoding);
+        }
+        BufferedReader bufferedReader = new BufferedReader(isr);
 
-        if ( buffered ) {
+        long lastModified = ssiProcessor.process(bufferedReader,
+                resourceInfo.getLastModified(), printWriter);
+        if (lastModified > 0) {
+            res.setDateHeader("last-modified", lastModified);
+        }
+        if (buffered) {
             printWriter.flush();
             String text = stringWriter.toString();
-            res.getWriter().write( text );
+            res.getWriter().write(text);
         }
     }
 }

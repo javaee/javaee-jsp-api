@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -23,54 +21,54 @@
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
  *
  * Portions Copyright Apache Software Foundation.
- */
-
+*/
 package org.apache.catalina.ssi;
+
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.RequestDispatcher;
-
 /**
  * Implements the Server-side #include command
- *
+ * 
  * @author Bip Thelin
+ * @author Paul Speed
  * @author Dan Sandberg
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:08 $
+ * @author David Becker
+ * @version $Revision: 467222 $, $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
  */
 public final class SSIInclude implements SSICommand {
     /**
      * @see SSICommand
      */
-    public void process(SSIMediator ssiMediator,
-			String[] paramNames,
-			String[] paramValues,
-			PrintWriter writer) {
-
-	String configErrMsg = ssiMediator.getConfigErrMsg();
-
-	for ( int i=0; i < paramNames.length; i++ ) {
-	    String paramName = paramNames[i];
-	    String paramValue = paramValues[i];
-
-	    try {
-		if ( paramName.equalsIgnoreCase("file") ||
-		     paramName.equalsIgnoreCase("virtual") ) {
-		    boolean virtual = paramName.equalsIgnoreCase("virtual");
-		    String text = ssiMediator.getFileText( paramValue, virtual );
-		    writer.write( text );
-		} else {
-		    ssiMediator.log("#include--Invalid attribute: " + paramName );
-		    writer.write( configErrMsg );
-		}
-	    } catch ( IOException e ) {
-		ssiMediator.log("#include--Couldn't include file: " + paramValue, e );
-		writer.write( configErrMsg );
-	    }
-	}
+    public long process(SSIMediator ssiMediator, String commandName,
+            String[] paramNames, String[] paramValues, PrintWriter writer) {
+        long lastModified = 0;
+        String configErrMsg = ssiMediator.getConfigErrMsg();
+        for (int i = 0; i < paramNames.length; i++) {
+            String paramName = paramNames[i];
+            String paramValue = paramValues[i];
+            String substitutedValue = ssiMediator
+                    .substituteVariables(paramValue);
+            try {
+                if (paramName.equalsIgnoreCase("file")
+                        || paramName.equalsIgnoreCase("virtual")) {
+                    boolean virtual = paramName.equalsIgnoreCase("virtual");
+                    lastModified = ssiMediator.getFileLastModified(
+                    		 substitutedValue, virtual);
+                    String text = ssiMediator.getFileText(substitutedValue,
+                            virtual);
+                    writer.write(text);
+                } else {
+                    ssiMediator.log("#include--Invalid attribute: "
+                            + paramName);
+                    writer.write(configErrMsg);
+                }
+            } catch (IOException e) {
+                ssiMediator.log("#include--Couldn't include file: "
+                        + substitutedValue, e);
+                writer.write(configErrMsg);
+            }
+        }
+        return lastModified;
     }
 }
-

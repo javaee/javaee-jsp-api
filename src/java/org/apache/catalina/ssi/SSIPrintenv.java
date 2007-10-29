@@ -1,5 +1,3 @@
-
-
 /*
  * The contents of this file are subject to the terms
  * of the Common Development and Distribution License
@@ -23,48 +21,50 @@
  * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
  *
  * Portions Copyright Apache Software Foundation.
- */
-
+*/
 package org.apache.catalina.ssi;
+
 
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
-
 /**
  * Implements the Server-side #printenv command
- *
+ * 
  * @author Dan Sandberg
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:08 $
+ * @author David Becker
+ * @version $Revision: 467222 $, $Date: 2006-10-23 23:17:11 -0400 (Mon, 23 Oct 2006) $
  */
 public class SSIPrintenv implements SSICommand {
     /**
      * @see SSICommand
      */
-    public void process(SSIMediator ssiMediator,
-			String[] paramNames,
-			String[] paramValues,
-			PrintWriter writer) {
-
-	//any arguments should produce an error
-	if ( paramNames.length > 0 ) {
-	    String errorMessage = ssiMediator.getConfigErrMsg();
-	    writer.write( errorMessage );
-	} else {
-	    Collection variableNames = ssiMediator.getVariableNames();
-	    Iterator iter = variableNames.iterator();
-	    while ( iter.hasNext() ) {
-		String variableName = (String) iter.next();
-		String variableValue = ssiMediator.getVariableValue( variableName );
-		//This shouldn't happen, since all the variable names must have values
-		if ( variableValue == null ) {
-		    variableValue = "(none)";
-		}
-		writer.write( variableName );
-		writer.write( '=' );
-		writer.write( variableValue );
-		writer.write( '\n' );
-	    }
-	}
+    public long process(SSIMediator ssiMediator, String commandName,
+            String[] paramNames, String[] paramValues, PrintWriter writer) {
+    	long lastModified = 0;
+        //any arguments should produce an error
+        if (paramNames.length > 0) {
+            String errorMessage = ssiMediator.getConfigErrMsg();
+            writer.write(errorMessage);
+        } else {
+            Collection variableNames = ssiMediator.getVariableNames();
+            Iterator iter = variableNames.iterator();
+            while (iter.hasNext()) {
+                String variableName = (String)iter.next();
+                String variableValue = ssiMediator
+                        .getVariableValue(variableName);
+                //This shouldn't happen, since all the variable names must
+                // have values
+                if (variableValue == null) {
+                    variableValue = "(none)";
+                }
+                writer.write(variableName);
+                writer.write('=');
+                writer.write(variableValue);
+                writer.write('\n');
+                lastModified = System.currentTimeMillis();
+            }
+        }
+        return lastModified;
     }
 }
