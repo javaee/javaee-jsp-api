@@ -25,6 +25,10 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
+// START SJSAS 6290785
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
+// END SJSAS 6290785
 import javax.management.Notification;
 import javax.management.NotificationListener;
 // START SJSAS 6313044
@@ -247,12 +251,44 @@ public class MapperListener
                 if ((j2eeType.equals("WebModule")) || 
                     (j2eeType.equals("Servlet"))) {
                     if (mBeanServer.isRegistered(objectName)) {
+                        /* SJSAS 6290785
                         try {
                             engineName = (String)
                                 mBeanServer.getAttribute(objectName, "engineName");
                         } catch (Exception e) {
-                            // Ignore  
+                            // Ignore
                         }
+                        */
+                        // START SJSAS 6290785
+                        MBeanInfo info = null;
+                        try {
+                            info = mBeanServer.getMBeanInfo(objectName);
+                        } catch (Exception e) {
+                            // Ignore
+                        } 
+                        if (info != null) {
+                            boolean hasEngineNameAttribute = false;
+                            MBeanAttributeInfo[] attrInfo = info.getAttributes();
+                            if (attrInfo != null) {
+                                for (int i=0; i<attrInfo.length; i++) {
+                                    if ("engineName".equals(
+                                                    attrInfo[i].getName())) {
+                                        hasEngineNameAttribute = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (hasEngineNameAttribute) {
+                                try {
+                                    engineName = (String)
+                                        mBeanServer.getAttribute(objectName,
+                                                                 "engineName");
+                                } catch (Exception e) {
+                                    // Ignore  
+                                }
+                            }
+                        }
+                        // END SJSAS 6290785
                     }
                 }
             }
