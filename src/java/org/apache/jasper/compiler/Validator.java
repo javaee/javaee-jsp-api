@@ -1045,7 +1045,8 @@ class Validator {
                                     pageInfo.isDeferredSyntaxAllowedAsLiteral();
                                     if (!tldAttrs[j].isDeferredValue()
                                             && !tldAttrs[j].isDeferredMethod()){
-                                        if ("2.1".equals(n.getJspVersion())){
+                                        if (n.getJspVersion() >= 2.1 &&
+                                                !isLiteral){
                                             err.jspError(n,
                                                "jsp.error.el.nondeferred.pound",
                                                tldAttrs[j].getName());
@@ -1314,8 +1315,12 @@ class Validator {
         }
 
 	/*
-	 * Checks to see if the given attribute value represents a runtime or
-	 * EL expression.
+	 * Checks to see if the given attribute value represents a string
+         * or an expression (runtime or EL).  If it is a literal, also process
+         * escape sequences as a side-effect.  Note that the treatment of the
+         * EL syntax "#{}" depends on the JSP version in the TLD.
+         * 
+         * 
          * @return null, if the attribute is an expression
          *         otherwise, the literal string for the attribute
 	 */
@@ -1330,7 +1335,7 @@ class Validator {
                 return value;
             }
             boolean acceptsPound = (n instanceof Node.CustomTag) &&
-                "2.1".equals(((Node.CustomTag)n).getJspVersion()) &&
+                (((Node.CustomTag)n).getJspVersion() >= 2.1) &&
                 pageInfo.isDeferredSyntaxAllowedAsLiteral();
             int size = value.length();
             StringBuffer buf = new StringBuffer(size);
@@ -1340,7 +1345,7 @@ class Validator {
                 if (p == '$' && c == '{') {
                     return null;
                 }
-                if (p == '#' && c == '{' && acceptsPound) {
+                if (p == '#' && c == '{' && ! acceptsPound) {
                     return null;
                 }
                 if (p == '\\') {

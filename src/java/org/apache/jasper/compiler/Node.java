@@ -1346,7 +1346,7 @@ abstract class Node implements TagConstants {
      */
     public static class CustomTag extends Node {
 
-        private String jspVersion;
+        private double jspVersion;
 	private String uri;
 	private String prefix;
 	private JspAttribute[] jspAttrs;
@@ -1406,6 +1406,7 @@ abstract class Node implements TagConstants {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs,
                   start, parent);
 
+            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
 	    this.uri = uri;
 	    this.prefix = prefix;
 	    this.tagInfo = tagInfo;
@@ -1449,6 +1450,7 @@ abstract class Node implements TagConstants {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs,
                   start, parent);
 
+            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
 	    this.uri = uri;
 	    this.prefix = prefix;
 	    this.tagFileInfo = tagFileInfo;
@@ -1470,7 +1472,7 @@ abstract class Node implements TagConstants {
         /**
          * @return The jspVersion of the tag
          */
-        public String getJspVersion() {
+        public double getJspVersion() {
             return jspVersion;
         }
 
