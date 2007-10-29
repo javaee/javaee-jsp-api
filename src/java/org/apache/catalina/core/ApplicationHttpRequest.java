@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2006/08/10 21:35:19 $
+ * @version $Revision: 1.7 $ $Date: 2006/11/02 17:40:12 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -197,6 +197,13 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
      * Special attributes.
      */
     private HashMap specialAttributes = null;
+
+
+    /**
+     * true if this wrapper has been created for an include dispatch, false
+     * otherwise
+     */
+    private boolean isIncludeDispatch = false;
 
 
     // ------------------------------------------------- ServletRequest Methods
@@ -798,6 +805,8 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                                String pathInfo,
                                String queryString) {
 
+        this.isIncludeDispatch = isIncludeDispatch;
+
         specialAttributes = new HashMap(5);
 
         if (isIncludeDispatch) {        
@@ -951,14 +960,14 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
             String result = null;
             while ((result == null) && (parentEnumeration.hasMoreElements())) {
                 String current = (String) parentEnumeration.nextElement();
-                if (!ApplicationRequest.isSpecial(current)) {
+                if (!ApplicationRequest.isSpecial(current)
+                        || (isIncludeDispatch
+                            && current.startsWith("javax.servlet.forward")
+                            && getAttribute(current) != null)) {
                     result = current;
                 }
             }
             return result;
        }
-
    }
-
-
 }
