@@ -54,7 +54,7 @@ public class MimeMap implements FileNameMap {
     // Defaults - all of them are "well-known" types,
     // you can add using normal web.xml.
     
-    public static Hashtable defaultMap=new Hashtable(101);
+    public static final Hashtable defaultMap=new Hashtable(101);
     static {
         defaultMap.put("txt", "text/plain");
         defaultMap.put("html","text/html");
@@ -63,7 +63,7 @@ public class MimeMap implements FileNameMap {
         defaultMap.put("jpg", "image/jpeg");
         defaultMap.put("jpe", "image/jpeg");
         defaultMap.put("jpeg", "image/jpeg");
-		defaultMap.put("java", "text/plain");
+        defaultMap.put("java", "text/plain");
         defaultMap.put("body", "text/html");
         defaultMap.put("rtx", "text/richtext");
         defaultMap.put("tsv", "text/tab-separated-values");
