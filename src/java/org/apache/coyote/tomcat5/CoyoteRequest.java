@@ -135,7 +135,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.61 $ $Date: 2007/05/03 21:58:54 $
+ * @version $Revision: 1.62 $ $Date: 2007/05/05 05:32:42 $
  */
 
 public class CoyoteRequest
@@ -3221,9 +3221,14 @@ public class CoyoteRequest
 
 
     /**
-     * Parses the session version, and removes it from the request URI
+     * Parses and removes any session version (if present) from the request
+     * URI, and returns it
+     *
+     * @return The session version that was parsed from the request URI
      */
-    protected void parseSessionVersion() {
+    protected String parseSessionVersion() {
+
+        String sessionVersionString = null;
 
         CharChunk uriCC = coyoteRequest.decodedURI().getCharChunk();
         int semicolon = uriCC.indexOf(Globals.SESSION_VERSION_PARAMETER, 0,
@@ -3233,7 +3238,6 @@ public class CoyoteRequest
 
             int start = uriCC.getStart();
             int end = uriCC.getEnd();
-            String sessionVersionString = null;
 
             int sessionVersionStart = start + semicolon
                 + Globals.SESSION_VERSION_PARAMETER.length();
@@ -3250,12 +3254,12 @@ public class CoyoteRequest
                     end - sessionVersionStart);
             }
 
-            parseSessionVersionString(sessionVersionString);
-
             if (!coyoteRequest.requestURI().getByteChunk().isNull()) {
                 removeSessionVersionFromRequestURI();
             }
         }
+
+        return sessionVersionString;
     }
 
 
@@ -3332,7 +3336,7 @@ public class CoyoteRequest
      * This method also sets the session version number for the context with
      * which this request has been associated.
      */
-    private void parseSessionVersionString(String sessionVersionString) {
+    void parseSessionVersionString(String sessionVersionString) {
 
         if (sessionVersionString == null || !isSessionVersionSupported()) {
             return;
