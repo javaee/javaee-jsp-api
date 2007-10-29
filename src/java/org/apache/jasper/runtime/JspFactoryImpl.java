@@ -28,6 +28,7 @@ package org.apache.jasper.runtime;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.LinkedList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletRequest;
@@ -39,7 +40,6 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspApplicationContext;
 
 import org.apache.jasper.Constants;
-import org.apache.jasper.util.SimplePool;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
 
@@ -57,7 +57,12 @@ public class JspFactoryImpl extends JspFactory {
     private static final String SPEC_VERSION = "2.1";
     private static final boolean USE_POOL = true;
 
-    private SimplePool pool = new SimplePool( 100 );
+    // Per-thread pool of PageContext objects
+    private ThreadLocal pool = new ThreadLocal() {
+        protected synchronized Object initialValue() {
+            return new LinkedList<PageContext>();
+        }
+    };
     
     public PageContext getPageContext(Servlet servlet,
 				      ServletRequest request,
@@ -112,12 +117,16 @@ public class JspFactoryImpl extends JspFactory {
 					       int bufferSize, 
 					       boolean autoflush) {
         try {
-	    PageContext pc;
+	    PageContext pc = null;
 	    if( USE_POOL ) {
-                pc = (PageContext) pool.get();
-		if( pc == null ) {
-		    pc= new PageContextImpl(this);
-		}
+                LinkedList<PageContext> pcPool = (LinkedList<PageContext>)
+                                                    pool.get();
+                if (!pcPool.isEmpty()) {
+                    pc = pcPool.removeFirst();
+                }
+                if (pc == null) {
+                    pc = new PageContextImpl(this);
+                }
 	    } else {
 		pc = new PageContextImpl(this);
 	    }
@@ -134,7 +143,8 @@ public class JspFactoryImpl extends JspFactory {
     private void internalReleasePageContext(PageContext pc) {
         pc.release();
 	if (USE_POOL && (pc instanceof PageContextImpl)) {
-	    pool.put( pc );
+            LinkedList<PageContext> pcPool = (LinkedList<PageContext>) pool.get();
+            pcPool.addFirst(pc);
 	}
     }
 
