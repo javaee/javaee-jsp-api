@@ -3057,6 +3057,8 @@ class Generator {
                 return JspUtil.coerceToPrimitiveLong(s, isNamedAttribute);
             } else if (c == Long.class) {
                 return JspUtil.coerceToLong(s, isNamedAttribute);
+            } else if (c.isEnum()) {
+                return JspUtil.coerceToEnum(s, c.getName(), isNamedAttribute);
             } else if (c == Object.class) {
                 return "new String(" + quoted + ")";
             } else {

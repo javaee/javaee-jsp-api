@@ -229,6 +229,10 @@ public class JspRuntimeLibrary {
 		return new Long(0);
 	    else
 		return new Long(s);
+        } else if (target.isEnum()) {
+             if (isNullOrEmpty)
+                 return null;
+             return Enum.valueOf(target, s);
 	} else {
 	    return null;
 	}

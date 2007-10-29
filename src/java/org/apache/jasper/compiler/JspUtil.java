@@ -854,6 +854,20 @@ public class JspUtil {
 	}
     }
 
+    public static String coerceToEnum(String s, String enumClass, boolean isNamedAttribute) {
+        if (isNamedAttribute) {
+            return "(Long) org.apache.jasper.runtime.JspRuntimeLibrary.coerce("
+                    + s + "," + enumClass + ".class)";
+        } else {
+            if (s == null || s.length() == 0) {
+                return "null";
+            } else {
+                return "Enum.valueOf(" + enumClass + ".class, \"" + s + "\")";
+            }
+        }
+    }
+
+
     public static InputStream getInputStream(String fname, JarFile jarFile,
 					     JspCompilationContext ctxt,
 					     ErrorDispatcher err)
