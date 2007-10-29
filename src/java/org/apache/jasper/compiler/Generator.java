@@ -1667,6 +1667,9 @@ class Generator {
                 out.print(tagMethod);
                 out.print("(");
                 if (parent != null) {
+                    // START SJSAS 6388329
+                    out.print("(javax.servlet.jsp.tagext.JspTag) ");
+                    // END SJSAS 6388329
                     out.print(parent);
                     out.print(", ");
                 }
