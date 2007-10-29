@@ -374,7 +374,6 @@ final class ApplicationFilterChain implements FilterChain {
         try {
             supp.fireInstanceEvent(InstanceEvent.BEFORE_SERVICE_EVENT,
                                    serv, request, response);
-            /* GlassFish 6386229
             if ((request instanceof HttpServletRequest) &&
                 (response instanceof HttpServletResponse)) {
                     
@@ -401,29 +400,6 @@ final class ApplicationFilterChain implements FilterChain {
             } else {
                 serv.service(request, response);
             }
-            */
-            // START GlassFish 6386229
-            if ( SecurityUtil.executeUnderSubjectDoAs() ){
-                final ServletRequest req = request;
-                final ServletResponse res = response;
-                Principal principal = 
-                    ((HttpServletRequest) req).getUserPrincipal();
-
-                Object[] serviceType = new Object[2];
-                serviceType[0] = req;
-                serviceType[1] = res;
-                
-                SecurityUtil.doAsPrivilege("service",
-                                           serv,
-                                           classTypeUsedInService, 
-                                           serviceType,
-                                           principal);                                                   
-                serviceType = null;
-            } else {  
-                serv.service((HttpServletRequest) request,
-                             (HttpServletResponse) response);
-            }
-            // END GlassFish 6386229
             supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
                                    serv, request, response);
         } catch (IOException e) {
