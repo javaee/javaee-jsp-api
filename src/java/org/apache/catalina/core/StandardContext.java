@@ -4935,19 +4935,7 @@ public class StandardContext
         }
         
         if (getLoader() == null) {
-            ClassLoader parent = null;
-            if (getPrivileged()) {
-                if (log.isDebugEnabled())
-                    log.debug("Configuring privileged default Loader");
-                parent = this.getClass().getClassLoader();
-            } else {
-                if (log.isDebugEnabled())
-                    log.debug("Configuring non-privileged default Loader");
-                parent = getParentClassLoader();
-            }
-            WebappLoader webappLoader = new WebappLoader(parent);
-            webappLoader.setDelegate(getDelegate());
-            setLoader(webappLoader);
+            createLoader();
         }
 
         // Initialize character set mapper
@@ -5189,6 +5177,29 @@ public class StandardContext
 
         //cacheContext();
     }
+
+
+    /**
+     * Creates a classloader for this context.
+     */
+    public void createLoader() {
+        ClassLoader parent = null;
+        if (getPrivileged()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Configuring privileged default Loader");
+            }
+            parent = this.getClass().getClassLoader();
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Configuring non-privileged default Loader");
+            }
+            parent = getParentClassLoader();
+        }
+        WebappLoader webappLoader = new WebappLoader(parent);
+        webappLoader.setDelegate(getDelegate());
+        setLoader(webappLoader);
+    }
+
     
     private void cacheContext() {
         try {

@@ -1217,22 +1217,7 @@ public abstract class ContainerBase
                 ((Lifecycle) resources).start();
 
             // Start our child containers, if any
-            Container children[] = findChildren();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle) {
-                    try {
-                        ((Lifecycle) children[i]).start();
-                    } catch (Throwable t) {
-                        log.error(sm.getString("containerBase.notStarted",
-                                               children[i]), t);
-                        if (children[i] instanceof Context) {
-                            ((Context) children[i]).setAvailable(false);
-                        } else if (children[i] instanceof Wrapper) {
-                            ((Wrapper) children[i]).setAvailable(Long.MAX_VALUE);
-                        }
-                    }
-                }
-            }
+            startChildren();
 
             // Start the Valves in our pipeline (including the basic), if any
             if (pipeline instanceof Lifecycle)
@@ -1545,6 +1530,30 @@ public abstract class ContainerBase
         ContainerEvent event = new ContainerEvent(this, type, data);
         for (int i = 0; i < list.length; i++) {
             ((ContainerListener) list[i]).containerEvent(event);
+        }
+    }
+
+
+    /**   
+     * Starts the children of this container.
+     */
+    protected void startChildren() {
+
+        Container children[] = findChildren();
+        for (int i = 0; i < children.length; i++) {
+            if (children[i] instanceof Lifecycle) {
+                try {
+                    ((Lifecycle) children[i]).start();
+                } catch (Throwable t) {
+                    log.error(sm.getString("containerBase.notStarted",
+                                           children[i]), t);
+                    if (children[i] instanceof Context) {
+                        ((Context) children[i]).setAvailable(false);
+                    } else if (children[i] instanceof Wrapper) {
+                        ((Wrapper) children[i]).setAvailable(Long.MAX_VALUE);
+                    }
+                }
+            }
         }
     }
 
