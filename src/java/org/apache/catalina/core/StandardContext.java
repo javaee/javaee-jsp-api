@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.36 $ $Date: 2007/02/16 01:48:34 $
+ * @version $Revision: 1.37 $ $Date: 2007/02/20 20:16:56 $
  */
 
 public class StandardContext
@@ -1398,18 +1398,6 @@ public class StandardContext
 
     public void setJ2EEServer(String j2EEServer) {
         this.j2EEServer = j2EEServer;
-    }
-
-
-    /**
-     * Set the Loader with which this Context is associated.
-     *
-     * @param loader The newly associated loader
-     */
-    public synchronized void setLoader(Loader loader) {
-
-        super.setLoader(loader);
-
     }
 
 
