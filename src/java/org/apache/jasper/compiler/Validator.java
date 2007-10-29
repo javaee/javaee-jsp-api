@@ -273,6 +273,23 @@ class Validator {
 		    if (pageEncodingSeen) 
 			err.jspError(n, "jsp.error.tag.multi.pageencoding");
 		    pageEncodingSeen = true;
+                    // Make sure that if tag file is preceded by BOM, the
+                    // BOM encoding matches the value of the pageEncoding
+                    // attribute of the tag directive
+                    if (n.getRoot().hasBom()) {
+                        String bom = n.getRoot().getPageEncoding();
+                        // Treat "UTF-16", "UTF-16BE", and "UTF-16LE" as
+                        // identical.
+                        if (value != null
+                                && !value.equals(bom) 
+                                && (!value.startsWith("UTF-16")
+                                    || !bom.startsWith("UTF-16"))) {
+                            err.jspError(
+                                n,
+                                "jsp.error.bom_tagdir_encoding_mismatch",
+                                bom, value);
+                        }
+                    }
 		    n.getRoot().setPageEncoding(value);
                 } else if ("deferredSyntaxAllowedAsLiteral".equals(attr)) {
                     if (pageInfo.getDeferredSyntaxAllowedAsLiteral() == null) {
