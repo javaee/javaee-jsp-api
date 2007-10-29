@@ -37,7 +37,7 @@ import java.io.Serializable;
  * this class is synchronized.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:22 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
  */
 
 public class SecurityConstraint implements Serializable {
@@ -298,7 +298,13 @@ public class SecurityConstraint implements Serializable {
      * @param uri Context-relative URI to check
      * @param method Request method being used
      */
+    /* SJSWS 6324431
     public boolean included(String uri, String method) {
+    */
+    // START SJSWS 6324431
+    public boolean included(String uri, String method, 
+                            boolean caseSensitiveMapping) {
+    // END SJSWS 6324431
 
         // We cannot match without a valid request method
         if (method == null)
@@ -310,7 +316,13 @@ public class SecurityConstraint implements Serializable {
                 continue;
             String patterns[] = collections[i].findPatterns();
             for (int j = 0; j < patterns.length; j++) {
+                /* SJSWS 6324431
                 if (matchPattern(uri, patterns[j]))
+                */
+                // START SJSWS 6324431
+                if (matchPattern(uri, patterns[j], 
+                                 caseSensitiveMapping))
+                // END SJSWS 6324431
                     return (true);
             }
         }
@@ -411,13 +423,26 @@ public class SecurityConstraint implements Serializable {
      *  (must start with '/')
      * @param pattern URL pattern to be compared against
      */
+    /* SJSWS 6324431
     private boolean matchPattern(String path, String pattern) {
+    */
+    // START SJSWS 6324431
+    private boolean matchPattern(String path, String pattern,
+                                 boolean caseSensitiveMapping) {
+    // END SJSWS 6324431        
 
         // Normalize the argument strings
         if ((path == null) || (path.length() == 0))
             path = "/";
         if ((pattern == null) || (pattern.length() == 0))
             pattern = "/";
+
+        // START SJSWS 6324431
+        if (!caseSensitiveMapping) {
+            path = path.toLowerCase();
+            pattern = pattern.toLowerCase();
+        }
+        // END SJSWS 6324431
 
         // Check for exact match
         if (path.equals(pattern))

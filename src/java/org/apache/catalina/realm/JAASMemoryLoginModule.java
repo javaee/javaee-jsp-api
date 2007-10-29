@@ -61,6 +61,9 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+// START SJSWS 6324431
+import org.apache.catalina.core.StandardContext; 
+// END SJSWS 6324431
 
 
 /**
@@ -89,7 +92,7 @@ import org.apache.commons.logging.LogFactory;
  * the functionality required of a <code>Realm</code> implementation.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:06 $
+ * @version $Revision: 1.2 $ $Date: 2005/09/12 23:29:03 $
  */
 
 public class JAASMemoryLoginModule extends MemoryRealm implements LoginModule, Realm {
@@ -252,11 +255,28 @@ public class JAASMemoryLoginModule extends MemoryRealm implements LoginModule, R
         uri = RequestUtil.URLDecode(uri); // Before checking constraints
         String method = hreq.getMethod();
         for (int i = 0; i < constraints.length; i++) {
+            /* SJSWS 6324431
             if (debug)
                 log("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+            */
+            // START SJSWS 6324431
+            boolean caseSensitiveMapping = 
+                ((StandardContext)context).isCaseSensitiveMapping();
+            if (debug)
+                log("  Checking constraint '" + constraints[i] +
+                    "' against " + method + " " + uri + " --> " +
+                    constraints[i].included(uri, method, 
+                                            caseSensitiveMapping));
+            // END SJSWS 6324431
+            /* SJSWS 6324431
             if (constraints[i].included(uri, method)) {
+            */
+            // START SJSWS 6324431
+            if (constraints[i].included(uri, method, 
+                                        caseSensitiveMapping)) {
+            // END SJSWS 6324431
                 if(results == null) {
                     results = new ArrayList();
                 }

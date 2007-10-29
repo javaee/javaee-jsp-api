@@ -169,8 +169,15 @@ public final class ApplicationFilterFactory {
             if (!matchDispatcher(filterMaps[i] ,dispatcher)) {
                 continue;
             }
+            /* SJSWS 6324431
             if (!matchFiltersURL(filterMaps[i], requestPath))
                 continue;
+            */
+            // START SJSWS 6324431
+            if (!matchFiltersURL(filterMaps[i], requestPath, 
+                                context.isCaseSensitiveMapping()))
+                continue;
+            // END SJSWS 6324431
             ApplicationFilterConfig filterConfig = (ApplicationFilterConfig)
                 context.findFilterConfig(filterMaps[i].getFilterName());
             if (filterConfig == null) {
@@ -225,7 +232,13 @@ public final class ApplicationFilterFactory {
      * @param filterMap Filter mapping being checked
      * @param requestPath Context-relative request path of this request
      */
+    /* SJSWS 6324431
     private boolean matchFiltersURL(FilterMap filterMap, String requestPath) {
+    */
+    // START SJSWS 6324431
+    private boolean matchFiltersURL(FilterMap filterMap, String requestPath,
+                                    boolean caseSensitiveMapping) {
+    // END SJSWS 6324431
 
         if (requestPath == null)
             return (false);
@@ -234,6 +247,13 @@ public final class ApplicationFilterFactory {
         String testPath = filterMap.getURLPattern();
         if (testPath == null)
             return (false);
+
+        // START SJSWS 6324431
+        if (!caseSensitiveMapping) {
+            requestPath = requestPath.toLowerCase();
+            testPath = testPath.toLowerCase();
+        }
+        // END SJSWS 6324431
 
         // Case 1 - Exact Match
         if (testPath.equals(requestPath))

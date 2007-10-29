@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2005/11/10 20:05:21 $
+ * @version $Revision: 1.11 $ $Date: 2005/11/14 19:54:33 $
  */
 
 public class StandardContext
@@ -607,6 +607,12 @@ public class StandardContext
     private long startTimeMillis;
     private long tldScanTime;
 
+    // START SJSWS 6324431
+    // Should the filter and security mapping be done
+    // in a case sensitive manner
+    protected boolean caseSensitiveMapping = true; 
+    // END SJSWS 6324431
+
     // START S1AS8PE 4817642
     /**
      * The flag that specifies whether to reuse the session id (if any) from
@@ -769,6 +775,23 @@ public class StandardContext
     public boolean isCaseSensitive() {
         return caseSensitive;
     }
+
+
+    // START SJSWS 6324431
+    /**
+     * Set case sensitivity for filter and security constraint mappings.
+     */
+    public void setCaseSensitiveMapping(boolean caseSensitiveMap) {
+        caseSensitiveMapping = caseSensitiveMap;
+    }
+
+    /** 
+     * Are filters and security constraints mapped in a case sensitive manner?
+     */
+    public boolean isCaseSensitiveMapping() {
+        return caseSensitiveMapping;
+    }
+    // END SJSWS 6324431
 
 
     /**

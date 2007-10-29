@@ -67,6 +67,9 @@ import org.apache.catalina.util.DateTool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.modeler.Registry;
+// START SJSWS 6324431
+import org.apache.catalina.core.StandardContext;
+// END SJSWS 6324431
 
 /**
  * Simple implementation of <b>Realm</b> that reads an XML file to configure
@@ -74,7 +77,7 @@ import org.apache.commons.modeler.Registry;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:03 $
+ * @version $Revision: 1.4 $ $Date: 2005/11/14 20:28:09 $
  */
 
 public abstract class RealmBase
@@ -477,6 +480,14 @@ public abstract class RealmBase
         // Check each defined security constraint
         String uri = request.getRequestPathMB().toString();
         
+        // START SJSWS 6324431
+        String origUri = uri;
+        boolean caseSensitiveMapping = 
+            ((StandardContext)context).isCaseSensitiveMapping();
+        if (!caseSensitiveMapping)
+            uri = uri.toLowerCase();
+        // END SJSWS 6324431
+
         String method = hreq.getMethod();
         int i;
         boolean found = false;
@@ -490,14 +501,32 @@ public abstract class RealmBase
             }
 
             if (log.isTraceEnabled()) {
+                /* SJSWS 6324431
                 log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+                */
+                // START SJSWS 6324431
+                log.trace("  Checking constraint '" + constraints[i] +
+                          "' against " + method + " " + origUri + " --> " +
+                          constraints[i].included(uri, method, 
+                                                  caseSensitiveMapping));
+                // END SJSWS 6324431
             }
+            /* SJSWS 6324431
             if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
                 log.debug("  Matched constraint '" + constraints[i] +
                     "' against " + method + " " + uri);
             }
+            */
+            // START SJSWS 6324431
+            if (log.isDebugEnabled()
+                    && constraints[i].included(uri, method,
+                                               caseSensitiveMapping)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + origUri);
+            }
+            // END SJSWS 6324431
 
             for(int j=0; j < collection.length; j++){
                 String [] patterns = collection[j].findPatterns();
@@ -509,7 +538,14 @@ public abstract class RealmBase
                 }
 
                 for(int k=0; k < patterns.length; k++) {
+                    /* SJSWS 6324431
                     if(uri.equals(patterns[k])) {
+                    */
+                    // START SJSWS 6324431
+                    String pattern = caseSensitiveMapping ? patterns[k] :
+                        patterns[k].toLowerCase();
+                    if (uri.equals(pattern)) {
+                    // END SJSWS 6324431
                         found = true;
                         if(collection[j].findMethod(method)) {
                             if(results == null) {
@@ -538,14 +574,32 @@ public abstract class RealmBase
             }
 
             if (log.isTraceEnabled()) {
+                /* SJSWS 6324431
                 log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+                */
+                // START SJSWS 6324431
+                log.trace("  Checking constraint '" + constraints[i] +
+                          "' against " + method + " " + origUri + " --> " +
+                          constraints[i].included(uri, method,
+                                                  caseSensitiveMapping));
+                // END SJSWS 6324431
             }
+            /* SJSWS 6324431
             if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
                 log.debug("  Matched constraint '" + constraints[i] +
                     "' against " + method + " " + uri);
             }
+            */
+            // START SJSWS 6324431
+            if (log.isDebugEnabled()
+                    && constraints[i].included(uri, method,
+                                               caseSensitiveMapping)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + origUri);
+            }
+            // END SJSWS 6324431
 
             for(int j=0; j < collection.length; j++){
                 String [] patterns = collection[j].findPatterns();
@@ -559,7 +613,13 @@ public abstract class RealmBase
                 boolean matched = false;
                 int length = -1;
                 for(int k=0; k < patterns.length; k++) {
+                    /* SJSWS 6324431
                     String pattern = patterns[k];
+                    */
+                    // START SJSWS 6324431
+                    String pattern = caseSensitiveMapping ?
+                        patterns[k]:patterns[k].toLowerCase();
+                    // END SJSWS 6324431
                     if(pattern.startsWith("/") && pattern.endsWith("/*") && 
                        pattern.length() >= longest) {
                             
@@ -608,14 +668,32 @@ public abstract class RealmBase
             }
             
             if (log.isTraceEnabled()) {
+                /* SJSWS 6324431
                 log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+                */
+                // START SJSWS 6324431
+                log.trace("  Checking constraint '" + constraints[i] +
+                          "' against " + method + " " + origUri + " --> " +
+                          constraints[i].included(uri, method, 
+                                                  caseSensitiveMapping));
+                // END SJSWS 6324431
             }
+            /* SJSWS 6324431
             if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
                 log.debug("  Matched constraint '" + constraints[i] +
                     "' against " + method + " " + uri);
             }
+            */
+            // START SJSWS 6324431
+            if (log.isDebugEnabled()
+                    && constraints[i].included(uri, method,
+                                               caseSensitiveMapping)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + origUri);
+            }
+            // END SJSWS 6324431
 
             boolean matched = false;
             int pos = -1;
@@ -629,7 +707,13 @@ public abstract class RealmBase
                 }
 
                 for(int k=0; k < patterns.length && !matched; k++) {
+                    /* SJSWS 6324431
                     String pattern = patterns[k];
+                    */
+                    // START SJSWS 6324431
+                    String pattern = caseSensitiveMapping ? 
+                        patterns[k]:patterns[k].toLowerCase();
+                    // END SJSWS 6324431
                     if(pattern.startsWith("*.")){
                         int slash = uri.lastIndexOf("/");
                         int dot = uri.lastIndexOf(".");
@@ -669,14 +753,32 @@ public abstract class RealmBase
             }
 
             if (log.isTraceEnabled()) {
+                /* SJSWS 6324431
                 log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+                */
+                // START SJSWS 6324431
+                log.trace("  Checking constraint '" + constraints[i] +
+                          "' against " + method + " " + origUri + " --> " +
+                          constraints[i].included(uri, method,
+                                                  caseSensitiveMapping));
+                // END SJSWS 6324431
             }
+            /* SJSWS 6324431
             if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
                 log.debug("  Matched constraint '" + constraints[i] +
                     "' against " + method + " " + uri);
             }
+            */
+            // START SJSWS 6324431
+            if (log.isDebugEnabled()
+                    && constraints[i].included(uri, method,
+                                               caseSensitiveMapping)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + origUri);
+            }
+            // END SJSWS 6324431
 
             for(int j=0; j < collection.length; j++){
                 String [] patterns = collection[j].findPatterns();
@@ -689,7 +791,13 @@ public abstract class RealmBase
 
                 boolean matched = false;
                 for(int k=0; k < patterns.length && !matched; k++) {
+                    /* SJSWS 6324431
                     String pattern = patterns[k];
+                    */
+                    // START SJSWS 6324431
+                    String pattern = caseSensitiveMapping ? 
+                        patterns[k]:patterns[k].toLowerCase();
+                    // END SJSWS 6324431
                     if(pattern.equals("/")){
                         matched = true;
                     }
