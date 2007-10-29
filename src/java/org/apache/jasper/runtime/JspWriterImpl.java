@@ -137,14 +137,9 @@ public class JspWriterImpl extends JspWriter {
             return;
         flushed = true;
         ensureOpen();
-        // START CR 6426898
-        initOut();
-        // END CR 6426898
         if (nextChar == 0)
             return;
-        /* CR 6426898
         initOut();
-         */
         out.write(cb, 0, nextChar);
         nextChar = 0;
     }
@@ -203,6 +198,12 @@ public class JspWriterImpl extends JspWriter {
         if (out != null) {
             out.flush();
         }
+        // START 6426898
+        else {
+            // Cause response headers to be sent
+            response.flushBuffer();
+        }
+        // END 6426898
     }
 
     /**
