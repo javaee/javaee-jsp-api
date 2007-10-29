@@ -59,9 +59,6 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.Constants;
 import org.apache.jasper.security.SecurityUtil;
 
-// START OF IASRI 4709374
-import com.sun.appserv.server.util.PreprocessorUtil;
-// END OF IASRI 4709374
 
 /**
  * Class loader for loading servlet class files (corresponding to JSP files) 
@@ -181,10 +178,15 @@ public class JasperLoader extends URLClassLoader {
         byte[] cdata = this.bytecodes.get(className);
 
         String path = className.replace('.', '/') + ".class";
+        Boolean preprocessorEnabled =
+            (Boolean) org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
+                "com.sun.appserv.server.util.PreprocessorUtil",
+                "isPreprocessorEnabled",
+                new Class[] {}, new Object[] {});
         if (cdata == null) {
             // If the bytecode preprocessor is not enabled, use super.findClass
    	    // as usual.
-            if (!PreprocessorUtil.isPreprocessorEnabled()) { 
+            if (! preprocessorEnabled.booleanValue()) { 
                 return super.findClass(className);
             }
 
@@ -196,8 +198,12 @@ public class JasperLoader extends URLClassLoader {
         }
 
         // Preprocess the loaded byte code
-        if (PreprocessorUtil.isPreprocessorEnabled()) {
-            cdata = PreprocessorUtil.processClass(path, cdata);
+        if (preprocessorEnabled.booleanValue()) { 
+            cdata = (byte[]) org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
+                "com.sun.appserv.server.util.PreprocessorUtil",
+                "processClass",
+                new Class[] {String.class, cdata.getClass()},
+                new Object[] {path, cdata});
         }
 
         Class clazz = null;

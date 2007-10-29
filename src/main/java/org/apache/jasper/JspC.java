@@ -77,9 +77,6 @@ import org.apache.jasper.xmlparser.ParserUtils;
 // END PWC 6386258
 import org.apache.tools.ant.AntClassLoader;
 
-// START SJSAS 6258619
-import com.sun.appserv.ClassLoaderUtil;
-// END SJSAS 6258619
 
 /**
  * Shell for the jspc compiler.  Handles all options associated with the
@@ -1352,7 +1349,12 @@ public class JspC implements Options {
             if (loader != null) {
                 LogFactory.release(loader);
                 // START SJSAS 6258619
-                ClassLoaderUtil.releaseLoader(loader);
+                // ClassLoaderUtil.releaseLoader(loader);
+                org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
+                    "com.sun.appserv.ClassLoaderUtil",
+                    "releaseLoader",
+                    new Class[] {URLClassLoader.class},
+                    new Object[] {loader});
                 // END SJSAS 6258619
             }
             // END S1AS 5032338

@@ -1073,4 +1073,20 @@ public class JspRuntimeLibrary {
 	return false;
     }
 
+    /** 
+       Invoke a static method of a class, using reflections, if the class
+       and the method exists.
+       @return result of the method
+     */
+    public static Object invoke(String className, String methodName,
+                                Class[] parameterTypes, Object[] parameters) {
+        Object result = null;
+        try {
+            Class c = Class.forName(className);
+            Method m = c.getMethod(methodName, parameterTypes);
+            result = m.invoke(null, parameters);
+        } catch (Exception ex) {
+        }
+        return result;
+    }
 }
