@@ -10,7 +10,7 @@
 
     <path id="catalina.classpath">
         <pathelement location="${appserv-rt.jar}"/>
-        <pathelement location="${j2ee.jar}"/>
+        <pathelement location="${javaee.jar}"/>
         <pathelement location="${ant.jar}"/>
         <pathelement location="${commons-logging.jar}"/>
     </path>
