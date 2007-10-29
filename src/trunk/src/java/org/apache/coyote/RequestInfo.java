@@ -488,6 +488,7 @@ public class RequestInfo  {
         setCount404(0);
         setCount503(0);
         setWorkerThread(null);
+        setRequestCompletionTime(0);
     }
     // END S1AS
 }
