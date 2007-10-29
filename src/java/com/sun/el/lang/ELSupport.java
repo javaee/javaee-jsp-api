@@ -38,7 +38,7 @@ import com.sun.el.util.MessageFactory;
  * A helper class that implements the EL Specification
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: jluehe $
  */
 public class ELSupport {
 
@@ -333,6 +333,9 @@ public class ELSupport {
         if (type == null || Object.class.equals(type)) {
             return obj;
         }
+        if (obj != null && type.isAssignableFrom(obj.getClass())) {
+            return obj;
+        }
         if (String.class.equals(type)) {
             return coerceToString(obj);
         }
@@ -347,9 +350,6 @@ public class ELSupport {
         }
         if (type.isEnum()) {
             return coerceToEnum(obj, type);
-        }
-        if (obj != null && type.isAssignableFrom(obj.getClass())) {
-            return obj;
         }
 
         // new to spec
