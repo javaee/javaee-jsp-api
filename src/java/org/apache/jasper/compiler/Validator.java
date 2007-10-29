@@ -657,7 +657,11 @@ class Validator {
 
 	public void visit(Node.ELExpression n) throws JasperException {
             if ( !pageInfo.isELIgnored() ) {
-		String expressions = "${" + new String(n.getText()) + "}";
+		String expressions = n.getText();
+                if (expressions.charAt(0) == '#') {
+                     err.jspError(n.getStart(),
+                         "jsp.error.not.in.template", "#{...}");
+                }
 		ELNode.Nodes el = ELParser.parse(expressions);
 		validateFunctions(el, n);
                 JspUtil.validateExpressions(

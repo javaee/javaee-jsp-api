@@ -879,7 +879,7 @@ class Generator {
                     "out.write("
                         + JspUtil.interpreterCall(
                             this.isTagFile,
-                            "${" + new String(n.getText()) + "}",
+                            n.getText(),
                             String.class,
                             n.getEL().getMapName(),
                             null, null, null)
@@ -887,7 +887,7 @@ class Generator {
             } else {
                 out.printil(
                     "out.write("
-                        + quote("${" + new String(n.getText()) + "}")
+                        + quote(n.getText())
                         + ");");
             }
             n.setEndJavaLine(out.getJavaLine());
@@ -1907,7 +1907,7 @@ class Generator {
                 return;
             }
 
-            if (textSize <= 3) {
+            if (textSize < 3) {
                // Special case small text strings
                n.setBeginJavaLine(out.getJavaLine());
                int lineInc = 0;
@@ -1993,6 +1993,17 @@ class Generator {
                     case '\t' : // Not sure we need this
                         sb.append('\\').append('t');
                         break;
+                    case '$':
+                    case '#':
+                        // The fact that we get a ${} or a #{} means that the
+                        // original EL is escaped with a '\\'.  If ELignored
+                        // is true, then it needs to be reinserted.
+                        if (pageInfo.isELIgnored() &&
+                                i+1 < text.length() &&
+                                text.charAt(i+1) == '{') {
+                            sb.append('\\').append('\\');
+                        }
+                        // falls through
                     default :
                         sb.append(ch);
                 }

@@ -781,12 +781,10 @@ class Parser implements TagConstants {
     private void parseELExpression(Node parent, String typeEL)
             throws JasperException {
         start = reader.mark();
-        Mark last = null;
         boolean singleQuoted = false, doubleQuoted = false;
         int currentChar;
         do {
             // XXX could move this logic to JspReader
-            last = reader.mark();               // XXX somewhat wasteful
             currentChar = reader.nextChar();
             if (currentChar == '\\' && (singleQuoted || doubleQuoted)) {
                 // skip character following '\' within quotes
@@ -801,12 +799,8 @@ class Parser implements TagConstants {
                 singleQuoted = !singleQuoted;
         } while (currentChar != '}' || (singleQuoted || doubleQuoted));
 
-        // It's illegal to have #{} in template text, unless escaped.
-        if (typeEL.equals("#{")) {
-            err.jspError(start, "jsp.error.not.in.template", "#{...}");
-        }
-
-        new Node.ELExpression(reader.getText(start, last), start, parent);
+        String text = typeEL + reader.getText(start, reader.mark());
+        new Node.ELExpression(text, start, parent);
     }
 
     /*
