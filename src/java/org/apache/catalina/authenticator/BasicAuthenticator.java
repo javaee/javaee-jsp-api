@@ -61,7 +61,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * and Digest Access Authentication."
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2007/04/17 21:33:22 $
+ * @version $Revision: 1.7 $ $Date: 2007/05/05 05:31:52 $
  */
 
 public class BasicAuthenticator
@@ -227,7 +227,7 @@ public class BasicAuthenticator
 
         if (authorization == null)
             return (null);
-        if (!authorization.startsWith("Basic "))
+        if (!authorization.toLowerCase().startsWith("basic "))
             return (null);
         authorization = authorization.substring(6).trim();
 
