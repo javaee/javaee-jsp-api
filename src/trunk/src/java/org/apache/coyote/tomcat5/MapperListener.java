@@ -27,6 +27,9 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationListener;
+// START SJSAS 6313044
+import javax.management.NotificationFilter;
+// END SJSAS 6313044
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
@@ -47,7 +50,12 @@ import org.apache.tomcat.util.res.StringManager;
  * @author Costin Manolache
  */
 public class MapperListener
-    implements NotificationListener 
+    /* SJSAS 6313044
+    implements NotificationListener
+    */
+    // START SJSAS 6313044
+    implements NotificationListener, NotificationFilter
+    // END SJSAS 6313044
  {
     private static Log log = LogFactory.getLog(MapperListener.class);
 
@@ -79,6 +87,11 @@ public class MapperListener
     private int port;
     private String defaultHost;
     // END S1AS 5000999
+
+
+    // START SJSAS 6313044
+    private String myInstance;
+    // END SJSAS 6313044
 
 
     // ----------------------------------------------------------- Constructors
@@ -133,6 +146,10 @@ public class MapperListener
      */
     public void init() {
 
+        // START SJSAS 6313044
+        myInstance = System.getProperty("com.sun.aas.instanceName");
+        // END SJSAS 6313044
+
         try {
 
             mBeanServer = Registry.getServer();
@@ -172,13 +189,47 @@ public class MapperListener
 
             onStr = "JMImplementation:type=MBeanServerDelegate";
             objectName = new ObjectName(onStr);
+            /* SJSAS 6313044
             mBeanServer.addNotificationListener(objectName, this, null, null);
-
+            */
+            // START SJSAS 6313044
+            mBeanServer.addNotificationListener(objectName, this, this, null);
+            // END SJSAS 6313044
         } catch (Exception e) {
             log.warn("Error registering contexts",e);
         }
 
     }
+
+
+    // START SJSAS 6313044
+    // ------------------------------------------ NotificationFilter Methods
+    /**
+     * Filters out any notifications corresponding to MBeans belonging to
+     * a different server instance than the server instance on which this
+     * MapperListener is running.
+     *
+     * @param notification The notification to be examined
+     *
+     * @return true if the notification needs to be sent to this
+     * MapperListener, false otherwise.
+     */
+    public boolean isNotificationEnabled(Notification notification) {
+
+        if (notification instanceof MBeanServerNotification) {
+            ObjectName objectName = 
+                ((MBeanServerNotification) notification).getMBeanName();
+            String otherInstance = objectName.getKeyProperty("J2EEServer");
+            if (myInstance != null && otherInstance != null
+                    && !otherInstance.equals(myInstance)) {
+                return false;
+            }
+        }
+
+        return true;
+    
+    }
+    // END SJSAS 6313044
 
 
     // ------------------------------------------- NotificationListener Methods
