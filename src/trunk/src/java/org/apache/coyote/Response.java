@@ -106,6 +106,9 @@ public final class Response {
     protected String contentType = null;
     protected String contentLanguage = null;
     protected String characterEncoding = Constants.DEFAULT_CHARACTER_ENCODING;
+    // START SJSAS 6316254
+    private String quotedCharsetValue = characterEncoding;
+    // END SJSAS 6316254
     protected int contentLength = -1;
     private Locale locale = DEFAULT_LOCALE;
 
@@ -286,6 +289,9 @@ public final class Response {
         locale = DEFAULT_LOCALE;
         contentLanguage = null;
         characterEncoding = Constants.DEFAULT_CHARACTER_ENCODING;
+        // START SJSAS 6316254
+        quotedCharsetValue = characterEncoding;
+        // END SJSAS 6316254
         contentLength = -1;
         charsetSet = false;
 
@@ -438,6 +444,9 @@ public final class Response {
             return;
 
         characterEncoding = charset;
+        // START SJSAS 6316254
+        quotedCharsetValue = charset;
+        // END SJSAS 6316254
         charsetSet=true;
     }
 
@@ -512,8 +521,10 @@ public final class Response {
         // The charset value may be quoted, but must not contain any quotes.
         if (charsetValue != null && charsetValue.length() > 0) {
             charsetSet=true;
-            charsetValue = charsetValue.replace('"', ' ');
-            this.characterEncoding = charsetValue.trim();
+            // START SJSAS 6316254
+            this.quotedCharsetValue = charsetValue;
+            // END SJSAS 6316254
+            this.characterEncoding = charsetValue.replace('"', ' ').trim();
         }
     }
 
@@ -522,9 +533,19 @@ public final class Response {
         String ret = contentType;
 
         if (ret != null 
-            && characterEncoding != null
-            && charsetSet) {
-            ret = ret + ";charset=" + characterEncoding;
+                /* SJSAS 6316254
+                && characterEncoding != null
+                */
+                // START SJSAS 6316254
+                && quotedCharsetValue != null
+                // END SJSAS 6316254
+                && charsetSet) {
+            /* SJSAS 6316254
+            ret = ret + ";charset=" + characterEncoding;   
+            */
+            // START SJSAS 6316254
+            ret = ret + ";charset=" + quotedCharsetValue;
+            // END SJSAS 6316254
         }
 
         return ret;
@@ -557,6 +578,9 @@ public final class Response {
         contentLanguage = null;
         locale = DEFAULT_LOCALE;
         characterEncoding = Constants.DEFAULT_CHARACTER_ENCODING;
+        // START SJSAS 6316254
+        quotedCharsetValue = characterEncoding;
+        // END SJSAS 6316254
         charsetSet = false;
         contentLength = -1;
         status = 200;
