@@ -104,7 +104,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.13 $ $Date: 2005/10/18 00:56:11 $
+ * @version $Revision: 1.14 $ $Date: 2005/11/07 22:39:58 $
  */
 
 public class CoyoteRequest
@@ -2644,6 +2644,7 @@ public class CoyoteRequest
                 throw new IllegalStateException("Post too large");
             }
             try {
+                /* SJSAS 6346738
                 byte[] formData = null;
                 if (len < CACHED_POST_LEN) {
                     if (postData == null)
@@ -2655,13 +2656,48 @@ public class CoyoteRequest
                 int actualLen = readPostBody(formData, len);
                 if (actualLen == len) {
                     parameters.processParameters(formData, 0, len);
-                }    
+                }
+                */
+                // START SJSAS 6346738
+                byte[] formData = getPostBody();
+                if (formData != null) {
+                    parameters.processParameters(formData, 0, len);
+                }
+                // END SJSAS 6346738
             } catch (Throwable t) {
                 ; // Ignore
             }
         }
 
     }
+
+
+    // START SJSAS 6346738
+    /**
+     * Gets the POST body of this request.
+     *
+     * @return The POST body of this request
+     */
+    protected byte[] getPostBody() throws IOException {
+
+        int len = getContentLength();
+        byte[] formData = null;
+
+        if (len < CACHED_POST_LEN) {
+            if (postData == null)
+                postData = new byte[CACHED_POST_LEN];
+            formData = postData;
+        } else {
+            formData = new byte[len];
+        }
+        int actualLen = readPostBody(formData, len);
+        if (actualLen == len) {
+            return formData;
+        }
+
+        return null;
+    }
+    // END SJSAS 6346738
 
 
     /**
