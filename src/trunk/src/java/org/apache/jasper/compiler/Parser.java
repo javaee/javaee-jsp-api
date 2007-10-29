@@ -1831,7 +1831,8 @@ class Parser implements TagConstants {
             err.jspError(start, "jsp.error.unterminated", "&lt;"+tag );
         }
         else {
-	    err.jspError(start, "jasper.error.bad.bodycontent.type");
+            err.jspError(start, "jsp.error.tld.badbodycontent", bodyType,
+                         tag);
         }
     }
 
