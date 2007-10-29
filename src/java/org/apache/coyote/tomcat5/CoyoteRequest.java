@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.33 $ $Date: 2006/09/30 01:53:07 $
+ * @version $Revision: 1.34 $ $Date: 2006/10/06 01:29:06 $
  */
 
 public class CoyoteRequest
@@ -3385,7 +3385,7 @@ public class CoyoteRequest
 
 
     // START GlassFish 896
-    void initSessionTracker() {
+    protected void initSessionTracker() {
         if (context != null) {
             setAttribute(Globals.SESSION_TRACKER, sessionTracker);
         }
