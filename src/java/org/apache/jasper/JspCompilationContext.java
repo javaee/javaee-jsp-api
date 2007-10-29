@@ -105,7 +105,8 @@ public class JspCompilationContext {
                                  Options options,
                                  ServletContext context,
                                  JspServletWrapper jsw,
-                                 JspRuntimeContext rctxt) {
+                                 JspRuntimeContext rctxt)
+            throws JasperException {
 
         this.jspUri = canonicalURI(jspUri);
         this.isErrPage = isErrPage;
@@ -137,7 +138,8 @@ public class JspCompilationContext {
                                  ServletContext context,
                                  JspServletWrapper jsw,
                                  JspRuntimeContext rctxt,
-                                 URL tagFileJarUrl) {
+                                 URL tagFileJarUrl)
+            throws JasperException {
         this(tagfile, false, options, context, jsw, rctxt);
         this.isTagFile = true;
         this.tagInfo = tagInfo;
@@ -235,16 +237,22 @@ public class JspCompilationContext {
      * @return a null if the resource cannot be found or represented 
      *         as an InputStream.
      */
-    public java.io.InputStream getResourceAsStream(String res) {
+    public java.io.InputStream getResourceAsStream(String res)
+           throws JasperException {
         return context.getResourceAsStream(canonicalURI(res));
     }
 
 
     public URL getResource(String res) throws MalformedURLException {
-        return context.getResource(canonicalURI(res));
+        try {
+            return context.getResource(canonicalURI(res));
+        } catch (JasperException ex) {
+            throw new MalformedURLException(ex.getMessage());
+        }
     }
 
-    public Set getResourcePaths(String path) {
+    public Set getResourcePaths(String path)
+           throws JasperException {
         return context.getResourcePaths(canonicalURI(path));
     }
 
@@ -620,7 +628,8 @@ public class JspCompilationContext {
        return (c == '/' || c == '\\');
     }
 
-    private static final String canonicalURI(String s) {
+    private static final String canonicalURI(String s) 
+           throws JasperException {
        if (s == null) return null;
        StringBuffer result = new StringBuffer();
        final int len = s.length();
@@ -661,6 +670,10 @@ public class JspCompilationContext {
                        if (pos+3 < len && isPathSeparator(s.charAt(pos+3))) {
                            pos += 3;
                            int separatorPos = result.length()-1;
+                           if (separatorPos < 0) {
+                               throw new JasperException(
+                                   Localizer.getMessage("jsp.error.badpath",s));
+                           }
                            while (separatorPos >= 0 && 
                                   ! isPathSeparator(result
                                                     .charAt(separatorPos))) {

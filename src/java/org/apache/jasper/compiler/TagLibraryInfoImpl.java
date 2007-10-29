@@ -119,7 +119,7 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
     // handle relative paths when dealing when home and getDocBase are set
     // the following is a workaround until these problems are resolved.
     private InputStream getResourceAsStream(String uri) 
-        throws FileNotFoundException 
+        throws JasperException
     {
         try {
             // see if file exists on the filesystem first
