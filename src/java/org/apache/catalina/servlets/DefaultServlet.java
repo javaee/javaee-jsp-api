@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -83,7 +84,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/09/06 17:57:12 $
+ * @version $Revision: 1.10 $ $Date: 2006/09/28 19:55:13 $
  */
 
 public class DefaultServlet
@@ -706,13 +707,15 @@ public class DefaultServlet
             if (requestUri == null) {
                 requestUri = request.getRequestURI();
             } else {
-                // We're included, and the response.sendError() below is going
-                // to be ignored by the resource that is including us.
-                // Therefore, the only way we can let the including resource
-                // know is by including warning message in response
-                response.getWriter().write(
-                    sm.getString("defaultServlet.missingResource",
-                    requestUri));
+                /*
+                 * We're included, and the response.sendError() below is going
+                 * to be ignored by the including resource (see SRV.8.3,
+                 * "The Include Method").
+                 * Therefore, the only way we can let the including resource
+                 * know about the missing resource is by throwing an 
+                 * exception
+                */
+                throw new FileNotFoundException(requestUri);
             }
 
             /* IASRI 4878272
@@ -736,8 +739,13 @@ public class DefaultServlet
                 if (requestUri == null) {
                     requestUri = request.getRequestURI();
                 }
-                response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                                   requestUri);
+                /* IASRI 4878272
+                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                                    requestUri);
+                */
+                // BEGIN IASRI 4878272
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                // END IASRI 4878272
                 return;
             }
         }
