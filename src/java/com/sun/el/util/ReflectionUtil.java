@@ -32,7 +32,7 @@ import com.sun.el.lang.ELSupport;
  * Utilities for Managing Serialization and Reflection
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public class ReflectionUtil {
 
@@ -60,7 +60,7 @@ public class ReflectionUtil {
         if (c == null) {
             if (name.endsWith("[]")) {
                 String nc = name.substring(0, name.length() - 2);
-                c = Class.forName(nc);
+                c = Class.forName(nc, true, Thread.currentThread().getContextClassLoader());
                 c = Array.newInstance(c, 0).getClass();
             } else {
                 c = Class.forName(name);
