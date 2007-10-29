@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.44 $ $Date: 2006/12/04 17:44:37 $
+ * @version $Revision: 1.45 $ $Date: 2006/12/06 02:07:14 $
  */
 
 public class CoyoteRequest
@@ -3025,6 +3025,10 @@ public class CoyoteRequest
                 }
             }
 
+            if (!isAlpha(language) || !isAlpha(country) || !isAlpha(variant)) {
+                continue;
+            }
+
             // Add a new Locale to the list of Locales for this quality level
             Locale locale = new Locale(language, country, variant);
             Double key = new Double(-quality);  // Reverse the order
@@ -3052,6 +3056,30 @@ public class CoyoteRequest
 
     }
 
+
+    /*
+     * Returns true if the given string is composed of upper- or lowercase
+     * letters only, false otherwise.
+     *
+     * @return true if the given string is composed of upper- or lowercase
+     * letters only, false otherwise.
+     */
+    protected static final boolean isAlpha(String value) {
+
+        if (value == null) {
+            return false;
+        }
+
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+ 
 
     // START CR 6309511
     /**
