@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.48 $ $Date: 2007/01/20 18:23:36 $
+ * @version $Revision: 1.49 $ $Date: 2007/01/29 22:19:19 $
  */
 
 public class CoyoteRequest
@@ -2646,9 +2646,7 @@ public class CoyoteRequest
             if ((session != null) && !session.isValid())
                 session = null;
             if (session != null) {
-                /* GlassFish Issue 1057
                 session.access();
-                */
                 return (session);
             }
         }

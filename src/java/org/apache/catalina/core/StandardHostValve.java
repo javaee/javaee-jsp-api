@@ -83,7 +83,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.16 $ $Date: 2006/11/10 18:12:34 $
+ * @version $Revision: 1.17 $ $Date: 2007/01/11 21:16:51 $
  */
 
 final class StandardHostValve
@@ -185,21 +185,7 @@ final class StandardHostValve
         // START GlassFish Issue 1057
         // Update the session last access time for our session (if any)
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
-        HttpSession httpSess = hreq.getSession(false);
-        if (httpSess != null) {
-            Manager mgr = context.getManager();
-            if (mgr != null) {
-                Session sess = null;
-                try {
-                    sess = mgr.findSession(httpSess.getId());
-                } catch (IOException ex) {
-                    // Ignore
-                }
-                if (sess != null) {
-                    sess.access();
-                }
-            }
-        }
+        hreq.getSession(false);
         // END GlassFish Issue 1057
 
         // Ask this Context to process this request
