@@ -384,7 +384,6 @@ public class OutputBuffer extends Writer
 
         // If we really have something to write
         if (cnt > 0) {
-            addSessionVersionCookieIfNecessary();
             // real write to the adapter
             outputChunk.setBytes(buf, off, cnt);
             try {
@@ -454,7 +453,6 @@ public class OutputBuffer extends Writer
 
         checkConverter();
         conv.convert((char) c);
-        conv.flushBuffer();
         charsWritten++;
     }
 
@@ -478,7 +476,6 @@ public class OutputBuffer extends Writer
 
         checkConverter();
         conv.convert(c, off, len);
-        conv.flushBuffer();
         charsWritten += len;
     }
 
@@ -497,7 +494,6 @@ public class OutputBuffer extends Writer
             s="null";
         checkConverter();
         conv.convert(s, off, len);
-        conv.flushBuffer();
     }
 
 
@@ -511,7 +507,6 @@ public class OutputBuffer extends Writer
             s = "null";
         checkConverter();
         conv.convert(s);
-        conv.flushBuffer();
     } 
 
 
@@ -548,7 +543,7 @@ public class OutputBuffer extends Writer
                             new PrivilegedExceptionAction(){
 
                                 public Object run() throws IOException{
-                                    return new C2BConverter(bb, enc);
+                                    return C2BConverter.getInstance(bb, enc);
                                 }
 
                             }
@@ -562,7 +557,7 @@ public class OutputBuffer extends Writer
                         log.debug("setConverter: " + ex.getMessage());
                 }
             } else {
-                conv = new C2BConverter(bb, enc);
+                conv = C2BConverter.getInstance(bb, enc);
             }
             encoders.put(enc, conv);
 

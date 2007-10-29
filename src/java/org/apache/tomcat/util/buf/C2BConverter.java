@@ -31,6 +31,11 @@ package org.apache.tomcat.util.buf;
 import org.apache.tomcat.util.buf.*;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CharsetEncoder;
 
 /** Efficient conversion of character to bytes.
  *  
@@ -39,33 +44,93 @@ import java.io.*;
  *  ( nio is better, but it's not available even in 1.2 or 1.3 )
  * 
  */
-public final class C2BConverter {
 
-    
+class C2BConverter_8859_1 extends C2BConverter {
+    protected C2BConverter_8859_1(ByteChunk bb, String enc) throws IOException {
+        super(bb, enc);
+    }
+
+    public final void convert(char sa[]) throws IOException {
+        convert(sa, 0, sa.length);
+    }
+
+    public final void convert(String s) throws IOException {
+        convert(s.toCharArray(), 0, s.length());
+    }
+
+    public final void convert(String s, int off, int len) throws IOException {
+        convert(s.toCharArray(), off, len);
+    }
+
+    public final void convert(char sa[], int off, int len) throws IOException {
+        int res = convertLoop(sa, off, len);
+        while (res < len) {
+            bb.flushBuffer();
+            off += res;
+            len -= res;
+            res = convertLoop(sa, off, len);
+        }
+    }
+
+    private int convertLoop(char sa[], int sp, int len) throws IOException {
+        int sl = sp + len;
+        if (sl > sa.length)
+            sl = sa.length;
+        byte[] da = bb.getBytes();
+        int dp = bb.getEnd();
+        int dl = da.length - dp;
+        int nChars = 0;
+        while (sp < sl) {
+            char c = sa[sp];
+            if (c <= '\u00FF') {
+                if (dp >= dl) {
+                    bb.setEnd(dp);
+                    return nChars;
+                }
+                da[dp++] = (byte)c;
+                sp++;
+                nChars++;
+            }
+            else {
+                bb.setEnd(dp);
+                throw new IOException("Unexpected character in C2BConverter for ISO_8859_1");
+            }
+        }
+        bb.setEnd(dp);
+        return nChars;
+    }
+}
+
+public class C2BConverter {
+
     private static com.sun.org.apache.commons.logging.Log log=
         com.sun.org.apache.commons.logging.LogFactory.getLog(C2BConverter.class );
 
-    private IntermediateOutputStream ios;
-    private WriteConvertor conv;
-    private ByteChunk bb;
-    private String enc;
+    protected ByteChunk bb;
+    protected String enc;
+    protected CharsetEncoder encoder;
     
     /** Create a converter, with bytes going to a byte buffer
      */
-    public C2BConverter(ByteChunk output, String encoding) throws IOException {
+    protected C2BConverter(ByteChunk output, String encoding) throws IOException {
         this.bb=output;
-        ios=new IntermediateOutputStream( output );
-        conv=new WriteConvertor( ios, encoding );
         this.enc=encoding;
+        encoder = Charset.forName(enc).newEncoder();
     }
 
     /** Create a converter
      */
-    public C2BConverter(String encoding) throws IOException {
+    protected C2BConverter(String encoding) throws IOException {
         this( new ByteChunk(1024), encoding );
     }
-    
 
+    public static C2BConverter getInstance(ByteChunk output, String encoding) throws IOException {
+        if (encoding.equals("ISO-8859-1")) {
+            return new C2BConverter_8859_1(output, encoding);
+        }
+        return new C2BConverter(output, encoding);
+    }
+    
     public ByteChunk getByteChunk() {
         return bb;
     }
@@ -76,44 +141,56 @@ public final class C2BConverter {
 
     public void setByteChunk(ByteChunk bb) {
         this.bb=bb;
-        ios.setByteChunk( bb );
     }
 
     /** Reset the internal state, empty the buffers.
      *  The encoding remain in effect, the internal buffers remain allocated.
      */
-    public  final void recycle() {
-        conv.recycle();
+    public  void recycle() {
         bb.recycle();
     }
 
     /** Generate the bytes using the specified encoding
      */
-    public  final void convert(char c[], int off, int len ) throws IOException {
-        conv.write( c, off, len );
+    public void convert(char c[], int off, int len) throws IOException {
+        CharBuffer cb = CharBuffer.wrap(c, off, len);
+        byte[] barr = bb.getBuffer();
+        int boff = bb.getEnd();
+        ByteBuffer tmp = ByteBuffer.wrap(barr, boff, barr.length - boff);
+        CoderResult cr = encoder.encode(cb, tmp, true);
+        bb.setEnd(tmp.position());
+        while (cr == CoderResult.OVERFLOW) {
+            bb.flushBuffer();
+            tmp = ByteBuffer.wrap(barr, 0, barr.length);
+            cr = encoder.encode(cb, tmp, true);
+            bb.setEnd(tmp.position());
+        }
+        if (cr != CoderResult.UNDERFLOW)
+            throw new IOException("Encoding error");
     }
 
     /** Generate the bytes using the specified encoding
      */
-    public  final void convert(String s ) throws IOException {
-        conv.write( s );
+    public  void convert(String s ) throws IOException {
+        convert(s, 0, s.length());
     }
     
     /** Generate the bytes using the specified encoding
      */    
-    public  final void convert(String s, int off, int len ) throws IOException {
-	conv.write( s, off, len );
+    public  void convert(String s, int off, int len ) throws IOException {
+        convert(s.toCharArray(), off, len);
     }
 
     /** Generate the bytes using the specified encoding
      */
-    public  final void convert(char c ) throws IOException {
-        conv.write( c );
+    public  void convert(char c ) throws IOException {
+        char[] tmp = new char[1];
+        convert(tmp, 0, 1);
     }
 
     /** Convert a message bytes chars to bytes
      */
-    public final void convert(MessageBytes mb ) throws IOException {
+    public void convert(MessageBytes mb ) throws IOException {
         int type=mb.getType();
         if( type==MessageBytes.T_BYTES )
             return;
@@ -142,138 +219,8 @@ public final class C2BConverter {
     /** Flush any internal buffers into the ByteOutput or the internal
      *  byte[]
      */
-    public  final void flushBuffer() throws IOException {
-        conv.flush();
+    public  void flushBuffer() throws IOException {
+        bb.flushBuffer();
     }
 
-}
-
-// -------------------- Private implementation --------------------
-
-
-
-/**
- *  Special writer class, where close() is overritten. The default implementation
- *  would set byteOutputter to null, and the writter can't be recycled. 
- *
- *  Note that the flush method will empty the internal buffers _and_ call
- *  flush on the output stream - that's why we use an intermediary output stream
- *  that overrides flush(). The idea is to  have full control: flushing the
- *  char->byte converter should be independent of flushing the OutputStream.
- * 
- *  When a WriteConverter is created, it'll allocate one or 2 byte buffers,
- *  with a 8k size that can't be changed ( at least in JDK1.1 -> 1.4 ). It would
- *  also allocate a ByteOutputter or equivalent - again some internal buffers.
- *
- *  It is essential to keep  this object around and reuse it. You can use either
- *  pools or per thread data - but given that in most cases a converter will be
- *  needed for every thread and most of the time only 1 ( or 2 ) encodings will
- *  be used, it is far better to keep it per thread and eliminate the pool 
- *  overhead too.
- * 
- */
- final class	WriteConvertor extends OutputStreamWriter {
-    // stream with flush() and close(). overriden.
-    private IntermediateOutputStream ios;
-    
-    // Has a private, internal byte[8192]
-    
-    /** Create a converter.
-     */
-    public WriteConvertor( IntermediateOutputStream out, String enc )
-        throws UnsupportedEncodingException {
-        super( out, enc );
-        ios=out;
-    }
-    
-    /** Overriden - will do nothing but reset internal state.
-     */
-    public  final void close() throws IOException {
-        // NOTHING
-        // Calling super.close() would reset out and cb.
-    }
-    
-    /**
-     *  Flush the characters only
-     */ 
-    public  final void flush() throws IOException {
-        // Will flushBuffer and out()
-        // flushBuffer put any remaining chars in the byte[] 
-        super.flush();
-    }
-    
-    public  final void write(char cbuf[], int off, int len) throws IOException {
-        // will do the conversion and call write on the output stream
-        super.write( cbuf, off, len );
-    }
-    
-    /** Reset the buffer
-     */
-    public  final void recycle() {
-        ios.disable();
-        try {
-            //	    System.out.println("Reseting writer");
-            flush();
-        } catch( Exception ex ) {
-            ex.printStackTrace();
-        }
-        ios.enable();
-    }
-    
-}
-
-
-/** Special output stream where close() is overriden, so super.close()
-    is never called.
-    
-    This allows recycling. It can also be disabled, so callbacks will
-    not be called if recycling the converter and if data was not flushed.
-*/
-final class IntermediateOutputStream extends OutputStream {
-    private ByteChunk tbuff;
-    private boolean enabled=true;
-    
-    public IntermediateOutputStream(ByteChunk tbuff) {
-	    this.tbuff=tbuff;
-    }
-    
-    public  final void close() throws IOException {
-        // shouldn't be called - we filter it out in writer
-        throw new IOException("close() called - shouldn't happen ");
-    }
-    
-    public  final void flush() throws IOException {
-	// nothing - write will go directly to the buffer,
-	// we don't keep any state
-    }
-    
-    public  final  void write(byte cbuf[], int off, int len) throws IOException {
-        // will do the conversion and call write on the output stream
-        if( enabled ) {
-            tbuff.append( cbuf, off, len );
-        }
-    }
-    
-    public  final void write( int i ) throws IOException {
-        throw new IOException("write( int ) called - shouldn't happen ");
-    }
-
-    // -------------------- Internal methods --------------------
-
-    void setByteChunk( ByteChunk bb ) {
-        tbuff=bb;
-    }
-    
-    /** Temporary disable - this is used to recycle the converter without
-     *  generating an output if the buffers were not flushed
-     */
-    final void disable() {
-        enabled=false;
-    }
-
-    /** Reenable - used to recycle the converter
-     */
-    final void enable() {
-        enabled=true;
-    }
 }

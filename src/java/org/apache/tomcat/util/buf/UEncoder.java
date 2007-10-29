@@ -80,7 +80,7 @@ public final class UEncoder {
     {
 	if( c2b==null ) {
 	    bb=new ByteChunk(16); // small enough.
-	    c2b=new C2BConverter( bb, encoding );
+	    c2b=C2BConverter.getInstance( bb, encoding );
 	}
 
 	for (int i = 0; i < s.length(); i++) {
