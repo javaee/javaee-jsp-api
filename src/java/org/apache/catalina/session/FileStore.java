@@ -61,7 +61,7 @@ import org.apache.catalina.util.CustomObjectInputStream;
  * saved are still subject to being expired based on inactivity.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:57 $
  */
 
 public final class FileStore
@@ -353,8 +353,7 @@ public final class FileStore
 
         try {
             StandardSession session =
-                (StandardSession) manager.createEmptySession();
-            session.readObjectData(ois);
+                StandardSession.deserialize(ois, manager);
             session.setManager(manager);
             //HERCULES: addition
             // Put it in the cache
@@ -452,7 +451,7 @@ public final class FileStore
         }
 
         try {
-            ((StandardSession)session).writeObjectData(oos);
+            oos.writeObject(session);
         } finally {
             oos.close();
         }

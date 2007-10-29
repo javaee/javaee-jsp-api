@@ -57,7 +57,7 @@ import org.apache.catalina.util.CustomObjectInputStream;
  * saved are still subject to being expired based on inactivity.
  *
  * @author Bip Thelin
- * @version $Revision: 1.2 $, $Date: 2005/09/12 23:29:05 $
+ * @version $Revision: 1.3 $, $Date: 2005/12/08 01:27:58 $
  */
 
 public class JDBCStore
@@ -554,8 +554,7 @@ public class JDBCStore
                                          id, sessionTable));
                     }
 
-                    _session = (StandardSession) manager.createEmptySession();
-                    _session.readObjectData(ois);
+                    _session = StandardSession.deserialize(ois, manager);
                     _session.setManager(manager);
 
                 } else if (debug > 0) {
@@ -690,7 +689,7 @@ public class JDBCStore
                 bos = new ByteArrayOutputStream();
                 oos = new ObjectOutputStream(new BufferedOutputStream(bos));
 
-                ((StandardSession)session).writeObjectData(oos);
+                oos.writeObject(session);
                 oos.close();
 
                 byte[] obs = bos.toByteArray();

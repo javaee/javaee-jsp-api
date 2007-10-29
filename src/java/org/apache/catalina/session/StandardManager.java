@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.10 $ $Date: 2006/10/03 17:02:55 $
+ * @version $Revision: 1.11 $ $Date: 2006/10/12 23:51:11 $
  */
 
 public class StandardManager
@@ -428,8 +428,8 @@ public class StandardManager
                 if (log.isDebugEnabled())
                     log.debug("Loading " + n + " persisted sessions");
                 for (int i = 0; i < n; i++) {
-                    StandardSession session = getNewSession();
-                    session.readObjectData(ois);
+                    StandardSession session =
+                        StandardSession.deserialize(ois, this);
                     session.setManager(this);
                     sessions.put(session.getIdInternal(), session);
                     session.activate();
@@ -586,7 +586,7 @@ public class StandardManager
                     /* SJSAS 6375689
                     ((StandardSession) session).passivate();
                     */
-                    session.writeObjectData(oos);
+                    oos.writeObject(session);
                 }
             } catch (IOException e) {
                 log.error(sm.getString("standardManager.unloading.ioe", e), e);

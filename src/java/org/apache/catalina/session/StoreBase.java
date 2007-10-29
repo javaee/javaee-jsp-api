@@ -52,7 +52,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.5 $, $Date: 2005/10/17 18:17:21 $
+ * @version $Revision: 1.6 $, $Date: 2005/12/08 01:28:00 $
  */
 
 public abstract class StoreBase
@@ -241,7 +241,7 @@ public abstract class StoreBase
         return;
       }
       
-      ((StandardSession)sess).writeObjectData(oos);
+      oos.writeObject(sess);
     } 
     
     /**
@@ -258,12 +258,12 @@ public abstract class StoreBase
     * Hercules: added method
     */
     public Session readSession(Manager manager, ObjectInputStream ois)
-        throws ClassNotFoundException, IOException {
-      StandardSession sess = (StandardSession)manager.createSession();
-      sess.readObjectData(ois);
-      sess.setManager(manager);
+            throws ClassNotFoundException, IOException {
+
+        StandardSession sess = StandardSession.deserialize(ois, manager);
+        sess.setManager(manager);
       
-      return sess;
+        return sess;
     }
     
     /**

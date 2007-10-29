@@ -94,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.21 $ $Date: 2006/11/01 01:49:27 $
+ * @version $Revision: 1.22 $ $Date: 2006/11/02 18:43:32 $
  */
 
 public class StandardSession
@@ -1023,37 +1023,44 @@ public class StandardSession
 
 
     /**
-     * Read a serialized version of the contents of this session object from
-     * the specified object input stream, without requiring that the
-     * StandardSession itself have been serialized.
+     * Creates a StandardSession instance from the given ObjectInputStream,
+     * and returns it.
      *
-     * @param stream The object input stream to read from
+     * If ObjectInputStream does not contain a serialized StandardSession
+     * (or one of its subclasses), this method will create an empty session
+     * and populate it with the serialized data (this is for backwards
+     * compatibility).
      *
-     * @exception ClassNotFoundException if an unknown class is specified
-     * @exception IOException if an input/output error occurs
+     * @param ois The ObjectInputStream from which to read the serialized
+     *        session data
+     * @param manager The session manager from which to create an empty
+     *        session if needed
+     *
+     * @return The restored session
+     *
+     * @exception ClassNotFoundException If the class for an object being
+     *            restored cannot be found.
+     * @exception IOException if I/O errors occur
      */
-    public void readObjectData(ObjectInputStream stream)
-        throws ClassNotFoundException, IOException {
+    static StandardSession deserialize(ObjectInputStream ois,
+                                       Manager manager)
+            throws ClassNotFoundException, IOException {
 
-        readObject(stream);
+        StandardSession result = null;
 
-    }
+        Object obj = ois.readObject();
+        if (obj instanceof StandardSession) {
+            // New format following standard serialization
+            result = (StandardSession) obj;
+        } else {
+            // Old format, obj is an instance of Long and contains the
+            // session's creation time
+            result = (StandardSession) manager.createEmptySession();
+            result.setCreationTime(((Long) obj).longValue());
+            result.readRemainingObject(ois);
+        }
 
-
-    /**
-     * Write a serialized version of the contents of this session object to
-     * the specified object output stream, without requiring that the
-     * StandardSession itself have been serialized.
-     *
-     * @param stream The object output stream to write to
-     *
-     * @exception IOException if an input/output error occurs
-     */
-    public void writeObjectData(ObjectOutputStream stream)
-        throws IOException {
-
-        writeObject(stream);
-
+        return result;
     }
 
 
@@ -1718,6 +1725,25 @@ public class StandardSession
         // Deserialize the scalar instance variables (except Manager)
         authType = null;        // Transient only
         creationTime = ((Long) stream.readObject()).longValue();
+        readRemainingObject(stream);
+    }
+
+
+    /**
+     * Reads the serialized session data from the given ObjectInputStream,
+     * with the assumption that the session's creation time, which appears
+     * first in the serialized data, has already been consumed.
+     *
+     * @param stream The ObjectInputStream from which to read the serialized
+     *        session data
+     *
+     * @exception ClassNotFoundException If the class for an object being
+     *            restored cannot be found.
+     * @exception IOException if I/O errors occur
+     */
+    private void readRemainingObject(ObjectInputStream stream)
+            throws ClassNotFoundException, IOException {
+
         lastAccessedTime = ((Long) stream.readObject()).longValue();
         maxInactiveInterval = ((Integer) stream.readObject()).intValue();
         isNew = ((Boolean) stream.readObject()).booleanValue();
