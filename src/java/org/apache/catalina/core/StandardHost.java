@@ -59,7 +59,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/10/11 19:36:25 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:36 $
  */
 
 public class StandardHost
@@ -1141,11 +1141,15 @@ public class StandardHost
         return aliases;
     }
 
+    /* CR 6368085
     private boolean initialized=false;
-    
+    */    
+
     public void init() {
         if( initialized ) return;
+        /* CR 6368085
         initialized=true;
+        */
         
         // already registered.
         if( getParent() == null ) {
@@ -1180,6 +1184,9 @@ public class StandardHost
                 log.info("Error registering ", t );
             }
         }
+        // START CR 6368085
+        initialized = true;
+        // END CR 6368085
     }
 
     public ObjectName preRegister(MBeanServer server, ObjectName oname ) 

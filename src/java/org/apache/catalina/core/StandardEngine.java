@@ -55,7 +55,7 @@ import java.util.List;
  * fully qualified host name of that virtual host.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/07/22 01:53:06 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:35 $
  */
 
 public class StandardEngine
@@ -359,11 +359,15 @@ public class StandardEngine
     }
 
 
+    /* CR 6368085
     private boolean initialized=false;
+    */
     
     public void init() {
         if( initialized ) return;
+        /* CR 6368085
         initialized=true;
+        */
 
         if( oname==null ) {
             // not registered in JMX yet - standalone mode
@@ -426,13 +430,26 @@ public class StandardEngine
                 log.error(t);
             }
         }
+        // START CR 6368085
+        initialized = true;
+        // END CR 6368085
         
     }
-    
+
+    /* CR 6368085    
     public void destroy() throws LifecycleException {
+    */
+    // START CR 6368085
+    public void destroy() throws Exception {
+    // END CR 6368085
         if( ! initialized ) return;
+        /* CR 6368085
         initialized=false;
-        
+        */
+        // START CR 6368085
+        super.destroy();
+        // END CR 6368085
+
         // if we created it, make sure it's also destroyed
         ((StandardService)service).destroy();
 
