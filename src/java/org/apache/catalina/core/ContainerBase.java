@@ -188,7 +188,9 @@ public abstract class ContainerBase
     /**
      * The container event listeners for this Container.
      */
-    protected ArrayList listeners = new ArrayList();
+    protected ArrayList<ContainerListener> listeners =
+        new ArrayList<ContainerListener>();
+    private ContainerListener[] listenersArray;
 
 
     /**
@@ -943,6 +945,8 @@ public abstract class ContainerBase
 
         synchronized (listeners) {
             listeners.add(listener);
+            listenersArray = listeners.toArray(
+                new ContainerListener[listeners.size()]);
         }
 
     }
@@ -999,9 +1003,7 @@ public abstract class ContainerBase
     public ContainerListener[] findContainerListeners() {
 
         synchronized (listeners) {
-            ContainerListener[] results = 
-                new ContainerListener[listeners.size()];
-            return ((ContainerListener[]) listeners.toArray(results));
+            return getListenersArray();
         }
     }
 
@@ -1073,6 +1075,8 @@ public abstract class ContainerBase
 
         synchronized (listeners) {
             listeners.remove(listener);
+            listenersArray = listeners.toArray(
+                new ContainerListener[listeners.size()]);
         }
     }
 
@@ -1473,16 +1477,24 @@ public abstract class ContainerBase
      */
     public void fireContainerEvent(String type, Object data) {
 
-        if (listeners.size() < 1)
-            return;
-        ContainerEvent event = new ContainerEvent(this, type, data);
-        ContainerListener list[] = new ContainerListener[0];
-        synchronized (listeners) {
-            list = (ContainerListener[]) listeners.toArray(list);
-        }
-        for (int i = 0; i < list.length; i++)
-            ((ContainerListener) list[i]).containerEvent(event);
+        ContainerListener[] list = null;
 
+        synchronized (listeners) {
+            if (listeners.isEmpty()) {
+                return;
+            }
+            list = getListenersArray();
+        }
+
+        ContainerEvent event = new ContainerEvent(this, type, data);
+        for (int i = 0; i < list.length; i++) {
+            ((ContainerListener) list[i]).containerEvent(event);
+        }
+    }
+
+
+    private ContainerListener[] getListenersArray() {
+        return listenersArray;
     }
 
 
