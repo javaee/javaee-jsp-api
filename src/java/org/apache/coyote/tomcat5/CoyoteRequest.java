@@ -87,6 +87,9 @@ import org.apache.catalina.HttpRequest;
 import org.apache.catalina.HttpResponse;
 import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
+// START SJSAS 6406580
+import org.apache.catalina.session.ManagerBase;
+// END SJSAS 6406580
 import org.apache.catalina.Realm;
 import org.apache.catalina.Session;
 import org.apache.catalina.ValveContext;
@@ -113,7 +116,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.21 $ $Date: 2006/04/11 18:06:26 $
+ * @version $Revision: 1.22 $ $Date: 2006/04/24 16:36:13 $
  */
 
 public class CoyoteRequest
@@ -466,7 +469,16 @@ public class CoyoteRequest
      * preparation for reuse of this object.
      */
     public void recycle() {
-
+        
+        // START SJSAS 6406580
+        if (context != null && requestedSessionId != null) {
+            Manager manager = context.getManager();
+            if (manager instanceof ManagerBase) { 
+                ((ManagerBase) manager).removeFromInvalidatedSessions(
+                                            requestedSessionId);
+           }
+        }        
+        // END SJSAS 6406580
         context = null;
         wrapper = null;
 
