@@ -68,7 +68,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:28:09 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -87,7 +87,10 @@ public class ContextConfig
     /*
      * Custom mappings of login methods to authenticators
      */
-    private Map customAuthenticators;
+    //START SJSAS 6202703
+    //private Map customAuthenticators;
+    protected Map customAuthenticators;
+    //END SJSAS 6202703
 
 
     /**
@@ -95,8 +98,11 @@ public class ContextConfig
      * the name of the implemented authentication method, and the value is
      * the fully qualified Java class name of the corresponding Valve.
      */
-    private static Properties authenticators = null;
-
+    //START SJSAS 6202703
+    //private static Properties authenticators = null;
+    
+    protected static Properties authenticators = null;
+    //END SJSAS 6202703
 
     /**
      * The Context we are associated with.
