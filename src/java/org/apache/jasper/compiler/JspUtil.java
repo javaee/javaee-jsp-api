@@ -856,7 +856,7 @@ public class JspUtil {
 
     public static String coerceToEnum(String s, String enumClass, boolean isNamedAttribute) {
         if (isNamedAttribute) {
-            return "(Long) org.apache.jasper.runtime.JspRuntimeLibrary.coerce("
+            return "(Enum) org.apache.jasper.runtime.JspRuntimeLibrary.coerce("
                     + s + "," + enumClass + ".class)";
         } else {
             if (s == null || s.length() == 0) {
