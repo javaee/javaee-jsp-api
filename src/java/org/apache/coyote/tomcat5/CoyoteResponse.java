@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.18 $ $Date: 2006/11/09 20:28:40 $
+ * @version $Revision: 1.19 $ $Date: 2006/11/17 23:06:37 $
  */
 
 public class CoyoteResponse
@@ -1651,8 +1651,8 @@ public class CoyoteResponse
      * @param sessionId Session id to be included in the encoded URL
      * @param sessionVersion Session version to be included in the encoded URL
      */
-    protected String toEncoded(String url, String sessionId,
-                               String sessionVersion) {
+    private String toEncoded(String url, String sessionId,
+                             String sessionVersion) {
 
         if ((url == null) || (sessionId == null))
             return (url);
