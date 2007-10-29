@@ -85,7 +85,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.3 $ $Date: 2005/05/13 00:56:29 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:07 $
  */
 
 public class StandardSession
@@ -1661,7 +1661,7 @@ public class StandardSession
      * @exception ClassNotFoundException if an unknown class is specified
      * @exception IOException if an input/output error occurs
      */
-    protected void readObject(ObjectInputStream stream)
+    private void readObject(ObjectInputStream stream)
         throws ClassNotFoundException, IOException {
 
         // Deserialize the scalar instance variables (except Manager)
@@ -1720,7 +1720,7 @@ public class StandardSession
      *
      * @exception IOException if an input/output error occurs
      */
-    protected void writeObject(ObjectOutputStream stream) throws IOException {
+    private void writeObject(ObjectOutputStream stream) throws IOException {
 
         // Write the scalar instance variables (except Manager)
         stream.writeObject(new Long(creationTime));
