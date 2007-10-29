@@ -504,7 +504,12 @@ class Generator {
      */
     private void genPreambleMethods() throws JasperException {
         // Method used to get compile time file dependencies
+        /* GlassFish Issue 812
         out.printil("public java.util.List getDependants() {");
+	 */
+        // START GlassFish Issue 812
+        out.printil("public Object getDependants() {");
+        // END GlassFish Issue 812
         out.pushIndent();
         out.printil("return _jspx_dependants;");
         out.popIndent();

@@ -64,8 +64,14 @@ import org.apache.tomcat.util.threads.ThreadPool;
  * @author Mark Roth
  */
 public class Compiler {
+    /* GlassFish Issue 812
     private static com.sun.org.apache.commons.logging.Log log=
         com.sun.org.apache.commons.logging.LogFactory.getLog( Compiler.class );
+    */
+    // START GlassFish Issue 812
+    protected static com.sun.org.apache.commons.logging.Log log=
+        com.sun.org.apache.commons.logging.LogFactory.getLog( Compiler.class );
+    // END GlassFish Issue 812
 
     // ----------------------------------------------------------------- Static
 
@@ -88,7 +94,12 @@ public class Compiler {
 
     protected JspCompilationContext ctxt;
 
+    /* GlassFish Issue 812
     private ErrorDispatcher errDispatcher;
+    */
+    // START GlassFish Issue 812
+    protected ErrorDispatcher errDispatcher;
+    // END GlassFish Issue 812
     private PageInfo pageInfo;
     private JspServletWrapper jsw;
     private JasperAntLogger logger;
@@ -352,7 +363,12 @@ public class Compiler {
     /** 
      * Compile the servlet from .java file to .class file
      */
+    /* GlassFish Issue 812
     private void generateClass(String[] smap)
+     */
+    // START GlassFish Issue 812
+    protected void generateClass(String[] smap)
+    // END GlassFish Issue 812
         throws FileNotFoundException, JasperException, Exception {
 
         long t1 = 0;
