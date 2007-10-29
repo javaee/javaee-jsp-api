@@ -76,10 +76,7 @@ public class InternalInputBuffer implements InputBuffer {
         this.request = request;
         headers = request.getMimeHeaders();
 
-        headerBuffer1 = new byte[headerBufferSize];
-        headerBuffer2 = new byte[headerBufferSize];
-        bodyBuffer = new byte[headerBufferSize];
-        buf = headerBuffer1;
+        buf = new byte[headerBufferSize];
 
         inputStreamInputBuffer = new InputStreamInputBuffer();
 
@@ -146,31 +143,12 @@ public class InternalInputBuffer implements InputBuffer {
      * Position in the buffer.
      */
     protected int pos;
-
-
-    /**
-     * HTTP header buffer no 1.
-     */
-    protected byte[] headerBuffer1;
-
-
-    /**
-     * HTTP header buffer no 2.
-     */
-    protected byte[] headerBuffer2;
-
-
-    /**
-     * HTTP body buffer.
-     */
-    protected byte[] bodyBuffer;
-
-
-    /**
-     * US-ASCII header buffer.
-     */
-    protected char[] headerBuffer;
-
+    
+    /*
+     * Pos of the end of the header in the buffer, which is also the
+     * start of the body.
+     **/
+    protected int end;
 
     /**
      * Underlying input stream.
@@ -324,7 +302,6 @@ public class InternalInputBuffer implements InputBuffer {
         request.recycle();
 
         inputStream = null;
-        buf = headerBuffer1;
         lastValid = 0;
         pos = 0;
         lastActiveFilter = -1;
@@ -344,25 +321,24 @@ public class InternalInputBuffer implements InputBuffer {
      * consumed. This method only resets all the pointers so that we are ready
      * to parse the next HTTP request.
      */
-    public void nextRequest()
-        throws IOException {
+    public void nextRequest() {
 
         // Recycle Request object
         request.recycle();
 
         // Determine the header buffer used for next request
         byte[] newHeaderBuf = null;
-        if (buf == headerBuffer1) {
-            newHeaderBuf = headerBuffer2;
-        } else {
-            newHeaderBuf = headerBuffer1;
+        // Copy leftover bytes to the beginning of the buffer
+        if (lastValid - pos > 0) {
+            int npos = 0;
+            int opos = pos;
+            while (lastValid - opos > opos - npos) {
+                System.arraycopy(buf, opos, buf, npos, opos - npos);
+                npos += pos;
+                opos += pos;
+            }
+            System.arraycopy(buf, opos, buf, npos, lastValid - opos);
         }
-
-        // Copy leftover bytes from buf to newHeaderBuf
-        System.arraycopy(buf, pos, newHeaderBuf, 0, lastValid - pos);
-
-        // Swap buffers
-        buf = newHeaderBuf;
 
         // Recycle filters
         for (int i = 0; i <= lastActiveFilter; i++) {
@@ -592,6 +568,7 @@ public class InternalInputBuffer implements InputBuffer {
         }
 
         parsingHeader = false;
+        end = pos;
     }
 
 
@@ -837,12 +814,18 @@ public class InternalInputBuffer implements InputBuffer {
 
         } else {
 
-            buf = bodyBuffer;
-            pos = 0;
-            lastValid = 0;
-            nRead = inputStream.read(buf, 0, buf.length);
+            if (buf.length - end < 4500) {
+                // In this case, the request header was really large, so we allocate a 
+                // brand new one; the old one will get GCed when subsequent requests
+                // clear all references
+                buf = new byte[buf.length];
+                end = 0;
+            }
+            pos = end;
+            lastValid = pos;
+            nRead = inputStream.read(buf, pos, buf.length - lastValid);
             if (nRead > 0) {
-                lastValid = nRead;
+                lastValid = pos + nRead;
             }
 
         }

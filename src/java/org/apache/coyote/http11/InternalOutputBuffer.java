@@ -91,8 +91,8 @@ public class InternalOutputBuffer
         this.response = response;
         headers = response.getMimeHeaders();
 
-        headerBuffer = new byte[headerBufferSize];
-        buf = headerBuffer;
+
+        buf = new byte[headerBufferSize];
 
         outputStreamOutputBuffer = new OutputStreamOutputBuffer();
 
@@ -165,12 +165,6 @@ public class InternalOutputBuffer
      * Position in the buffer.
      */
     protected int pos;
-
-
-    /**
-     * HTTP header buffer.
-     */
-    protected byte[] headerBuffer;
 
 
     /**
@@ -359,7 +353,6 @@ public class InternalOutputBuffer
         
         if ( isFull ) {
             pos = 0;
-            buf = headerBuffer;
         }
     }
     // END GlassFish Issue 646
@@ -392,7 +385,6 @@ public class InternalOutputBuffer
         socketBuffer.recycle();
 
         outputStream = null;
-        buf = headerBuffer;
         pos = 0;
         lastActiveFilter = -1;
         committed = false;
@@ -412,9 +404,6 @@ public class InternalOutputBuffer
         // Recycle Request object
         response.recycle();
         socketBuffer.recycle();
-
-        // Determine the header buffer used for next request
-        buf = headerBuffer;
 
         // Recycle filters
         for (int i = 0; i <= lastActiveFilter; i++) {
