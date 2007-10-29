@@ -620,6 +620,11 @@ public class JspC implements Options {
         }
         // END SJSAS 6402545
         // START SJSAS 6403017
+        if (JAVA_5.equals(vm)) {
+            vm = JAVA_1_5;
+        } else if (JAVA_6.equals(vm)) {
+            vm = JAVA_1_6;
+        }
         Double targetVersion = Double.valueOf(vm);
         if (targetVersion.compareTo(Double.valueOf(myJavaVersion)) > 0) {
             throw new IllegalArgumentException(
