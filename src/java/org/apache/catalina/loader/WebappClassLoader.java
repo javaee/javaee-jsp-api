@@ -126,7 +126,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.25 $ $Date: 2006/11/30 19:45:22 $
+ * @version $Revision: 1.26 $ $Date: 2007/01/30 23:52:08 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -2018,7 +2018,7 @@ public class WebappClassLoader
     
 
     /**
-     * Find specified resource in local repositories.
+     * Attempts to find the specified resource in local repositories.
      *
      * @return the loaded resource, or null if the resource isn't found
      */
@@ -2029,24 +2029,65 @@ public class WebappClassLoader
             return null;
         }
 
-        if ((name == null) || (path == null))
+        if ((name == null) || (path == null)) {
             return null;
+        }
 
         ResourceEntry entry = (ResourceEntry) resourceEntries.get(name);
-        if (entry != null)
+        if (entry != null) {
             return entry;
+        } else if (notFoundResources.containsKey(name)) {
+            return null;
+        }
 
+        entry = findResourceInternalFromRepositories(name, path);
+        if (entry == null) {
+            synchronized (jarFiles) {
+                entry = findResourceInternalFromJars(name, path);
+            }
+        }
+
+        if (entry == null) {
+            synchronized (notFoundResources) {
+                notFoundResources.put(name, name);
+            }
+            return null;
+        }
+
+        // Add the entry in the local resource repository
+        synchronized (resourceEntries) {
+            // Ensures that all the threads which may be in a race to load
+            // a particular class all end up with the same ResourceEntry
+            // instance
+            ResourceEntry entry2 = (ResourceEntry) resourceEntries.get(name);
+            if (entry2 == null) {
+                resourceEntries.put(name, entry);
+            } else {
+                entry = entry2;
+            }
+        }
+
+        return entry;
+    }
+
+
+    /**
+     * Attempts to load the requested resource from this classloader's
+     * internal repositories.
+     *
+     * @return The requested resource, or null if not found
+     */
+    private ResourceEntry findResourceInternalFromRepositories(String name,
+                                                               String path) {
+
+        ResourceEntry entry = null;
         int contentLength = -1;
         InputStream binaryStream = null;
-
-        int jarFilesLength = jarFiles.length;
         int repositoriesLength = repositories.length;
-
-        int i;
-
         Resource resource = null;
 
-        for (i = 0; (entry == null) && (i < repositoriesLength); i++) {
+        for (int i=0; (entry == null) && (i < repositoriesLength); i++) {
+
             try {
 
                 String fullPath = repositories[i] + path;
@@ -2101,167 +2142,171 @@ public class WebappClassLoader
                         paths = result;
 
                     }
-
                 }
-
             } catch (NamingException e) {
             }
         }
 
-        if ((entry == null) && (notFoundResources.containsKey(name)))
-            return null;
+        if (entry != null) {
+            readEntryData(entry, name, binaryStream, contentLength, null);
+        }
 
+        return entry;
+    }
+
+
+    /**
+     * Attempts to load the requested resource from this classloader's
+     * JAR files.
+     *
+     * @return The requested resource, or null if not found
+     */
+    private ResourceEntry findResourceInternalFromJars(String name,
+                                                       String path) {
+
+        ResourceEntry entry = null;
         JarEntry jarEntry = null;
+        int contentLength = -1;
+        InputStream binaryStream = null;
 
-        synchronized (jarFiles) {
+        if (!openJARs()){
+            return null;
+        }
 
-            if (!openJARs()){
-                return null;
-            }
-            for (i = 0; (entry == null) && (i < jarFilesLength); i++) {
-                jarEntry = jarFiles[i].getJarEntry(path);
+        int jarFilesLength = jarFiles.length;
 
-                if (jarEntry != null) {
+        for (int i=0; (entry == null) && (i < jarFilesLength); i++) {
+            jarEntry = jarFiles[i].getJarEntry(path);
 
-                    entry = new ResourceEntry();
-                    try {
-                        entry.codeBase = getURL(jarRealFiles[i]);
-                        String jarFakeUrl = getURI(jarRealFiles[i]).toString();
-                        jarFakeUrl = "jar:" + jarFakeUrl + "!/" + path;
-                        entry.source = new URL(jarFakeUrl);
-                        entry.lastModified = jarRealFiles[i].lastModified();
-                    } catch (MalformedURLException e) {
-                        return null;
-                    }
-                    contentLength = (int) jarEntry.getSize();
-                    try {
-                        entry.manifest = jarFiles[i].getManifest();
-                        binaryStream = jarFiles[i].getInputStream(jarEntry);
-                    } catch (IOException e) {
-                        return null;
-                    }
+            if (jarEntry != null) {
 
-                    // Extract resources contained in JAR to the workdir
-                    if (!(path.endsWith(".class"))) {
-                        byte[] buf = new byte[1024];
-                        File resourceFile = new File
-                            (loaderDir, jarEntry.getName());
-                        if (!resourceFile.exists()) {
-                            Enumeration entries = jarFiles[i].entries();
-                            while (entries.hasMoreElements()) {
-                                JarEntry jarEntry2 = 
-                                    (JarEntry) entries.nextElement();
-                                if (!(jarEntry2.isDirectory()) 
-                                    && (!jarEntry2.getName().endsWith
-                                        (".class"))) {
-                                    resourceFile = new File
-                                        (loaderDir, jarEntry2.getName());
-                                    resourceFile.getParentFile().mkdirs();
-                                    FileOutputStream os = null;
-                                    InputStream is = null;
+                entry = new ResourceEntry();
+                try {
+                    entry.codeBase = getURL(jarRealFiles[i]);
+                    String jarFakeUrl = getURI(jarRealFiles[i]).toString();
+                    jarFakeUrl = "jar:" + jarFakeUrl + "!/" + path;
+                    entry.source = new URL(jarFakeUrl);
+                    entry.lastModified = jarRealFiles[i].lastModified();
+                } catch (MalformedURLException e) {
+                    return null;
+                }
+
+                contentLength = (int) jarEntry.getSize();
+                try {
+                    entry.manifest = jarFiles[i].getManifest();
+                    binaryStream = jarFiles[i].getInputStream(jarEntry);
+                } catch (IOException e) {
+                    return null;
+                }
+
+                // Extract resources contained in JAR to the workdir
+                if (!(path.endsWith(".class"))) {
+                    byte[] buf = new byte[1024];
+                    File resourceFile = new File
+                        (loaderDir, jarEntry.getName());
+                    if (!resourceFile.exists()) {
+                        Enumeration entries = jarFiles[i].entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry jarEntry2 = 
+                                (JarEntry) entries.nextElement();
+                            if (!(jarEntry2.isDirectory()) 
+                                && (!jarEntry2.getName().endsWith(".class"))) {
+                                resourceFile = new File
+                                    (loaderDir, jarEntry2.getName());
+                                resourceFile.getParentFile().mkdirs();
+                                FileOutputStream os = null;
+                                InputStream is = null;
+                                try {
+                                    is = jarFiles[i].getInputStream(jarEntry2);
+                                    os = new FileOutputStream(resourceFile);
+                                    while (true) {
+                                        int n = is.read(buf);
+                                        if (n <= 0) {
+                                            break;
+                                        }
+                                        os.write(buf, 0, n);
+                                    }
+                                } catch (IOException e) {
+                                    // Ignore
+                                } finally {
                                     try {
-                                        is = jarFiles[i].getInputStream
-                                            (jarEntry2);
-                                        os = new FileOutputStream
-                                            (resourceFile);
-                                        while (true) {
-                                            int n = is.read(buf);
-                                            if (n <= 0) {
-                                                break;
-                                            }
-                                            os.write(buf, 0, n);
+                                        if (is != null) {
+                                            is.close();
                                         }
                                     } catch (IOException e) {
-                                        // Ignore
-                                    } finally {
-                                        try {
-                                            if (is != null) {
-                                                is.close();
-                                            }
-                                        } catch (IOException e) {
+                                    }
+                                    try {
+                                        if (os != null) {
+                                            os.close();
                                         }
-                                        try {
-                                            if (os != null) {
-                                                os.close();
-                                            }
-                                        } catch (IOException e) {
-                                        }
+                                    } catch (IOException e) {
                                     }
                                 }
                             }
                         }
                     }
-
                 }
-
             }
-
-            if (entry == null) {
-                synchronized (notFoundResources) {
-                    notFoundResources.put(name, name);
-                }
-                return null;
-            }
-
-            if (binaryStream != null) {
-
-                byte[] binaryContent = new byte[contentLength];
-
-                try {
-                    int pos = 0;
-
-                    while (true) {
-                        int n = binaryStream.read(binaryContent, pos,
-                                                  binaryContent.length - pos);
-                        if (n <= 0)
-                            break;
-                        pos += n;
-                    }
-                    binaryStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-
-                // START OF IASRI 4709374
-                // Preprocess the loaded byte code if bytecode preprocesser is
-                // enabled
-                if (PreprocessorUtil.isPreprocessorEnabled()) {
-                    binaryContent =
-                        PreprocessorUtil.processClass(name, binaryContent);
-                }
-                // END OF IASRI 4709374
-
-                entry.binaryContent = binaryContent;
-
-                // The certificates are only available after the JarEntry 
-                // associated input stream has been fully read
-                if (jarEntry != null) {
-                    entry.certificates = jarEntry.getCertificates();
-                }
-
-            }
-
         }
 
-        // Add the entry in the local resource repository
-        synchronized (resourceEntries) {
-            // Ensures that all the threads which may be in a race to load
-            // a particular class all end up with the same ResourceEntry
-            // instance
-            ResourceEntry entry2 = (ResourceEntry) resourceEntries.get(name);
-            if (entry2 == null) {
-                resourceEntries.put(name, entry);
-            } else {
-                entry = entry2;
-            }
+        if (entry != null) {
+            readEntryData(entry, name, binaryStream, contentLength, jarEntry);
         }
 
         return entry;
+    }
 
+
+    /**
+     * Reads the resource's binary data from the given input stream.
+     */
+    private void readEntryData(ResourceEntry entry,
+                               String name,
+                               InputStream binaryStream,
+                               int contentLength,
+                               JarEntry jarEntry) {
+
+        if (binaryStream == null) {
+            return;
+        }
+
+        byte[] binaryContent = new byte[contentLength];
+
+        try {
+            int pos = 0;
+
+            while (true) {
+                int n = binaryStream.read(binaryContent, pos,
+                                          binaryContent.length - pos);
+                if (n <= 0)
+                    break;
+                pos += n;
+            }
+            binaryStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // START OF IASRI 4709374
+        // Preprocess the loaded byte code if bytecode preprocesser is
+        // enabled
+        if (PreprocessorUtil.isPreprocessorEnabled()) {
+            binaryContent =
+                PreprocessorUtil.processClass(name, binaryContent);
+        }
+        // END OF IASRI 4709374
+
+        entry.binaryContent = binaryContent;
+
+        // The certificates are only available after the JarEntry 
+        // associated input stream has been fully read
+        if (jarEntry != null) {
+            entry.certificates = jarEntry.getCertificates();
+        }
     }
 
 
