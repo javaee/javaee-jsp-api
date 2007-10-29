@@ -31,6 +31,8 @@ import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509KeyManager;
 
 /**
@@ -40,11 +42,12 @@ import javax.net.ssl.X509KeyManager;
  *
  * @author Jan Luehe
  */
-public final class JSSEKeyManager implements X509KeyManager {
-
+public final class JSSEKeyManager extends X509ExtendedKeyManager{
+    
     private X509KeyManager delegate;
     private String serverKeyAlias;
 
+    
     /**
      * Constructor.
      *
@@ -53,10 +56,40 @@ public final class JSSEKeyManager implements X509KeyManager {
      * supporting certificate chain
      */
     public JSSEKeyManager(X509KeyManager mgr, String serverKeyAlias) {
+        super();
         this.delegate = mgr;
         this.serverKeyAlias = serverKeyAlias;
     }
+    
+    
+    /**
+     * Choose an alias to authenticate the client side of an SSLEngine connection
+     * given the public key type and the list of certificate issuer authorities 
+     * recognized by the peer (if any).
+     *
+     * @return The alias name for the desired key, or null if there are no
+     * matches
+     */
+    public String chooseEngineClientAlias(String[] keyType,
+                                          Principal[] issuers,
+                                          SSLEngine engine){
+        return delegate.chooseClientAlias(keyType,issuers,null);
+    }
+    
+    
+    /**
+     * Choose an alias to authenticate the server side of an SSLEngine connection
+     * given the public key type and the list of certificate issuer authorities
+     * recognized by the peer (if any).   
+     * @return Alias name for the desired key
+     **/
+    public String chooseEngineServerAlias(String keyType,
+                                          Principal[] issuers,
+                                          SSLEngine engine){
+        return serverKeyAlias;
+    }  
 
+    
     /**
      * Choose an alias to authenticate the client side of a secure socket,
      * given the public key type and the list of certificate issuer authorities
