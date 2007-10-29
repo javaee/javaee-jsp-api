@@ -33,10 +33,11 @@ import org.apache.jasper.Constants;
  */
 public class TagHandlerPool {
 
-    private Tag[] handlers;
-
     public static String OPTION_TAGPOOL="tagpoolClassName";
     public static String OPTION_MAXSIZE="tagpoolMaxSize";
+
+    private Tag[] handlers;
+    private ResourceInjector resourceInjector;
 
     // index of next available tag handler
     private int current;
@@ -75,6 +76,18 @@ public class TagHandlerPool {
         }
         this.handlers = new Tag[maxSize];
         this.current = -1;
+
+        String resourceInjectorClassName =
+            config.getInitParameter("com.sun.appserv.jsp.resource.injector");
+        if (resourceInjectorClassName != null) {
+            try {
+                resourceInjector = (ResourceInjector)
+                    Class.forName(resourceInjectorClassName).newInstance();
+                resourceInjector.setContext(config.getServletContext());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -117,11 +130,17 @@ public class TagHandlerPool {
 
         // Out of sync block - there is no need for other threads to
         // wait for us to construct a tag for this thread.
+        Tag tagHandler = null;
         try {
-            return (Tag) handlerClass.newInstance();
+            tagHandler = (Tag) handlerClass.newInstance();
+            if (resourceInjector != null) {
+                resourceInjector.inject(tagHandler);
+            }
         } catch (Exception e) {
             throw new JspException(e.getMessage(), e);
         }
+
+        return tagHandler;
     }
 
     /**

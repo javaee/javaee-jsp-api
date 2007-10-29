@@ -58,7 +58,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:07 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public final class ApplicationContextFacade
@@ -365,6 +365,19 @@ public final class ApplicationContextFacade
             return context.getServletContextName();
         }
     }
+
+
+    // START PWC 1.2
+    /**
+     * Gets the underlying StandardContext to which this
+     * ApplicationContextFacade is ultimately delegating.
+     *
+     * @return The underlying StandardContext
+     */
+    public StandardContext getUnwrappedContext() {
+        return context.getUnwrappedContext();
+    }
+    // END PWC 1.2
 
        
     /**

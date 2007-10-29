@@ -27,6 +27,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+// START PWC 1.2
+import java.security.SecurityPermission;
+// START PWC 1.2
 
 import javax.naming.Binding;
 import javax.naming.NamingException;
@@ -61,7 +64,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/03 22:50:32 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public class ApplicationContext
@@ -81,6 +84,14 @@ public class ApplicationContext
         this.context = context;
         this.basePath = basePath;
     }
+
+
+    // ----------------------------------------------------- Class Variables
+
+    // START PWC 1.2
+    private static final SecurityPermission GET_UNWRAPPED_CONTEXT_PERMISSION =
+        new SecurityPermission("getUnwrappedContext");
+    // END PWC 1.2
 
 
     // ----------------------------------------------------- Instance Variables
@@ -825,6 +836,25 @@ public class ApplicationContext
         }
 
     }
+
+
+    // START PWC 1.2
+    /**
+     * Gets the underlying StandardContext to which this ApplicationContext is
+     * delegating.
+     *
+     * @return The underlying StandardContext
+     */
+    public StandardContext getUnwrappedContext() {
+
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(GET_UNWRAPPED_CONTEXT_PERMISSION);
+        }
+
+        return this.context;        
+    }
+    // END PWC 1.2
 
 
     // -------------------------------------------------------- Package Methods

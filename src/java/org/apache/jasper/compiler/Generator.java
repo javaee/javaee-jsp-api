@@ -363,7 +363,11 @@ class Generator {
      * For tag file, _jspInit has to be invoked manually, and the ServletConfig
      * object explicitly passed.
      */
-    private void generateInit() {
+    private void generateTagHandlerInit() {
+
+        if (!isPoolingEnabled || tagHandlerPoolNames.isEmpty()) {
+            return;
+        }
 
         if (ctxt.isTagFile()) {
             out.printil("private void _jspInit(ServletConfig config) {");
@@ -392,7 +396,11 @@ class Generator {
      * Generates the _jspDestroy() method which is responsible for calling the
      * release() method on every tag handler in any of the tag handler pools.
      */
-    private void generateDestroy() {
+    private void generateTagHandlerDestroy() {
+
+        if (!isPoolingEnabled || tagHandlerPoolNames.isEmpty()) {
+            return;
+        }
 
         out.printil("public void _jspDestroy() {");
         out.pushIndent();
@@ -466,13 +474,20 @@ class Generator {
      */
     private void genPreambleClassVariableDeclarations(String className)
         throws JasperException {
-        if (isPoolingEnabled && !tagHandlerPoolNames.isEmpty()) {
-            for (int i = 0; i < tagHandlerPoolNames.size(); i++) {
-                out.printil(
-                    "private org.apache.jasper.runtime.TagHandlerPool "
-                        + tagHandlerPoolNames.elementAt(i)
-                        + ";");
+
+        if (isPoolingEnabled) {
+            if (!tagHandlerPoolNames.isEmpty()) {
+                for (int i = 0; i < tagHandlerPoolNames.size(); i++) {
+                    out.printil(
+                        "private org.apache.jasper.runtime.TagHandlerPool "
+                            + tagHandlerPoolNames.elementAt(i)
+                            + ";");
+                }
+                out.println();
             }
+        } else {
+            out.printil("private org.apache.jasper.runtime.ResourceInjector "
+                        + "_jspx_resourceInjector;");
             out.println();
         }
     }
@@ -490,10 +505,8 @@ class Generator {
         out.printil("}");
         out.println();
 
-        if (isPoolingEnabled && !tagHandlerPoolNames.isEmpty()) {
-            generateInit();
-            generateDestroy();
-        }
+        generateTagHandlerInit();
+        generateTagHandlerDestroy();
     }
 
     /**
@@ -612,6 +625,25 @@ class Generator {
             out.printil("session = pageContext.getSession();");
         out.printil("out = pageContext.getOut();");
         out.printil("_jspx_out = out;");
+        out.println();
+
+        if (!isPoolingEnabled) {
+            generateResourceInjector();
+        }
+
+    }
+
+    /**
+     * Generates code that initializes resouce injector.
+     */
+    private void generateResourceInjector() {
+        out.printil("String resourceInjectorClassName = config.getInitParameter(\"com.sun.appserv.jsp.resource.injector\");");
+        out.printil("if (resourceInjectorClassName != null) {");
+        out.pushIndent();
+        out.printil("_jspx_resourceInjector = (org.apache.jasper.runtime.ResourceInjector) Class.forName(resourceInjectorClassName).newInstance();");
+        out.printil("_jspx_resourceInjector.setContext(application);");
+        out.popIndent();
+        out.printil("}");
         out.println();
     }
 
@@ -2164,6 +2196,13 @@ class Generator {
                 out.print("new ");
                 out.print(tagHandlerClassName);
                 out.println("();");
+                out.printil("if (_jspx_resourceInjector != null) {");
+                out.pushIndent();
+                out.printin("_jspx_resourceInjector.inject(");
+                out.print(tagHandlerVar);
+                out.printil(");");
+                out.popIndent();
+                out.printil("}");
             }
 
             generateSetters(n, tagHandlerVar, handlerInfo, false);
