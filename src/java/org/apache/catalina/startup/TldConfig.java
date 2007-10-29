@@ -745,10 +745,10 @@ public final class TldConfig  {
                      * Scan all JARs from WEB-INF/lib, plus any shared JARs
                      * that are not known not to contain any TLDs
                      */
-                    if ((loader == webappLoader &&
-                                !systemJars.contains(file.getName()))
-                            || noTldJars == null
-                            || !noTldJars.contains(file.getName())) {
+                    if ((loader != webappLoader
+                                || !systemJars.contains(file.getName()))
+                            && (noTldJars == null
+                                || !noTldJars.contains(file.getName()))) {
                         if (jarPathMap == null) {
                             jarPathMap = new HashMap();
                             jarPathMap.put(path, file);
