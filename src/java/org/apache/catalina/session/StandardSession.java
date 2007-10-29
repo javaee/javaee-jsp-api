@@ -75,6 +75,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
 //end HERCULES:add
 
 
+
 /**
  * Standard implementation of the <b>Session</b> interface.  This object is
  * serializable, so that it can be stored in persistent storage or transferred
@@ -93,7 +94,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.13 $ $Date: 2006/01/18 00:26:25 $
+ * @version $Revision: 1.14 $ $Date: 2006/02/13 19:12:31 $
  */
 
 public class StandardSession
@@ -645,6 +646,12 @@ public class StandardSession
     public void setValid(boolean isValid) {
 
         this.isValid = isValid;
+        //6406580 START
+        if(!isValid) {
+            ManagerBase mgr = (ManagerBase)this.getManager();
+            mgr.addToInvalidatedSessions(this);            
+        }
+        //6406580 END        
     }
 
 
@@ -674,6 +681,10 @@ public class StandardSession
 
         isNew = false;
         accessCount--;
+        //6406580 START
+        ManagerBase mgr = (ManagerBase)this.getManager();
+        mgr.removeFromInvalidatedSessions(this);
+        //6406580 END        
 
     }
 

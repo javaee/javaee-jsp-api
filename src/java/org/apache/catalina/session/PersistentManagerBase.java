@@ -59,7 +59,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.7 $ $Date: 2006/01/18 00:26:25 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:05 $
  */
 
 public abstract class PersistentManagerBase
@@ -636,6 +636,12 @@ public abstract class PersistentManagerBase
      *  processing this request
      */
     public Session findSession(String id) throws IOException {
+        
+        //6406580 START
+        if(!this.isSessionIdValid(id)) {
+            return null;
+        }
+        //6406580 END        
 
         Session session = super.findSession(id);
         if (session != null)
@@ -882,8 +888,12 @@ public abstract class PersistentManagerBase
 
         if (!session.isValid()) {
             log.error("session swapped in is invalid or expired");
+            //6406580 START
+            /* - these lines are calling remove on store redundantly
             session.expire();
             removeSession(id);
+             */
+            //6406580 END            
             return (null);
         }
 

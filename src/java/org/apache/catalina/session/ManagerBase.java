@@ -86,7 +86,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/02/03 20:27:50 $
+ * @version $Revision: 1.7 $ $Date: 2006/03/12 01:27:05 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -228,6 +228,14 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
      * session identifier.
      */
     protected HashMap sessions = new HashMap();
+    
+    //6406580 START
+    /**
+     * The set of invalidated Sessions for this Manager, keyed by
+     * session identifier.(the value will be null we only care about the key)
+     */
+    protected HashMap invalidatedSessions = new HashMap();
+    //6406580 END    
 
     // Number of sessions created by this manager
     protected int sessionCounter=0;
@@ -801,7 +809,44 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
             }
         }
     }
+    
+    //6406580 START
+    /**
+     * Add this Session to the set of invalidated Sessions for this Manager.
+     *
+     * @param session Session to be added
+     */
+    public void addToInvalidatedSessions(Session session) {
 
+        synchronized (invalidatedSessions) {
+            invalidatedSessions.put( ((StandardSession)session).getIdInternal(), session);
+        }
+    }
+    
+    /**
+     * Remove this Session from the set of invalidated Sessions for this Manager.
+     *
+     * @param session Session to be removed
+     */
+    public void removeFromInvalidatedSessions(Session session) {
+
+        synchronized (invalidatedSessions) {
+            invalidatedSessions.remove( ((StandardSession)session).getIdInternal());
+        }
+    }    
+    
+    public boolean isSessionIdValid(String sessionId) {
+        StandardSession sess = null;
+        synchronized (invalidatedSessions) {
+            sess = (StandardSession)invalidatedSessions.get(sessionId);
+        }
+        if(sess == null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //6406580 END    
 
     /**
      * Add a property change listener to this component.
