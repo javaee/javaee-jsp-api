@@ -70,7 +70,7 @@ import org.apache.jasper.servlet.JspServletWrapper;
  * Only used if a web application context is a directory.
  *
  * @author Glenn L. Nielsen
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public final class JspRuntimeContext implements Runnable {
 
@@ -138,7 +138,7 @@ public final class JspRuntimeContext implements Runnable {
 	    return;
 	}
 
-        if (System.getSecurityManager() != null) {
+        if (Constants.IS_SECURITY_ENABLED) {
             initSecurity();
         }
 

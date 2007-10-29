@@ -45,6 +45,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.Globals;
 import org.apache.catalina.connector.ResponseFacade;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.catalina.util.StringManager;
@@ -55,7 +56,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.5 $ $Date: 2006/03/10 17:46:38 $
+ * @version $Revision: 1.6 $ $Date: 2006/09/29 22:10:17 $
  */
 
 
@@ -548,8 +549,7 @@ public class CoyoteResponseFacade
 
         // tomcat does not have any Permission types so instead of
         // creating a TomcatPermission for this, use SecurityPermission.
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             Permission perm =
                 new SecurityPermission("getUnwrappedCoyoteResponse");
             AccessController.checkPermission(perm);

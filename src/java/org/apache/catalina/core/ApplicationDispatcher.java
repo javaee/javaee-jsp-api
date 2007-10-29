@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.13 $ $Date: 2006/11/01 22:37:14 $
+ * @version $Revision: 1.14 $ $Date: 2006/11/02 17:40:12 $
  */
 
 final class ApplicationDispatcher
@@ -333,7 +333,7 @@ final class ApplicationDispatcher
     public void forward(ServletRequest request, ServletResponse response)
         throws ServletException, IOException
     {
-        if (System.getSecurityManager() != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             try {
                 PrivilegedForward dp = new PrivilegedForward(request,response);
                 AccessController.doPrivileged(dp);
@@ -549,7 +549,7 @@ final class ApplicationDispatcher
     public void include(ServletRequest request, ServletResponse response)
         throws ServletException, IOException
     {
-        if (System.getSecurityManager() != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             try {
                 PrivilegedInclude dp = new PrivilegedInclude(request,response);
                 AccessController.doPrivileged(dp);

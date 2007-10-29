@@ -74,9 +74,6 @@ public final class ApplicationFilterFactory {
     public static final String DISPATCHER_REQUEST_PATH_ATTR = 
         Globals.DISPATCHER_REQUEST_PATH_ATTR;
 
-    private static final SecurityManager securityManager = 
-        System.getSecurityManager();
-
     private static ApplicationFilterFactory factory = null;;
 
 
@@ -393,7 +390,7 @@ public final class ApplicationFilterFactory {
     // START IASRI 4665318
     private ApplicationFilterChain internalCreateFilterChain(ServletRequest request, Wrapper wrapper, Servlet servlet) {
         ApplicationFilterChain filterChain = null;
-        if ((securityManager == null) && (request instanceof Request)) {
+        if (!Globals.IS_SECURITY_ENABLED && (request instanceof Request)) {
             Request req = (Request) request;
             filterChain = (ApplicationFilterChain) req.getFilterChain();
             if (filterChain == null) {

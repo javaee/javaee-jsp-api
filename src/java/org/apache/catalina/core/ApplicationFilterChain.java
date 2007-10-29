@@ -42,6 +42,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.catalina.util.InstanceSupport;
@@ -55,7 +56,7 @@ import org.apache.catalina.util.StringManager;
  * method itself.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:31 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/30 18:45:37 $
  */
 
 final class ApplicationFilterChain implements FilterChain {
@@ -156,7 +157,7 @@ final class ApplicationFilterChain implements FilterChain {
     public void doFilter(ServletRequest request, ServletResponse response)
         throws IOException, ServletException {
 
-        if( System.getSecurityManager() != null ) {
+        if (Globals.IS_SECURITY_ENABLED) {
             final ServletRequest req = request;
             final ServletResponse res = response;
             try {

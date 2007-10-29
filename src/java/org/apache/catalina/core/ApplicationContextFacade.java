@@ -56,6 +56,7 @@ import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.Globals;
 import org.apache.catalina.security.SecurityUtil;
 
 /**
@@ -64,7 +65,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.4 $ $Date: 2006/02/08 23:05:12 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:00 $
  */
 
 public final class ApplicationContextFacade
@@ -184,7 +185,7 @@ public final class ApplicationContextFacade
 
     public URL getResource(String path)
         throws MalformedURLException {
-        if (System.getSecurityManager() != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             try {
                 return (URL) invokeMethod(context, "getResource", 
                                           new Object[]{path});
@@ -503,7 +504,7 @@ public final class ApplicationContextFacade
                    IllegalAccessException,
                    InvocationTargetException {
                                      
-        if (System.getSecurityManager() != null){
+        if (Globals.IS_SECURITY_ENABLED){
            return AccessController.doPrivileged(new PrivilegedExceptionAction(){
                 public Object run() throws IllegalAccessException, InvocationTargetException{
                     return method.invoke(context,  params);

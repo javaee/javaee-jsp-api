@@ -244,5 +244,11 @@ public class Constants {
 
     public static final String JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE =
         "com.sun.appserv.jsp.resource.injector";
+
+    /**
+     * Has security been turned on?
+     */
+    public static final boolean IS_SECURITY_ENABLED = 
+        (System.getSecurityManager() != null);
 }
 

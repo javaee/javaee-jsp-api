@@ -91,7 +91,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:02 $
+ * @version $Revision: 1.6 $ $Date: 2006/10/03 20:19:12 $
  */
 
 public class WebappLoader
@@ -884,7 +884,7 @@ public class WebappLoader
      */
     private void setPermissions() {
 
-        if (System.getSecurityManager() == null)
+        if (!Globals.IS_SECURITY_ENABLED)
             return;
         if (!(container instanceof Context))
             return;

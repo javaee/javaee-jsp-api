@@ -56,13 +56,7 @@ public final class Constants {
      */
     public static final String SSL_CERTIFICATE_ATTR = "org.apache.coyote.request.X509Certificate";
 
-    /**
-     * Security flag.
-     */
-    public static final boolean SECURITY = 
-        (System.getSecurityManager() != null);
 
-    
     // S1AS 4703023
     public static final int DEFAULT_MAX_DISPATCH_DEPTH = 20;
 

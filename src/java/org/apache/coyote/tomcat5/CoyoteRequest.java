@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.39 $ $Date: 2006/10/27 16:39:55 $
+ * @version $Revision: 1.41 $ $Date: 2006/11/17 23:06:37 $
  */
 
 public class CoyoteRequest
@@ -1773,7 +1773,7 @@ public class CoyoteRequest
         // START S1AS 6179607
         final byte[] finalBuffer = buffer;
         final String finalEnc = enc;
-        if (System.getSecurityManager() != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             try {
                 AccessController.doPrivileged(new PrivilegedExceptionAction() {
                     public Object run() throws UnsupportedEncodingException {

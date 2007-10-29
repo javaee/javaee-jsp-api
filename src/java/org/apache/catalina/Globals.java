@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2006/09/28 19:55:12 $
+ * @version $Revision: 1.7 $ $Date: 2006/11/17 23:06:36 $
  */
 
 public final class Globals {
@@ -331,6 +331,13 @@ public final class Globals {
     public static final String DEFAULT_SERVLET_CLASS_NAME =
         DefaultServlet.class.getName();
     // END SJSAS
+
+
+    /**
+     * Has security been turned on?
+     */
+    public static final boolean IS_SECURITY_ENABLED = 
+        (System.getSecurityManager() != null);
 
 
     // START GlassFish 740

@@ -392,7 +392,7 @@ public final class SecurityUtil{
      * package protection mechanism is enabled.
      */
     public static boolean isPackageProtectionEnabled(){
-        if (packageDefinitionEnabled && System.getSecurityManager() !=  null){
+        if (packageDefinitionEnabled && Globals.IS_SECURITY_ENABLED) {
             return true;
         }
         return false;
@@ -405,7 +405,7 @@ public final class SecurityUtil{
      * <code>isDoAsRequired</code> is required.
      */
     public static boolean executeUnderSubjectDoAs(){
-        if (executeUnderSubjectDoAs && System.getSecurityManager() !=  null){
+        if (executeUnderSubjectDoAs && Globals.IS_SECURITY_ENABLED) {
             return true;
         }
         return false;

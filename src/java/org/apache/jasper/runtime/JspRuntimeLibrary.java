@@ -48,6 +48,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
 
@@ -308,7 +309,7 @@ public class JspRuntimeLibrary {
                                         String param, boolean ignoreMethodNF)
                                         throws JasperException
     {
-        if( System.getSecurityManager() != null ) {
+        if (Constants.IS_SECURITY_ENABLED) {
             try {
                 PrivilegedIntrospectHelper dp =
 		    new PrivilegedIntrospectHelper(

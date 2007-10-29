@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.catalina.connector.RequestFacade;
+import org.apache.catalina.Globals;
 import org.apache.catalina.session.StandardSessionFacade;
 import org.apache.catalina.util.StringManager;
 
@@ -62,7 +63,7 @@ import org.apache.catalina.security.SecurityUtil;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:35 $
+ * @version $Revision: 1.4 $ $Date: 2006/09/29 22:10:17 $
  */
 public class CoyoteRequestFacade 
     extends RequestFacade
@@ -918,8 +919,7 @@ public class CoyoteRequestFacade
 
         // tomcat does not have any Permission types so instead of
         // creating a TomcatPermission for this, use SecurityPermission.
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
+        if (Globals.IS_SECURITY_ENABLED) {
             Permission perm =
                 new SecurityPermission("getUnwrappedCoyoteRequest");
             AccessController.checkPermission(perm);

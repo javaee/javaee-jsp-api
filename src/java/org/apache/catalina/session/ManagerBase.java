@@ -63,6 +63,7 @@ import javax.servlet.ServletResponse;
 import org.apache.catalina.Container;
 import org.apache.catalina.DefaultContext;
 import org.apache.catalina.Engine;
+import org.apache.catalina.Globals;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Session;
 //START OF 6364900
@@ -87,7 +88,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/11/15 19:04:03 $
+ * @version $Revision: 1.14 $ $Date: 2006/11/17 23:06:37 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -623,7 +624,7 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     public void setRandomFile( String s ) {
     // as a hack, you can use a static file - and genarate the same
     // session ids ( good for strange debugging )
-        if (System.getSecurityManager() != null){
+        if (Globals.IS_SECURITY_ENABLED){
                 randomIS = (DataInputStream)AccessController.doPrivileged(new PrivilegedSetRandomFile());          
             } else {
                 FileInputStream fileInputStream = null;

@@ -38,6 +38,7 @@ import javax.servlet.jsp.JspEngineInfo;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspApplicationContext;
 
+import org.apache.jasper.Constants;
 import org.apache.jasper.util.SimplePool;
 import com.sun.org.apache.commons.logging.Log;
 import com.sun.org.apache.commons.logging.LogFactory;
@@ -66,7 +67,7 @@ public class JspFactoryImpl extends JspFactory {
 				      int bufferSize,
                                       boolean autoflush) {
 
-	if( System.getSecurityManager() != null ) {
+	if (Constants.IS_SECURITY_ENABLED) {
 	    PrivilegedGetPageContext dp = new PrivilegedGetPageContext(
 		(JspFactoryImpl)this, servlet, request, response, errorPageURL,
                 needsSession, bufferSize, autoflush);
@@ -81,7 +82,7 @@ public class JspFactoryImpl extends JspFactory {
     public void releasePageContext(PageContext pc) {
 	if( pc == null )
 	    return;
-        if( System.getSecurityManager() != null ) {
+        if (Constants.IS_SECURITY_ENABLED) {
             PrivilegedReleasePageContext dp = new PrivilegedReleasePageContext(
                 (JspFactoryImpl)this,pc);
             AccessController.doPrivileged(dp);
