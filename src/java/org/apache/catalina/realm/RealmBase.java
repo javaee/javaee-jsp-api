@@ -74,7 +74,7 @@ import org.apache.commons.modeler.Registry;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:34:03 $
+ * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:03 $
  */
 
 public abstract class RealmBase
@@ -489,10 +489,14 @@ public abstract class RealmBase
                 continue;
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("  Checking constraint '" + constraints[i] +
+            if (log.isTraceEnabled()) {
+                log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+            }
+            if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + uri);
             }
 
             for(int j=0; j < collection.length; j++){
@@ -533,10 +537,14 @@ public abstract class RealmBase
                 continue;
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("  Checking constraint '" + constraints[i] +
+            if (log.isTraceEnabled()) {
+                log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+            }
+            if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + uri);
             }
 
             for(int j=0; j < collection.length; j++){
@@ -599,10 +607,14 @@ public abstract class RealmBase
                 continue;
             }
             
-            if (log.isDebugEnabled()) {
-                log.debug("  Checking constraint '" + constraints[i] +
+            if (log.isTraceEnabled()) {
+                log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+            }
+            if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + uri);
             }
 
             boolean matched = false;
@@ -656,10 +668,14 @@ public abstract class RealmBase
                 continue;
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("  Checking constraint '" + constraints[i] +
+            if (log.isTraceEnabled()) {
+                log.trace("  Checking constraint '" + constraints[i] +
                     "' against " + method + " " + uri + " --> " +
                     constraints[i].included(uri, method));
+            }
+            if (log.isDebugEnabled() && constraints[i].included(uri, method)) {
+                log.debug("  Matched constraint '" + constraints[i] +
+                    "' against " + method + " " + uri);
             }
 
             for(int j=0; j < collection.length; j++){

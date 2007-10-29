@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:06 $
+ * @version $Revision: 1.4 $ $Date: 2005/10/17 18:17:21 $
  */
 
 public abstract class PersistentManagerBase
@@ -995,11 +995,11 @@ public abstract class PersistentManagerBase
         started = true;
 
         // Force initialization of the random number generator
-        if (log.isDebugEnabled())
-            log.debug("Force random number initialization starting");
+        if (log.isTraceEnabled())
+            log.trace("Force random number initialization starting");
         String dummy = generateSessionId();
-        if (log.isDebugEnabled())
-            log.debug("Force random number initialization completed");
+        if (log.isTraceEnabled())
+            log.trace("Force random number initialization completed");
 
         if (store == null)
             log.error("No Store configured, persistence disabled");

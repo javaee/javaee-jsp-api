@@ -68,7 +68,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:38:36 $
+ * @version $Revision: 1.3 $ $Date: 2005/07/22 01:35:27 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -708,8 +708,8 @@ public class ContextConfig
     protected synchronized void start() {
         // Called from StandardContext.start()
 
-        if (log.isDebugEnabled())
-            log.debug(sm.getString("contextConfig.start"));
+        if (log.isTraceEnabled())
+            log.trace(sm.getString("contextConfig.start"));
         context.setConfigured(false);
         ok = true;
 
@@ -755,18 +755,18 @@ public class ContextConfig
             managerConfig();
 
         // Dump the contents of this pipeline if requested
-        if ((log.isDebugEnabled()) && (context instanceof ContainerBase)) {
-            log.debug("Pipline Configuration:");
+        if ((log.isTraceEnabled()) && (context instanceof ContainerBase)) {
+            log.trace("Pipline Configuration:");
             Pipeline pipeline = ((ContainerBase) context).getPipeline();
             Valve valves[] = null;
             if (pipeline != null)
                 valves = pipeline.getValves();
             if (valves != null) {
                 for (int i = 0; i < valves.length; i++) {
-                    log.debug("  " + valves[i].getInfo());
+                    log.trace("  " + valves[i].getInfo());
                 }
             }
-            log.debug("======================");
+            log.trace("======================");
         }
 
         // Make our application available if no problems were encountered
@@ -785,8 +785,8 @@ public class ContextConfig
      */
     protected synchronized void stop() {
 
-        if (log.isDebugEnabled())
-            log.debug(sm.getString("contextConfig.stop"));
+        if (log.isTraceEnabled())
+            log.trace(sm.getString("contextConfig.stop"));
 
         int i;
 

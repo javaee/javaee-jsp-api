@@ -63,7 +63,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
+ * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:06 $
  */
 
 public class StandardManager
@@ -651,11 +651,11 @@ public class StandardManager
         started = true;
 
         // Force initialization of the random number generator
-        if (log.isDebugEnabled())
-            log.debug("Force random number initialization starting");
+        if (log.isTraceEnabled())
+            log.trace("Force random number initialization starting");
         String dummy = generateSessionId();
-        if (log.isDebugEnabled())
-            log.debug("Force random number initialization completed");
+        if (log.isTraceEnabled())
+            log.trace("Force random number initialization completed");
 
         // Load unloaded sessions, if any
         try {

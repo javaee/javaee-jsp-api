@@ -604,8 +604,8 @@ public final class TldConfig  {
      *  accumulating the list of resource paths
      */
     private Set tldScanResourcePaths() throws IOException {
-        if (log.isDebugEnabled()) {
-            log.debug(" Accumulating TLD resource paths");
+        if (log.isTraceEnabled()) {
+            log.trace(" Accumulating TLD resource paths");
         }
         Set resourcePaths = new HashSet();
 

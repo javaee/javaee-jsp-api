@@ -115,7 +115,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/10/21 23:04:34 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -629,8 +629,8 @@ public class Embedded  extends StandardService implements Lifecycle {
      */
     public Loader createLoader(ClassLoader parent) {
 
-        if( log.isDebugEnabled() )
-            log.debug("Creating Loader with parent class loader '" +
+        if( log.isTraceEnabled() )
+            log.trace("Creating Loader with parent class loader '" +
                        parent + "'");
 
         WebappLoader loader = new WebappLoader(parent);
