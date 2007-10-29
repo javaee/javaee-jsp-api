@@ -599,11 +599,7 @@ public class JspC implements Options {
      * @return The system class path
      */
     public String getSystemClassPath() {
-        if (sysClassPath != null) {
-            return sysClassPath;
-        } else {
-            return System.getProperty("java.class.path");
-        }
+        return sysClassPath;
     }
 
     /**
@@ -1241,7 +1237,18 @@ public class JspC implements Options {
 
         URL urlsA[]=new URL[urls.size()];
         urls.toArray(urlsA);
+
+        /* SJSAS 6327357
         loader = new URLClassLoader(urlsA, this.getClass().getClassLoader());
+         */
+        // START SJSAS 6327357
+        ClassLoader sysClassLoader = initSystemClassLoader();
+        if (sysClassLoader != null) {
+            loader = new URLClassLoader(urlsA, sysClassLoader);
+        } else {
+            loader = new URLClassLoader(urlsA, this.getClass().getClassLoader());
+        }
+        // END SJSAS 6327357
     }
 
     /**
@@ -1295,4 +1302,31 @@ public class JspC implements Options {
             // pass straight through
         }
     }
+
+
+    // START SJSAS 6327357
+    private ClassLoader initSystemClassLoader() throws IOException {
+
+        String sysClassPath = getSystemClassPath();
+        if (sysClassPath == null) {
+            return null;
+        }
+
+        ArrayList urls = new ArrayList();
+        StringTokenizer tokenizer = new StringTokenizer(sysClassPath,
+                                                        File.pathSeparator);
+        while (tokenizer.hasMoreTokens()) {
+            urls.add(new File(tokenizer.nextToken()).toURL());
+        }
+
+        if (urls.size() == 0) {
+            return null;
+        }
+
+        URL urlsArray[] = new URL[urls.size()];
+        urls.toArray(urlsArray);
+
+        return new URLClassLoader(urlsArray, this.getClass().getClassLoader());
+    }
+    // END SJAS 6327357
 }
