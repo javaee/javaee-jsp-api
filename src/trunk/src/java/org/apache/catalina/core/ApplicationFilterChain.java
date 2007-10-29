@@ -49,7 +49,7 @@ import org.apache.catalina.util.StringManager;
  * method itself.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:08 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
  */
 
 final class ApplicationFilterChain implements FilterChain {
@@ -238,6 +238,7 @@ final class ApplicationFilterChain implements FilterChain {
         }
 
         // We fell off the end of the chain -- call the servlet instance
+        /* IASRI 4665318
         try {
             support.fireInstanceEvent(InstanceEvent.BEFORE_SERVICE_EVENT,
                                       servlet, request, response);
@@ -291,6 +292,10 @@ final class ApplicationFilterChain implements FilterChain {
               (sm.getString("filterChain.servlet"), e);
         }
 
+        */
+        // START IASRI 4665318
+        servletService(request, response, servlet, support);
+        // END IASRI 4665318
     }
 
 
@@ -354,4 +359,62 @@ final class ApplicationFilterChain implements FilterChain {
     }
 
 
+    // START IASRI 4665318
+
+    static void servletService(ServletRequest request, 
+                               ServletResponse response,
+                               Servlet serv, InstanceSupport supp)
+        throws IOException, ServletException {
+        try {
+            supp.fireInstanceEvent(InstanceEvent.BEFORE_SERVICE_EVENT,
+                                   serv, request, response);
+            if ((request instanceof HttpServletRequest) &&
+                (response instanceof HttpServletResponse)) {
+                    
+                if ( SecurityUtil.executeUnderSubjectDoAs() ){
+                    final ServletRequest req = request;
+                    final ServletResponse res = response;
+                    Principal principal = 
+                        ((HttpServletRequest) req).getUserPrincipal();
+
+                    Object[] serviceType = new Object[2];
+                    serviceType[0] = req;
+                    serviceType[1] = res;
+                    
+                    SecurityUtil.doAsPrivilege("service",
+                                               serv,
+                                               classTypeUsedInService, 
+                                               serviceType,
+                                               principal);                                                   
+                    serviceType = null;
+                } else {  
+                    serv.service((HttpServletRequest) request,
+                                 (HttpServletResponse) response);
+                }
+            } else {
+                serv.service(request, response);
+            }
+            supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
+                                   serv, request, response);
+        } catch (IOException e) {
+            supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
+                                   serv, request, response, e);
+            throw e;
+        } catch (ServletException e) {
+            supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
+                                   serv, request, response, e);
+            throw e;
+        } catch (RuntimeException e) {
+            supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
+                                   serv, request, response, e);
+            throw e;
+        } catch (Throwable e) {
+            supp.fireInstanceEvent(InstanceEvent.AFTER_SERVICE_EVENT,
+                                   serv, request, response, e);
+            throw new ServletException
+              (sm.getString("filterChain.servlet"), e);
+        }
+
+    }
+    // END IASRI 4665318
 }

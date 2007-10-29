@@ -74,7 +74,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:02 $
+ * @version $Revision: 1.2 $ $Date: 2005/07/22 12:15:43 $
  */
 
 final class ApplicationDispatcher
@@ -715,7 +715,12 @@ final class ApplicationDispatcher
             support.fireInstanceEvent(InstanceEvent.BEFORE_DISPATCH_EVENT,
                                       servlet, request, response);
             // for includes/forwards
+            /* IASRI 4665318
             if ((servlet != null) && (filterChain != null)) {
+            */
+            // START IASRI 4665318
+            if (servlet != null) {
+            // END IASRI 4665318
                 // START OF S1AS 4703023
                 origRequest = getCoyoteRequest(request);
                 if (origRequest != null) {
@@ -727,7 +732,17 @@ final class ApplicationDispatcher
                                 new Integer(origRequest.getMaxDispatchDepth())}));
                 }
                 // END OF S1AS 4703023 
+                /* IASRI 4665318
                 filterChain.doFilter(request, response);
+                */
+                // START IASRI 4665318
+                if (filterChain != null)
+                    filterChain.doFilter(request, response);
+                else {
+                    ApplicationFilterChain.servletService(request, response,
+                                                          servlet, support);
+                }
+                // END IASRI 4665318
             }
             // Servlet Service Method is called by the FilterChain
             request.removeAttribute(Globals.JSP_FILE_ATTR);

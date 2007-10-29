@@ -132,6 +132,7 @@ public final class ApplicationFilterFactory {
 
         // Create and initialize a filter chain object
         ApplicationFilterChain filterChain = null;
+        /** IASRI 4665318
         if ((securityManager == null) && (request instanceof Request)) {
             Request req = (Request) request;
             filterChain = (ApplicationFilterChain) req.getFilterChain();
@@ -148,6 +149,7 @@ public final class ApplicationFilterFactory {
 
         filterChain.setSupport
             (((StandardWrapper)wrapper).getInstanceSupport());
+        */
 
         // Acquire the filter mappings for this Context
         StandardContext context = (StandardContext) wrapper.getParent();
@@ -175,6 +177,11 @@ public final class ApplicationFilterFactory {
                 ;       // FIXME - log configuration problem
                 continue;
             }
+            // START IASRI 4665318
+            // Create a filter chain only when there are filters to add
+            if (filterChain == null)
+                filterChain = internalCreateFilterChain(request, wrapper, servlet);
+            // END IASRI 4665318
             filterChain.addFilter(filterConfig);
             n++;
         }
@@ -192,6 +199,11 @@ public final class ApplicationFilterFactory {
                 ;       // FIXME - log configuration problem
                 continue;
             }
+            // START IASRI 4665318
+            // Create a filter chain only when there are filters to add
+            if (filterChain == null)
+                filterChain = internalCreateFilterChain(request, wrapper, servlet);
+            // END IASRI 4665318
             filterChain.addFilter(filterConfig);
             n++;
         }
@@ -346,6 +358,29 @@ public final class ApplicationFilterFactory {
         }
         return false;
     }
+    // START IASRI 4665318
+    private ApplicationFilterChain internalCreateFilterChain(ServletRequest request, Wrapper wrapper, Servlet servlet) {
+        ApplicationFilterChain filterChain = null;
+        if ((securityManager == null) && (request instanceof Request)) {
+            Request req = (Request) request;
+            filterChain = (ApplicationFilterChain) req.getFilterChain();
+            if (filterChain == null) {
+                filterChain = new ApplicationFilterChain();
+                req.setFilterChain(filterChain);
+            }
+        } else {
+            // Security: Do not recycle
+            filterChain = new ApplicationFilterChain();
+        }
+
+        filterChain.setServlet(servlet);
+
+        filterChain.setSupport
+            (((StandardWrapper)wrapper).getInstanceSupport());
+
+        return filterChain;
+    }
+    // END IASRI 4665318
 
 
 }

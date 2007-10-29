@@ -56,7 +56,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
+ * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
  */
 
 final class StandardWrapperValve
@@ -260,9 +260,24 @@ final class StandardWrapperValve
                 hreq.setAttribute(Globals.JSP_FILE_ATTR, jspFile);
             else
                 hreq.removeAttribute(Globals.JSP_FILE_ATTR);
+            /* IASRI 4665318
             if ((servlet != null) && (filterChain != null)) {
                 filterChain.doFilter(hreq, hres);
             }
+            */
+            // START IASRI 4665318
+            if (servlet != null) {
+                if (filterChain != null)
+                    filterChain.doFilter(hreq, hres);
+                else {
+                    ApplicationFilterChain.servletService(hreq,
+                                                          hres,
+                                                          servlet,
+                                                          wrapper.getInstanceSupport());
+
+                }
+            }
+            // END IASRI 4665318
             hreq.removeAttribute(Globals.JSP_FILE_ATTR);
         } catch (ClientAbortException e) {
             hreq.removeAttribute(Globals.JSP_FILE_ATTR);
