@@ -22,12 +22,13 @@
 package org.apache.naming.resources;
 
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Implements a special purpose cache.
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1.1.1 $
  */
 public class ResourceCache {
     
@@ -40,6 +41,12 @@ public class ResourceCache {
     
     
     // ----------------------------------------------------- Instance Variables
+      
+    
+    /**
+     * Random generator used to determine elements to free.
+     */
+    protected Random random = new Random();
     
     
     /**
@@ -235,8 +242,7 @@ public class ResourceCache {
                 int count = 0;
                 while (!unique) {
                     unique = true;
-                    entryPos = (int) Math.floor(Math.random() 
-                                                * (cache.length - 1));
+                    entryPos = random.nextInt(cache.length) ;
                     // Guarantee uniqueness
                     for (int i = 0; i < entriesFound; i++) {
                         if (toRemove[i] == entryPos) {
@@ -310,11 +316,14 @@ public class ResourceCache {
 
     public void load(CacheEntry entry) {
         if (entry.exists) {
-            insertCache(entry);
+            if (insertCache(entry)) {
+                cacheSize += entry.size;
+            }
         } else {
+            int sizeIncrement = (notFoundCache.get(entry.name) == null) ? 1 : 0;
             notFoundCache.put(entry.name, entry);
+            cacheSize += sizeIncrement;
         }
-        cacheSize += entry.size;
     }
 
 
@@ -324,6 +333,7 @@ public class ResourceCache {
             cacheSize -= removedEntry.size;
             return true;
         } else if (notFoundCache.remove(name) != null) {
+            
             cacheSize--;
             return true;
         }

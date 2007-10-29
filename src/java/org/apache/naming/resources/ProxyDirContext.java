@@ -44,7 +44,7 @@ import org.apache.naming.StringManager;
  * Proxy Directory Context implementation.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/06/14 22:50:47 $
+ * @version $Revision: 1.3 $ $Date: 2005/07/21 23:49:59 $
  */
 
 public class ProxyDirContext implements DirContext {
@@ -1601,7 +1601,7 @@ public class ProxyDirContext implements DirContext {
         // Add new entry to cache
         synchronized (cache) {
             // Check cache size, and remove elements if too big
-            if (cache.allocate(entry.size)) {
+            if ((cache.lookup(name) == null) && cache.allocate(entry.size)) {
                 cache.load(entry);
             }
         }
