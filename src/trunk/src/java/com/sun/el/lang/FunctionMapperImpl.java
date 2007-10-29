@@ -29,7 +29,7 @@ import com.sun.el.util.ReflectionUtil;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public class FunctionMapperImpl extends FunctionMapper implements
         Externalizable {
@@ -115,11 +115,25 @@ public class FunctionMapperImpl extends FunctionMapper implements
          * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
          */
         public void writeExternal(ObjectOutput out) throws IOException {
+            
             out.writeUTF((this.prefix != null) ? this.prefix : "");
             out.writeUTF(this.localName);
-            out.writeUTF(this.m.getDeclaringClass().getName());
-            out.writeUTF(this.m.getName());
-            out.writeObject(ReflectionUtil.toTypeNameArray(this.m.getParameterTypes()));
+            
+            if (this.owner != null) {
+                out.writeUTF(this.owner);
+            } else {
+                out.writeUTF(this.m.getDeclaringClass().getName());
+            }
+            if (this.name != null) {
+                out.writeUTF(this.name);
+            } else {
+                out.writeUTF(this.m.getName());
+            }
+            if (this.types != null) {
+                out.writeObject(this.types);
+            } else {
+                out.writeObject(ReflectionUtil.toTypeNameArray(this.m.getParameterTypes()));
+            }
         }
     
         /*
