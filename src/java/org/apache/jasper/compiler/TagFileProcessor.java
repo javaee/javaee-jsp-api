@@ -145,9 +145,9 @@ class TagFileProcessor {
 
             bodycontent = checkConflict(n, bodycontent, "body-content");
             if (bodycontent != null &&
-                    !bodycontent.equalsIgnoreCase(TagInfo.BODY_CONTENT_EMPTY) &&
-                    !bodycontent.equalsIgnoreCase(TagInfo.BODY_CONTENT_TAG_DEPENDENT) &&
-                    !bodycontent.equalsIgnoreCase(TagInfo.BODY_CONTENT_SCRIPTLESS)) {
+                    !bodycontent.equals(TagInfo.BODY_CONTENT_EMPTY) &&
+                    !bodycontent.equals(TagInfo.BODY_CONTENT_TAG_DEPENDENT) &&
+                    !bodycontent.equals(TagInfo.BODY_CONTENT_SCRIPTLESS)) {
                 err.jspError(n, "jsp.error.tagdirective.badbodycontent",
                              bodycontent);
             }

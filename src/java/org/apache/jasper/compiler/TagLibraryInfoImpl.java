@@ -70,6 +70,8 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
     // Logger
     private static Log log = LogFactory.getLog(TagLibraryInfoImpl.class);
 
+    private static final Double JSP_VERSION_2_0 = Double.valueOf("2.0");
+
     private Hashtable jarEntries;
     private JspCompilationContext ctxt;
     private ErrorDispatcher err;
@@ -454,6 +456,23 @@ class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 		}
 	    }
 	}
+
+        // JSP 2.0 removed the capital versions of TAGDEPENDENT, EMPTY, and
+        // SCRIPTLESS enumerations in body-contentType, see JSP.E.2 ("Changes
+        // between JSP 2.0 PFD2 and JSP 2.0 PFD3"), section "Changes to Tag
+        // Library Descriptor (TLD)". Enforce that from JSP 2.0 and up, only
+        // "JSP", "tagdependent", "empty", and "scriptless" may be specified
+        // as body-content values.
+        Double jspVersionDouble = Double.valueOf(jspversion);
+        if (Double.compare(jspVersionDouble, JSP_VERSION_2_0) >= 0) {
+            if (!bodycontent.equals(TagInfo.BODY_CONTENT_JSP)
+                    && !bodycontent.equals(TagInfo.BODY_CONTENT_EMPTY)
+                    && !bodycontent.equals(TagInfo.BODY_CONTENT_TAG_DEPENDENT)
+                    && !bodycontent.equals(TagInfo.BODY_CONTENT_SCRIPTLESS)) {
+                err.jspError("jsp.error.tld.badbodycontent",
+                             bodycontent, tagName);
+            }
+        }
 
         TagExtraInfo tei = null;
         if (teiClassName != null && !teiClassName.equals("")) {

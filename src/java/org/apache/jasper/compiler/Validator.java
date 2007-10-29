@@ -700,12 +700,12 @@ class Validator {
 	    }
 
 	    /*
-	     * The bodyconet of a SimpleTag cannot be JSP.
+	     * The bodycontent of a SimpleTag cannot be JSP.
 	     */
 	    if (n.implementsSimpleTag() &&
-                tagInfo.getBodyContent().equalsIgnoreCase(TagInfo.BODY_CONTENT_JSP)) {
+                tagInfo.getBodyContent().equals(TagInfo.BODY_CONTENT_JSP)) {
                 err.jspError(n, "jsp.error.simpletag.badbodycontent",
-                        tagInfo.getTagClassName());
+                             tagInfo.getTagClassName());
 	    }
 
 	    /*
