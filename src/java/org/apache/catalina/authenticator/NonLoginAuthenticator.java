@@ -33,6 +33,7 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Session;
 import org.apache.catalina.deploy.LoginConfig;
 
+import org.apache.catalina.realm.GenericPrincipal;
 
 
 /**
@@ -40,7 +41,7 @@ import org.apache.catalina.deploy.LoginConfig;
  * only security constraints not involving user authentication.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:00 $
+ * @version $Revision: 1.3 $ $Date: 2004/05/11 17:27:29 $
  */
 
 public final class NonLoginAuthenticator
@@ -49,7 +50,20 @@ public final class NonLoginAuthenticator
 
     // ----------------------------------------------------- Instance Variables
 
-
+    //START SJSAS 6202703
+    /**
+     * Principal name of nonlogin principal.
+     */
+    private static final String NONLOGIN_PRINCIPAL_NAME = "nonlogin-principal";
+    
+    /**
+     * A dummy principal that is set to request in authenticate method.
+     */
+    private final GenericPrincipal NONLOGIN_PRINCIPAL =
+        new GenericPrincipal(NONLOGIN_PRINCIPAL_NAME, (String) null, 
+                            (java.util.List) null);
+    //END SJSAS 6202703
+    
     /**
      * Descriptive information about this implementation.
      */
@@ -93,6 +107,10 @@ public final class NonLoginAuthenticator
 
         if (debug >= 1)
             log("User authentication is not required");
+        
+        //START SJSAS 6202703
+        request.setUserPrincipal(NONLOGIN_PRINCIPAL);
+        //END SJSAS 6202703
         return (true);
 
 
