@@ -178,7 +178,8 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
             log.error(sm.getString("http11protocol.endpoint.initerror"), ex);
             throw ex;
         }
-        log.info(sm.getString("http11protocol.init", "" + ep.getPort()));
+        log.info(sm.getString("http11protocol.init", "" + ep.getPort(),
+                System.getProperty("product.name")));
 
     }
     
@@ -210,7 +211,8 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
             log.error(sm.getString("http11protocol.endpoint.starterror"), ex);
             throw ex;
         }
-        log.info(sm.getString("http11protocol.start", "" + ep.getPort()));
+        log.info(sm.getString("http11protocol.start", "" + ep.getPort(),
+                System.getProperty("product.name")));
     }
 
     public void destroy() throws Exception {
