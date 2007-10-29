@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/06/26 18:35:14 $
+ * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:06 $
  */
 
 public abstract class PersistentManagerBase
@@ -153,7 +153,7 @@ public abstract class PersistentManagerBase
     /**
      * The descriptive name of this Manager implementation (for logging).
      */
-    protected static final String name = "PersistentManagerBase";
+    protected static String name = "PersistentManagerBase";
 
 
     /**
@@ -634,8 +634,45 @@ public abstract class PersistentManagerBase
         session = swapIn(id);
         return (session);
 
-    }
+    }       
     
+    /**
+     * Return the active Session, associated with this Manager, with the
+     * specified session id (if any); otherwise return <code>null</code>.
+     * This method first removes the cached copy if removeCachedCopy = true.
+     * Then this method checks the persistence store if persistence is enabled,
+     * otherwise just uses the functionality from ManagerBase.
+     *
+     * @param id The session id for the session to be returned
+     * @param removeCachedCopy
+     *
+     * @exception IllegalStateException if a new session cannot be
+     *  instantiated for any reason
+     * @exception IOException if an input/output error occurs while
+     *  processing this request
+     */
+    public Session findSession(String id, boolean removeCachedCopy) throws IOException {
+
+        Session theSession = super.findSession(id);
+        if (theSession != null) {
+            if(removeCachedCopy) {
+                //remove from manager cache
+                removeSuper(theSession);
+                //remove from store cache if it exists
+                if ((this.getStore() != null)
+                    && (this.getStore() instanceof StoreBase)) {                
+                    ((StoreBase) this.getStore()).removeFromStoreCache(id);
+                }
+                theSession = null;
+            } else {
+                return (theSession);
+            }
+        } 
+        //now do full findSession
+        theSession = findSession(id);   
+        return theSession;
+
+    }     
     
     /**
      * used by subclasses of PersistentManagerBase
@@ -796,7 +833,7 @@ public abstract class PersistentManagerBase
 
         if (store == null)
             return null;
-
+        
         Session session = null;
         try {
             if (SecurityUtil.isPackageProtectionEnabled()){

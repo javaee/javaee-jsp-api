@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2004 Sun Microsystems, Inc. All rights reserved.
  * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
@@ -45,7 +46,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.3 $, $Date: 2005/09/13 00:34:31 $
+ * @version $Revision: 1.4 $, $Date: 2005/09/13 23:10:45 $
  */
 
 public abstract class StoreBase
@@ -268,7 +269,18 @@ public abstract class StoreBase
     */    
     public void doProcessExpires() {
         this.processExpires();
-    }    
+    }
+    
+    /**
+    * no-op method - sub classes will
+    * implement to remove a session from the store
+    * cache
+    * Hercules: added method
+    */    
+    public void removeFromStoreCache(String id) {
+        //do nothing
+    }     
+    
 
     // --------------------------------------------------------- Protected Methods
 
