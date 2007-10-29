@@ -57,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:58 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
  */
 
 public class FormAuthenticator
@@ -203,6 +203,9 @@ public class FormAuthenticator
             if (log.isDebugEnabled())
                 log.debug("Save request in session '" + session.getIdInternal() + "'");
             saveRequest(request, session);
+
+            //START Apache bug 36136: Refactor the login and error page forward
+            /*
             RequestDispatcher disp =
                 context.getServletContext().getRequestDispatcher
                 (config.getLoginPage());
@@ -212,6 +215,10 @@ public class FormAuthenticator
             } catch (Throwable t) {
                 log.warn("Unexpected error forwarding to login page", t);
             }
+            */
+            forwardToLoginPage(request, response, config);
+            //END Apache bug 36136: Refactor the login and error page forward
+
             return (false);
         }
 
@@ -224,6 +231,9 @@ public class FormAuthenticator
             log.debug("Authenticating username '" + username + "'");
         principal = realm.authenticate(username, password);
         if (principal == null) {
+
+            //START Apache bug 36136: Refactor the login and error page forward
+            /*
             RequestDispatcher disp =
                 context.getServletContext().getRequestDispatcher
                 (config.getErrorPage());
@@ -232,6 +242,10 @@ public class FormAuthenticator
             } catch (Throwable t) {
                 log.warn("Unexpected error forwarding to error page", t);
             }
+            */
+            forwardToErrorPage(request, response, config);
+            //END Apache bug 36136: Refactor the login and error page forward
+
             return (false);
         }
 
@@ -364,12 +378,59 @@ public class FormAuthenticator
 
 
     /**
+     * Called to forward to the login page
+     *
+     * @param request HttpRequest we are processing
+     * @param response HttpResponse we are creating
+     * @param config    Login configuration describing how authentication
+     *                  should be performed
+     */
+    protected void forwardToLoginPage(HttpRequest request,
+                                HttpResponse response,
+                                LoginConfig config) {
+        RequestDispatcher disp =
+                context.getServletContext().getRequestDispatcher
+                (config.getLoginPage());
+        try {
+            disp.forward(request.getRequest(), response.getResponse());
+            response.finishResponse();
+        } catch (Throwable t) {
+            log.warn("Unexpected error forwarding to login page", t);
+        }
+    }
+    
+    
+    /**
+     * Called to forward to the error page
+     *
+     * @param request HttpRequest we are processing
+     * @param response HttpResponse we are creating
+     * @param config    Login configuration describing how authentication
+     *                  should be performed
+     */
+    protected void forwardToErrorPage(HttpRequest request,
+                                HttpResponse response,
+                                LoginConfig config) {
+        RequestDispatcher disp =
+                context.getServletContext().getRequestDispatcher
+                (config.getErrorPage());
+        try {
+            disp.forward(request.getRequest(), response.getResponse());
+        } catch (Throwable t) {
+            log.warn("Unexpected error forwarding to error page", t);
+        }
+    }
+    
+    /**
      * Save the original request information into our session.
      *
      * @param request The request to be saved
      * @param session The session to contain the saved information
      */
-    private void saveRequest(HttpRequest request, Session session) {
+    //START Apache bug 36136: Refactor the login and error page forward
+    //private void saveRequest(HttpRequest request, Session session) {
+    protected void saveRequest(HttpRequest request, Session session) {
+    //END Apache bug 36136: Refactor the login and error page forward
 
         // Create and populate a SavedRequest object for this request
         HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
@@ -416,7 +477,10 @@ public class FormAuthenticator
      *
      * @param session Our current session
      */
-    private String savedRequestURL(Session session) {
+    //START Apache bug 36136: Refactor the login and error page forward
+    //private String savedRequestURL(Session session) {
+    protected String savedRequestURL(Session session) {
+    //END Apache bug 36136: Refactor the login and error page forward
 
         SavedRequest saved =
             (SavedRequest) session.getNote(Constants.FORM_REQUEST_NOTE);
