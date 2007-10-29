@@ -43,6 +43,7 @@ import javax.servlet.jsp.tagext.TagLibraryInfo;
 import javax.servlet.jsp.tagext.TagVariableInfo;
 import javax.servlet.jsp.tagext.VariableInfo;
 
+import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.servlet.JspServletWrapper;
@@ -131,8 +132,6 @@ class TagFileProcessor {
         private static final String TAG_DYNAMIC =
             "the dynamic-attributes attribute of the tag directive";
 
-        private static final Double JSP_VERSION_2_1 = Double.valueOf("2.1");
-
         private HashMap nameTable = new HashMap();
         private HashMap nameFromTable = new HashMap();
 
@@ -178,7 +177,8 @@ class TagFileProcessor {
             example = checkConflict(n, example, "example");
 
             if (n.getAttributeValue("deferredSyntaxAllowedAsLiteral") != null
-                    && Double.compare(jspVersionDouble, JSP_VERSION_2_1) < 0) {
+                    && Double.compare(jspVersionDouble,
+                                      Constants.JSP_VERSION_2_1) < 0) {
                 err.jspError("jsp.error.deferredSyntaxAllowedAsLiteralNotSupported");
             }
 
@@ -222,7 +222,8 @@ class TagFileProcessor {
             String deferredMethod = n.getAttributeValue("deferredMethod");
             String expectedType = n.getAttributeValue("deferredValueType");
             String methodSignature = n.getAttributeValue("deferredMethodSignature");
-            if (Double.compare(jspVersionDouble, JSP_VERSION_2_1) < 0) {
+            if (Double.compare(jspVersionDouble,
+                               Constants.JSP_VERSION_2_1) < 0) {
                 if (deferredValue != null) {
                     err.jspError("jsp.error.deferredValueNotSupported");
                 }

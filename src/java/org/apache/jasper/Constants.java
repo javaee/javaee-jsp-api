@@ -226,6 +226,7 @@ public class Constants {
     public static final String ESCStr="'\\u001b'";
 
     public static final Double JSP_VERSION_2_0 = Double.valueOf("2.0");
+    public static final Double JSP_VERSION_2_1 = Double.valueOf("2.1");
 
     // START SJSWS
     /*
