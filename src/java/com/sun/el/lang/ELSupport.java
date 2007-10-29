@@ -110,10 +110,18 @@ public class ELSupport {
             throws ELException {
         if (obj0 == obj1) {
             return true;
-        } else if (obj0 == null || obj1 == null) {
+        }
+        if (obj0 == null || obj1 == null) {
             return false;
-        } else if (obj0 instanceof Boolean || obj1 instanceof Boolean) {
+        }
+        if (obj0 instanceof Boolean || obj1 instanceof Boolean) {
             return coerceToBoolean(obj0).equals(coerceToBoolean(obj1));
+        }
+        if (obj0.getClass().isEnum()) {
+            return obj0.equals(coerceToEnum(obj1, obj0.getClass()));
+        }
+        if (obj1.getClass().isEnum()) {
+            return obj1.equals(coerceToEnum(obj0, obj1.getClass()));
         }
         if (obj0 instanceof String || obj1 instanceof String) {
             return coerceToString(obj0).equals(coerceToString(obj1));
@@ -160,6 +168,22 @@ public class ELSupport {
 
         throw new IllegalArgumentException(MessageFactory.get("error.convert",
                 obj, obj.getClass(), Boolean.class));
+    }
+
+    public final static Enum coerceToEnum(final Object obj, Class type)
+            throws IllegalArgumentException {
+        if (obj == null || "".equals(obj)) {
+            return null;
+        }
+        if (type.isInstance(obj)) {
+            return (Enum)obj;
+        }
+        if (obj instanceof String) {
+            return Enum.valueOf(type, (String) obj);
+        }
+
+        throw new IllegalArgumentException(MessageFactory.get("error.convert",
+                obj, obj.getClass(), type));
     }
 
     public final static Character coerceToCharacter(final Object obj)
@@ -297,6 +321,8 @@ public class ELSupport {
             return "";
         } else if (obj instanceof String) {
             return (String) obj;
+        } else if (obj instanceof Enum) {
+            return ((Enum) obj).name();
         } else {
             return obj.toString();
         }
@@ -318,6 +344,9 @@ public class ELSupport {
         }
         if (Boolean.class.equals(type) || Boolean.TYPE == type) {
             return coerceToBoolean(obj);
+        }
+        if (type.isEnum()) {
+            return coerceToEnum(obj, type);
         }
         if (obj != null && type.isAssignableFrom(obj.getClass())) {
             return obj;
