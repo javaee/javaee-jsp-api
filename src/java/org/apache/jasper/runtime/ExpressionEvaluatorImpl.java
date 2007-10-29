@@ -44,7 +44,7 @@ import javax.servlet.jsp.el.VariableResolver;
  * using implementation of JSP2.1.
  * 
  * @author Kin-man Chung
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  **/
 
 public class ExpressionEvaluatorImpl extends ExpressionEvaluator
@@ -65,7 +65,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator
                                       FunctionMapper fMapper )
             throws ELException {
 
-        ExpressionFactory fac = JspApplicationContextImpl.expressionFactory;
+        ExpressionFactory fac = ExpressionFactory.getExpressionFactory();
         javax.el.ValueExpression expr;
         ELContextImpl elContext = new ELContextImpl(null);
         javax.el.FunctionMapper fm = new FunctionMapperWrapper(fMapper);
@@ -98,7 +98,7 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator
 
         javax.el.FunctionMapper fm = new FunctionMapperWrapper(fMapper);
         elContext.setFunctionMapper(fm);
-        ExpressionFactory fac = JspApplicationContextImpl.expressionFactory;
+        ExpressionFactory fac = ExpressionFactory.getExpressionFactory();
         Object value;
         try {
             ValueExpression expr = fac.createValueExpression(

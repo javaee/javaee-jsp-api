@@ -43,8 +43,6 @@ import javax.el.ExpressionFactory;
 import javax.el.ELContextListener;
 import javax.el.ELContextEvent;
 
-import com.sun.el.ExpressionFactoryImpl;
-
 import org.apache.jasper.Constants;
 
 public class JspApplicationContextImpl implements JspApplicationContext {
@@ -63,7 +61,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
     }
 
     public ExpressionFactory getExpressionFactory() {
-        return expressionFactory;
+        return ExpressionFactory.getExpressionFactory();
     }
 
     public void addELContextListener(ELContextListener listener) {
@@ -100,8 +98,6 @@ public class JspApplicationContextImpl implements JspApplicationContext {
     protected Iterator<ELResolver> getELResolvers() {
         return elResolvers.iterator();
     }
-
-    static ExpressionFactory expressionFactory = new ExpressionFactoryImpl();
 
     private static Map<ServletContext, JspApplicationContextImpl> map =
             Collections.synchronizedMap(
