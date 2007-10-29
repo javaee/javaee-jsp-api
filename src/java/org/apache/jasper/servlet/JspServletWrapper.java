@@ -196,6 +196,18 @@ public class JspServletWrapper {
         }
     }
 
+    // START CR 6373479
+    /**
+     * Gets the last-modified time of the servlet class file associated with
+     * this JspServletWrapper.
+     *
+     * @return Last-modified time of servlet class
+     */
+    public long getServletClassLastModifiedTime() {
+        return servletClassLastModifiedTime;
+    }
+    // END CR 6373479
+
     /**
      * Compile (if needed) and load a tag file
      */

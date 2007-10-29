@@ -477,6 +477,13 @@ public class Compiler {
         if (! options.isSmapSuppressed()) {
             SmapUtil.installSmap(smap);
         }
+
+        // START CR 6373479
+        if (jsw != null && jsw.getServletClassLastModifiedTime() <= 0) {
+            File targetFile = new File(ctxt.getClassFileName());
+            jsw.setServletClassLastModifiedTime(targetFile.lastModified());
+        }
+        // END CR 6373479
     }
 
     /** 
