@@ -78,7 +78,7 @@ import org.apache.catalina.util.StringManager;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2006/04/17 16:44:47 $
+ * @version $Revision: 1.5 $ $Date: 2006/09/29 22:10:18 $
  */
 
 public class SingleSignOn
@@ -450,7 +450,11 @@ public class SingleSignOn
      * @param ssoId Single sign on identifier
      * @param session Session to be associated
      */
-    protected void associate(String ssoId, Session session) {
+    public void associate(String ssoId, Session session) {
+
+        if (!started) {
+            return;
+        }
 
         if (debug >= 1)
             log("Associate sso id " + ssoId + " with session " + session);

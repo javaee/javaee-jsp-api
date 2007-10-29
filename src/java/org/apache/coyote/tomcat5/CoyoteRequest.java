@@ -98,7 +98,9 @@ import org.apache.catalina.Session;
 import org.apache.catalina.ValveContext;
 import org.apache.catalina.Wrapper;
 
+import org.apache.catalina.authenticator.SingleSignOn;
 import org.apache.catalina.core.ApplicationFilterFactory;
+import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.session.StandardSession;
 import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.ParameterMap;
@@ -120,7 +122,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.57 $ $Date: 2007/03/28 19:34:19 $
+ * @version $Revision: 1.58 $ $Date: 2007/04/10 17:30:31 $
  */
 
 public class CoyoteRequest
@@ -2691,6 +2693,20 @@ public class CoyoteRequest
         // START S1AS8PE 4817642
         }
         // END S1AS8PE 4817642
+
+        StandardHost reqHost = (StandardHost) getHost();
+        if (reqHost != null) {
+            SingleSignOn sso = reqHost.getSingleSignOn();
+            if (sso != null) {
+                String ssoId = (String) getNote(
+                    org.apache.catalina.authenticator.Constants.REQ_SSOID_NOTE);
+                if (ssoId != null) {
+                    sso.associate(ssoId, session);
+                    removeNote(
+                        org.apache.catalina.authenticator.Constants.REQ_SSOID_NOTE);
+                }
+            }
+        }
 
         // START GlassFish 896
         sessionTracker.track(session);

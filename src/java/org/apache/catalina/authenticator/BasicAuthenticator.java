@@ -48,7 +48,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * and Digest Access Authentication."
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:00 $
+ * @version $Revision: 1.5 $ $Date: 2006/10/19 22:48:17 $
  */
 
 public class BasicAuthenticator
@@ -152,7 +152,7 @@ public class BasicAuthenticator
                 String ssoId = (String) request.getNote(
                     Constants.REQ_SSOID_NOTE);
                 if (ssoId != null) {
-                    associate(ssoId, getSession(request, true));
+                    getSession(request, true);
                 }
                 return (true);
             }

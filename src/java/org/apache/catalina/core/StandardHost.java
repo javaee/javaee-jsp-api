@@ -45,6 +45,7 @@ import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Valve;
+import org.apache.catalina.authenticator.SingleSignOn;
 // START SJSAS 6324911
 import org.apache.catalina.deploy.ErrorPage;
 // END SJSAS 6324911
@@ -62,7 +63,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2007/02/15 20:40:46 $
+ * @version $Revision: 1.12 $ $Date: 2007/02/21 02:00:29 $
  */
 
 public class StandardHost
@@ -220,6 +221,9 @@ public class StandardHost
      */
     private boolean securePagesWithPragma = true;
     
+
+    private SingleSignOn sso;
+
     
     // ------------------------------------------------------------- Properties
 
@@ -1158,6 +1162,28 @@ public class StandardHost
                                    Boolean.valueOf(oldSecurePagesWithPragma),
                                    Boolean.valueOf(this.securePagesWithPragma));
     }
+
+
+    public void addValve(Valve valve) {
+        super.addValve(valve);
+        if (valve instanceof SingleSignOn) {
+            sso = (SingleSignOn) valve;
+        }
+    }
+
+
+    public void removeValve(Valve valve) {
+        super.removeValve(valve);
+        if (valve instanceof SingleSignOn) {
+            sso = null;
+        }
+    }
+
+
+    public SingleSignOn getSingleSignOn() {
+        return sso;
+    }
+
 
     // ------------------------------------------------------ Protected Methods
 

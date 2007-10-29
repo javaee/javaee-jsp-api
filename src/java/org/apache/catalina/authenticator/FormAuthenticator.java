@@ -63,7 +63,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2006/03/12 01:27:00 $
+ * @version $Revision: 1.5 $ $Date: 2007/03/01 17:51:41 $
  */
 
 public class FormAuthenticator
@@ -130,8 +130,9 @@ public class FormAuthenticator
                 log.debug("Already authenticated '" +
                     principal.getName() + "'");
             String ssoId = (String) request.getNote(Constants.REQ_SSOID_NOTE);
-            if (ssoId != null)
-                associate(ssoId, getSession(request, true));
+            if (ssoId != null) {
+                getSession(request, true);
+            }
             return (true);
         }
 
