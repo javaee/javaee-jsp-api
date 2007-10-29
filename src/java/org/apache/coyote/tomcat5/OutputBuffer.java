@@ -441,6 +441,7 @@ public class OutputBuffer extends Writer
         if (suspended)
             return;
 
+        checkConverter();
         conv.convert((char) c);
         conv.flushBuffer();
         charsWritten++;
@@ -464,6 +465,7 @@ public class OutputBuffer extends Writer
         if (suspended)
             return;
 
+        checkConverter();
         conv.convert(c, off, len);
         conv.flushBuffer();
         charsWritten += len;
@@ -482,6 +484,7 @@ public class OutputBuffer extends Writer
         charsWritten += len;
         if (s==null)
             s="null";
+        checkConverter();
         conv.convert(s, off, len);
         conv.flushBuffer();
     }
@@ -495,6 +498,7 @@ public class OutputBuffer extends Writer
 
         if (s == null)
             s = "null";
+        checkConverter();
         conv.convert(s);
         conv.flushBuffer();
     } 
