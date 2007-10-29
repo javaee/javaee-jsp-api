@@ -3,6 +3,9 @@
 package com.sun.el.parser;
 
 import javax.el.ELException;
+import javax.el.MethodExpression;
+import javax.el.MethodInfo;
+import javax.el.MethodNotFoundException;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 
@@ -10,7 +13,7 @@ import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: ja120114 $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public final class AstIdentifier extends SimpleNode {
     public AstIdentifier(int id) {
@@ -65,5 +68,70 @@ public final class AstIdentifier extends SimpleNode {
         }
         ctx.setPropertyResolved(false);
         ctx.getELResolver().setValue(ctx, null, this.image, value);
+    }
+
+    private final Object invokeTarget(EvaluationContext ctx, Object target,
+            Object[] paramValues) throws ELException {
+        if (target instanceof MethodExpression) {
+            MethodExpression me = (MethodExpression) target;
+            return me.invoke(ctx.getELContext(), paramValues);
+        } else if (target == null) {
+            throw new MethodNotFoundException("Identity '" + this.image
+                    + "' was null and was unable to invoke");
+        } else {
+            throw new ELException(
+                    "Identity '"
+                            + this.image
+                            + "' does not reference a MethodExpression instance, returned type: "
+                            + target.getClass().getName());
+        }
+    }
+
+    public Object invoke(EvaluationContext ctx, Class[] paramTypes,
+            Object[] paramValues) throws ELException {
+        return this.getMethodExpression(ctx).invoke(ctx.getELContext(), paramValues);
+    }
+    
+
+    public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes)
+            throws ELException {
+        return this.getMethodExpression(ctx).getMethodInfo(ctx.getELContext());
+    }
+
+    private final MethodExpression getMethodExpression(EvaluationContext ctx)
+            throws ELException {
+        Object obj = null;
+
+        // case A: ValueExpression exists, getValue which must
+        // be a MethodExpression
+        VariableMapper varMapper = ctx.getVariableMapper();
+        ValueExpression ve = null;
+        if (varMapper != null) {
+            ve = varMapper.resolveVariable(this.image);
+            if (ve != null) {
+                obj = ve.getValue(ctx);
+            }
+        }
+
+        // case B: evaluate the identity against the ELResolver, again, must be
+        // a MethodExpression to be able to invoke
+        if (ve == null) {
+            ctx.setPropertyResolved(false);
+            obj = ctx.getELResolver().getValue(ctx, null, this.image);
+        }
+
+        // finally provide helpful hints
+        if (obj instanceof MethodExpression) {
+            return (MethodExpression) obj;
+        } else if (obj == null) {
+            throw new MethodNotFoundException("Identity '" + this.image
+                    + "' was null and was unable to invoke");
+        } else {
+            throw new ELException(
+                    "Identity '"
+                            + this.image
+                            + "' does not reference a MethodExpression instance, returned type: "
+                            + obj.getClass().getName());
+        }
     }
 }

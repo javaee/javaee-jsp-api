@@ -35,7 +35,7 @@ import javax.el.VariableMapper;
 import com.sun.el.lang.ELSupport;
 import com.sun.el.lang.EvaluationContext;
 import com.sun.el.lang.ExpressionBuilder;
-import com.sun.el.parser.AstValue;
+import com.sun.el.parser.Node;
 import com.sun.el.util.ReflectionUtil;
 
 /**
@@ -73,7 +73,7 @@ import com.sun.el.util.ReflectionUtil;
  * @see javax.el.MethodExpression
  * 
  * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dpatil $
  */
 public final class MethodExpressionImpl extends MethodExpression implements
         Externalizable {
@@ -86,7 +86,7 @@ public final class MethodExpressionImpl extends MethodExpression implements
 
     private VariableMapper varMapper;
 
-    private transient AstValue node;
+    private transient Node node;
 
     private Class[] paramTypes;
 
@@ -104,7 +104,7 @@ public final class MethodExpressionImpl extends MethodExpression implements
      * @param expectedType
      * @param paramTypes
      */
-    public MethodExpressionImpl(String expr, AstValue node,
+    public MethodExpressionImpl(String expr, Node node,
             FunctionMapper fnMapper, VariableMapper varMapper,
             Class expectedType, Class[] paramTypes) {
         super();
@@ -198,7 +198,7 @@ public final class MethodExpressionImpl extends MethodExpression implements
     public MethodInfo getMethodInfo(ELContext context)
             throws PropertyNotFoundException, MethodNotFoundException,
             ELException {
-        AstValue n = this.getNode();
+        Node n = this.getNode();
         EvaluationContext ctx = new EvaluationContext(context, this.fnMapper,
                 this.varMapper);
         return n.getMethodInfo(ctx, this.paramTypes);
@@ -208,9 +208,9 @@ public final class MethodExpressionImpl extends MethodExpression implements
      * @return
      * @throws ELException
      */
-    private AstValue getNode() throws ELException {
+    private Node getNode() throws ELException {
         if (this.node == null) {
-            this.node = (AstValue) ExpressionBuilder.createNode(this.expr);
+            this.node = ExpressionBuilder.createNode(this.expr);
         }
         return this.node;
     }
