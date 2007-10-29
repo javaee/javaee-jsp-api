@@ -120,7 +120,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.47 $ $Date: 2006/12/12 17:41:24 $
+ * @version $Revision: 1.48 $ $Date: 2007/01/20 18:23:36 $
  */
 
 public class CoyoteRequest
@@ -2500,21 +2500,27 @@ public class CoyoteRequest
             return (false);
         if (context == null)
             return (false);
+
+        if (session != null
+                && requestedSessionId.equals(session.getIdInternal())) {
+            return session.isValid();
+        }
+
         Manager manager = context.getManager();
         if (manager == null)
             return (false);
-        Session session = null;
+        Session localSession = null;
         try {
             if (manager.isSessionVersioningSupported()) {
-                session = manager.findSession(requestedSessionId,
-                                              requestedSessionVersion);
+                localSession = manager.findSession(requestedSessionId,
+                                                   requestedSessionVersion);
             } else {
-                session = manager.findSession(requestedSessionId);
+                localSession = manager.findSession(requestedSessionId);
             }
         } catch (IOException e) {
-            session = null;
+            localSession = null;
         }
-        if ((session != null) && session.isValid())
+        if ((localSession != null) && localSession.isValid())
             return (true);
         else
             return (false);

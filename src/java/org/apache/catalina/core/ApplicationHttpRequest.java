@@ -635,21 +635,27 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                 return (false);
             if (context == null)
                 return (false);
+
+            if (session != null
+                    && requestedSessionId.equals(session.getIdInternal())) {
+                return session.isValid();
+            }
+
             Manager manager = context.getManager();
             if (manager == null)
                 return (false);
-            Session session = null;
+            Session localSession = null;
             try {
-                if (manager.isSessionVersioningSupported()) {
-                    session = manager.findSession(requestedSessionId,
-                                                  requestedSessionVersion);
+                if (isSessionVersioningSupported) {
+                    localSession = manager.findSession(requestedSessionId,
+                                                       requestedSessionVersion);
                 } else {
-                    session = manager.findSession(requestedSessionId);
+                    localSession = manager.findSession(requestedSessionId);
                 }
             } catch (IOException e) {
-                session = null;
+                localSession = null;
             }
-            if ((session != null) && session.isValid()) {
+            if ((localSession != null) && localSession.isValid()) {
                 return (true);
             } else {
                 return (false);
