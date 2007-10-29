@@ -77,7 +77,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.21 $ $Date: 2006/11/09 00:40:08 $
+ * @version $Revision: 1.22 $ $Date: 2006/11/16 19:21:24 $
  */
 
 public class CoyoteAdapter
@@ -97,6 +97,8 @@ public class CoyoteAdapter
      * is a hack to make it compatible with Tomcat 5|6.
      */
     private boolean compatWithTomcat = false;
+    
+    private String serverName = System.getProperty("product.name");
     
     // ----------------------------------------------------------- Constructors
 
@@ -248,12 +250,7 @@ public class CoyoteAdapter
 
                 // Calling the container
                 connector.getContainer().invoke(request, response);
-                  
-                String serverName = System.getProperty("product.name");
-                // Add server header
-                if (compatWithTomcat){
-                    serverName = "Apache/" + serverName;
-                }
+
                 response.addHeader("Server",serverName);
             }
          /* GlassFish Issue 79    
@@ -859,6 +856,14 @@ public class CoyoteAdapter
      */
     public void setCompatWithTomcat(boolean compatWithTomcat) {
         this.compatWithTomcat = compatWithTomcat;
+
+        // Add server header
+        if (compatWithTomcat){
+            serverName = "Apache/" + serverName;
+        } else {
+            // Recalculate.
+            serverName = System.getProperty("product.name");
+        }
     }
        
 }
