@@ -56,7 +56,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:27:13 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 final class StandardWrapperValve
@@ -70,9 +70,9 @@ final class StandardWrapperValve
     // Some JMX statistics. This vavle is associated with a StandardWrapper.
     // We exponse the StandardWrapper as JMX ( j2eeType=Servlet ). The fields
     // are here for performance.
-    private long processingTime;
-    private long maxTime;
-    private volatile long minTime = Long.MAX_VALUE;
+    private long processingTimeMillis;
+    private long maxTimeMillis;
+    private volatile long minTimeMillis = Long.MAX_VALUE;
     private int requestCount;
     private int errorCount;
 
@@ -372,9 +372,9 @@ final class StandardWrapperValve
         long t2=System.currentTimeMillis();
 
         long time=t2-t1;
-        processingTime += time;
-        if( time > maxTime) maxTime=time;
-        if( time < minTime) minTime=time;
+        processingTimeMillis += time;
+        if( time > maxTimeMillis) maxTimeMillis = time;
+        if( time < minTimeMillis) minTimeMillis = time;
         // START OF IASRI 4665318
         return END_PIPELINE;
         // END OF IASRI 4665318
@@ -459,28 +459,28 @@ final class StandardWrapperValve
 
     }
 
-    public long getProcessingTime() {
-        return processingTime;
+    public long getProcessingTimeMillis() {
+        return processingTimeMillis;
     }
 
-    public void setProcessingTime(long processingTime) {
-        this.processingTime = processingTime;
+    public void setProcessingTimeMillis(long processingTimeMillis) {
+        this.processingTimeMillis = processingTimeMillis;
     }
 
-    public long getMaxTime() {
-        return maxTime;
+    public long getMaxTimeMillis() {
+        return maxTimeMillis;
     }
 
-    public void setMaxTime(long maxTime) {
-        this.maxTime = maxTime;
+    public void setMaxTimeMillis(long maxTimeMillis) {
+        this.maxTimeMillis = maxTimeMillis;
     }
 
-    public long getMinTime() {
-        return minTime;
+    public long getMinTimeMillis() {
+        return minTimeMillis;
     }
 
-    public void setMinTime(long minTime) {
-        this.minTime = minTime;
+    public void setMinTimeMillis(long minTimeMillis) {
+        this.minTimeMillis = minTimeMillis;
     }
 
     public int getRequestCount() {

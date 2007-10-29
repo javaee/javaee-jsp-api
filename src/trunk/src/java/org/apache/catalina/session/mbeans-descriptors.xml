@@ -73,7 +73,7 @@
                  type="int" 
             writeable="false"/>
 
-    <attribute   name="sessionCounter"
+    <attribute   name="sessionCount"
           description="Total number of sessions created by this manager"
                  type="int" />
 
@@ -81,11 +81,11 @@
           description="Maximum number of active sessions so far"
                  type="int" />
 
-    <attribute   name="sessionMaxAliveTime"
+    <attribute   name="sessionMaxAliveTimeSeconds"
           description="Longest time an expired session had been alive"
                  type="int" />
 
-    <attribute   name="sessionAverageAliveTime"
+    <attribute   name="sessionAverageAliveTimeSeconds"
           description="Average time an expired session had been alive"
                  type="int" />
 

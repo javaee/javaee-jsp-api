@@ -85,7 +85,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.2 $ $Date: 2005/06/01 20:58:02 $
+ * @version $Revision: 1.3 $ $Date: 2005/06/10 20:57:08 $
  */
 
 public class StandardSession
@@ -748,15 +748,15 @@ public class StandardSession
             long timeNow = System.currentTimeMillis();
             int timeAlive = (int) ((timeNow - creationTime)/1000);
             synchronized (manager) {
-                if (timeAlive > manager.getSessionMaxAliveTime()) {
-                    manager.setSessionMaxAliveTime(timeAlive);
+                if (timeAlive > manager.getSessionMaxAliveTimeSeconds()) {
+                    manager.setSessionMaxAliveTimeSeconds(timeAlive);
                 }
                 int numExpired = manager.getExpiredSessions();
                 numExpired++;
                 manager.setExpiredSessions(numExpired);
-                int average = manager.getSessionAverageAliveTime();
+                int average = manager.getSessionAverageAliveTimeSeconds();
                 average = ((average * (numExpired-1)) + timeAlive)/numExpired;
-                manager.setSessionAverageAliveTime(average);
+                manager.setSessionAverageAliveTimeSeconds(average);
             }
 
             // Remove this session from our manager's active sessions

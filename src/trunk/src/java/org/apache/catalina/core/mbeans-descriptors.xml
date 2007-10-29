@@ -141,11 +141,11 @@
                description="Time (in milliseconds) it took to start this context"
                type="long"/>
 
-    <attribute name="startTime"
+    <attribute name="startTimeMillis"
                description="Time (in milliseconds since January 1, 1970, 00:00:00) when this context was started"
                type="long"/>
 
-    <attribute name="processingTime"
+    <attribute name="processingTimeMillis"
                description="Cumulative execution times of all servlets in this context"
                type="long"
                writeable="false" />
@@ -1335,17 +1335,17 @@
                is="true"
                type="boolean"/>
 
-    <attribute name="processingTime"
+    <attribute name="processingTimeMillis"
                description="Total execution time of the servlet's service method"
                type="long"
                writeable="false" />
 
-    <attribute name="maxTime"
+    <attribute name="maxTimeMillis"
                description="Maximum processing time of a request"
                type="long"
                writeable="false" />
 
-    <attribute name="minTime"
+    <attribute name="minTimeMillis"
                description="Minimum processing time of a request"
                type="long"
                writeable="false" />

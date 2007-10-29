@@ -121,7 +121,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/17 02:53:59 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 
 public class StandardContext
@@ -604,7 +604,7 @@ public class StandardContext
     private transient DirContext webappResources = null;
 
     private long startupTime;
-    private long startTime;
+    private long startTimeMillis;
     private long tldScanTime;
 
     // START S1AS8PE 4817642
@@ -3981,14 +3981,14 @@ public class StandardContext
      * @return Cumulative processing times of all servlets in this
      * StandardContext
      */
-    public long getProcessingTime() {
+    public long getProcessingTimeMillis() {
         
         long result = 0;
 
         Container[] children = findChildren();
         if (children != null) {
             for( int i=0; i< children.length; i++ ) {
-                result += ((StandardWrapper)children[i]).getProcessingTime();
+                result += ((StandardWrapper)children[i]).getProcessingTimeMillis();
             }
         }
 
@@ -4706,7 +4706,7 @@ public class StandardContext
         // JMX registration
         registerJMX();
 
-        startTime=System.currentTimeMillis();
+        startTimeMillis = System.currentTimeMillis();
         
         // Send j2ee.state.running notification 
         if (ok && (this.getObjectName() != null)) {
@@ -4898,7 +4898,7 @@ public class StandardContext
         // If you extend this - override this method and make sure to clean up
         children=new HashMap();
         startupTime = 0;
-        startTime = 0;
+        startTimeMillis = 0;
         tldScanTime = 0;
 
         // Bugzilla 32867
@@ -6005,8 +6005,8 @@ public class StandardContext
      * @return Time (in milliseconds since January 1, 1970, 00:00:00) when this
      * context was started 
      */
-    public long getStartTime() {
-        return startTime;
+    public long getStartTimeMillis() {
+        return startTimeMillis;
     }
     
     public boolean isEventProvider() {

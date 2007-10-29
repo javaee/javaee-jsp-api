@@ -66,7 +66,7 @@ import org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.3 $ $Date: 2005/05/19 16:42:13 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:03 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -1497,28 +1497,28 @@ public class StandardWrapper
 
     }
 
-    public long getProcessingTime() {
-        return swValve.getProcessingTime();
+    public long getProcessingTimeMillis() {
+        return swValve.getProcessingTimeMillis();
     }
 
-    public void setProcessingTime(long processingTime) {
-        swValve.setProcessingTime(processingTime);
+    public void setProcessingTimeMillis(long processingTimeMillis) {
+        swValve.setProcessingTimeMillis(processingTimeMillis);
     }
 
-    public long getMaxTime() {
-        return swValve.getMaxTime();
+    public long getMaxTimeMillis() {
+        return swValve.getMaxTimeMillis();
     }
 
-    public void setMaxTime(long maxTime) {
-        swValve.setMaxTime(maxTime);
+    public void setMaxTimeMillis(long maxTimeMillis) {
+        swValve.setMaxTimeMillis(maxTimeMillis);
     }
 
-    public long getMinTime() {
-        return swValve.getMinTime();
+    public long getMinTimeMillis() {
+        return swValve.getMinTimeMillis();
     }
 
-    public void setMinTime(long minTime) {
-        swValve.setMinTime(minTime);
+    public void setMinTimeMillis(long minTimeMillis) {
+        swValve.setMinTimeMillis(minTimeMillis);
     }
 
     public int getRequestCount() {
