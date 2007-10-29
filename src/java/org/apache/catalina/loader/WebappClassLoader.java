@@ -75,6 +75,10 @@ import com.sun.appserv.server.util.PreprocessorUtil;
 import com.sun.appserv.ClassLoaderUtil;
 // END SJSAS 6258619
 
+// START SJSAS 6344989
+import com.sun.appserv.BytecodePreprocessor;
+// END SJSAS 6344989
+
 /**
  * Specialized web application class loader.
  * <p>
@@ -110,7 +114,7 @@ import com.sun.appserv.ClassLoaderUtil;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.6 $ $Date: 2005/09/28 00:24:06 $
+ * @version $Revision: 1.7 $ $Date: 2005/10/07 18:40:15 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -417,7 +421,13 @@ public class WebappClassLoader
      */
     private Permission allPermission = new java.security.AllPermission();
 
-
+    // START SJSAS 6344989
+    /**
+     * List of byte code pre-processors per webapp class loader.
+     */
+    ArrayList<BytecodePreprocessor> byteCodePreprocessors =
+            new ArrayList<BytecodePreprocessor>();
+    // END SJSAS 6344989
     // ------------------------------------------------------------- Properties
     
     // START PE 4985680
@@ -2047,6 +2057,12 @@ public class WebappClassLoader
                 }
                 // END OF IASRI 4709374
 
+                // START SJSAS 6344989
+                for(BytecodePreprocessor preprocessor : byteCodePreprocessors) {
+                    binaryContent = preprocessor.preprocess(name, binaryContent);
+                }
+                // END SJSAS 6344989
+
                 entry.binaryContent = binaryContent;
 
                 // The certificates are only available after the JarEntry 
@@ -2317,5 +2333,11 @@ public class WebappClassLoader
         dir.delete();
 
     }
+
+    // START SJSAS 6344989
+    public void addByteCodePreprocessor(BytecodePreprocessor preprocessor) {
+        byteCodePreprocessors.add(preprocessor);
+    }
+    // END SJSAS 6344989
 }
 
