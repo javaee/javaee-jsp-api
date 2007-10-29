@@ -31,7 +31,6 @@ package org.apache.coyote;
 import java.io.IOException;
 import java.util.Locale;
 
-import org.apache.catalina.Globals;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.http.MimeHeaders;
 
@@ -627,7 +626,7 @@ public final class Response {
      * string JSESSIONID
      */
     public void removeSessionCookies() {
-        headers.removeHeader("Set-Cookie", Globals.SESSION_COOKIE_NAME);
+        headers.removeHeader("Set-Cookie", Constants.SESSION_COOKIE_NAME);
     }
     // END GlassFish 896
 

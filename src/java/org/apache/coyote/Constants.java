@@ -47,6 +47,7 @@ public final class Constants {
 
     public static final Locale DEFAULT_LOCALE = new Locale(LOCALE_DEFAULT, "");
 
+    public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 
     public static final int MAX_NOTES = 32;
 
