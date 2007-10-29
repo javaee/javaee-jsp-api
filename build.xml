@@ -1,8 +1,34 @@
 <!--
- Copyright 2004-2005 Sun Microsystems, Inc.  All rights reserved.
- Use is subject to license terms.
+ The contents of this file are subject to the terms
+ of the Common Development and Distribution License
+ (the "License").  You may not use this file except
+ in compliance with the License.
+
+ You can obtain a copy of the license at
+ glassfish/bootstrap/legal/CDDLv1.0.txt or
+ https://glassfish.dev.java.net/public/CDDLv1.0.html.
+ See the License for the specific language governing
+ permissions and limitations under the License.
+
+ When distributing Covered Code, include this CDDL
+ HEADER in each file and include the License file at
+ glassfish/bootstrap/legal/CDDLv1.0.txt.  If applicable,
+ add the following below this CDDL HEADER, with the
+ fields enclosed by brackets "[]" replaced with your
+ own identifying information: Portions Copyright [yyyy]
+ [name of copyright owner]
 -->
+<!DOCTYPE project [
+  <!ENTITY commonBuild SYSTEM "../bootstrap/ant-common.xml">
+]>
 <project name="WebContainer" default="all" basedir=".">
+
+    <property name="jsr199.version" value="9.1"/>
+    <property name="jsr199.pom" value="jasper-jsr199.pom"/>
+    <property name="jsr199.mf" value="jasper-jsr199.mf"/>
+    <property name="jsr199.build" value="target/build"/>
+    <property name="jsr199.jar" value="${jsr199.build}/jasper-jsr199.jar"/>
+    <property name="jsr199.zip" value="${jsr199.build}/jasper-jsr199.src.zip"/>
 
     <property file="../bootstrap/project.properties"/>
     <property file="./build.properties"/>
@@ -13,6 +39,8 @@
         <pathelement location="${ant.jar}"/>
         <pathelement location="${commons-logging.jar}"/>
     </path>
+
+    &commonBuild;
 
     <target name="compile">      
         <mkdir dir="target/classes"/>
@@ -38,6 +66,8 @@
 
     <target name="clean">
         <delete failonerror="false" dir="target/classes"/>
+        <delete failonerror="false" dir="target/maven-repo"/>
+        <delete failonerror="false" dir="${jsr199.build}"/>
     </target>
 
     <!-- all -->
@@ -54,6 +84,55 @@
              update="true"
              basedir="target/classes"/> 
     </target>
-    
+
+    <target name="jar-init">
+        <mkdir dir="${jsr199.build}/classes"/>
+    </target>
+
+    <!-- Building jsr199 bridge, javac must be 1.6 or later -->
+    <target name="compile-jsr199">
+        <javac srcdir="src/java" destdir="${jsr199.build}/classes"
+               includes="org/apache/jasper/compiler/Jsr199JavaCompiler.java"
+               optimize="${javac.optimize}"
+               target="1.5" >
+            <classpath refid="catalina.classpath" />
+        </javac>
+    </target>
+              
+    <!-- prepare manifest files for jars -->
+    <target name="cook-manifest"
+          description="Generate .mf and .pom files">
+        <copy todir="${jsr199.build}">
+            <fileset dir="." includes="${jsr199.mf},${jsr199.pom}" />
+            <filterset>
+                <filter token="VERSION" value="${jsr199.version}"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="jar-init, compile-jsr199, cook-manifest">
+        <jar jarfile="${jsr199.jar}"
+                manifest="${jsr199.build}/${jsr199.mf}">
+            <fileset dir="${jsr199.build}/classes"/>
+        </jar>
+        <zip file="${jsr199.zip}" >
+            <fileset dir="src/java"
+                includes="org/apache/jasper/compiler/Jsr199JavaCompiler.java"/>
+        </zip>
+    </target>
+        
+    <target name="push-to-maven-prepare" depends="-push-to-maven-init, jar"
+        description="creates an image for the 'push-to-maven' goal">
+        <delete dir="target/maven-repo" /><!-- clean it -->
+        <maven-repository-importer destdir="target/maven-repo" version="${jsr199.version}">
+            <artifact jar="${jsr199.jar}" pom="${jsr199.build}/${jsr199.pom}" srczip="${jsr199.zip}" />
+        </maven-repository-importer>
+    </target>
+
+    <target name="push-to-maven" depends="push-to-maven-prepare"
+        description="pushes jars to the java.net maven repository">
+        <cvs-import src="target/maven-repo" dest="glassfish/repo" />
+    </target>
+
 </project>
 
