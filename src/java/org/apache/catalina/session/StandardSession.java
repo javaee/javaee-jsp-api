@@ -85,7 +85,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.3 $ $Date: 2005/06/10 20:57:08 $
+ * @version $Revision: 1.4 $ $Date: 2005/06/26 18:35:14 $
  */
 
 public class StandardSession
@@ -1410,7 +1410,10 @@ public class StandardSession
                 (sm.getString("standardSession.removeAttribute.ise"));
 
         // Remove this attribute from our collection
-        Object value = attributes.remove(name);
+        Object value = null;
+        synchronized (attributes) {
+            value = attributes.remove(name);
+        }
 
         // Do we need to do valueUnbound() and attributeRemoved() notification?
         if (!notify || (value == null)) {
@@ -1568,7 +1571,10 @@ public class StandardSession
         }
 
         // Replace or add this attribute
-        Object unbound = attributes.put(name, value);
+        Object unbound = null;
+        synchronized (attributes) {
+            unbound = attributes.put(name, value);
+        }
 
         // Call the valueUnbound() method if necessary
         if ((unbound != null) &&
@@ -1921,8 +1927,9 @@ public class StandardSession
      */
     protected String[] keys() {
 
-        return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
-
+        synchronized (attributes) {
+            return ((String[]) attributes.keySet().toArray(EMPTY_ARRAY));
+        }
     }
 
 
