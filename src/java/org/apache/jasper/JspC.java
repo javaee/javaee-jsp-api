@@ -1122,6 +1122,11 @@ public class JspC implements Options {
                 // END SJSAS 6258619
             }
             // END S1AS 5032338
+            // START SJSAS 6356052
+            if (rctxt != null) {
+                rctxt.destroy();
+            }
+            // END SJSAS 6356052
         }
     }
 
