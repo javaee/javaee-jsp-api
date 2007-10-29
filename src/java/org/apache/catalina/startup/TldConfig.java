@@ -32,6 +32,7 @@ package org.apache.catalina.startup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -706,19 +707,21 @@ public final class TldConfig  {
             log.debug(" Scanning TLD at resource path '" + resourcePath + "'");
         }
 
-        InputSource inputSource = null;
+        InputStream tldStream =
+            context.getServletContext().getResourceAsStream(resourcePath);
+        if (tldStream == null) {
+            throw new ServletException
+                (sm.getString("contextConfig.tldResourcePath",
+                              resourcePath));
+        }
+
+        InputSource inputSource = new InputSource(tldStream);
+
+        // START GlassFish 747
+        currentTldResourcePath = resourcePath;
+        // END GlassFish 747
+
         try {
-            inputSource =
-                new InputSource(
-                    context.getServletContext().getResourceAsStream(resourcePath));
-            if (inputSource == null) {
-                throw new IllegalArgumentException
-                    (sm.getString("contextConfig.tldResourcePath",
-                                  resourcePath));
-            }
-            // START GlassFish 747
-            currentTldResourcePath = resourcePath;
-            // END GlassFish 747
             tldScanStream(inputSource, true);
         } catch (Exception e) {
              throw new ServletException
