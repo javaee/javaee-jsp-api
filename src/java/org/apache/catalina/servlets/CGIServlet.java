@@ -1049,7 +1049,8 @@ public final class CGIServlet extends HttpServlet {
             envp.put("SERVER_PROTOCOL", nullsToBlanks(req.getProtocol()));
 
             int port = req.getServerPort();
-            Integer iPort = (port == 0 ? new Integer(-1) : new Integer(port));
+            Integer iPort = (port == 0 ?
+                             Integer.valueOf(-1) : Integer.valueOf(port));
             envp.put("SERVER_PORT", iPort.toString());
 
             envp.put("REQUEST_METHOD", nullsToBlanks(req.getMethod()));
@@ -1131,7 +1132,7 @@ public final class CGIServlet extends HttpServlet {
              */
             int contentLength = req.getContentLength();
             String sContentLength = (contentLength <= 0 ? "" :
-                                     (new Integer(contentLength)).toString());
+                                     (Integer.valueOf(contentLength)).toString());
             envp.put("CONTENT_LENGTH", sContentLength);
 
 

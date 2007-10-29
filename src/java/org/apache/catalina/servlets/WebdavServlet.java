@@ -74,7 +74,7 @@ import org.xml.sax.SAXException;
  * are handled by the DefaultServlet.
  *
  * @author Remy Maucherat
- * @version $Revision: 303599 $ $Date: 2004-12-20 13:54:14 -0500 (Mon, 20 Dec 2004) $
+ * @version $Revision: 1.3 $ $Date: 2006/03/20 17:58:09 $
  */
 
 public class WebdavServlet
@@ -836,14 +836,14 @@ public class WebdavServlet
             }
             if (lockDurationStr.startsWith("Second-")) {
                 lockDuration =
-                    (new Integer(lockDurationStr.substring(7))).intValue();
+                    (Integer.valueOf(lockDurationStr.substring(7))).intValue();
             } else {
                 if (lockDurationStr.equalsIgnoreCase("infinity")) {
                     lockDuration = MAX_TIMEOUT;
                 } else {
                     try {
                         lockDuration =
-                            (new Integer(lockDurationStr)).intValue();
+                            (Integer.valueOf(lockDurationStr)).intValue();
                     } catch (NumberFormatException e) {
                         lockDuration = MAX_TIMEOUT;
                     }
@@ -1696,7 +1696,7 @@ public class WebdavServlet
                 resources.createSubcontext(dest);
             } catch (NamingException e) {
                 errorList.put
-                    (dest, new Integer(WebdavStatus.SC_CONFLICT));
+                    (dest, Integer.valueOf(WebdavStatus.SC_CONFLICT));
                 return false;
             }
 
@@ -1716,7 +1716,7 @@ public class WebdavServlet
                 }
             } catch (NamingException e) {
                 errorList.put
-                    (dest, new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                    (dest, Integer.valueOf(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
                 return false;
             }
 
@@ -1728,13 +1728,13 @@ public class WebdavServlet
                 } catch (NamingException e) {
                     errorList.put
                         (source,
-                         new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                         Integer.valueOf(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
                     return false;
                 }
             } else {
                 errorList.put
                     (source,
-                     new Integer(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
+                     Integer.valueOf(WebdavStatus.SC_INTERNAL_SERVER_ERROR));
                 return false;
             }
 
@@ -1825,7 +1825,7 @@ public class WebdavServlet
             try {
                 resources.unbind(path);
             } catch (NamingException e) {
-                errorList.put(path, new Integer
+                errorList.put(path, Integer.valueOf
                     (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
             }
 
@@ -1861,7 +1861,7 @@ public class WebdavServlet
 
         if ((path.toUpperCase().startsWith("/WEB-INF")) ||
             (path.toUpperCase().startsWith("/META-INF"))) {
-            errorList.put(path, new Integer(WebdavStatus.SC_FORBIDDEN));
+            errorList.put(path, Integer.valueOf(WebdavStatus.SC_FORBIDDEN));
             return;
         }
 
@@ -1877,7 +1877,7 @@ public class WebdavServlet
         try {
             enumeration = resources.list(path);
         } catch (NamingException e) {
-            errorList.put(path, new Integer
+            errorList.put(path, Integer.valueOf
                 (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
             return;
         }
@@ -1891,7 +1891,8 @@ public class WebdavServlet
 
             if (isLocked(childName, ifHeader + lockTokenHeader)) {
 
-                errorList.put(childName, new Integer(WebdavStatus.SC_LOCKED));
+                errorList.put(childName,
+                              Integer.valueOf(WebdavStatus.SC_LOCKED));
 
             } else {
 
@@ -1908,13 +1909,13 @@ public class WebdavServlet
                             // If it's not a collection, then it's an unknown
                             // error
                             errorList.put
-                                (childName, new Integer
+                                (childName, Integer.valueOf
                                     (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
                         }
                     }
                 } catch (NamingException e) {
                     errorList.put
-                        (childName, new Integer
+                        (childName, Integer.valueOf
                             (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
                 }
             }
@@ -2006,9 +2007,8 @@ public class WebdavServlet
         CacheEntry cacheEntry = resources.lookupCache(path);
 
         generatedXML.writeElement(null, "response", XMLWriter.OPENING);
-        String status = new String("HTTP/1.1 " + WebdavStatus.SC_OK + " "
-                                   + WebdavStatus.getStatusText
-                                   (WebdavStatus.SC_OK));
+        String status = "HTTP/1.1 " + WebdavStatus.SC_OK + " "
+            + WebdavStatus.getStatusText(WebdavStatus.SC_OK);
 
         // Generating href element
         generatedXML.writeElement(null, "href", XMLWriter.OPENING);
@@ -2239,9 +2239,8 @@ public class WebdavServlet
 
             if (propertiesNotFoundList.hasMoreElements()) {
 
-                status = new String("HTTP/1.1 " + WebdavStatus.SC_NOT_FOUND
-                                    + " " + WebdavStatus.getStatusText
-                                    (WebdavStatus.SC_NOT_FOUND));
+                status = "HTTP/1.1 " + WebdavStatus.SC_NOT_FOUND + " "
+                    + WebdavStatus.getStatusText(WebdavStatus.SC_NOT_FOUND);
 
                 generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
                 generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
@@ -2297,9 +2296,8 @@ public class WebdavServlet
             return;
 
         generatedXML.writeElement(null, "response", XMLWriter.OPENING);
-        String status = new String("HTTP/1.1 " + WebdavStatus.SC_OK + " "
-                                   + WebdavStatus.getStatusText
-                                   (WebdavStatus.SC_OK));
+        String status = "HTTP/1.1 " + WebdavStatus.SC_OK + " "
+            + WebdavStatus.getStatusText(WebdavStatus.SC_OK);
 
         // Generating href element
         generatedXML.writeElement(null, "href", XMLWriter.OPENING);
@@ -2488,9 +2486,8 @@ public class WebdavServlet
 
             if (propertiesNotFoundList.hasMoreElements()) {
 
-                status = new String("HTTP/1.1 " + WebdavStatus.SC_NOT_FOUND
-                                    + " " + WebdavStatus.getStatusText
-                                    (WebdavStatus.SC_NOT_FOUND));
+                status = "HTTP/1.1 " + WebdavStatus.SC_NOT_FOUND + " "
+                    + WebdavStatus.getStatusText(WebdavStatus.SC_NOT_FOUND);
 
                 generatedXML.writeElement(null, "propstat", XMLWriter.OPENING);
                 generatedXML.writeElement(null, "prop", XMLWriter.OPENING);
@@ -3063,7 +3060,7 @@ class WebdavStatus {
      *                  HTTP status code (e.g., "OK").
      */
     public static String getStatusText(int nHttpStatusCode) {
-        Integer intKey = new Integer(nHttpStatusCode);
+        Integer intKey = Integer.valueOf(nHttpStatusCode);
 
         if (!mapStatusCodes.containsKey(intKey)) {
             return "";
@@ -3084,7 +3081,7 @@ class WebdavStatus {
      * @param   strVal  [IN] HTTP status text
      */
     private static void addStatusCodeMap(int nKey, String strVal) {
-        mapStatusCodes.put(new Integer(nKey), strVal);
+        mapStatusCodes.put(Integer.valueOf(nKey), strVal);
     }
 
 };

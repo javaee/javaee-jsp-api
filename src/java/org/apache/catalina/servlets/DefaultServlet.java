@@ -84,7 +84,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2006/09/28 21:46:21 $
+ * @version $Revision: 1.12 $ $Date: 2006/09/29 22:10:18 $
  */
 
 public class DefaultServlet
@@ -245,14 +245,14 @@ public class DefaultServlet
         }
         try {
             value = getServletConfig().getInitParameter("listings");
-            listings = (new Boolean(value)).booleanValue();
+            listings = (Boolean.valueOf(value)).booleanValue();
         } catch (Throwable t) {
             ;
         }
         try {
             value = getServletConfig().getInitParameter("readonly");
             if (value != null)
-                readOnly = (new Boolean(value)).booleanValue();
+                readOnly = (Boolean.valueOf(value)).booleanValue();
         } catch (Throwable t) {
             ;
         }
