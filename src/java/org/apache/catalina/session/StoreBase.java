@@ -45,7 +45,7 @@ import java.io.ObjectOutputStream;
  * support most of the functionality required by a Store.
  *
  * @author Bip Thelin
- * @version $Revision: 1.1.1.1 $, $Date: 2005/05/27 22:55:07 $
+ * @version $Revision: 1.2 $, $Date: 2005/09/12 23:29:06 $
  */
 
 public abstract class StoreBase
@@ -56,12 +56,12 @@ public abstract class StoreBase
     /**
      * The descriptive information about this implementation.
      */
-    protected static final String info = "StoreBase/1.0";
+    protected static String info = "StoreBase/1.0";
 
     /**
      * Name to register for this Store, used for logging.
      */
-    protected static final String storeName = "StoreBase";
+    protected static String storeName = "StoreBase";
 
     /**
      * The debugging detail level for this component.
