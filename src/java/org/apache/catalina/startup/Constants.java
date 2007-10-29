@@ -34,7 +34,7 @@ package org.apache.catalina.startup;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:08 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:06 $
  */
 
 public final class Constants {
@@ -55,9 +55,14 @@ public final class Constants {
         "/javax/servlet/jsp/resources/web-jsptaglibrary_1_2.dtd";
 
     public static final String TldSchemaPublicId_20 =
-        "web-jsptaglibrary_2_0.xsd";;
+        "web-jsptaglibrary_2_0.xsd";
     public static final String TldSchemaResourcePath_20 =
-        "/javax/servlet/resources/web-jsptaglibrary_2_0.xsd";
+        "/javax/servlet/jsp/resources/web-jsptaglibrary_2_0.xsd";
+
+    public static final String TLD_SCHEMA_PUBLIC_ID_21 =
+        "web-jsptaglibrary_2_1.xsd";
+    public static final String TLD_SCHEMA_RESOURCE_PATH_21 =
+        "/javax/servlet/jsp/resources/web-jsptaglibrary_2_1.xsd";
 
     public static final String WebDtdPublicId_22 =
         "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN";
@@ -85,10 +90,15 @@ public final class Constants {
         "/javax/servlet/resources/xml.xsd";
 
     public static final String JspSchemaPublicId_20 =
-        "jsp_2_0.xsd";;
+        "jsp_2_0.xsd";
     public static final String JspSchemaResourcePath_20 =
         "/javax/servlet/resources/jsp_2_0.xsd";
     
+    public static final String JSP_SCHEMA_PUBLIC_ID_21 =
+        "jsp_2_1.xsd";
+    public static final String JSP_SCHEMA_RESOURCE_PATH_21 =
+        "/javax/servlet/resources/jsp_2_1.xsd";    
+
     public static final String J2eeWebServiceSchemaPublicId_11 =
             "j2ee_web_services_1_1.xsd";
     public static final String J2eeWebServiceSchemaResourcePath_11 =

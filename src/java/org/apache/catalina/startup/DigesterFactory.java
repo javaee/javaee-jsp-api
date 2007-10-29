@@ -151,15 +151,18 @@ public class DigesterFactory{
         // JSP
         register(Constants.JspSchemaResourcePath_20,
                  Constants.JspSchemaPublicId_20);
+        register(Constants.JSP_SCHEMA_RESOURCE_PATH_21,
+                 Constants.JSP_SCHEMA_PUBLIC_ID_21);
+
         // TLD
         register(Constants.TldDtdResourcePath_11,  
                  Constants.TldDtdPublicId_11);
-        
         register(Constants.TldDtdResourcePath_12,
                  Constants.TldDtdPublicId_12);
-
         register(Constants.TldSchemaResourcePath_20,
                  Constants.TldSchemaPublicId_20);
+        register(Constants.TLD_SCHEMA_RESOURCE_PATH_21,
+                 Constants.TLD_SCHEMA_PUBLIC_ID_21);
 
         // web.xml    
         register(Constants.WebDtdResourcePath_22,
@@ -214,11 +217,11 @@ public class DigesterFactory{
                 "http://apache.org/xml/features/validation/schema",
                 true);
         } catch(ParserConfigurationException e){
-                // log("contextConfig.registerLocalSchema", e);
+            // log("contextConfig.registerLocalSchema", e);
         } catch(SAXNotRecognizedException e){
-                // log("contextConfig.registerLocalSchema", e);
+            // log("contextConfig.registerLocalSchema", e);
         } catch(SAXNotSupportedException e){
-                // log("contextConfig.registerLocalSchema", e);
+            // log("contextConfig.registerLocalSchema", e);
         }
     }
 }
