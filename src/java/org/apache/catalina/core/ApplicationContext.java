@@ -73,7 +73,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2006/03/25 02:43:23 $
+ * @version $Revision: 1.9 $ $Date: 2006/09/28 19:55:12 $
  */
 
 public class ApplicationContext
@@ -106,6 +106,8 @@ public class ApplicationContext
                                       context.logName());
         //END PWC 6403328
 
+        setAttribute("com.sun.faces.useMyFaces",
+                     Boolean.valueOf(context.isUseMyFaces()));
     }
 
 

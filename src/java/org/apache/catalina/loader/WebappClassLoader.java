@@ -415,6 +415,9 @@ public class WebappClassLoader
     ArrayList<BytecodePreprocessor> byteCodePreprocessors =
             new ArrayList<BytecodePreprocessor>();
     // END SJSAS 6344989
+
+    private boolean useMyFaces;
+
     // ------------------------------------------------------------- Properties
     
     // START PE 4985680
@@ -577,6 +580,15 @@ public class WebappClassLoader
      */
     public void setWorkDir(File workDir) {
         this.loaderDir = new File(workDir, "loader");
+    }
+
+
+    public void setUseMyFaces(boolean useMyFaces) {
+        this.useMyFaces = useMyFaces;
+        if (useMyFaces) {
+            addOverridablePackage("javax.faces");
+            addOverridablePackage("com.sun.faces");
+        }
     }
 
 

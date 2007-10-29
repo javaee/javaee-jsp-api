@@ -130,7 +130,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.39 $ $Date: 2007/02/24 01:14:42 $
+ * @version $Revision: 1.40 $ $Date: 2007/03/09 00:33:05 $
  */
 
 public class StandardContext
@@ -719,6 +719,9 @@ public class StandardContext
      * Alternate doc base resources
      */
     private ArrayList<AlternateDocBase> alternateDocBases = null;
+
+
+    private boolean useMyFaces;
 
 
     /**
@@ -1729,6 +1732,15 @@ public class StandardContext
         support.firePropertyChange("securePagesWithPragma",
                                    Boolean.valueOf(oldSecurePagesWithPragma),
                                    Boolean.valueOf(this.securePagesWithPragma));
+    }
+
+
+    public void setUseMyFaces(boolean useMyFaces) {
+        this.useMyFaces = useMyFaces;
+    }
+
+    public boolean isUseMyFaces() {
+        return useMyFaces;
     }
 
 
@@ -5210,6 +5222,7 @@ public class StandardContext
         }
         WebappLoader webappLoader = new WebappLoader(parent);
         webappLoader.setDelegate(getDelegate());
+        webappLoader.setUseMyFaces(useMyFaces);
         setLoader(webappLoader);
     }
 

@@ -113,6 +113,7 @@ public class TldLocationsCache {
 
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
     private static HashSet<String> systemUris = new HashSet<String>();
+    private static HashSet<String> systemUrisJsf = new HashSet<String>();
 
     /**
      * The mapping of the 'global' tag library URI to the location (resource
@@ -139,6 +140,9 @@ public class TldLocationsCache {
     private boolean localTldsProcessed = false;
     // END GlassFish 747
 
+    private boolean useMyFaces = false;
+
+
     //*********************************************************************
     // Constructor and Initilizations
     
@@ -146,8 +150,8 @@ public class TldLocationsCache {
      * Initializes the set of JARs that are known not to contain any TLDs
      */
     static {
-        systemUris.add("http://java.sun.com/jsf/core");
-        systemUris.add("http://java.sun.com/jsf/html");
+        systemUrisJsf.add("http://java.sun.com/jsf/core");
+        systemUrisJsf.add("http://java.sun.com/jsf/html");
         systemUris.add("http://java.sun.com/jsp/jstl/core");
     }
 
@@ -190,6 +194,11 @@ public class TldLocationsCache {
         /* GlassFish 747
         mappings = new Hashtable();
         */
+
+        Boolean b = (Boolean) ctxt.getAttribute("com.sun.faces.useMyFaces");
+        if (b != null) {
+            useMyFaces = b.booleanValue();
+        }
         initialized = false;
     }
 
@@ -368,7 +377,8 @@ public class TldLocationsCache {
                 if (child != null)
                     tagUri = child.getBody();
                 // Ignore system tlds in web.xml, for backward compatibility
-                if (systemUris.contains(tagUri)) {
+                if (systemUris.contains(tagUri)
+                        || (!useMyFaces && systemUrisJsf.contains(tagUri))) {
                     continue;
                 }
                 child = taglib.findChild("taglib-location");
@@ -424,10 +434,14 @@ public class TldLocationsCache {
                 InputStream stream = jarFile.getInputStream(entry);
                 try {
                     String uri = getUriFromTld(resourcePath, stream);
-                    // Add map entry. Override existing entries as we move higher
+                    // Add map entry.
+                    // Override existing entries as we move higher
                     // up in the classloader delegation chain.
                     if (uri != null
-                        && (mappings.get(uri) == null || systemUris.contains(uri))) {
+                            && (mappings.get(uri) == null
+                                || systemUris.contains(uri)
+                                || (systemUrisJsf.contains(uri)
+                                    && !useMyFaces))) {
                         mappings.put(uri, new String[]{ resourcePath, name });
                     }
                 } finally {
@@ -509,8 +523,11 @@ public class TldLocationsCache {
                 }
                 // Add implicit map entry only if its uri is not already
                 // present in the map
-                if (uri != null && !systemUris.contains(uri) &&
-                        mappings.get(uri) == null) {
+                if (uri != null
+                         && mappings.get(uri) == null
+                         && !systemUris.contains(uri)
+                         && (!systemUrisJsf.contains(uri)
+                             || useMyFaces)) {
                     mappings.put(uri, new String[] { path, null });
                 }
             }

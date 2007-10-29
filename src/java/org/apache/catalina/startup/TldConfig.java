@@ -93,10 +93,11 @@ public final class TldConfig  {
 
     // Names of system TLD URIs
     private static HashSet<String> systemTldUris = new HashSet<String>();
+    private static HashSet<String> systemTldUrisJsf = new HashSet<String>();
 
     static {
-        systemTldUris.add("http://java.sun.com/jsf/core");
-        systemTldUris.add("http://java.sun.com/jsf/html");
+        systemTldUrisJsf.add("http://java.sun.com/jsf/core");
+        systemTldUrisJsf.add("http://java.sun.com/jsf/html");
         systemTldUris.add("http://java.sun.com/jsp/jstl/core");
     }
 
@@ -161,8 +162,16 @@ public final class TldConfig  {
     private String currentTldJarEntryName;
     // END GlassFish 747
 
+    private boolean useMyFaces;
+
 
     // --------------------------------------------------------- Public Methods
+
+
+    public void setUseMyFaces(boolean useMyFaces) {
+        this.useMyFaces = useMyFaces;
+    }
+
 
     /**
      * Sets the list of JAR files that are known not to contain any
@@ -296,13 +305,20 @@ public final class TldConfig  {
 
     public void setContext(Context context) {
         this.context = context;
+        this.useMyFaces = ((StandardContext) context).isUseMyFaces();
     }
 
     public void addApplicationListener( String s ) {
         if (log.isDebugEnabled()) {
             log.debug( "Add tld listener " + s);
         }
-        if (!isCurrentTldLocal || !systemTldUris.contains(currentTldUri)) {
+        if ((isCurrentTldLocal
+                    && !systemTldUris.contains(currentTldUri)
+                    && (!systemTldUrisJsf.contains(currentTldUri)
+                        || useMyFaces))
+                || (!isCurrentTldLocal
+                    && (!systemTldUrisJsf.contains(currentTldUri)
+                        || !useMyFaces))) {
             listeners.add(s);
         }
     }
@@ -319,6 +335,8 @@ public final class TldConfig  {
          */
         if (isCurrentTldLocal
                 && !systemTldUris.contains(currentTldUri)
+                && (!systemTldUrisJsf.contains(currentTldUri)
+                    || useMyFaces)
                 && tldUriToLocationMap.get(currentTldUri) == null) {
             String[] currentTldLocation = new String[2];
             if (currentTldResourcePath != null) {

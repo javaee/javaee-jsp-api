@@ -91,7 +91,7 @@ import org.apache.naming.resources.Resource;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2006/11/21 17:39:39 $
+ * @version $Revision: 1.8 $ $Date: 2007/02/22 18:23:50 $
  */
 
 public class WebappLoader
@@ -247,7 +247,8 @@ public class WebappLoader
     // START PWC 1.1 6314481
     private boolean ignoreHiddenJarFiles;
     // END PWC 1.1 6314481
-
+    
+    private boolean useMyFaces;
 
     // ------------------------------------------------------------- Properties
 
@@ -431,6 +432,11 @@ public class WebappLoader
                                    Boolean.valueOf(oldReloadable),
                                    Boolean.valueOf(this.reloadable));
 
+    }
+
+
+    public void setUseMyFaces(boolean useMyFaces) {
+        this.useMyFaces = useMyFaces;
     }
 
 
@@ -821,6 +827,8 @@ public class WebappLoader
         Object[] args = { parentClassLoader };
         Constructor constr = clazz.getConstructor(argTypes);
         classLoader = (WebappClassLoader) constr.newInstance(args);
+
+        classLoader.setUseMyFaces(useMyFaces);
 
         return classLoader;
 
