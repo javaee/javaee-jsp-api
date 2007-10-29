@@ -1171,69 +1171,65 @@ public abstract class ContainerBase
      * @exception LifecycleException if this component detects a fatal error
      *  that prevents it from being started
      */
-    public void start() throws LifecycleException {
+    public synchronized void start() throws LifecycleException {
 
-        try {
-            writeLock.lock();
-            // Validate and update our current component state
-            if (started) {
-                if (log.isInfoEnabled()) {
-                    log.info(sm.getString("containerBase.alreadyStarted",
-                                          logName()));
-                }
-                return;
+        // Validate and update our current component state
+        if (started) {
+            if (log.isInfoEnabled()) {
+                log.info(sm.getString("containerBase.alreadyStarted",
+                                      logName()));
             }
-        
-            if( logger instanceof LoggerBase ) {
-                LoggerBase lb=(LoggerBase)logger;
-                if( lb.getObjectName()==null ) {
-                    ObjectName lname=lb.createObjectName();
-                    try {
-                        Registry.getRegistry().registerComponent(lb, lname,
-                                                                 null);
-                    } catch( Exception ex ) {
-                        log.error( "Can't register logger " + lname, ex);
-                    }
-                }
-            }
-        
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
-
-            started = true;
-
-            // Start our subordinate components, if any
-            if ((loader != null) && (loader instanceof Lifecycle))
-                ((Lifecycle) loader).start();
-            if ((logger != null) && (logger instanceof Lifecycle))
-                ((Lifecycle) logger).start();
-            if ((manager != null) && (manager instanceof Lifecycle))
-                ((Lifecycle) manager).start();
-            if ((cluster != null) && (cluster instanceof Lifecycle))
-                ((Lifecycle) cluster).start();
-            if ((realm != null) && (realm instanceof Lifecycle))
-                ((Lifecycle) realm).start();
-            if ((resources != null) && (resources instanceof Lifecycle))
-                ((Lifecycle) resources).start();
-
-            // Start our child containers, if any
-            startChildren();
-
-            // Start the Valves in our pipeline (including the basic), if any
-            if (pipeline instanceof Lifecycle)
-                ((Lifecycle) pipeline).start();
-
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(START_EVENT, null);
-
-            // Start our thread
-            threadStart();
-
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-        } finally {
-            writeLock.unlock();
+            return;
         }
+        
+        if( logger instanceof LoggerBase ) {
+            LoggerBase lb=(LoggerBase)logger;
+            if( lb.getObjectName()==null ) {
+                ObjectName lname=lb.createObjectName();
+                try {
+                    Registry.getRegistry().registerComponent(lb, lname,
+                                                             null);
+                } catch( Exception ex ) {
+                    log.error( "Can't register logger " + lname, ex);
+                }
+            }
+        }
+        
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
+
+        started = true;
+
+        // Start our subordinate components, if any
+        if ((loader != null) && (loader instanceof Lifecycle))
+            ((Lifecycle) loader).start();
+        if ((logger != null) && (logger instanceof Lifecycle))
+            ((Lifecycle) logger).start();
+        if ((manager != null) && (manager instanceof Lifecycle))
+            ((Lifecycle) manager).start();
+        if ((cluster != null) && (cluster instanceof Lifecycle))
+            ((Lifecycle) cluster).start();
+        if ((realm != null) && (realm instanceof Lifecycle))
+            ((Lifecycle) realm).start();
+        if ((resources != null) && (resources instanceof Lifecycle))
+            ((Lifecycle) resources).start();
+
+        // Start our child containers, if any
+        startChildren();
+
+        // Start the Valves in our pipeline (including the basic), if any
+        if (pipeline instanceof Lifecycle) {
+            ((Lifecycle) pipeline).start();
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(START_EVENT, null);
+
+        // Start our thread
+        threadStart();
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
     }
 
 
@@ -1243,91 +1239,87 @@ public abstract class ContainerBase
      * @exception LifecycleException if this component detects a fatal error
      *  that needs to be reported
      */
-    public void stop() throws LifecycleException {
+    public synchronized void stop() throws LifecycleException {
 
-        try {
-            writeLock.lock();
-            // Validate and update our current component state
-            if (!started) {
-                if (log.isInfoEnabled()) {
-                    log.info(sm.getString("containerBase.notStarted",
-                                          logName()));
-                }
-                return;
+        // Validate and update our current component state
+        if (!started) {
+            if (log.isInfoEnabled()) {
+                log.info(sm.getString("containerBase.notStarted",
+                                      logName()));
             }
-
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
-
-            // Stop our thread
-            threadStop();
-
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-            started = false;
-
-            // Stop the Valves in our pipeline (including the basic), if any
-            if (pipeline instanceof Lifecycle) {
-                ((Lifecycle) pipeline).stop();
-            }
-
-            // Stop our child containers, if any
-            Container children[] = findChildren();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle) {
-                    try {
-                        ((Lifecycle) children[i]).stop();
-                    } catch (Throwable t) {
-                        log.error(sm.getString("containerBase.errorStopping",
-                                               children[i]), t);
-                    }
-                }
-            }
-
-            // Remove children - so next start can work
-            children = findChildren();
-            for (int i = 0; i < children.length; i++) {
-                removeChild(children[i]);
-            }
-
-            // Stop our subordinate components, if any
-            if ((resources != null) && (resources instanceof Lifecycle)) {
-                ((Lifecycle) resources).stop();
-            }
-            if ((realm != null) && (realm instanceof Lifecycle)) {
-                ((Lifecycle) realm).stop();
-            }
-            if ((cluster != null) && (cluster instanceof Lifecycle)) {
-                ((Lifecycle) cluster).stop();
-            }
-            if ((manager != null) && (manager instanceof Lifecycle)) {
-                ((Lifecycle) manager).stop();
-            }
-            if ((logger != null) && (logger instanceof Lifecycle)) {
-                ((Lifecycle) logger).stop();
-            }
-            if ((loader != null) && (loader instanceof Lifecycle)) {
-                ((Lifecycle) loader).stop();
-            }
-
-            if( logger instanceof LoggerBase ) {
-                LoggerBase lb=(LoggerBase)logger;
-                if( lb.getObjectName()!=null ) {
-                    try {
-                        Registry.getRegistry().unregisterComponent(lb.getObjectName());
-                    } catch( Exception ex ) {
-                        log.error("Can't unregister logger "
-                                  + lb.getObjectName(), ex);
-                    }
-                }
-            }
-
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-        } finally {
-            writeLock.unlock();
+            return;
         }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+
+        // Stop our thread
+        threadStop();
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        started = false;
+
+        // Stop the Valves in our pipeline (including the basic), if any
+        if (pipeline instanceof Lifecycle) {
+            ((Lifecycle) pipeline).stop();
+        }
+
+        // Stop our child containers, if any
+        Container children[] = findChildren();
+        for (int i = 0; i < children.length; i++) {
+            if (children[i] instanceof Lifecycle) {
+                try {
+                    ((Lifecycle) children[i]).stop();
+                } catch (Throwable t) {
+                    log.error(sm.getString("containerBase.errorStopping",
+                                           children[i]), t);
+                }
+            }
+        }
+
+        // Remove children - so next start can work
+        children = findChildren();
+        for (int i = 0; i < children.length; i++) {
+            removeChild(children[i]);
+        }
+
+        // Stop our subordinate components, if any
+        if ((resources != null) && (resources instanceof Lifecycle)) {
+            ((Lifecycle) resources).stop();
+        }
+        if ((realm != null) && (realm instanceof Lifecycle)) {
+            ((Lifecycle) realm).stop();
+        }
+        if ((cluster != null) && (cluster instanceof Lifecycle)) {
+            ((Lifecycle) cluster).stop();
+        }
+        if ((manager != null) && (manager instanceof Lifecycle)) {
+            ((Lifecycle) manager).stop();
+        }
+        if ((logger != null) && (logger instanceof Lifecycle)) {
+            ((Lifecycle) logger).stop();
+        }
+        if ((loader != null) && (loader instanceof Lifecycle)) {
+            ((Lifecycle) loader).stop();
+        }
+
+        if( logger instanceof LoggerBase ) {
+            LoggerBase lb=(LoggerBase)logger;
+            if( lb.getObjectName()!=null ) {
+                try {
+                    Registry.getRegistry().unregisterComponent(lb.getObjectName());
+                } catch( Exception ex ) {
+                    log.error("Can't unregister logger "
+                              + lb.getObjectName(), ex);
+                }
+            }
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
     }
+
 
     /** Init method, part of the MBean lifecycle.
      *  If the container was added via JMX, it'll register itself with the 
