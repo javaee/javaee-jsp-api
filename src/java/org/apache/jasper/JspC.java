@@ -58,6 +58,9 @@ import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.servlet.JspCServletContext;
+// START PWC 6386258
+import org.apache.jasper.xmlparser.ParserUtils;
+// END PWC 6386258
 import org.apache.tools.ant.AntClassLoader;
 
 // START SJSAS 6258619
@@ -129,6 +132,10 @@ public class JspC implements Options {
     private static final String SWITCH_DIE = "-die";
     private static final String SWITCH_SMAP = "-smap";
     private static final String SWITCH_DUMP_SMAP = "-dumpsmap";
+    // START PWC 6386258
+    private static final String SWITCH_SCHEMAS_PREFIX = "-schemas";
+    private static final String SWITCH_DTDS_PREFIX = "-dtds";
+    // END PWC 6386258
     // START IASRI 4660687
     private static final String SWITCH_GENERATE_CLASSES = "-genclass";
     // END IASRI 4660687
@@ -320,6 +327,12 @@ public class JspC implements Options {
                 smapSuppressed = false;
             } else if (tok.equals(SWITCH_DUMP_SMAP)) {
                 smapDumped = true;
+            // START PWC 6386258
+            } else if (tok.equals(SWITCH_SCHEMAS_PREFIX)) {
+                setSchemaResourcePrefix(nextArg());
+            } else if (tok.equals(SWITCH_DTDS_PREFIX)) {
+                setDtdResourcePrefix(nextArg());
+            // END PWC 6386258
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
@@ -646,6 +659,22 @@ public class JspC implements Options {
             uriRoot=s;
         }
     }
+
+    // START PWC 6386258
+    /**
+     * Sets the path prefix for .xsd resources
+     */
+    public static void setSchemaResourcePrefix(String prefix) {
+        ParserUtils.setSchemaResourcePrefix(prefix);
+    }
+
+    /**
+     * Sets the path prefix for .dtd resources
+     */
+    public static void setDtdResourcePrefix(String prefix) {
+        ParserUtils.setDtdResourcePrefix(prefix);
+    }
+    // END PWC 6386258
 
     /*
      * Parses comma-separated list of JSP files to be processed.

@@ -177,12 +177,15 @@ public class Constants {
 	WEBAPP_DTD_PUBLIC_ID_22,
 	WEBAPP_DTD_PUBLIC_ID_23,
     };
+
+    /* PWC 6386258
     public static final String[] CACHED_DTD_RESOURCE_PATHS = {
 	TAGLIB_DTD_RESOURCE_PATH_11,
 	TAGLIB_DTD_RESOURCE_PATH_12,
 	WEBAPP_DTD_RESOURCE_PATH_22,
 	WEBAPP_DTD_RESOURCE_PATH_23,
     };
+    */
     
     /**
      * Default URLs to download the pluging for Netscape and IE.

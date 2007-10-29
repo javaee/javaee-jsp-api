@@ -58,7 +58,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:14 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:00 $
  */
 
 public class ParserUtils {
@@ -79,8 +79,42 @@ public class ParserUtils {
     // Turn off for JSP 2.0 until switch over to using xschema.
     public static boolean validating = false;
 
+    // START PWC 6386258
+    static final String[] CACHED_DTD_RESOURCE_PATHS = {
+        Constants.TAGLIB_DTD_RESOURCE_PATH_11,
+        Constants.TAGLIB_DTD_RESOURCE_PATH_12,
+        Constants.WEBAPP_DTD_RESOURCE_PATH_22,
+        Constants.WEBAPP_DTD_RESOURCE_PATH_23,
+    };
+    // END PWC 6386258
+
 
     // --------------------------------------------------------- Public Methods
+
+
+    // START PWC 6386258
+    /**
+     * Sets the path prefix for .xsd resources
+     */
+    public static void setSchemaResourcePrefix(String prefix) {
+        // no-op for now
+    }
+
+    /**
+     * Sets the path prefix for .dtd resources
+     */
+    public static void setDtdResourcePrefix(String prefix) {
+        for (int i=0; i<CACHED_DTD_RESOURCE_PATHS.length; i++) {
+            String path = CACHED_DTD_RESOURCE_PATHS[i];
+            int index = path.lastIndexOf('/');
+            if (index != -1) {
+                CACHED_DTD_RESOURCE_PATHS[i] =
+                    prefix + path.substring(index+1);
+            }
+        }
+    }
+    // END PWC 6386258
+
 
     /**
      * Parse the specified XML document, and return a <code>TreeNode</code>
@@ -210,7 +244,12 @@ class MyEntityResolver implements EntityResolver {
 	for (int i=0; i<Constants.CACHED_DTD_PUBLIC_IDS.length; i++) {
 	    String cachedDtdPublicId = Constants.CACHED_DTD_PUBLIC_IDS[i];
 	    if (cachedDtdPublicId.equals(publicId)) {
+                /* PWC 6386258
 		String resourcePath = Constants.CACHED_DTD_RESOURCE_PATHS[i];
+                */
+                // START PWC 6386258
+                String resourcePath = ParserUtils.CACHED_DTD_RESOURCE_PATHS[i];
+                // END PWC 6386258
 		InputStream input =
 		    this.getClass().getResourceAsStream(resourcePath);
 		if (input == null) {
@@ -225,8 +264,9 @@ class MyEntityResolver implements EntityResolver {
         if (ParserUtils.log.isDebugEnabled())
             ParserUtils.log.debug("Resolve entity failed"  + publicId + " "
 			   + systemId );
-	ParserUtils.log.error(Localizer.getMessage("jsp.error.parse.xml.invalidPublicId",
-						   publicId));
+	ParserUtils.log.error(
+            Localizer.getMessage("jsp.error.parse.xml.invalidPublicId",
+            publicId));
         return null;
     }
 }
