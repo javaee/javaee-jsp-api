@@ -611,6 +611,14 @@ public class StandardPipeline
                     break;
             }
 
+            // Save a reference to the valve[], to ensure that postInvoke()
+            // is invoked on the original valve[], in case a valve gets added
+            // or removed during the invocation of the basic valve (e.g.,
+            // in case access logging is enabled or disabled by some kind of
+            // admin servlet), in which case the indices used for postInvoke
+            // invocations below would be off
+            Valve[] savedValves = valves;
+
             // Invoke the basic valve's request processing and post-request
             // logic only if the pipeline was not aborted (i.e. no valve
             // returned END_PIPELINE)
@@ -634,8 +642,11 @@ public class StandardPipeline
                     req = getRequest(request);
                     resp = getResponse(request, response);
                 }
-                valves[j].postInvoke(req, resp);
+                savedValves[j].postInvoke(req, resp);
             }
+
+            savedValves = null;
+
         } else {
             throw new ServletException
                 (sm.getString("standardPipeline.noValve"));
