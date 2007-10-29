@@ -36,7 +36,7 @@ import javax.servlet.http.HttpSession;
  * between requests for a particular user of a web application.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/04/29 01:26:43 $
+ * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
  */
 
 public interface Session {
@@ -288,4 +288,12 @@ public interface Session {
     public void setNote(String name, Object value);
 
 
+    // START SJSAS 6329289
+    /**
+     * Checks whether this Session has expired.
+     *
+     * @return true if this Session has expired, false otherwise
+     */
+    public boolean hasExpired();
+    // END SJSAS 6329289
 }

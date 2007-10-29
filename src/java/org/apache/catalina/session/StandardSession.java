@@ -86,7 +86,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.6 $ $Date: 2005/09/12 23:29:06 $
+ * @version $Revision: 1.7 $ $Date: 2005/09/23 18:08:49 $
  */
 
 public class StandardSession
@@ -907,6 +907,24 @@ public class StandardSession
     public void setNote(String name, Object value) {
         notes.put(name, value);
     }
+
+
+    // START SJSAS 6329289
+    /**
+     * Checks whether this Session has expired.
+     *
+     * @return true if this Session has expired, false otherwise
+     */
+    public boolean hasExpired() {
+        if (getMaxInactiveInterval() > 0
+                && (System.currentTimeMillis() - lastAccessedTime >=
+                    getMaxInactiveInterval() * 1000)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // END SJSAS 6329289
 
 
     /**
