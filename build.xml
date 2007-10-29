@@ -30,6 +30,11 @@
     <property name="jsr199.jar" value="${jsr199.build}/jasper-jsr199.jar"/>
     <property name="jsr199.zip" value="${jsr199.build}/jasper-jsr199.src.zip"/>
 
+    <property name="el-impl.version" value="1.0"/>
+    <property name="el-impl.build" value="target"/>
+    <property name="el-impl.jar" value="${el-impl.build}/el-impl.jar"/>
+    <property name="el-impl.zip" value="${el-impl.build}/el-impl.src.zip"/>
+
     <property file="../bootstrap/project.properties"/>
     <property file="./build.properties"/>
 
@@ -98,6 +103,7 @@
     <target name="clean">
         <delete failonerror="false" dir="target/classes"/>
         <delete failonerror="false" dir="target/maven-repo"/>
+        <delete failonerror="false" dir="target/maven-repo-el"/>
         <delete failonerror="false" dir="${jsr199.build}"/>
     </target>
 
@@ -173,6 +179,48 @@
     <target name="push-to-maven" depends="push-to-maven-prepare"
         description="pushes jars to the java.net maven repository">
         <cvs-import src="target/maven-repo" dest="glassfish/repo" />
+    </target>
+
+    <!-- Building el-impl -->
+    <target name="compile-el">
+        <mkdir dir="${el-impl.build}/classes"/>
+        <javac srcdir="src/java/com/sun/el" destdir="${el-impl.build}/classes"
+               optimize="${javac.optimize}">
+            <classpath refid="catalina.classpath" />
+        </javac>
+    </target>
+              
+    <target name="jar-el" depends="compile-el">
+        <copy todir="${el-impl.build}">
+            <fileset dir="." includes="el-impl.mf,el-impl.pom"/>
+            <filterset>
+                <filter token="VERSION" value="${el-impl.version}"/>
+            </filterset>
+        </copy>
+
+        <jar jarfile="${el-impl.jar}"
+             basedir="${el-impl.build}/classes"
+             manifest="${el-impl.build}/el-impl.mf">
+           <include name="com/sun/el/**" />
+        </jar>
+        <zip file="${el-impl.zip}" >
+            <fileset dir="src/java">
+                <include name="com/sun/el/**"/>
+            </fileset>
+        </zip>
+    </target>
+        
+    <target name="push-to-maven-prepare-el" depends="-push-to-maven-init, jar-el"
+        description="creates an image for the 'push-to-maven-el' goal">
+        <delete dir="target/maven-repo-el" /><!-- clean it -->
+        <maven-repository-importer destdir="target/maven-repo-el" version="${el-impl.version}">
+            <artifact jar="${el-impl.jar}" pom="${el-impl.build}/el-impl.pom" srczip="${el-impl.zip}" />
+        </maven-repository-importer>
+    </target>
+
+    <target name="push-to-maven-el" depends="push-to-maven-prepare-el"
+        description="pushes jars to the java.net maven repository">
+        <cvs-import src="target/maven-repo-el" dest="glassfish/repo" />
     </target>
 
 </project>
