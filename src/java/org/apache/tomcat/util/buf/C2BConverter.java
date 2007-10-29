@@ -53,20 +53,20 @@ public final class C2BConverter {
     /** Create a converter, with bytes going to a byte buffer
      */
     public C2BConverter(ByteChunk output, String encoding) throws IOException {
-	this.bb=output;
-	ios=new IntermediateOutputStream( output );
-	conv=new WriteConvertor( ios, encoding );
+        this.bb=output;
+        ios=new IntermediateOutputStream( output );
+        conv=new WriteConvertor( ios, encoding );
         this.enc=encoding;
     }
 
     /** Create a converter
      */
     public C2BConverter(String encoding) throws IOException {
-	this( new ByteChunk(1024), encoding );
+        this( new ByteChunk(1024), encoding );
     }
 
     public ByteChunk getByteChunk() {
-	return bb;
+        return bb;
     }
 
     public String getEncoding() {
@@ -74,34 +74,34 @@ public final class C2BConverter {
     }
 
     public void setByteChunk(ByteChunk bb) {
-	this.bb=bb;
-	ios.setByteChunk( bb );
+        this.bb=bb;
+        ios.setByteChunk( bb );
     }
 
     /** Reset the internal state, empty the buffers.
      *  The encoding remain in effect, the internal buffers remain allocated.
      */
     public  final void recycle() {
-	conv.recycle();
-	bb.recycle();
+        conv.recycle();
+        bb.recycle();
     }
 
     /** Generate the bytes using the specified encoding
      */
     public  final void convert(char c[], int off, int len ) throws IOException {
-	conv.write( c, off, len );
+        conv.write( c, off, len );
     }
 
     /** Generate the bytes using the specified encoding
      */
     public  final void convert(String s ) throws IOException {
-	conv.write( s );
+        conv.write( s );
     }
 
     /** Generate the bytes using the specified encoding
      */
     public  final void convert(char c ) throws IOException {
-	conv.write( c );
+        conv.write( c );
     }
 
     /** Convert a message bytes chars to bytes
@@ -136,7 +136,7 @@ public final class C2BConverter {
      *  byte[]
      */
     public  final void flushBuffer() throws IOException {
-	conv.flush();
+        conv.flush();
     }
 
 }
@@ -174,44 +174,43 @@ public final class C2BConverter {
     /** Create a converter.
      */
     public WriteConvertor( IntermediateOutputStream out, String enc )
-	throws UnsupportedEncodingException
-    {
-	super( out, enc );
-	ios=out;
+        throws UnsupportedEncodingException {
+        super( out, enc );
+        ios=out;
     }
     
     /** Overriden - will do nothing but reset internal state.
      */
     public  final void close() throws IOException {
-	// NOTHING
-	// Calling super.close() would reset out and cb.
+        // NOTHING
+        // Calling super.close() would reset out and cb.
     }
     
     /**
      *  Flush the characters only
      */ 
     public  final void flush() throws IOException {
-	// Will flushBuffer and out()
-	// flushBuffer put any remaining chars in the byte[] 
-	super.flush();
+        // Will flushBuffer and out()
+        // flushBuffer put any remaining chars in the byte[] 
+        super.flush();
     }
     
     public  final void write(char cbuf[], int off, int len) throws IOException {
-	// will do the conversion and call write on the output stream
-	super.write( cbuf, off, len );
+        // will do the conversion and call write on the output stream
+        super.write( cbuf, off, len );
     }
     
     /** Reset the buffer
      */
     public  final void recycle() {
-	ios.disable();
-	try {
-	    //	    System.out.println("Reseting writer");
-	    flush();
-	} catch( Exception ex ) {
-	    ex.printStackTrace();
-	}
-	ios.enable();
+        ios.disable();
+        try {
+            //	    System.out.println("Reseting writer");
+            flush();
+        } catch( Exception ex ) {
+            ex.printStackTrace();
+        }
+        ios.enable();
     }
     
 }
@@ -232,8 +231,8 @@ final class IntermediateOutputStream extends OutputStream {
     }
     
     public  final void close() throws IOException {
-	// shouldn't be called - we filter it out in writer
-	throw new IOException("close() called - shouldn't happen ");
+        // shouldn't be called - we filter it out in writer
+        throw new IOException("close() called - shouldn't happen ");
     }
     
     public  final void flush() throws IOException {
@@ -242,32 +241,32 @@ final class IntermediateOutputStream extends OutputStream {
     }
     
     public  final  void write(byte cbuf[], int off, int len) throws IOException {
-	// will do the conversion and call write on the output stream
-	if( enabled ) {
-	    tbuff.append( cbuf, off, len );
-	}
+        // will do the conversion and call write on the output stream
+        if( enabled ) {
+            tbuff.append( cbuf, off, len );
+        }
     }
     
     public  final void write( int i ) throws IOException {
-	throw new IOException("write( int ) called - shouldn't happen ");
+        throw new IOException("write( int ) called - shouldn't happen ");
     }
 
     // -------------------- Internal methods --------------------
 
     void setByteChunk( ByteChunk bb ) {
-	tbuff=bb;
+        tbuff=bb;
     }
     
     /** Temporary disable - this is used to recycle the converter without
      *  generating an output if the buffers were not flushed
      */
     final void disable() {
-	enabled=false;
+        enabled=false;
     }
 
     /** Reenable - used to recycle the converter
      */
     final void enable() {
-	enabled=true;
+        enabled=true;
     }
 }
