@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.13 $ $Date: 2006/03/09 17:51:37 $
+ * @version $Revision: 1.14 $ $Date: 2006/03/12 01:27:02 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -188,9 +188,11 @@ public class WebappClassLoader
         "org.apache.xalan",                          // Xalan
         "org.apache.taglibs.standard",               // JSTL (Java EE 5)
         "com.sun.faces",                             // JSF (Java EE 5)
+        /* 6314912
         // START S1AS 6220818
-        "com.sun.org.apache.commons.logging"         // Commons logging
+        "org.apache.commons.logging"                 // Commons logging
         // END S1AS 6220818
+        */
     };
     
     // START PE 4985680    
