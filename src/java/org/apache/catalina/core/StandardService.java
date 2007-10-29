@@ -381,8 +381,10 @@ public class StandardService
             ((Lifecycle) connectors[j]).stop();
             // END SJSAS 6231069
 
-            connectors[j].setContainer(null);
-            connector.setService(null);
+            // START SJSAS 6231069
+            /*connectors[j].setContainer(null);
+            connector.setService(null);*/
+            // END SJSAS 6231069           
             int k = 0;
             Connector results[] = new Connector[connectors.length - 1];
             for (int i = 0; i < connectors.length; i++) {
