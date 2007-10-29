@@ -1060,6 +1060,9 @@ class Validator {
                                         jspAttrs[i].setValue(escapePound(
                                             jspAttrs[i].getValue()));
                                     }
+                                } else {
+                                    jspAttrs[i].setValue(escapePound(
+                                        jspAttrs[i].getValue()));
                                 }
                             }
 			} else {
@@ -1334,9 +1337,9 @@ class Validator {
             if (pageInfo.isELIgnored()) {
                 return value;
             }
-            boolean acceptsPound = (n instanceof Node.CustomTag) &&
-                (((Node.CustomTag)n).getJspVersion() >= 2.1) &&
-                pageInfo.isDeferredSyntaxAllowedAsLiteral();
+            boolean poundExpressionIgnored = (n instanceof Node.CustomTag) &&
+                ((((Node.CustomTag)n).getJspVersion() < 2.1) ||
+                    pageInfo.isDeferredSyntaxAllowedAsLiteral());
             int size = value.length();
             StringBuffer buf = new StringBuffer(size);
             char p = ' ';
@@ -1345,11 +1348,14 @@ class Validator {
                 if (p == '$' && c == '{') {
                     return null;
                 }
-                if (p == '#' && c == '{' && ! acceptsPound) {
+                if (p == '#' && c == '{' && !poundExpressionIgnored) {
                     return null;
                 }
                 if (p == '\\') {
-                    if (c == '\\' || c == '$' || (c == '#' && !acceptsPound)) {
+                    if (c == '\\' || c == '$' ||
+                            (c == '#' && !poundExpressionIgnored)) {
+                        // If "#{..}" is not recognized as an El expression,
+                        // then "\#" is not an escape sequence.
                         buf.append(c);
                         p = ' ';
                     } else {
@@ -1386,7 +1392,7 @@ class Validator {
         private String escapePound(String value) {
             StringBuffer buf = new StringBuffer(value.length() + 2);
             for (int i = 0; i < value.length(); i++) {
-                if (value.charAt(i) == '#') {
+                if (value.charAt(i) == '\\' || value.charAt(i) == '#') {
                     buf.append('\\');
                 }
                 buf.append(value.charAt(i));
