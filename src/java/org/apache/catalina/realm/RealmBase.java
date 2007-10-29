@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/03/09 17:51:38 $
+ * @version $Revision: 1.10 $ $Date: 2006/03/12 01:27:04 $
  */
 
 public abstract class RealmBase
@@ -493,8 +493,9 @@ public abstract class RealmBase
         String origUri = uri;
         boolean caseSensitiveMapping = 
             ((StandardContext)context).isCaseSensitiveMapping();
-        if (!caseSensitiveMapping)
+        if (uri != null && !caseSensitiveMapping) {
             uri = uri.toLowerCase();
+        }
         // END SJSWS 6324431
 
         String method = hreq.getMethod();
@@ -553,7 +554,7 @@ public abstract class RealmBase
                     // START SJSWS 6324431
                     String pattern = caseSensitiveMapping ? patterns[k] :
                         patterns[k].toLowerCase();
-                    if (uri.equals(pattern)) {
+                    if (uri != null && uri.equals(pattern)) {
                     // END SJSWS 6324431
                         found = true;
                         if(collection[j].findMethod(method)) {
@@ -635,11 +636,12 @@ public abstract class RealmBase
                         if(pattern.length() == 2) {
                             matched = true;
                             length = pattern.length();
-                        } else if(pattern.regionMatches(0,uri,0,
-                                                        pattern.length()-1) ||
-                                  (pattern.length()-2 == uri.length() &&
-                                   pattern.regionMatches(0,uri,0,
-                                                        pattern.length()-2))) {
+                        } else if (uri != null
+                                && (pattern.regionMatches(
+                                        0,uri,0,pattern.length()-1)
+                                    || (pattern.length()-2 == uri.length()
+                                        && pattern.regionMatches(
+                                            0,uri,0,pattern.length()-2)))) {
                             matched = true;
                             length = pattern.length();
                         }
@@ -723,7 +725,7 @@ public abstract class RealmBase
                     String pattern = caseSensitiveMapping ? 
                         patterns[k]:patterns[k].toLowerCase();
                     // END SJSWS 6324431
-                    if(pattern.startsWith("*.")){
+                    if (uri != null && pattern.startsWith("*.")){
                         int slash = uri.lastIndexOf("/");
                         int dot = uri.lastIndexOf(".");
                         if(slash >= 0 && dot > slash &&
