@@ -115,9 +115,9 @@ public final class UDecoder {
 		
 		j+=2;
 		int res=x2c( b1, b2 );
-        if (noSlash && (res == '/')) {
-            throw new CharConversionException("noSlash");
-        }
+                if (noSlash && (res == '/')) {
+                    throw new CharConversionException("noSlash");
+                }
 		buff[idx]=(byte)res;
 	    }
 	}
