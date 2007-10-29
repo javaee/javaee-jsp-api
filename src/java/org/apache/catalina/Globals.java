@@ -36,7 +36,7 @@ import org.apache.catalina.servlets.DefaultServlet;
  * Global constants that are applicable to multiple packages within Catalina.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2006/06/20 18:34:01 $
+ * @version $Revision: 1.5 $ $Date: 2006/08/10 21:35:20 $
  */
 
 public final class Globals {
@@ -95,6 +95,8 @@ public final class Globals {
      */
     public static final String RESOURCES_ATTR =
         "org.apache.catalina.resources";
+    public static final String ALTERNATE_RESOURCES_ATTR =
+        "org.apache.catalina.alternateResources";
 
 
     /**

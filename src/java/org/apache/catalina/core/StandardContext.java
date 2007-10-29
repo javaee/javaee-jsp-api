@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.21 $ $Date: 2006/03/17 21:44:04 $
+ * @version $Revision: 1.22 $ $Date: 2006/06/08 14:49:57 $
  */
 
 public class StandardContext
@@ -706,6 +706,11 @@ public class StandardContext
     private boolean isReload = false;
     // END S1AS8PE 4965017
 
+    /**
+     * Alternate doc base resources
+     */
+    private ArrayList<AlternateDocBase> alternateDocBases = null;
+
 
     /**
      * GMT timezone - all HTTP dates are on GMT
@@ -1255,9 +1260,7 @@ public class StandardContext
      * pathname, a relative pathname, or a URL.
      */
     public String getDocBase() {
-
         return (this.docBase);
-
     }
 
 
@@ -1272,6 +1275,45 @@ public class StandardContext
         this.docBase = docBase;
 
     }
+
+
+    /**
+     * Configures this context's alternate doc base mappings.
+     *
+     * @param alternateDocBasesMap HashMap containing this context's 
+     * mappings from url patterns to alternate doc base paths
+     */
+    public void configureAlternateDocBases(
+            HashMap<String, String> alternateDocBasesMap) {
+
+        if (alternateDocBasesMap == null) {
+            return;
+        }
+
+        this.alternateDocBases =
+            new ArrayList<AlternateDocBase>(alternateDocBasesMap.size());
+        Iterator<String> iter = alternateDocBasesMap.keySet().iterator();
+        while (iter.hasNext()) {
+            String urlPattern = iter.next();
+            AlternateDocBase alternateDocBase = new AlternateDocBase();
+            alternateDocBase.setUrlPattern(urlPattern);
+            String docBase = alternateDocBasesMap.get(urlPattern);
+            alternateDocBase.setDocBase(docBase);
+            alternateDocBase.setBasePath(getBasePath(docBase));
+            this.alternateDocBases.add(alternateDocBase);
+        }
+    }
+
+
+    /**
+     * Gets this context's configured alternate doc bases.
+     *
+     * @return This context's configured alternate doc bases
+     */
+    public ArrayList<AlternateDocBase> getAlternateDocBases() {
+        return alternateDocBases;
+    }
+
 
     // experimental
     public boolean isLazy() {
@@ -1663,7 +1705,9 @@ public class StandardContext
     public ServletContext getServletContext() {
 
         if (context == null) {
-            context = new ApplicationContext(getBasePath(), this);
+            context = new ApplicationContext(getBasePath(getDocBase()),
+                                             getAlternateDocBases(),
+                                             this);
             if (altDDName != null 
                     && context.getAttribute(Globals.ALT_DD_ATTR) == null){
                 context.setAttribute(Globals.ALT_DD_ATTR,altDDName);
@@ -1871,6 +1915,34 @@ public class StandardContext
         support.firePropertyChange("resources", oldResources,
                                    this.webappResources);
 
+    }
+
+    private synchronized void setAlternateResources(
+                            AlternateDocBase alternateDocBase,
+                            DirContext resources) {
+
+        if (started) {
+            throw new IllegalStateException
+                (sm.getString("standardContext.resources.started"));
+        }
+
+        DirContext oldResources = alternateDocBase.getWebappResources();
+        if (oldResources == resources)
+            return;
+
+        if (resources instanceof BaseDirContext) {
+            ((BaseDirContext) resources).setCached(isCachingAllowed());
+            ((BaseDirContext) resources).setCacheTTL(getCacheTTL());
+            ((BaseDirContext) resources).setCacheMaxSize(getCacheMaxSize());
+        }
+        if (resources instanceof FileDirContext) {
+            filesystemBased = true;
+            ((FileDirContext) resources).setCaseSensitive(isCaseSensitive());
+            ((FileDirContext) resources).setAllowLinking(isAllowLinking());
+        }
+        alternateDocBase.setWebappResources(resources);
+        // The proxied resources will be refreshed on start
+        alternateDocBase.setResources(null);
     }
 
     // START S1AS8PE 4817642
@@ -4309,7 +4381,7 @@ public class StandardContext
             ProxyDirContext proxyDirContext =
                 new ProxyDirContext(env, webappResources);
             if (webappResources instanceof BaseDirContext) {
-                ((BaseDirContext) webappResources).setDocBase(getBasePath());
+                ((BaseDirContext) webappResources).setDocBase(getBasePath(getDocBase()));
                 ((BaseDirContext) webappResources).allocate();
             }
             // Register the cache in JMX
@@ -4336,7 +4408,56 @@ public class StandardContext
         }
 
         return (ok);
+    }
 
+
+    /**
+     * Starts this context's alternate doc base resources.
+     */
+    public boolean alternateResourcesStart() {
+
+        boolean ok = true;
+
+        if (alternateDocBases == null || alternateDocBases.size() == 0) {
+            return ok;
+        }
+
+        Hashtable env = new Hashtable();
+        if (getParent() != null)
+            env.put(ProxyDirContext.HOST, getParent().getName());
+        env.put(ProxyDirContext.CONTEXT, getName());
+
+        for (int i=0; i<alternateDocBases.size(); i++) {
+
+            AlternateDocBase alternateDocBase = alternateDocBases.get(i);
+            String basePath = alternateDocBase.getBasePath();
+            DirContext alternateWebappResources =
+                alternateDocBase.getWebappResources();
+            try {
+                ProxyDirContext proxyDirContext =
+                    new ProxyDirContext(env, alternateWebappResources);
+                if (alternateWebappResources instanceof BaseDirContext) {
+                    ((BaseDirContext) alternateWebappResources).setDocBase(
+                        basePath);
+                    ((BaseDirContext) alternateWebappResources).allocate();
+                }
+                alternateDocBase.setResources(proxyDirContext);
+            } catch (Throwable t) {
+                if(log.isDebugEnabled()) {
+                    log.error(
+                        sm.getString("standardContext.resourcesStart",
+                                     getName()), 
+                        t);
+                } else {
+                    log.error(sm.getString("standardContext.resourcesStart", 
+                                           getName()));
+                    log.error(t.getMessage());
+                }
+                ok = false;
+            }
+        }
+
+        return ok;
     }
 
 
@@ -4372,6 +4493,52 @@ public class StandardContext
         }
 
         this.resources = null;
+
+        return (ok);
+
+    }
+
+
+    /**
+     * Stops this context's alternate doc base resources.
+     */
+    public boolean alternateResourcesStop() {
+
+        boolean ok = true;
+
+        if (alternateDocBases == null || alternateDocBases.size() == 0) {
+            return ok;
+        }
+
+        for (int i=0; i<alternateDocBases.size(); i++) {
+
+            AlternateDocBase alternateDocBase = alternateDocBases.get(i);
+            DirContext alternateResources =
+                alternateDocBase.getResources();
+            if (alternateResources instanceof Lifecycle) {
+                try {
+                    ((Lifecycle) alternateResources).stop();
+                } catch (Throwable t) {
+                    log.error(sm.getString("standardContext.resourcesStop"),
+                              t);
+                    ok = false;
+                }
+            }
+
+            DirContext alternateWebappResources =
+                alternateDocBase.getWebappResources();
+            if (alternateWebappResources instanceof BaseDirContext) {
+                try {
+                    ((BaseDirContext) alternateWebappResources).release();
+                } catch (Throwable t) {
+                    log.error(sm.getString("standardContext.resourcesStop"),
+                              t);
+                    ok = false;
+                }
+            }
+        }
+
+        this.alternateDocBases = null;
 
         return (ok);
 
@@ -4487,7 +4654,7 @@ public class StandardContext
                     }
                     String appBase = appBaseFile.getCanonicalPath();
                     String basePath = 
-                        (new File(getBasePath())).getCanonicalPath();
+                        (new File(getBasePath(getDocBase()))).getCanonicalPath();
                     if (!basePath.startsWith(appBase)) {
                         Server server = ServerFactory.getServer();
                         ((StandardServer) server).storeContext(this);
@@ -4542,6 +4709,39 @@ public class StandardContext
         if (ok) {
             if (!resourcesStart()) {
                 ok = false;
+            }
+        }
+
+        // Add alternate resources
+        if (alternateDocBases != null && alternateDocBases.size() > 0) {
+
+            for (int i=0; i<alternateDocBases.size(); i++) {
+
+                AlternateDocBase alternateDocBase = alternateDocBases.get(i);
+                String docBase = alternateDocBase.getDocBase();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Configuring alternate resources");
+                }
+                try {
+                    if (docBase != null
+                            && docBase.endsWith(".war")) {
+                        setAlternateResources(alternateDocBase,
+                                              new WARDirContext());
+                    } else {
+                        setAlternateResources(alternateDocBase,
+                                              new FileDirContext());
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.error(sm.getString("standardContext.resourcesInit"),
+                              e);
+                    ok = false;
+                }
+            }
+            if (ok) {
+                if (!alternateResourcesStart()) {
+                    ok = false;
+                }
             }
         }
 
@@ -4733,6 +4933,9 @@ public class StandardContext
             getServletContext().setAttribute
                 (Globals.RESOURCES_ATTR, getResources());
             context.setAttributeReadOnly(Globals.RESOURCES_ATTR);
+            getServletContext().setAttribute
+                (Globals.ALTERNATE_RESOURCES_ATTR, getAlternateDocBases());
+            context.setAttributeReadOnly(Globals.ALTERNATE_RESOURCES_ATTR);
         }
         
         // Initialize associated mapper
@@ -4907,6 +5110,7 @@ public class StandardContext
 
             // Stop resources
             resourcesStop();
+            alternateResourcesStop();
 
             if ((realm != null) && (realm instanceof Lifecycle)) {
                 ((Lifecycle) realm).stop();
@@ -5227,30 +5431,30 @@ public class StandardContext
     /**
      * Get base path.
      */
-    private String getBasePath() {
-        String docBase = null;
+    private String getBasePath(String docBase) {
+        String basePath = null;
         Container container = this;
         while (container != null) {
             if (container instanceof Host)
                 break;
             container = container.getParent();
         }
-        File file = new File(getDocBase());
+        File file = new File(docBase);
         if (!file.isAbsolute()) {
             if (container == null) {
-                docBase = (new File(engineBase(), getDocBase())).getPath();
+                basePath = (new File(engineBase(), docBase)).getPath();
             } else {
                 // Use the "appBase" property of this container
                 String appBase = ((Host) container).getAppBase();
                 file = new File(appBase);
                 if (!file.isAbsolute())
                     file = new File(engineBase(), appBase);
-                docBase = (new File(file, getDocBase())).getPath();
+                basePath = (new File(file, docBase)).getPath();
             }
         } else {
-            docBase = file.getPath();
+            basePath = file.getPath();
         }
-        return docBase;
+        return basePath;
     }
 
 

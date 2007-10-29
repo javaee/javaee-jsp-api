@@ -73,7 +73,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2006/02/08 23:05:12 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/25 02:43:23 $
  */
 
 public class ApplicationContext
@@ -89,9 +89,17 @@ public class ApplicationContext
      * @param context The associated Context instance
      */
     public ApplicationContext(String basePath, StandardContext context) {
+        this(basePath, null, context);
+    }
+
+    public ApplicationContext(
+                String basePath,
+                ArrayList<AlternateDocBase> alternateDocBases,
+                StandardContext context) {
         super();
         this.context = context;
         this.basePath = basePath;
+        this.alternateDocBases = alternateDocBases;
 
         //START PWC 6403328
         this.logPrefix = sm.getString("applicationContext.logPrefix",
@@ -160,6 +168,13 @@ public class ApplicationContext
      * Base path.
      */
     private String basePath = null;
+
+
+    /**
+     * Alternate doc bases
+     */
+    private ArrayList<AlternateDocBase> alternateDocBases = null;
+
 
     // START PWC 6403328
     /**
@@ -412,7 +427,21 @@ public class ApplicationContext
             return null;
         }
 
-        File file = new File(basePath, path);
+        File file = null;
+        if (alternateDocBases == null
+                || alternateDocBases.size() == 0) {
+            file = new File(basePath, path);
+        } else {
+            AlternateDocBase match = AlternateDocBase.findMatch(
+                                                path, alternateDocBases);
+            if (match != null) {
+                file = new File(match.getBasePath(), path);
+            } else {
+                // None of the url patterns for alternate doc bases matched
+                file = new File(basePath, path);
+            }
+        }
+
         return (file.getAbsolutePath());
 
     }
@@ -545,9 +574,25 @@ public class ApplicationContext
             } else {
                 return null;
             }
+
         } else {
 
-            DirContext resources = context.getResources();
+            DirContext resources = null;
+
+            if (alternateDocBases == null
+                    || alternateDocBases.size() == 0) {
+                resources = context.getResources();
+            } else {
+                AlternateDocBase match = AlternateDocBase.findMatch(
+                                                path, alternateDocBases);
+                if (match != null) {
+                    resources = match.getResources();
+                } else {
+                    // None of the url patterns for alternate doc bases matched
+                    resources = context.getResources();
+                }
+            }
+
             if (resources != null) {
                 String fullPath = context.getName() + path;
                 String hostName = context.getParent().getName();
@@ -586,7 +631,22 @@ public class ApplicationContext
         if (path == null)
             return (null);
 
-        DirContext resources = context.getResources();
+        DirContext resources = null;
+
+        if (alternateDocBases == null
+                || alternateDocBases.size() == 0) {
+            resources = context.getResources();
+        } else {
+            AlternateDocBase match = AlternateDocBase.findMatch(
+                                path, alternateDocBases);
+            if (match != null) {
+                resources = match.getResources();
+            } else {
+                // None of the url patterns for alternate doc bases matched
+                resources = context.getResources();
+            }
+        }
+
         if (resources != null) {
             try {
                 Object resource = resources.lookup(path);
@@ -1086,6 +1146,4 @@ public class ApplicationContext
         else
             return "/" + hostName + path;
     }
-
-
 }

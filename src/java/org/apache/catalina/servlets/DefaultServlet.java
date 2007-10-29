@@ -75,6 +75,7 @@ import org.apache.naming.resources.ResourceAttributes;
 import org.apache.catalina.core.ApplicationHttpResponse;
 // END SJSAS 6231069
 
+import org.apache.catalina.core.AlternateDocBase;
 
 /**
  * The default resource-serving servlet for most web applications,
@@ -82,7 +83,7 @@ import org.apache.catalina.core.ApplicationHttpResponse;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 332127 $ $Date: 2005-11-09 20:50:47 +0100 (mer., 09 nov. 2005) $
+ * @version $Revision: 1.9 $ $Date: 2006/09/06 17:57:12 $
  */
 
 public class DefaultServlet
@@ -150,6 +151,12 @@ public class DefaultServlet
      * Proxy directory context.
      */
     protected ProxyDirContext resources = null;
+
+
+    /**
+     * Alternate doc bases
+     */
+    protected ArrayList<AlternateDocBase> alternateDocBases = null;
 
 
     /**
@@ -297,6 +304,14 @@ public class DefaultServlet
 
         if (resources == null) {
             throw new UnavailableException("No resources");
+        }
+
+        try {
+            alternateDocBases = (ArrayList<AlternateDocBase>)
+                getServletContext().getAttribute(
+                    Globals.ALTERNATE_RESOURCES_ATTR);
+        } catch(ClassCastException e) {
+            // Failed : Not the right type
         }
 
     }
@@ -668,7 +683,20 @@ public class DefaultServlet
                     path + "' headers only");
         }
 
-        CacheEntry cacheEntry = resources.lookupCache(path);
+        CacheEntry cacheEntry = null;
+        if (alternateDocBases == null
+                || alternateDocBases.size() == 0) {
+            cacheEntry = resources.lookupCache(path);
+	} else {
+            AlternateDocBase match = AlternateDocBase.findMatch(
+                                            path, alternateDocBases);
+            if (match != null) {
+                cacheEntry = match.getResources().lookupCache(path);
+            } else {
+                // None of the url patterns for alternate docbases matched
+                cacheEntry = resources.lookupCache(path);
+            }
+        }
 
         if (!cacheEntry.exists) {
             // Check if we're included so we can return the appropriate 
