@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.13 $ $Date: 2006/08/30 15:58:17 $
+ * @version $Revision: 1.14 $ $Date: 2006/09/29 22:10:17 $
  */
 
 public class CoyoteResponse
@@ -1446,7 +1446,7 @@ public class CoyoteResponse
                 AccessController.doPrivileged(new PrivilegedAction() {
 
                 public Object run(){
-                    return new Boolean(doIsEncodeable(hreq, session, location));
+                    return Boolean.valueOf(doIsEncodeable(hreq, session, location));
                 }
             })).booleanValue();
         } else {

@@ -112,7 +112,7 @@ public class CoyoteInputStream
                         new PrivilegedExceptionAction(){
 
                             public Object run() throws IOException{
-                                Integer integer = new Integer(ib.readByte());
+                                Integer integer = Integer.valueOf(ib.readByte());
                                 return integer;
                             }
 
@@ -145,7 +145,7 @@ public class CoyoteInputStream
                         new PrivilegedExceptionAction(){
 
                             public Object run() throws IOException{
-                                Integer integer = new Integer(ib.available());
+                                Integer integer = Integer.valueOf(ib.available());
                                 return integer;
                             }
 
@@ -179,7 +179,7 @@ public class CoyoteInputStream
 
                             public Object run() throws IOException{
                                 Integer integer = 
-                                    new Integer(ib.read(b, 0, b.length));
+                                    Integer.valueOf(ib.read(b, 0, b.length));
                                 return integer;
                             }
 
@@ -216,7 +216,7 @@ public class CoyoteInputStream
 
                             public Object run() throws IOException{
                                 Integer integer = 
-                                    new Integer(ib.read(b, off, len));
+                                    Integer.valueOf(ib.read(b, off, len));
                                 return integer;
                             }
 
