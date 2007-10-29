@@ -76,7 +76,7 @@ import org.xml.sax.SAXParseException;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:06 $
+ * @version $Revision: 1.12 $ $Date: 2006/03/18 20:29:56 $
  */
 
 // START OF SJAS 8.0 BUG 5046959
@@ -161,7 +161,7 @@ public class ContextConfig
      */
     // BEGIN OF SJSAS 8.1 6172288  
     // private static WebRuleSet webRuleSet = new WebRuleSet();
-    protected static WebRuleSet webRuleSet = new WebRuleSet();
+    protected static final WebRuleSet webRuleSet = new WebRuleSet();
     // END OF SJSAS 8.1 6172288  
 
     /**
