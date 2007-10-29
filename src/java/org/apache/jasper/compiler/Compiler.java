@@ -388,6 +388,11 @@ public class Compiler {
             if (compileClass) {
                 generateClass();
             }
+            else {
+                // If called from jspc to only compile to .java files,
+                // make sure that .java files are written to disk.
+                javaCompiler.doJavaFile(ctxt.keepGenerated());
+            }
         } finally {
             if (tfp != null) {
                 tfp.removeProtoTypeFiles(null);
