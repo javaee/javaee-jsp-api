@@ -40,6 +40,8 @@ import javax.el.ExpressionFactory;
 import javax.el.ELContextListener;
 import javax.el.ELContextEvent;
 
+import com.sun.el.ExpressionFactoryImpl;
+
 import org.apache.jasper.Constants;
 
 public class JspApplicationContextImpl implements JspApplicationContext {
@@ -93,28 +95,7 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         return elResolvers.iterator();
     }
 
-    private static ExpressionFactory createExpressionFactoryImpl(String name) {
-        ExpressionFactory exprFact = null;
-        try {
-            exprFact = (ExpressionFactory) Class.forName(name).newInstance();
-        } catch (Throwable t) {
-        }
-        return exprFact;
-    }
-
-    static ExpressionFactory expressionFactory;
-
-    private static final String SUN_EF =
-        new String("com.sun.el.ExpressionFactoryImpl");
-    private static final String COMMONS_EF =
-        new String("org.apache.commons.el.ExpressionFactoryImpl");
-
-    static {
-        expressionFactory = createExpressionFactoryImpl(COMMONS_EF);
-        if (expressionFactory == null) {
-            expressionFactory = createExpressionFactoryImpl(SUN_EF);
-        }
-    }
+    static ExpressionFactory expressionFactory = new ExpressionFactoryImpl();
 
     private static HashMap map = new HashMap();
     private ArrayList elResolvers = new ArrayList();

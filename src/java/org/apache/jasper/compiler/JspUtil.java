@@ -46,6 +46,8 @@ import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.runtime.ELContextImpl;
 import org.xml.sax.Attributes;
 
+import com.sun.el.ExpressionFactoryImpl;
+
 /** 
  * This class has all the utility method(s).
  * Ideally should move all the bean containers here.
@@ -1141,28 +1143,11 @@ public class JspUtil {
         return buf.toString();
     }
 
-    private static final String SUN_EF =
-        new String("com.sun.el.ExpressionFactoryImpl");
-    private static final String COMMONS_EF =
-        new String("org.apache.commons.el.ExpressionFactoryImpl");
-
     private static ExpressionFactory getExpressionFactory() {
         if (expFactory == null) {
-            expFactory = createExpressionFactoryImpl(COMMONS_EF);
-            if (expFactory == null) {
-                expFactory = createExpressionFactoryImpl(SUN_EF);
-            }
+            expFactory = new ExpressionFactoryImpl();
         }
         return expFactory;
-    }
-
-    private static ExpressionFactory createExpressionFactoryImpl(String name) {
-        ExpressionFactory fac = null;
-        try {
-            fac = (ExpressionFactory) Class.forName(name).newInstance();
-        } catch (Throwable t) {
-        }
-        return fac;
     }
 }
 
