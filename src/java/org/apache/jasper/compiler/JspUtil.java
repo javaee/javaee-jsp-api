@@ -507,6 +507,7 @@ public class JspUtil {
 
             return "org.apache.jasper.runtime.PageContextImpl.getValueExpression"
                + "(" + Generator.quote(expression) + ", "
+               + "(PageContext)" + jspCtxt + ", "
                + expectedDeferredType + ".class, "
                + fnmapvar + ")"; 
 
@@ -530,6 +531,7 @@ public class JspUtil {
 
             return "org.apache.jasper.runtime.PageContextImpl.getMethodExpression"
                + "(" + Generator.quote(expression) + ", "
+               + "(PageContext)" + jspCtxt + ", "
                + fnmapvar + ", "
                + expectedReturnType + ".class, "
                + "new Class[] {" + params.toString() + "})";
@@ -608,7 +610,7 @@ public class JspUtil {
             ELContextImpl elContext = new ELContextImpl(null);
             elContext.setFunctionMapper(functionMapper);
             getExpressionFactory().createValueExpression(
-                elContext,
+                elContext, 
                 expressions, Object.class);
         }
         catch( ELException e ) {
