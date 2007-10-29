@@ -179,7 +179,8 @@ class TagFileProcessor {
             if (n.getAttributeValue("deferredSyntaxAllowedAsLiteral") != null
                     && Double.compare(jspVersionDouble,
                                       Constants.JSP_VERSION_2_1) < 0) {
-                err.jspError("jsp.error.deferredSyntaxAllowedAsLiteralNotSupported");
+                err.jspError("jsp.error.invalidTagDirectiveAttrUnless21",
+                             "deferredSyntaxAllowedAsLiteral");
             }
 
             // Additional tag directives are validated in Validator
@@ -225,16 +226,20 @@ class TagFileProcessor {
             if (Double.compare(jspVersionDouble,
                                Constants.JSP_VERSION_2_1) < 0) {
                 if (deferredValue != null) {
-                    err.jspError("jsp.error.deferredValueNotSupported");
+                    err.jspError("jsp.error.invalidAttrDirectiveAttrUnless21",
+                                 "deferredValue");
                 }
                 if (deferredMethod != null) {
-                    err.jspError("jsp.error.deferredMethodNotSupported");
+                    err.jspError("jsp.error.invalidAttrDirectiveAttrUnless21",
+                                 "deferredMethod");
                 }
                 if (expectedType != null) {
-                    err.jspError("jsp.error.deferredValueTypeNotSupported");
+                    err.jspError("jsp.error.invalidAttrDirectiveAttrUnless21",
+                                 "deferredValueType");
                 }
                 if (methodSignature != null) {
-                    err.jspError("jsp.error.deferredMethodSignatureNotSupported");
+                    err.jspError("jsp.error.invalidAttrDirectiveAttrUnless21",
+                                 "deferredMethodSignature");
                 }
             }
 
