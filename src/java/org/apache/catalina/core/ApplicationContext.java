@@ -87,7 +87,7 @@ import org.apache.tomcat.util.http.mapper.MappingData;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.13 $ $Date: 2007/05/05 05:31:53 $
+ * @version $Revision: 1.14 $ $Date: 2007/06/19 10:09:14 $
  */
 
 public class ApplicationContext
@@ -289,25 +289,13 @@ public class ApplicationContext
     public ServletContext getContext(String uri) {
 
         // Validate the format of the specified argument
-        if ((uri == null) || (!uri.startsWith("/")))
+        if ((uri == null) || (!uri.startsWith("/"))) {
             return (null);
-
-        // Return the current context if requested
-        String contextPath = context.getPath();
-        if (!contextPath.endsWith("/"))
-            contextPath = contextPath + "/";
-
-        if (((contextPath.length() > 1) && (uri.startsWith(contextPath))) ||
-            ((contextPath.equals("/")) && (uri.equals("/")))) {
-            return (this);
         }
 
-        // Return other contexts only if allowed
-        if (!context.getCrossContext())
-            return (null);
+        Context child = null;
         try {
             Host host = (Host) context.getParent();
-            Context child = null;
             String mapuri = uri;
             while (true) {
                 child = (Context) host.findChild(mapuri);
@@ -318,17 +306,24 @@ public class ApplicationContext
                     break;
                 mapuri = mapuri.substring(0, slash);
             }
-            if (child == null) {
-                child = (Context) host.findChild("");
-            }
-            if (child != null)
-                return (child.getServletContext());
-            else
-                return (null);
         } catch (Throwable t) {
             return (null);
         }
 
+        if (child == null) {
+            return (null);
+        }
+
+        if (context.getCrossContext()) {
+            // If crossContext is enabled, can always return the context
+            return child.getServletContext();
+        } else if (child == context) {
+            // Can still return the current context
+            return context.getServletContext();
+        } else {
+            // Nothing to return
+            return (null);
+        }
     }
 
 
