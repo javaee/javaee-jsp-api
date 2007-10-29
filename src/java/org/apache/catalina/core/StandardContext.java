@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.18 $ $Date: 2006/03/09 16:51:19 $
+ * @version $Revision: 1.19 $ $Date: 2006/03/12 01:27:00 $
  */
 
 public class StandardContext
@@ -4637,10 +4637,9 @@ public class StandardContext
         if (log.isTraceEnabled())
             log.trace("Processing standard container startup");
 
-        if (ok) {
-
-            boolean mainOk = false;
-            try {
+        boolean mainOk = false;
+        try {
+            if (ok) {
 
                 started = true;
 
@@ -4722,18 +4721,17 @@ public class StandardContext
                 super.threadStart();
 
                 mainOk = true;
-
-            } finally {
-                // Unbinding thread
-                unbindThread(oldCCL);
-                if (!mainOk) {
-                    // An exception occurred
-                    // Register with JMX anyway, to allow management
-                    registerJMX();
-                }
             }
-
+        } finally {
+            // Unbinding thread
+            unbindThread(oldCCL);
+            if (!mainOk) {
+                // An exception occurred
+                // Register with JMX anyway, to allow management
+                registerJMX();
+            }
         }
+
         if (!getConfigured()) {
             ok = false;
         }
@@ -4751,38 +4749,40 @@ public class StandardContext
         // Binding thread
         oldCCL = bindThread();
 
-        // Create context attributes that will be required
-        if (ok) {
-            if (log.isDebugEnabled())
-                log.debug("Posting standard context attributes");
-            postWelcomeFiles();
-        }
-
-        if (ok) {
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-        }
-
-
-        // Configure and call application event listeners and filters
-        if (ok) {
-            if (!listenerStart()) {
-                ok = false;
+        try{
+            // Create context attributes that will be required
+            if (ok) {
+                if (log.isDebugEnabled())
+                    log.debug("Posting standard context attributes");
+                postWelcomeFiles();
             }
-        }
-        if (ok) {
-            if (!filterStart()) {
-                ok = false;
+
+            if (ok) {
+                // Notify our interested LifecycleListeners
+                lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
             }
-        }
 
-        // Load and initialize all "load on startup" servlets
-        if (ok) {
-            loadOnStartup(findChildren());
-        }
 
-        // Unbinding thread
-        unbindThread(oldCCL);
+            // Configure and call application event listeners and filters
+            if (ok) {
+                if (!listenerStart()) {
+                    ok = false;
+                }
+            }
+            if (ok) {
+                if (!filterStart()) {
+                    ok = false;
+                }
+            }
+
+            // Load and initialize all "load on startup" servlets
+            if (ok) {
+                loadOnStartup(findChildren());
+            }
+        } finally {
+            // Unbinding thread
+            unbindThread(oldCCL);
+        }
 
         // Set available status depending upon startup success
         if (ok) {
@@ -4873,27 +4873,26 @@ public class StandardContext
         // Binding thread
         ClassLoader oldCCL = bindThread();
 
-        // Stop our filters
-        filterStop();
-        
-        // Stop ContainerBackgroundProcessor thread
-        super.threadStop();
+        try{
+            // Stop our filters
+            filterStop();
+            
+            // Stop ContainerBackgroundProcessor thread
+            super.threadStop();
 
-        if ((manager != null) && (manager instanceof Lifecycle)) {
-            ((Lifecycle) manager).stop();
-        }
-        
-        // Finalize our character set mapper
-        setCharsetMapper(null);
+            if ((manager != null) && (manager instanceof Lifecycle)) {
+                ((Lifecycle) manager).stop();
+            }
+            
+            // Finalize our character set mapper
+            setCharsetMapper(null);
 
-        // Normal container shutdown processing
-        if (log.isDebugEnabled())
-            log.debug("Processing standard container shutdown");
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        started = false;
-
-        try {
+            // Normal container shutdown processing
+            if (log.isDebugEnabled())
+                log.debug("Processing standard container shutdown");
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+            started = false;
 
             // Stop the Valves in our pipeline (including the basic), if any
             if (pipeline instanceof Lifecycle) {
