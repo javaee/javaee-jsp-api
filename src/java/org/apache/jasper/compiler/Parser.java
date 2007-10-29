@@ -75,7 +75,7 @@ class Parser implements TagConstants {
      * The constructor
      */
     private Parser(ParserController pc, JspReader reader, boolean isTagFile,
-		   boolean directivesOnly, URL jarFileUrl) {
+                   boolean directivesOnly, URL jarFileUrl, boolean hasBom) {
 	this.parserController = pc;
 	this.ctxt = pc.getJspCompilationContext();
 	this.pageInfo = pc.getCompiler().getPageInfo();
@@ -106,16 +106,29 @@ class Parser implements TagConstants {
 				   URL jarFileUrl,
 				   String pageEnc,
 				   String jspConfigPageEnc,
-				   boolean isDefaultPageEncoding)
+                                   boolean isDefaultPageEncoding,
+                                   boolean hasBom)
 		throws JasperException {
 
 	Parser parser = new Parser(pc, reader, isTagFile, directivesOnly,
-				   jarFileUrl);
+                                   jarFileUrl, hasBom);
 
 	Node.Root root = new Node.Root(reader.mark(), parent, false);
 	root.setPageEncoding(pageEnc);
 	root.setJspConfigPageEncoding(jspConfigPageEnc);
 	root.setIsDefaultPageEncoding(isDefaultPageEncoding);
+        root.setHasBom(hasBom);
+
+        if (hasBom) {
+            // Consume (remove) BOM, so it won't appear in page output
+            char bomChar = (char) reader.nextChar();
+            if (bomChar != 0xFEFF) {
+                parser.err.jspError(
+                        reader.mark(),
+                        "jsp.error.invalidBom",
+                        Integer.toHexString(bomChar).toUpperCase());
+            }
+        }
 
 	if (directivesOnly) {
 	    parser.parseTagFileDirectives(root);
@@ -157,7 +170,7 @@ class Parser implements TagConstants {
     public static Attributes parseAttributes(ParserController pc,
 					     JspReader reader)
 		throws JasperException {
-	Parser tmpParser = new Parser(pc, reader, false, false, null);
+	Parser tmpParser = new Parser(pc, reader, false, false, null, false);
 	return tmpParser.parseAttributes();
     }
 

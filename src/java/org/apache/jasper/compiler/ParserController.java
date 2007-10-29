@@ -66,6 +66,8 @@ class ParserController implements TagConstants {
     
     private boolean isEncodingSpecifiedInProlog;
 
+    private boolean hasBom;
+
     private String sourceEnc;
 
     private boolean isDefaultPageEncoding;
@@ -164,6 +166,7 @@ class ParserController implements TagConstants {
 	Node.Nodes parsedPage = null;
 	isEncodingSpecifiedInProlog = false;
 	isDefaultPageEncoding = false;
+        hasBom = false;
 
 	JarFile jarFile = getJarFile(jarFileUrl);
 	String absFileName = resolveFileName(inFileName);
@@ -178,20 +181,7 @@ class ParserController implements TagConstants {
 	    compiler.getPageInfo().addDependant(absFileName);
 	}
 
-	if (isXml && isEncodingSpecifiedInProlog) {
-	    /*
-	     * Make sure the encoding explicitly specified in the XML
-	     * prolog (if any) matches that in the JSP config element
-	     * (if any), treating "UTF-16", "UTF-16BE", and "UTF-16LE" as
-	     * identical.
-	     */
-	    if (jspConfigPageEnc != null && !jspConfigPageEnc.equals(sourceEnc)
-		        && (!jspConfigPageEnc.startsWith("UTF-16")
-			    || !sourceEnc.startsWith("UTF-16"))) {
-		err.jspError("jsp.error.prolog_config_encoding_mismatch",
-			     sourceEnc, jspConfigPageEnc);
-	    }
-	}
+        comparePageEncodings(jspConfigPageEnc);
 
 	// Dispatch to the appropriate parser
 	if (isXml) {
@@ -216,7 +206,7 @@ class ParserController implements TagConstants {
                 parsedPage = Parser.parse(this, jspReader, parent, isTagFile,
 					  directiveOnly, jarFileUrl,
 					  sourceEnc, jspConfigPageEnc,
-					  isDefaultPageEncoding);
+					  isDefaultPageEncoding, hasBom);
             } finally {
 		if (inStreamReader != null) {
 		    try {
@@ -236,6 +226,52 @@ class ParserController implements TagConstants {
 	baseDirStack.pop();
 
 	return parsedPage;
+    }
+
+    /*
+     * Ensures that the page encoding specified in the JSP config element
+     * (with matching URL pattern), if present, matches the page encoding
+     * specified in the XML prolog of a JSP document (XML syntax) and the
+     * page encoding derived from the BOM.
+     *
+     * @param jspConfigPageEnc Page encoding specified in JSP config element
+     *
+     * @throws JasperException if page encoding mismatch
+     */
+    private void comparePageEncodings(String jspConfigPageEnc)
+            throws JasperException {
+
+        if (jspConfigPageEnc == null) {
+            return;
+        }
+
+        if (isXml && isEncodingSpecifiedInProlog) {
+            /*
+             * Make sure the encoding specified in the XML prolog matches
+             * that in the JSP config element, treating "UTF-16", "UTF-16BE",
+             * and "UTF-16LE" as identical.
+             */
+            if (!jspConfigPageEnc.equals(sourceEnc)
+                    && (!jspConfigPageEnc.startsWith("UTF-16")
+                        || !sourceEnc.startsWith("UTF-16"))) {
+                err.jspError("jsp.error.prolog_config_encoding_mismatch",
+                             sourceEnc, jspConfigPageEnc);
+            }
+        }
+
+        if (hasBom) {
+            /*
+             * Make sure the encoding specified in the BOM matches
+             * that in the JSP config element, treating "UTF-16", "UTF-16BE",
+             * and "UTF-16LE" as identical.
+             */
+            if (!jspConfigPageEnc.equals(sourceEnc)
+                    && (!jspConfigPageEnc.startsWith("UTF-16")
+                        || !sourceEnc.startsWith("UTF-16"))) {
+                err.jspError("jsp.error.bom_config_encoding_mismatch",
+                             sourceEnc, jspConfigPageEnc);
+            }
+        }
     }
 
     /*
@@ -312,17 +348,21 @@ class ParserController implements TagConstants {
 	    if (((Boolean) ret[1]).booleanValue()) {
 		isEncodingSpecifiedInProlog = true;
 	    }
+	    if (ret[2] != null && ((Boolean) ret[2]).booleanValue()) {
+                hasBom = true;
+	    }
 
-	    if (!isXml && sourceEnc.equals("UTF-8")) {
+	    if (!isXml && sourceEnc.equals("UTF-8") && !hasBom) {
 		/*
 		 * We don't know if we're dealing with XML or standard syntax.
 		 * Therefore, we need to check to see if the page contains
 		 * a <jsp:root> element.
 		 *
-		 * We need to be careful, because the page may be encoded in
-		 * ISO-8859-1 (or something entirely different), and may
-		 * contain byte sequences that will cause a UTF-8 converter to
-		 * throw exceptions. 
+                 * We need to be careful, because the page may be encoded in
+                 * ISO-8859-1 (or something entirely different: UTF-8 was 
+                 * chosen as the default, for lack of better alternative),
+                 * and may contain byte sequences that will cause a UTF-8
+                 * converter to throw exceptions. 
 		 *
 		 * It is safe to use a source encoding of ISO-8859-1 in this
 		 * case, as there are no invalid byte sequences in ISO-8859-1,
@@ -377,7 +417,9 @@ class ParserController implements TagConstants {
 	 * Determine the page encoding from the page directive, unless it's
 	 * specified via JSP config.
 	 */
-	sourceEnc = jspConfigPageEnc;
+        if (!hasBom) {
+            sourceEnc = jspConfigPageEnc;
+        }
 	if (sourceEnc == null) {
 	    sourceEnc = getPageEncodingForJspSyntax(jspReader, startMark);
 	    if (sourceEnc == null) {

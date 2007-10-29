@@ -414,6 +414,7 @@ abstract class Node implements TagConstants {
 
 	private Root parentRoot;
 	private boolean isXmlSyntax;
+        private boolean hasBom;
 
 	// Source encoding of the page containing this Root
 	private String pageEnc;
@@ -504,6 +505,14 @@ abstract class Node implements TagConstants {
 	public boolean isEncodingSpecifiedInProlog() {
 	    return isEncodingSpecifiedInProlog;
 	}
+
+        public void setHasBom(boolean hasBom) {
+            this.hasBom = hasBom;
+        }
+
+        public boolean hasBom() {
+            return hasBom;
+        }
 
 	/**
 	 * @return The enclosing root to this Root. Usually represents the
