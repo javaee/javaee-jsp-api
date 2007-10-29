@@ -645,6 +645,12 @@
     <attribute   name="errorCount"
                  type="int"/>
 
+    <attribute   name="workerThread"
+                 type="java.lang.Thread"/>
+
+    <attribute   name="requestCompletionTime"
+                 type="long"/>
+
 
   </mbean>
 
