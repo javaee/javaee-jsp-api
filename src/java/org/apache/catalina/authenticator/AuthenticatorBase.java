@@ -104,7 +104,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2006/01/18 19:23:47 $
+ * @version $Revision: 1.5 $ $Date: 2006/02/15 02:11:01 $
  */
 
 
@@ -475,6 +475,7 @@ public abstract class AuthenticatorBase
         }       
         // END GlassFish 247
         
+        /* GlassFish 6386229
         // If this is not an HTTP request, do nothing
         if (!(request instanceof HttpRequest) ||
                 !(response instanceof HttpResponse)) {
@@ -492,6 +493,7 @@ public abstract class AuthenticatorBase
             return INVOKE_NEXT;
             // END OF IASRI 4665318
         }
+        */
         
         HttpRequest hrequest = (HttpRequest) request;
         HttpResponse hresponse = (HttpResponse) response;

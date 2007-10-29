@@ -72,7 +72,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:28:23 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/03 17:26:41 $
  */
 
 public class ErrorReportValve
@@ -185,10 +185,15 @@ public class ErrorReportValve
             // END PWC 6254469
 
             ServletResponse sresponse = (ServletResponse) response;
+            /* GlassFish 6386229
             if (sresponse instanceof HttpServletResponse)
                 ((HttpServletResponse) sresponse).sendError
                     (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+            */
+            // START GlassFish 6386229
+            ((HttpServletResponse) sresponse).sendError
+                (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            // END GlassFish 6386229               
         }
 
         response.setSuspended(false);
@@ -230,12 +235,16 @@ public class ErrorReportValve
                           Throwable throwable)
         throws IOException {
 
+        /* GlassFish 6386229
         // Do nothing on non-HTTP responses
         if (!(response instanceof HttpResponse))
             return;
+        */
         HttpResponse hresponse = (HttpResponse) response;
+        /* GlassFish 6386229
         if (!(response instanceof HttpServletResponse))
             return;
+        */
         HttpServletResponse hres = (HttpServletResponse) response;
         int statusCode = hresponse.getStatus();
 

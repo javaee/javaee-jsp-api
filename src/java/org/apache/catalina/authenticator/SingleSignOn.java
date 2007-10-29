@@ -72,7 +72,7 @@ import org.apache.catalina.util.StringManager;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:28 $
  */
 
 public class SingleSignOn
@@ -304,6 +304,7 @@ public class SingleSignOn
     // END OF IASRI 4665318
 
         // If this is not an HTTP request and response, just pass them on
+        /* GlassFish 6386229
         if (!(request instanceof HttpRequest) ||
             !(response instanceof HttpResponse)) {
             // START OF IASRI 4665318
@@ -311,6 +312,7 @@ public class SingleSignOn
             return INVOKE_NEXT;
             // END OF IASRI 4665318
         }
+        */
         HttpServletRequest hreq =
             (HttpServletRequest) request.getRequest();
         HttpServletResponse hres =

@@ -74,7 +74,7 @@ import org.apache.catalina.util.StringManager;
  * of the filtering you wish to perform.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/09/12 23:29:08 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:28:25 $
  */
 
 public abstract class RequestFilterValve
@@ -274,6 +274,7 @@ public abstract class RequestFilterValve
         for (int i = 0; i < denies.length; i++) {
             if (denies[i].matcher(property).matches()) {
                 ServletResponse sres = response.getResponse();
+                /* GlassFish 6386229 
                 if (sres instanceof HttpServletResponse) {
                     HttpServletResponse hres = (HttpServletResponse) sres;
                     hres.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -282,6 +283,16 @@ public abstract class RequestFilterValve
                     return END_PIPELINE;
                     // END OF IASRI 4665318
                 }
+                */
+                // START GlassFish 6386229 
+                HttpServletResponse hres = (HttpServletResponse) sres;
+                hres.sendError(HttpServletResponse.SC_FORBIDDEN);
+                // END GlassFish 6386229                 
+                // START OF IASRI 4665318
+                // return;
+                return END_PIPELINE;
+                // END OF IASRI 4665318
+                // GlassFish 638622                   
             }
         }
 
@@ -307,6 +318,7 @@ public abstract class RequestFilterValve
 
         // Deny this request
         ServletResponse sres = response.getResponse();
+        /* GlassFish 6386229 
         if (sres instanceof HttpServletResponse) {
             HttpServletResponse hres = (HttpServletResponse) sres;
             hres.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -315,6 +327,11 @@ public abstract class RequestFilterValve
             return END_PIPELINE;
             // END OF IASRI 4665318
         }
+        */
+        // START GlassFish 6386229 
+        HttpServletResponse hres = (HttpServletResponse) sres;
+        hres.sendError(HttpServletResponse.SC_FORBIDDEN);
+        // END GlassFish 6386229        
         // START OF IASRI 4665318
         // return;
         return END_PIPELINE;

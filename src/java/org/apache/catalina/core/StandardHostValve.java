@@ -78,7 +78,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2006/02/14 23:09:52 $
+ * @version $Revision: 1.9 $ $Date: 2006/02/15 02:11:01 $
  */
 
 final class StandardHostValve
@@ -276,9 +276,15 @@ final class StandardHostValve
             if (wrapper != null)
                 sreq.setAttribute(Globals.SERVLET_NAME_ATTR,
                                   wrapper.getName());
+            /* GlassFish 6386229
             if (sreq instanceof HttpServletRequest)
                 sreq.setAttribute(Globals.EXCEPTION_PAGE_ATTR,
                                   ((HttpServletRequest) sreq).getRequestURI());
+            */
+            // START GlassFish 6386229
+            sreq.setAttribute(Globals.EXCEPTION_PAGE_ATTR,
+                              ((HttpServletRequest) sreq).getRequestURI());
+            // END GlassFish 6386229
             sreq.setAttribute(Globals.EXCEPTION_TYPE_ATTR,
                               realError.getClass());
             if (custom(request, response, errorPage)) {
@@ -294,6 +300,8 @@ final class StandardHostValve
             // error-page for error code 500 was specified and if so, 
             // send that page back as the response.
             ServletResponse sresp = (ServletResponse) response;
+
+            /* GlassFish 6386229
             if (sresp instanceof HttpServletResponse) {
                 ((HttpServletResponse) sresp).setStatus(
                     HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -302,6 +310,15 @@ final class StandardHostValve
 
                 status(request, response);
             }
+            */
+            // START GlassFish 6386229
+            ((HttpServletResponse) sresp).setStatus(
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            // The response is an error
+            response.setError();
+
+            status(request, response);
+            // END GlassFish 6386229
         }
             
 
@@ -430,18 +447,22 @@ final class StandardHostValve
             log("Processing " + errorPage);
 
         // Validate our current environment
+        /* GlassFish 6386229
         if (!(request instanceof HttpRequest)) {
             if (debug >= 1)
                 log(" Not processing an HTTP request --> default handling");
             return (false);     // NOTE - Nothing we can do generically
         }
+        */
         HttpServletRequest hreq =
             (HttpServletRequest) request.getRequest();
+        /* GlassFish 6386229
         if (!(response instanceof HttpResponse)) {
             if (debug >= 1)
                 log("Not processing an HTTP response --> default handling");
             return (false);     // NOTE - Nothing we can do generically
         }
+        */
         HttpServletResponse hres =
             (HttpServletResponse) response.getResponse();
         

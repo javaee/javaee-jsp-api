@@ -89,7 +89,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2006/01/27 19:35:19 $
+ * @version $Revision: 1.6 $ $Date: 2006/02/03 20:29:59 $
  */
 
 final class ApplicationDispatcher
@@ -163,10 +163,15 @@ final class ApplicationDispatcher
         this.pathInfo = pathInfo;
         this.queryString = queryString;
         this.name = name;
+        /* GlassFish 6386229
         if (wrapper instanceof StandardWrapper)
             this.support = ((StandardWrapper) wrapper).getInstanceSupport();
         else
             this.support = new InstanceSupport(wrapper);
+        */
+        // START GlassFish 6386229
+        this.support = ((StandardWrapper) wrapper).getInstanceSupport();
+        // END GlassFish 6386229
 
         if ( log.isDebugEnabled() )
             log.debug("servletPath=" + this.servletPath + ", pathInfo=" +
@@ -368,11 +373,21 @@ final class ApplicationDispatcher
 
         // Identify the HTTP-specific request and response objects (if any)
         HttpServletRequest hrequest = null;
+        /* GlassFish 6386229
         if (request instanceof HttpServletRequest)
             hrequest = (HttpServletRequest) request;
+        */    
+        // START GlassFish 6386229
+        hrequest = (HttpServletRequest) request;
+        // END GlassFish 6386229
         HttpServletResponse hresponse = null;
+        /* GlassFish 6386229
         if (response instanceof HttpServletResponse)
             hresponse = (HttpServletResponse) response;
+        */    
+        // START GlassFish 6386229
+        hresponse = (HttpServletResponse) response;
+        // END GlassFish 6386229
 
         // Handle a non-HTTP forward by passing the existing request/response
         if ((hrequest == null) || (hresponse == null)) {
@@ -552,6 +567,7 @@ final class ApplicationDispatcher
         ServletResponse wresponse = wrapResponse();
 
         // Handle a non-HTTP include
+        /* GlassFish 6386229
         if (!(request instanceof HttpServletRequest) ||
             !(response instanceof HttpServletResponse)) {
 
@@ -567,7 +583,11 @@ final class ApplicationDispatcher
 
         // Handle an HTTP named dispatcher include
         else if (name != null) {
-
+        */
+        // START GlassFish 6386229
+        // Handle an HTTP named dispatcher include
+        if (name != null) {
+        // END GlassFish 6386229
             if ( log.isDebugEnabled() )
                 log.debug(" Named Dispatcher Include");
 
@@ -707,11 +727,21 @@ final class ApplicationDispatcher
 
         // Initialize local variables we may need
         HttpServletRequest hrequest = null;
+        /* GlassFish 6386229
         if (request instanceof HttpServletRequest)
             hrequest = (HttpServletRequest) request;
+        */
+        // START GlassFish 6386229
+        hrequest = (HttpServletRequest) request;
+        // END GlassFish 6386229
         HttpServletResponse hresponse = null;
+        /* GlassFish 6386229
         if (response instanceof HttpServletResponse)
             hresponse = (HttpServletResponse) response;
+        */
+        // START GlassFish 6386229
+        hresponse = (HttpServletResponse) response;
+        // END GlassFish 6386229
         Servlet servlet = null;
         IOException ioException = null;
         ServletException servletException = null;

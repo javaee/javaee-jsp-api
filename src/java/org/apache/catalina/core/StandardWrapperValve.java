@@ -62,7 +62,7 @@ import org.apache.catalina.valves.ValveBase;
  * <code>StandardWrapper</code> container implementation.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/07/27 21:18:02 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:38 $
  */
 
 final class StandardWrapperValve
@@ -474,10 +474,16 @@ final class StandardWrapperValve
         sreq.setAttribute(Globals.EXCEPTION_ATTR, exception);
 
         ServletResponse sresponse = response.getResponse();
+        
+        /* GlassFish 6386229
         if (sresponse instanceof HttpServletResponse)
             ((HttpServletResponse) sresponse).setStatus
                 (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+        */
+        // START GlassFish 6386229
+        ((HttpServletResponse) sresponse).setStatus
+            (HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        // END GlassFish 6386229
     }
 
     public long getProcessingTimeMillis() {
