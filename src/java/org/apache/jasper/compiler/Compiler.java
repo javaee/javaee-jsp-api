@@ -343,8 +343,15 @@ public class Compiler {
 
         // Initializing classpath
         Path path = new Path(project);
+        /* PWC 1.2 6311155
         path.setPath(System.getProperty("java.class.path"));
         info.append("    cp=" + System.getProperty("java.class.path") + "\n");
+        */
+        // START PWC 1.2 6311155
+        String sysClassPath = options.getSystemClassPath();
+        path.setPath(sysClassPath);
+        info.append("    cp=" + sysClassPath + "\n");
+        // END PWC 1.2 6311155
         StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
         while (tokenizer.hasMoreElements()) {
             String pathElement = tokenizer.nextToken();
@@ -354,8 +361,13 @@ public class Compiler {
         }
 
         if( log.isDebugEnabled() )
+            /* PWC 1.2 6311155
             log.debug( "Using classpath: " + System.getProperty("java.class.path") + sep
                        + classpath);
+            */
+            // START PWC 1.2 6311155
+            log.debug("Using classpath: " + sysClassPath + sep + classpath);
+            //  END PWC 1.2 6311155
         
         // Initializing sourcepath
         Path srcPath = new Path(project);

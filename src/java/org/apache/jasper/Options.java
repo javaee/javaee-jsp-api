@@ -111,6 +111,15 @@ public interface Options {
      */
     public String getClassPath();
 
+    // START PWC 1.2 6311155
+    /**
+     * Gets the system class path.
+     *
+     * @return The system class path
+     */
+    public String getSystemClassPath();
+    // END PWC 1.2 6311155
+
     /**
      * Compiler to use.
      */

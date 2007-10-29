@@ -139,6 +139,9 @@ public class JspC implements Options {
 
     private static int die; 
     private String classPath = null;
+    // START PWC 1.2 6311155
+    private String sysClassPath = null;
+    // END PWC 1.2 6311155
     private URLClassLoader loader = null;
     private boolean trimSpaces = false;
     private boolean genStringAsCharArray = false;
@@ -577,12 +580,41 @@ public class JspC implements Options {
     public String getClassPath() {
         if( classPath != null )
             return classPath;
+        /* PWC 1.2 6311155
         return System.getProperty("java.class.path");
+        */
+        // START PWC 1.2 6311155
+        return "";
+        // END PWC 1.2 6311155
     }
 
     public void setClassPath(String s) {
         classPath=s;
     }
+
+    // START PWC 1.2 6311155
+    /**
+     * Gets the system class path.
+     *
+     * @return The system class path
+     */
+    public String getSystemClassPath() {
+        if (sysClassPath != null) {
+            return sysClassPath;
+        } else {
+            return System.getProperty("java.class.path");
+        }
+    }
+
+    /**
+     * Sets the system class path.
+     *
+     * @param s The system class path to use
+     */
+    public void setSystemClassPath(String s) {
+        sysClassPath = s;
+    }
+    // END PWC 1.2 6311155
 
     /**
      * Base dir for the webapp. Used to generate class names and resolve
