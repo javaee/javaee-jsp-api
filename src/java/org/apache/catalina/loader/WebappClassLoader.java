@@ -59,6 +59,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
+// START GlassFish Issue 587
+import java.util.concurrent.ConcurrentHashMap;
+// END GlassFish Issue 587
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -125,7 +128,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.17 $ $Date: 2006/05/27 14:34:06 $
+ * @version $Revision: 1.18 $ $Date: 2006/05/30 18:56:56 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1631,6 +1634,10 @@ public class WebappClassLoader
      */
     public void stop() throws LifecycleException {
 
+        // START GlassFish Issue 587
+        purgeELBeanClasses();
+        // END GlassFish Issue 587
+
         // Clearing references should be done before setting started to
         // false, due to possible side effects
         clearReferences();
@@ -2518,5 +2525,56 @@ public class WebappClassLoader
         byteCodePreprocessors.add(preprocessor);
     }
     // END SJSAS 6344989
+
+
+    // START GlassFish Issue 587
+    private void purgeELBeanClasses() {
+
+        Field fieldlist[] = javax.el.BeanELResolver.class.getDeclaredFields();
+        for (int i = 0; i < fieldlist.length; i++) {
+            Field fld = fieldlist[i];
+            if (fld.getName().equals("properties")) {
+                purgeELBeanClasses(fld);
+            } else if (fld.getName().equals("properties2")) {
+                purgeELBeanClasses(fld);
+            }
+        }
+    }
+
+    private void purgeELBeanClasses(final Field fld) {
+
+	SecurityManager sm = System.getSecurityManager();
+	if (sm != null) {
+            AccessController.doPrivileged(new PrivilegedAction() {
+                    public Object run() {
+                        fld.setAccessible(true);
+                        return null;
+                    }
+            });
+        } else {
+            fld.setAccessible(true);
+        }
+
+        ConcurrentHashMap m = null;
+        try {
+            m = (ConcurrentHashMap) fld.get(null);
+        } catch (IllegalAccessException iae) {
+            log.warn("Unable to purge bean classes from BeanELResolver", iae);
+            return;
+        }
+
+        if (m.size() == 0) {
+            return;
+        }
+
+        Iterator<Class> iter = m.keySet().iterator();
+        while (iter.hasNext()) {
+            Class mbeanClass = iter.next();
+            if (this.equals(mbeanClass.getClassLoader())) {
+                iter.remove();
+            }    
+        }
+    }
+    // END GlassFish Issue 587
 }
 
