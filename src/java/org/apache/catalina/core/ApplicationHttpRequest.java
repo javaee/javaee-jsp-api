@@ -46,13 +46,13 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
 import org.apache.catalina.Session;
 import org.apache.catalina.Manager;
+import org.apache.catalina.session.StandardSession;
 import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 // START GlassFish 896
 import org.apache.coyote.tomcat5.SessionTracker;
 // END GlassFish 896
-
 
 /**
  * Wrapper around a <code>javax.servlet.http.HttpServletRequest</code>
@@ -68,7 +68,7 @@ import org.apache.coyote.tomcat5.SessionTracker;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.9 $ $Date: 2006/11/17 23:06:36 $
+ * @version $Revision: 1.10 $ $Date: 2007/01/16 18:18:28 $
  */
 
 public class ApplicationHttpRequest extends HttpServletRequestWrapper {
@@ -568,6 +568,8 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                             context.getManager().findSession(
                                 other.getId(),
                                 requestedSessionVersion);
+                        incrementSessionVersion((StandardSession) localSession,
+                                                context);
                     } else {
                         localSession =
                             context.getManager().findSession(other.getId());
@@ -995,6 +997,31 @@ public class ApplicationHttpRequest extends HttpServletRequestWrapper {
                 }
             }
             return result;
-       }
-   }
+        }
+    }
+
+    /**
+     * Increments the version of the given session, and stores it as a
+     * request attribute, so it can later be included in a response cookie.
+     */
+    private void incrementSessionVersion(StandardSession ss,
+                                         Context context) {
+
+        if (ss == null || context == null) {
+            return;
+        }
+
+        ss.incrementVersion();
+        String versionString = Long.toString(ss.getVersion());
+
+        HashMap<String, String> sessionVersions = (HashMap<String, String>)
+            getAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE);
+        if (sessionVersions == null) {
+            sessionVersions = new HashMap<String, String>();
+            setAttribute(Globals.SESSION_VERSIONS_REQUEST_ATTRIBUTE,
+                         sessionVersions);
+        }
+        sessionVersions.put(context.getPath(), versionString);
+    }
+
 }
