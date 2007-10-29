@@ -656,21 +656,25 @@ class Validator {
 	}
 
 	public void visit(Node.ELExpression n) throws JasperException {
-            if ( !pageInfo.isELIgnored() ) {
-		String expressions = n.getText();
-                if (expressions.charAt(0) == '#') {
-                     err.jspError(n.getStart(),
-                         "jsp.error.not.in.template", "#{...}");
-                }
-		ELNode.Nodes el = ELParser.parse(expressions);
-		validateFunctions(el, n);
-                JspUtil.validateExpressions(
-                    n.getStart(),
-		    expressions,
-                    getFunctionMapper(el),
-                    err);
-		n.setEL(el);
+            if (pageInfo.isELIgnored()) {
+                return;
             }
+            String expressions = n.getText();
+            if (expressions.charAt(0) == '#') {
+                if (pageInfo.isDeferredSyntaxAllowedAsLiteral()) {
+                    return;
+                }
+                err.jspError(n.getStart(), "jsp.error.not.in.template",
+                             "#{...}");
+            }
+            ELNode.Nodes el = ELParser.parse(expressions);
+            validateFunctions(el, n);
+            JspUtil.validateExpressions(
+                n.getStart(),
+                expressions,
+                getFunctionMapper(el),
+                err);
+            n.setEL(el);
         }
 
 	public void visit(Node.UninterpretedTag n) throws JasperException {
@@ -996,14 +1000,20 @@ class Validator {
                                         "jsp.error.el.deferred.dollar",
                                         tldAttrs[j].getName());
                                 }
-                                if (el.hasPoundExpression() &&
-                                        !tldAttrs[j].isDeferredValue() &&
-                                        !tldAttrs[j].isDeferredMethod()) {
-                                    if ("2.1".equals(n.getJspVersion())) {
-                                        err.jspError(n,
-                                            "jsp.error.el.nondeferred.pound",
-                                            tldAttrs[j].getName());
-                                    } else {
+                                if (el.hasPoundExpression()) {
+                                    boolean isLiteral = 
+                                    pageInfo.isDeferredSyntaxAllowedAsLiteral();
+                                    if (!tldAttrs[j].isDeferredValue()
+                                            && !tldAttrs[j].isDeferredMethod()){
+                                        if ("2.1".equals(n.getJspVersion())){
+                                            err.jspError(n,
+                                               "jsp.error.el.nondeferred.pound",
+                                               tldAttrs[j].getName());
+                                        } else {
+                                            isLiteral = true;
+                                        }
+                                    }
+                                    if (isLiteral) {
                                         // #{} needs to be escaped before
                                         // sending it to EL interpreter
                                         jspAttrs[i].setValue(escapePound(
@@ -1267,7 +1277,8 @@ class Validator {
                 return value;
             }
             boolean acceptsPound = (n instanceof Node.CustomTag) &&
-                "2.1".equals(((Node.CustomTag)n).getJspVersion());
+                "2.1".equals(((Node.CustomTag)n).getJspVersion()) &&
+                pageInfo.isDeferredSyntaxAllowedAsLiteral();
             int size = value.length();
             StringBuffer buf = new StringBuffer(size);
             char p = ' ';

@@ -874,7 +874,7 @@ class Generator {
 
         public void visit(Node.ELExpression n) throws JasperException {
             n.setBeginJavaLine(out.getJavaLine());
-            if (!pageInfo.isELIgnored()) {
+            if (n.getEL() != null) {
                 out.printil(
                     "out.write("
                         + JspUtil.interpreterCall(
@@ -1994,16 +1994,26 @@ class Generator {
                         sb.append('\\').append('t');
                         break;
                     case '$':
-                    case '#':
-                        // The fact that we get a ${} or a #{} means that the
-                        // original EL is escaped with a '\\'.  If ELignored
-                        // is true, then it needs to be reinserted.
-                        if (pageInfo.isELIgnored() &&
-                                i+1 < text.length() &&
-                                text.charAt(i+1) == '{') {
+                        // The fact that we get a ${} means that the original
+                        // EL was escaped with a '\\' (otherwise it would be
+                        // parsed as a ELExpression node).  If ELIgnored is
+                        // true, '\\' must be preserved.
+                        if (pageInfo.isELIgnored()
+                                && (i+1 < text.length())
+                                && (text.charAt(i+1) == '{')){
                             sb.append('\\').append('\\');
                         }
-                        // falls through
+                        sb.append(ch);
+                        break;
+                    case '#':
+                        if ((pageInfo.isELIgnored()
+                                 || pageInfo.isDeferredSyntaxAllowedAsLiteral())
+                               && (i+1 < text.length())
+                               && (text.charAt(i+1) == '{')){
+                            sb.append('\\').append('\\');
+                        }
+                        sb.append(ch);
+                        break;
                     default :
                         sb.append(ch);
                 }

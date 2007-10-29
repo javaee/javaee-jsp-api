@@ -191,7 +191,7 @@ public class JspUtil {
             returnString = expression;
         }
 
-        return escapeXml(returnString.replace(Constants.ESC, '$'));
+        return returnString;
     }
 
     /**

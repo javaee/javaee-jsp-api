@@ -520,7 +520,8 @@ class Parser implements TagConstants {
 	    }
 	    parseVariableDirective(parent);
 	} else {
-	    err.jspError(reader.mark(), "jsp.error.invalid.directive");
+	    err.jspError(reader.mark(), "jsp.error.invalid.directive",
+                reader.parseToken(false));
 	}
 
 	reader.skipSpaces();
@@ -585,7 +586,8 @@ class Parser implements TagConstants {
            }
            parseVariableDirective(parent);
        } else {
-           err.jspError(reader.mark(), "jsp.error.invalid.directive");
+	   err.jspError(reader.mark(), "jsp.error.invalid.directive",
+               reader.parseToken(false));
        }
 
        reader.skipSpaces();
@@ -1435,9 +1437,11 @@ class Parser implements TagConstants {
 		}
                 char next = (char)reader.peekChar();
                 // Looking for \% or \$
-                // TODO: only recognize \$ if isELIgnored is false, but since
-                // it can be set in a page directive, it cannot be determined
-                // here.  Argh!
+                // Note that this behavior can be altered by the attributes
+                // el-ignored and deferred-syntax-allowed-as-literal and
+                // similar attributes in a page directive.  However, since
+                // the page direcitve may appear later in the same page, the
+                // '\' will be regenerated in Generator.java.
                 if (next == '%' || next == '$' || next == '#') {
                     ch = reader.nextChar();
                 }
