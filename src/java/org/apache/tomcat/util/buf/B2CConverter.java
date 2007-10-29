@@ -125,16 +125,17 @@ public class B2CConverter {
         
         ByteChunk bc = mb.getByteChunk();
         CharChunk cc = mb.getCharChunk();
-        cc.allocate(bc.getLength(), -1);
+        int length = bc.getLength();
+        cc.allocate(length, -1);
 
         // Default encoding: fast conversion
         byte[] bbuf = bc.getBuffer();
         char[] cbuf = cc.getBuffer();
         int start = bc.getStart();
-        for (int i = 0; i < bc.getLength(); i++) {
+        for (int i = 0; i < length; i++) {
             cbuf[i] = (char) (bbuf[i + start] & 0xff);
         }
-        mb.setChars(cbuf, 0, bc.getLength());
+        mb.setChars(cbuf, 0, length);
    
      }
     // END CR 6309511

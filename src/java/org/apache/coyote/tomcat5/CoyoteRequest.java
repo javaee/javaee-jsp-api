@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.45 $ $Date: 2006/12/06 02:07:14 $
+ * @version $Revision: 1.46 $ $Date: 2006/12/11 18:28:59 $
  */
 
 public class CoyoteRequest
@@ -3409,7 +3409,8 @@ public class CoyoteRequest
 
         ByteChunk bc = uri.getByteChunk();
         CharChunk cc = uri.getCharChunk();
-        cc.allocate(bc.getLength(), -1);
+        int length = bc.getLength();
+        cc.allocate(length, -1);
 
         String enc = connector.getURIEncoding();
         if (enc != null) {
@@ -3443,10 +3444,10 @@ public class CoyoteRequest
         byte[] bbuf = bc.getBuffer();
         char[] cbuf = cc.getBuffer();
         int start = bc.getStart();
-        for (int i = 0; i < bc.getLength(); i++) {
+        for (int i = 0; i < length; i++) {
             cbuf[i] = (char) (bbuf[i + start] & 0xff);
         }
-        uri.setChars(cbuf, 0, bc.getLength());
+        uri.setChars(cbuf, 0, length);
 
     }
     // END CR 6309511
