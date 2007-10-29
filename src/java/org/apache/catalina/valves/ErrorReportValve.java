@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.9 $ $Date: 2006/03/13 17:33:34 $
+ * @version $Revision: 1.10 $ $Date: 2006/04/18 21:04:58 $
  */
 
 public class ErrorReportValve
@@ -197,7 +197,7 @@ public class ErrorReportValve
         // START SJSAS 6412710
         } else {
             sresp.setLocale(sm.getLocale());
-        // END SJJAS 6412710
+        // END SJSAS 6412710
         }
 
         response.setSuspended(false);
