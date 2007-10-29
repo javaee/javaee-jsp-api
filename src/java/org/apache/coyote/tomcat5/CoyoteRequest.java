@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.36 $ $Date: 2006/10/13 17:35:51 $
+ * @version $Revision: 1.37 $ $Date: 2006/10/13 18:32:41 $
  */
 
 public class CoyoteRequest
@@ -161,10 +161,6 @@ public class CoyoteRequest
     public void setCoyoteRequest(Request coyoteRequest) {
         this.coyoteRequest = coyoteRequest;
         inputBuffer.setRequest(coyoteRequest);
-
-        // START SJSAS 6419950
-        populateSSLAttributes();
-        // END SJSAS 6419950
     }
 
     /**
@@ -1033,6 +1029,10 @@ public class CoyoteRequest
      */
     public void setSecure(boolean secure) {
         this.secure = secure;
+        
+        if ( secure ){
+            populateSSLAttributes();
+        }
     }
 
 
