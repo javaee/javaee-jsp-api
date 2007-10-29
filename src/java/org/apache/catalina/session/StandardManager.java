@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.4 $ $Date: 2005/11/14 20:28:10 $
+ * @version $Revision: 1.5 $ $Date: 2005/12/08 01:27:59 $
  */
 
 public class StandardManager
@@ -146,6 +146,12 @@ public class StandardManager
      */
     private boolean started = false;
 
+    // START SJSAS 6359401
+    /*
+     * The absolute path name of the file where sessions are persisted.
+     */
+    private String absPathName;
+    // END SJSAS 6359401
 
     int rejectedSessions=0;
     long processingTime=0;
@@ -298,6 +304,19 @@ public class StandardManager
         return (super.createSession());
 
     }
+
+
+    // START SJSAS 6359401
+    /*
+     * Deletes the persistent session storage file.
+     */
+    public void clearStore() {
+        File file = file();
+        if (file != null && file.exists()) {
+            file.delete();
+        }
+    }
+    // END SJSAS 6359401
 
 
     /**
@@ -760,6 +779,12 @@ public class StandardManager
      */
     private File file() {
 
+        // START SJSAS 6359401
+        if (absPathName != null) {
+            return new File(absPathName);
+        }
+        // END SJSAS 6359401
+
         if ((pathname == null) || (pathname.length() == 0))
             return (null);
         File file = new File(pathname);
@@ -773,8 +798,13 @@ public class StandardManager
                     file = new File(tempdir, pathname);
             }
         }
-//        if (!file.isAbsolute())
-//            return (null);
+
+        // START SJSAS 6359401
+        if (file != null) {
+            absPathName = file.getAbsolutePath();
+        }
+        // END SJSAS 6359401
+
         return (file);
 
     }

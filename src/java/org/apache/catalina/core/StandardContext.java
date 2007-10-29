@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.13 $ $Date: 2005/12/08 01:27:35 $
+ * @version $Revision: 1.14 $ $Date: 2005/12/08 19:22:25 $
  */
 
 public class StandardContext
@@ -4979,6 +4979,15 @@ public class StandardContext
         } 
         super.destroy();
         
+        // START SJASAS 6359401
+        // super.destroy() will stop session manager and cause it to unload
+        // all its active sessions into a file. Delete this file, because this
+        // context is being destroyed and must not leave any traces.
+        if (getManager() instanceof StandardManager) {
+            ((StandardManager)getManager()).clearStore();
+        }
+        // END SJSAS 6359401
+
         instanceListeners = new String[0];
         applicationListeners = new String[0];
     }
