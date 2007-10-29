@@ -163,6 +163,13 @@ public class JspC implements Options {
     private String compilerSourceVM = "1.5";
 
     private boolean classDebugInfo = true;
+
+    /**
+     * Throw an exception if there's a compilation error, or swallow it.
+     * Default is true to preserve old behavior.
+     */
+    private boolean failOnError = true;
+
     private Vector extensions;
     private Vector pages = new Vector();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
@@ -670,6 +677,18 @@ public class JspC implements Options {
     }
 
     /**
+     * Set the option that throws an exception in case of a compilation
+     * error.
+     */
+    public void setFailOnError(final boolean b) {
+        failOnError = b;
+    }
+
+    public boolean getFailOnError() {
+        return failOnError;
+    }
+
+    /**
      * Obtain JSP configuration informantion specified in web.xml.
      */
     public JspConfig getJspConfig() {
@@ -878,7 +897,13 @@ public class JspC implements Options {
                                                file),
                           rootCause);
             }
-            throw je;
+
+            // Bugzilla 35114.
+            if(getFailOnError()) {
+                throw je;
+            } else {
+                log.error(je.getMessage());
+            }
 
         } catch (Exception e) {
 	    if ((e instanceof FileNotFoundException) && log.isWarnEnabled()) {
