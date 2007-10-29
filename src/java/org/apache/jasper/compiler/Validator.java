@@ -1196,7 +1196,20 @@ class Validator {
                     // validate expression syntax if string contains
                     // expression(s)
                     ELNode.Nodes el = ELParser.parse(value);
-                    if ((el.containsEL() && !pageInfo.isELIgnored())
+                    if (el.hasPoundExpression() && tagAttr == null && !dynamic){
+                       // Action attributes cannot have #{...}, unless
+                       // explicitly allowed
+                       if (pageInfo.isELIgnored() ||
+                               pageInfo.isDeferredSyntaxAllowedAsLiteral()) {
+                           result = new Node.JspAttribute(qName, uri, localName,
+                                                       getLiteral(n, value),
+                                                       false, null, false);
+                       }
+                       else {
+                           err.jspError(n, "jsp.error.el.action.pound");
+                       }
+                    }
+                    else if ((el.containsEL() && !pageInfo.isELIgnored())
                          || ((tagAttr !=null)
                               && (( tagAttr.isDeferredValue()
                                     && !tagAttr.canBeRequestTime())
