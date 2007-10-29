@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.25 $ $Date: 2007/02/08 17:21:04 $
+ * @version $Revision: 1.26 $ $Date: 2007/02/13 20:55:32 $
  */
 
 public class CoyoteAdapter
@@ -358,12 +358,14 @@ public class CoyoteAdapter
           return false;
         }
 
+        /* GlassFish Issue 2339
         // Normalize decoded URI
         if (!normalize(req.decodedURI())) {
             res.setStatus(400);
             res.setMessage("Invalid URI");
             return false;
         }
+        */
 
         // Set the remote principal
         String principal = req.getRemoteUser().toString();
@@ -388,6 +390,15 @@ public class CoyoteAdapter
         // URI character decoding
         request.convertURI(decodedURI);
         
+        // START GlassFish Issue 2339
+        // Normalize decoded URI
+        if (!normalize(decodedURI)) {
+            res.setStatus(400);
+            res.setMessage("Invalid URI");
+            return false;
+        }
+        // END GlassFish Issue 2339
+
         // Parse session Id
         request.parseSessionId();
         // END CR 6309511
@@ -657,6 +668,17 @@ public class CoyoteAdapter
      */
     public static boolean normalize(MessageBytes uriMB) {
 
+        int type = uriMB.getType();
+        if (type == MessageBytes.T_CHARS) {
+            return normalizeChars(uriMB);
+        } else {
+            return normalizeBytes(uriMB);
+        }
+    }
+
+
+    private static boolean normalizeBytes(MessageBytes uriMB) {
+
         ByteChunk uriBC = uriMB.getByteChunk();
         byte[] b = uriBC.getBytes();
         int start = uriBC.getStart();
@@ -756,6 +778,107 @@ public class CoyoteAdapter
     }
 
 
+    private static boolean normalizeChars(MessageBytes uriMB) {
+
+        CharChunk uriCC = uriMB.getCharChunk();
+        char[] c = uriCC.getChars();
+        int start = uriCC.getStart();
+        int end = uriCC.getEnd();
+
+        // URL * is acceptable
+        if ((end - start == 1) && c[start] == (char) '*')
+          return true;
+
+        int pos = 0;
+        int index = 0;
+
+        // Replace '\' with '/'
+        // Check for null char
+        for (pos = start; pos < end; pos++) {
+            if (c[pos] == (char) '\\') {
+                if (ALLOW_BACKSLASH) {
+                    c[pos] = (char) '/';
+                } else {
+                    return false;
+                }
+            }
+            if (c[pos] == (char) 0) {
+                return false;
+            }
+        }
+
+        // The URL must start with '/'
+        if (c[start] != (char) '/') {
+            return false;
+        }
+
+        // Replace "//" with "/"
+        for (pos = start; pos < (end - 1); pos++) {
+            if (c[pos] == (char) '/') {
+                while ((pos + 1 < end) && (c[pos + 1] == (char) '/')) {
+                    copyChars(c, pos, pos + 1, end - pos - 1);
+                    end--;
+                }
+            }
+        }
+
+        // If the URI ends with "/." or "/..", then we append an extra "/"
+        // Note: It is possible to extend the URI by 1 without any side effect
+        // as the next character is a non-significant WS.
+        if (((end - start) > 2) && (c[end - 1] == (char) '.')) {
+            if ((c[end - 2] == (char) '/') 
+                || ((c[end - 2] == (char) '.') 
+                    && (c[end - 3] == (char) '/'))) {
+                c[end] = (char) '/';
+                end++;
+            }
+        }
+
+        uriCC.setEnd(end);
+
+        index = 0;
+
+        // Resolve occurrences of "/./" in the normalized path
+        while (true) {
+            index = uriCC.indexOf("/./", 0, 3, index);
+            if (index < 0)
+                break;
+            copyChars(c, start + index, start + index + 2, 
+                      end - start - index - 2);
+            end = end - 2;
+            uriCC.setEnd(end);
+        }
+
+        index = 0;
+
+        // Resolve occurrences of "/../" in the normalized path
+        while (true) {
+            index = uriCC.indexOf("/../", 0, 4, index);
+            if (index < 0)
+                break;
+            // Prevent from going outside our context
+            if (index == 0)
+                return false;
+            int index2 = -1;
+            for (pos = start + index - 1; (pos >= 0) && (index2 < 0); pos --) {
+                if (c[pos] == (char) '/') {
+                    index2 = pos;
+                }
+            }
+            copyChars(c, start + index2, start + index + 3,
+                      end - start - index - 3);
+            end = end + index2 - index - 3;
+            uriCC.setEnd(end);
+            index = index2;
+        }
+
+        uriCC.setChars(c, start, end);
+
+        return true;
+
+    }
+
+
     // ------------------------------------------------------ Protected Methods
 
 
@@ -766,6 +889,17 @@ public class CoyoteAdapter
     protected static void copyBytes(byte[] b, int dest, int src, int len) {
         for (int pos = 0; pos < len; pos++) {
             b[pos + dest] = b[pos + src];
+        }
+    }
+
+
+    /**
+     * Copy an array of chars to a different position. Used during 
+     * normalization.
+     */
+    private static void copyChars(char[] c, int dest, int src, int len) {
+        for (int pos = 0; pos < len; pos++) {
+            c[pos + dest] = c[pos + src];
         }
     }
 
