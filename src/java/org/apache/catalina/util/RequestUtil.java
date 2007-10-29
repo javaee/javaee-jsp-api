@@ -39,13 +39,14 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
+import org.apache.tomcat.util.buf.ByteChunk;
 
 /**
  * General purpose request parsing and encoding utility methods.
  *
  * @author Craig R. McClanahan
  * @author Tim Tye
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:28:19 $
+ * @version $Revision: 1.3 $ $Date: 2006/11/17 23:06:37 $
  */
 
 public final class RequestUtil {
@@ -414,6 +415,53 @@ public final class RequestUtil {
         }
         return new String(bytes, 0, ox);
 
+    }
+
+
+    /**
+     * Decode (in place) the specified URL-encoded byte chunk, and optionally
+     * return the decoded result as a String
+     *
+     * @param bc The URL-encoded byte chunk to be decoded in place
+     * @param toString true if the decoded result is to be returned as a
+     * String, false otherwise
+     *
+     * @return The decoded result in String form, if <code>toString</code>
+     * is true, or null otherwise
+     *
+     * @exception IllegalArgumentException if a '%' character is not followed
+     * by a valid 2-digit hexadecimal number
+     */
+    public static String URLDecode(ByteChunk bc, boolean toString) {
+
+        if (bc == null) {
+            return (null);
+        }
+
+        byte[] bytes = bc.getBytes();
+        if (bytes == null) {
+            return (null);
+        }
+
+        int ix = bc.getStart();
+        int end = bc.getEnd();
+        int ox = ix;
+        while (ix < end) {
+            byte b = bytes[ix++];     // Get byte to test
+            if (b == '+') {
+                b = (byte)' ';
+            } else if (b == '%') {
+                b = (byte) ((convertHexDigit(bytes[ix++]) << 4)
+                            + convertHexDigit(bytes[ix++]));
+            }
+            bytes[ox++] = b;
+        }
+        bc.setEnd(ox);
+        if (toString) {
+            return bc.toString();
+        } else {
+            return null;
+        }
     }
 
 
