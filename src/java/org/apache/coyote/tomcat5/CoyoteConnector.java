@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.6 $ $Date: 2005/12/08 01:28:34 $
+ * @version $Revision: 1.7 $ $Date: 2005/12/19 22:44:52 $
  */
 
 
@@ -97,40 +97,6 @@ public class CoyoteConnector
     // ---------------------------------------------- Adapter Configuration --//
     
     // START SJSAS 6363251
-    public final static 
-            String ADAPTER_CLASS_NAME="com.sun.enterprise.web.adapter";
-    public final static 
-            String ADAPTER_PORT="com.sun.enterprise.web.adapter.ports";
-     
-    /**
-     * The list of port on which the customized Adapter should be applied.
-     */
-    private static ArrayList ports = null;
-    
-    
-    /**
-     * Coyote Adapter class name.
-     */
-    private static String adapterClassName = null;    
-    
-        
-    static{
-        if ( System.getProperty(ADAPTER_CLASS_NAME) != null){
-            ports = new ArrayList();
-            
-            adapterClassName = System.getProperty(ADAPTER_CLASS_NAME);
-                
-            if ( System.getProperty(ADAPTER_PORT) != null){
-                StringTokenizer st 
-                    = new StringTokenizer(System.getProperty(ADAPTER_PORT),",");
-                while (st.hasMoreTokens()){
-                    ports.add(st.nextToken());
-                }
-            }  
-        }   
-    } 
-
-
     /**
      * Coyote Adapter class name.
      * Defaults to the CoyoteAdapter.
@@ -1471,31 +1437,31 @@ public class CoyoteConnector
         //END SJSAS 6363251
         // Instantiate Adapter
         //START SJSAS 6363251
-        try {
-            if ( ports == null || !ports.contains(String.valueOf(port))) {
-                adapterClassName = defaultClassName;
+        if ( adapter == null){
+            try {
+                Class clazz = Class.forName(defaultClassName);
+                Constructor constructor = 
+                        clazz.getConstructor(new Class[]{CoyoteConnector.class});
+                adapter = 
+                        (Adapter)constructor.newInstance(new Object[]{this});
+            } catch (Exception e) {
+                throw new LifecycleException
+                    (sm.getString
+                     ("coyoteConnector.apadterClassInstantiationFailed", e));
             } 
-               
-            Class clazz = Class.forName(adapterClassName);
-            Constructor constructor = 
-                    clazz.getConstructor(new Class[]{CoyoteConnector.class});
-            adapter = 
-                    (Adapter)constructor.newInstance(new Object[]{this});
-        } catch (Exception e) {
-            throw new LifecycleException
-                (sm.getString
-                 ("coyoteConnector.apadterClassInstantiationFailed", e));
-        } 
+        }
         //END SJSAS 6363251
 
         // Instantiate protocol handler
-        try {
-            Class clazz = Class.forName(protocolHandlerClassName);
-            protocolHandler = (ProtocolHandler) clazz.newInstance();
-        } catch (Exception e) {
-            throw new LifecycleException
-                (sm.getString
-                 ("coyoteConnector.protocolHandlerInstantiationFailed", e));
+        if ( protocolHandler == null ) {
+            try {
+                Class clazz = Class.forName(protocolHandlerClassName);
+                protocolHandler = (ProtocolHandler) clazz.newInstance();
+            } catch (Exception e) {
+                throw new LifecycleException
+                    (sm.getString
+                     ("coyoteConnector.protocolHandlerInstantiationFailed", e));
+            }
         }
         protocolHandler.setAdapter(adapter);
 
@@ -2053,21 +2019,13 @@ public class CoyoteConnector
     public Adapter getAdapter(){
         return adapter;
     }
-    
-    
-    /**
-     * Set the Adapter class.
-     */
-    public static void setAdapterClassName(String acn){
-        adapterClassName = acn;
-    }
  
     
     /**
-     * Get the Adapter class.
+     * Set the <code>ProtocolHandler</code> used by this connector.
      */
-    public static String getAdapterClassName(){
-        return adapterClassName;
+    public void setProtocolHandler(ProtocolHandler protocolHandler){
+        this.protocolHandler = protocolHandler;
     }
     // END SJSAS 6363251
  

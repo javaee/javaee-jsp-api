@@ -36,6 +36,9 @@ import java.security.cert.X509Certificate;
 // START S1AS 6188932
 import com.sun.appserv.ProxyHandler;
 // END S1AS 6188932
+// START SJSAS 6363251
+import org.apache.coyote.Adapter;
+// END SJSAS 6363251
 
 /**
  * A <b>Connector</b> is a component responsible receiving requests from,
@@ -86,7 +89,7 @@ import com.sun.appserv.ProxyHandler;
  * normative.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2005/08/23 00:05:44 $
+ * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:14 $
  */
 
 public interface Connector {
@@ -304,4 +307,17 @@ public interface Connector {
     public void setURIEncoding(String encoding);
     // END CR 6309511
 
+    
+    // START SJSAS 6363251
+    /**
+     * Set the <code>Adapter</code> used by this connector.
+     */
+    public void setAdapter(Adapter adapter);
+    
+    
+    /**
+     * Get the <code>Adapter</code> used by this connector.
+     */    
+    public Adapter getAdapter();
+    // END SJSAS 6363251
 }
