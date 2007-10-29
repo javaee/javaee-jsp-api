@@ -30,6 +30,7 @@ import javax.el.MethodInfo;
 import javax.el.MethodNotFoundException;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
+import javax.el.PropertyNotFoundException;
 
 import com.sun.el.lang.EvaluationContext;
 import com.sun.el.lang.ELSupport;
@@ -53,7 +54,11 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        return ctx.getELResolver().getType(ctx, null, this.image);
+        Class ret = ctx.getELResolver().getType(ctx, null, this.image);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(null, this.image);
+        }
+        return ret;
     }
 
     public Object getValue(EvaluationContext ctx) throws ELException {
@@ -65,7 +70,11 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        return ctx.getELResolver().getValue(ctx, null, this.image);
+        Object ret = ctx.getELResolver().getValue(ctx, null, this.image);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(null, this.image);
+        }
+        return ret;
     }
 
     public boolean isReadOnly(EvaluationContext ctx) throws ELException {
@@ -77,7 +86,11 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        return ctx.getELResolver().isReadOnly(ctx, null, this.image);
+        boolean ret = ctx.getELResolver().isReadOnly(ctx, null, this.image);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(null, this.image);
+        }
+        return ret;
     }
 
     public void setValue(EvaluationContext ctx, Object value)
@@ -97,6 +110,9 @@ public final class AstIdentifier extends SimpleNode {
                         elResolver.getType(ctx, null, this.image));
         }
         elResolver.setValue(ctx, null, this.image, value);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(null, this.image);
+        }
     }
 
     private final Object invokeTarget(EvaluationContext ctx, Object target,

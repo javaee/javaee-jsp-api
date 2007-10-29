@@ -55,7 +55,11 @@ public final class AstValue extends SimpleNode {
     public Class getType(EvaluationContext ctx) throws ELException {
         Target t = getTarget(ctx);
         ctx.setPropertyResolved(false);
-        return ctx.getELResolver().getType(ctx, t.base, t.property);
+        Class ret = ctx.getELResolver().getType(ctx, t.base, t.property);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(t.base, t.property);
+        }
+        return ret;
     }
 
     private final Target getTarget(EvaluationContext ctx) throws ELException {
@@ -80,6 +84,9 @@ public final class AstValue extends SimpleNode {
                 property = this.children[i].getValue(ctx);
                 ctx.setPropertyResolved(false);
                 base = resolver.getValue(ctx, base, property);
+                if (! ctx.isPropertyResolved()) {
+                    ELSupport.throwUnhandled(base, property);
+                }
                 i++;
             }
             // if we are in this block, we have more properties to resolve,
@@ -116,6 +123,9 @@ public final class AstValue extends SimpleNode {
             } else {
                 ctx.setPropertyResolved(false);
                 base = resolver.getValue(ctx, base, property);
+                if (! ctx.isPropertyResolved()) {
+                    ELSupport.throwUnhandled(base, property);
+                }
             }
             i++;
         }
@@ -125,7 +135,11 @@ public final class AstValue extends SimpleNode {
     public boolean isReadOnly(EvaluationContext ctx) throws ELException {
         Target t = getTarget(ctx);
         ctx.setPropertyResolved(false);
-        return ctx.getELResolver().isReadOnly(ctx, t.base, t.property);
+        boolean ret = ctx.getELResolver().isReadOnly(ctx, t.base, t.property);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(t.base, t.property);
+        }
+        return ret;
     }
 
     public void setValue(EvaluationContext ctx, Object value)
@@ -138,6 +152,9 @@ public final class AstValue extends SimpleNode {
                         elResolver.getType(ctx, t.base, t.property));
         }
         elResolver.setValue(ctx, t.base, t.property, value);
+        if (! ctx.isPropertyResolved()) {
+            ELSupport.throwUnhandled(t.base, t.property);
+        }
     }
 
     public MethodInfo getMethodInfo(EvaluationContext ctx, Class[] paramTypes)
