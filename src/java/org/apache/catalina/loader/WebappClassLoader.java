@@ -125,7 +125,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2005/12/08 01:27:44 $
+ * @version $Revision: 1.11 $ $Date: 2005/12/12 19:11:32 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -199,7 +199,7 @@ public class WebappClassLoader
      * they belong to a protected namespace (i.e., a namespace that may never be
      * overridden by a webapp)  
      */
-    private static ArrayList overridablePackages;
+    private ArrayList overridablePackages;
    // END PE 4985680
 
 
