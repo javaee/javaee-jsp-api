@@ -68,7 +68,8 @@ public abstract class JSSESocketFactory
     static String defaultAlgorithm = "SunX509";
     static boolean defaultClientAuth = false;
     private static final String defaultKeyPass = "changeit";
-    private static Log log = LogFactory.getLog(JSSESocketFactory.class);
+
+    protected static final Log log = LogFactory.getLog(JSSESocketFactory.class);
 
     protected boolean initialized;
     protected boolean clientAuth = false;

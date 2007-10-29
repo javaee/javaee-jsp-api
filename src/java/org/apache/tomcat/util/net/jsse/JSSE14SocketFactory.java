@@ -29,15 +29,28 @@ package org.apache.tomcat.util.net.jsse;
 
 import java.io.*;
 import java.net.*;
+import java.util.Collection;
 import java.util.Vector;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.security.cert.CRL;
+import java.security.cert.CRLException;
+import java.security.cert.CertPathParameters;
+import java.security.cert.CertStore;
+import java.security.cert.CertStoreParameters;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CollectionCertStoreParameters;
+import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.X509CertSelector;
+import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.ManagerFactoryParameters;
+import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -110,9 +123,14 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
             // Configure SSL session timeout and cache size
             configureSSLSessionContext(context.getServerSessionContext());
                 
+            String trustAlgorithm = (String)attributes.get("truststoreAlgorithm");
+            if (trustAlgorithm == null) {
+                trustAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            }
+
             context.init(getKeyManagers(algorithm,
                                         (String) attributes.get("keyAlias")),
-                         getTrustManagers(),
+                         getTrustManagers(trustAlgorithm),
                          new SecureRandom());
 
             // create proxy
@@ -172,20 +190,112 @@ public class JSSE14SocketFactory  extends JSSESocketFactory {
     /**
      * Gets the intialized trust managers.
      */
-    protected TrustManager[] getTrustManagers()
+    protected TrustManager[] getTrustManagers(String algorithm)
                 throws Exception {
+
+        String crlf = (String) attributes.get("crlFile");
 
         TrustManager[] tms = null;
 
         KeyStore trustStore = getTrustStore();
         if (trustStore != null) {
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(trustStore);
-            tms = tmf.getTrustManagers();
+            if (crlf == null) {
+                TrustManagerFactory tmf =
+                    TrustManagerFactory.getInstance(algorithm);
+                tmf.init(trustStore);
+                tms = tmf.getTrustManagers();
+            } else {
+                TrustManagerFactory tmf =
+                    TrustManagerFactory.getInstance(algorithm);
+                CertPathParameters params = getParameters(algorithm, crlf,
+                                                          trustStore);
+                ManagerFactoryParameters mfp = 
+                    new CertPathTrustManagerParameters(params);
+                tmf.init(mfp);
+                tms = tmf.getTrustManagers();
+            }
         }
 
         return tms;
     }
+
+
+    /**
+     * Return the initialization parameters for the TrustManager.
+     * Currently, only the default <code>PKIX</code> is supported.
+     * 
+     * @param algorithm The algorithm to get parameters for.
+     * @param crlf The path to the CRL file.
+     * @param trustStore The configured TrustStore.
+     * @return The parameters including the CRLs and TrustStore.
+     */
+    protected CertPathParameters getParameters(String algorithm, 
+                                               String crlf, 
+                                               KeyStore trustStore)
+            throws Exception {
+
+        CertPathParameters params = null;
+        if ("PKIX".equalsIgnoreCase(algorithm)) {
+            PKIXBuilderParameters xparams =
+                new PKIXBuilderParameters(trustStore, 
+                                          new X509CertSelector());
+            Collection crls = getCRLs(crlf);
+            CertStoreParameters csp = new CollectionCertStoreParameters(crls);
+            CertStore store = CertStore.getInstance("Collection", csp);
+            xparams.addCertStore(store);
+            xparams.setRevocationEnabled(true);
+            String trustLength = (String)attributes.get("trustMaxCertLength");
+            if (trustLength != null) {
+                try {
+                    xparams.setMaxPathLength(Integer.parseInt(trustLength));
+                } catch(Exception ex) {
+                    log.warn("Bad maxCertLength: " + trustLength);
+                }
+            }
+            params = xparams;
+        } else {
+            throw new CRLException("CRLs not supported for type: "
+                                   + algorithm);
+        }
+        return params;
+    }
+
+
+    /**
+     * Load the collection of CRLs.
+     */
+    protected Collection<? extends CRL> getCRLs(String crlf) 
+            throws IOException, CRLException, CertificateException {
+
+        File crlFile = new File(crlf);
+        if (!crlFile.isAbsolute()) {
+            crlFile = new File(System.getProperty("catalina.base"), crlf);
+        }
+        Collection<? extends CRL> crls = null;
+        InputStream is = null;
+        try {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            is = new FileInputStream(crlFile);
+            crls = cf.generateCRLs(is);
+        } catch(IOException iex) {
+            throw iex;
+        } catch(CRLException crle) {
+            throw crle;
+        } catch(CertificateException ce) {
+            throw ce;
+        } finally { 
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+
+        return crls;
+    }
+
+
     protected void setEnabledProtocols(SSLServerSocket socket, String []protocols){
         if (protocols != null) {
             socket.setEnabledProtocols(protocols);
