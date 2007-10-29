@@ -86,7 +86,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:58 $
+ * @version $Revision: 1.5 $ $Date: 2006/01/27 19:36:27 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -1440,6 +1440,11 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
         //deliberate no-op
         return;
     }
+    
+    public void preRequestDispatcherProcess(ServletRequest request, ServletResponse response) {
+        //deliberate no-op
+        return;
+    }    
     
     public boolean lockSession(ServletRequest request) throws ServletException {
         boolean result = false;
