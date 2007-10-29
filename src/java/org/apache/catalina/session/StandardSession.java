@@ -92,7 +92,7 @@ import com.sun.enterprise.spi.io.BaseIndirectlySerializable;
  * @author Craig R. McClanahan
  * @author Sean Legassick
  * @author <a href="mailto:jon@latchkey.com">Jon S. Stevens</a>
- * @version $Revision: 1.28 $ $Date: 2007/01/20 18:23:36 $
+ * @version $Revision: 1.29 $ $Date: 2007/01/29 20:00:22 $
  */
 
 public class StandardSession
@@ -462,6 +462,18 @@ public class StandardSession
 
     }
     
+
+    // START SJSAS 6470831
+    /**
+     * Same as getLastAccessedTime(), except that there is no call to 
+     * isValid(), which may expire the session and cause any subsequent
+     * session access to throw an IllegalStateException.
+     */
+    public long getLastAccessedTimeInternal() {
+        return this.lastAccessedTime;
+    }
+    // END SJSAS 6470831
+
     
     /**
      * Set the last time the client sent a request associated with this
