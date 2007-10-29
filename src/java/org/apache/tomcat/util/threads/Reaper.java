@@ -68,7 +68,7 @@ public class Reaper extends Thread {
     /** Adding and removing callbacks is synchronized
      */
     Object lock=new Object();
-    static boolean running=true;
+    private boolean running=true;
 
     // XXX Should be called 'interval' not defaultInterval
 
