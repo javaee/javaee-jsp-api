@@ -58,6 +58,7 @@ import javax.el.ELContext;
 import javax.el.BeanELResolver;
 import javax.el.ArrayELResolver;
 import javax.el.MapELResolver;
+import javax.el.ResourceBundleELResolver;
 import javax.el.ListELResolver;
 import javax.el.CompositeELResolver;
 import javax.el.ValueExpression;
@@ -674,6 +675,7 @@ public class PageContextImpl extends PageContext {
                 celResolver.add((ELResolver) it.next());
             }
             celResolver.add(new MapELResolver());
+            celResolver.add(new ResourceBundleELResolver());
             celResolver.add(new ListELResolver());
             celResolver.add(new ArrayELResolver());
             celResolver.add(new BeanELResolver());
