@@ -85,7 +85,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.7 $ $Date: 2005/12/19 22:44:52 $
+ * @version $Revision: 1.8 $ $Date: 2006/01/18 22:15:20 $
  */
 
 
@@ -1635,14 +1635,19 @@ public class CoyoteConnector
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 
-        try {
-            Registry.getRegistry().unregisterComponent(new ObjectName(domain,"type", "Mapper"));
-            Registry.getRegistry().unregisterComponent(new ObjectName(domain
-                    + ":type=protocolHandler,className="
-                    + protocolHandlerClassName));
-        } catch (MalformedObjectNameException e) {
-            log.info( "Error unregistering mapper ", e);
-        }
+        // START PWC 6393300
+        if ( domain != null){
+            try {
+                Registry.getRegistry().unregisterComponent(new ObjectName(domain,"type", "Mapper"));
+                Registry.getRegistry().unregisterComponent(new ObjectName(domain
+                        + ":type=protocolHandler,className="
+                        + protocolHandlerClassName));
+            } catch (MalformedObjectNameException e) {
+                log.info( "Error unregistering mapper ", e);
+            }
+        } 
+        // END PWC 6393300
+
         try {
             protocolHandler.destroy();
         } catch (Exception e) {
