@@ -41,6 +41,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Session;
 import org.apache.catalina.Store;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.security.SecurityUtil;
 import com.sun.org.apache.commons.logging.Log;
@@ -59,7 +60,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.10 $ $Date: 2006/10/03 17:02:54 $
+ * @version $Revision: 1.11 $ $Date: 2006/10/12 22:52:43 $
  */
 
 public abstract class PersistentManagerBase
@@ -847,7 +848,6 @@ public abstract class PersistentManagerBase
 
     // ------------------------------------------------------ Protected Methods
 
-
     /**
      * Look for a session in the Store and, if found, restore
      * it in the Manager's list of active sessions if appropriate.
@@ -856,6 +856,40 @@ public abstract class PersistentManagerBase
      * is invalid or past its expiration.
      */
     protected Session swapIn(String id) throws IOException {
+
+        ClassLoader webappCl = null;
+        ClassLoader curCl = null;
+
+        if (getContainer() != null
+                    && getContainer().getLoader() != null) {
+            webappCl = getContainer().getLoader().getClassLoader();
+            curCl = Thread.currentThread().getContextClassLoader();
+        }
+
+        Session sess = null;
+
+        if (webappCl != null && curCl != webappCl) {
+            try {
+                Thread.currentThread().setContextClassLoader(webappCl);
+                sess = doSwapIn(id);
+            } finally {
+                Thread.currentThread().setContextClassLoader(curCl);
+            }
+        } else {
+            sess = doSwapIn(id);
+        }
+
+        return sess;
+    }
+
+    /**
+     * Look for a session in the Store and, if found, restore
+     * it in the Manager's list of active sessions if appropriate.
+     * The session will be removed from the Store after swapping
+     * in, but will not be added to the active session list if it
+     * is invalid or past its expiration.
+     */
+    private Session doSwapIn(String id) throws IOException {
 
         if (store == null)
             return null;
