@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.beanutils.PropertyUtils;
  * @author Craig R. McClanahan
  * @author <a href="mailto:nicolaken@supereva.it">Nicola Ken Barozzi</a> Aisa
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version $Revision: 1.7 $ $Date: 2006/03/08 20:40:19 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:08 $
  */
 
 public class ErrorReportValve
@@ -412,7 +412,12 @@ public class ErrorReportValve
                 sb.append("<p><b>");
                 sb.append(sm.getString("errorReportValve.rootCause"));
                 sb.append("</b> <pre>");
+                /* SJSAS 6387790
                 sb.append(stackTrace);
+                */
+                // START SJSAS 6387790
+                sb.append(RequestUtil.filter(stackTrace));
+                // END SJSAS 6387790
                 sb.append("</pre></p>");
                 // In case root cause is somehow heavily nested
                 try {
