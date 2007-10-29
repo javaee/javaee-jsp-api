@@ -69,7 +69,7 @@ import org.apache.catalina.security.SecurityUtil;
  *
  * @author Craig R. McClanahan
  * @author Jean-Francois Arcand
- * @version $Revision: 1.7 $ $Date: 2006/01/26 17:52:56 $
+ * @version $Revision: 1.8 $ $Date: 2006/07/26 22:42:49 $
  */
 
 public class StandardManager
@@ -858,6 +858,5 @@ public class StandardManager
         long timeEnd = System.currentTimeMillis();
         processingTime += ( timeEnd - timeNow );
     }
-
 
 }
