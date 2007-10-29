@@ -83,4 +83,14 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
 	} catch (IOException ioe) {
 	}
     }
+
+    // START CR 6421712
+    /**
+     * Flush the wrapper around the JspWriter of the including page.
+     */
+    public void flushBuffer() throws java.io.IOException
+    {
+        printWriter.flush();
+    }
+    // END CR 6421712
 }
