@@ -87,7 +87,7 @@ import com.sun.enterprise.util.uuid.UuidGenerator;
  * be subclassed to create more sophisticated Manager implementations.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.19 $ $Date: 2007/03/05 22:18:02 $
+ * @version $Revision: 1.20 $ $Date: 2007/04/03 22:33:49 $
  */
 
 public abstract class ManagerBase implements Manager, MBeanRegistration {
@@ -1124,43 +1124,6 @@ public abstract class ManagerBase implements Manager, MBeanRegistration {
     protected synchronized String generateSessionId() {
         return generateSessionId(new Object());
     }    
-
-
-    /**
-     * Generate and return a new session identifier.
-     */
-    protected synchronized String generateSessionIdPrevious() {
-
-        byte random[] = new byte[16];
-
-        // Render the result as a String of hexadecimal digits
-        StringBuffer result = new StringBuffer();
-        int resultLenBytes = 0;
-        while (resultLenBytes < this.sessionIdLength) {
-            getRandomBytes(random);
-            random = getDigest().digest(random);
-            for (int j = 0;
-                    j < random.length && resultLenBytes < this.sessionIdLength;
-                    j++) {
-                byte b1 = (byte) ((random[j] & 0xf0) >> 4);
-                byte b2 = (byte) (random[j] & 0x0f);
-                if (b1 < 10)
-                    result.append((char) ('0' + b1));
-                else
-                    result.append((char) ('A' + (b1 - 10)));
-                if (b2 < 10)
-                    result.append((char) ('0' + b2));
-                else
-                    result.append((char) ('A' + (b2 - 10)));
-                resultLenBytes++;
-            }
-        }
-        //START OF RIMOD# 5056989 -- Support for iWS6.0 style session ids
-        if (prefixSessionID_)
-            result.insert(0, prefix_);
-        //END OF RIMOD# 5056989
-        return (result.toString());
-    }
 
 
     // ------------------------------------------------------ Protected Methods
