@@ -121,7 +121,7 @@ import org.apache.tomcat.util.IntrospectionUtils;
  * </pre>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.7 $ $Date: 2006/03/01 22:47:44 $
+ * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:06 $
  */
 
 public class Embedded  extends StandardService implements Lifecycle {
@@ -210,7 +210,7 @@ public class Embedded  extends StandardService implements Lifecycle {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

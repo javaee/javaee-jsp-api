@@ -55,7 +55,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.4 $ $Date: 2006/03/08 21:10:55 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/10 17:46:38 $
  */
 
 
@@ -103,7 +103,7 @@ public class CoyoteResponseFacade
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

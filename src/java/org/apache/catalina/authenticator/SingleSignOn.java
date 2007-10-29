@@ -78,7 +78,7 @@ import org.apache.catalina.util.StringManager;
  * </ul>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.3 $ $Date: 2006/03/07 22:30:06 $
+ * @version $Revision: 1.4 $ $Date: 2006/04/17 16:44:47 $
  */
 
 public class SingleSignOn
@@ -110,7 +110,7 @@ public class SingleSignOn
     /**
      * Descriptive information about this Valve implementation.
      */
-    protected static String info =
+    protected static final String info =
         "org.apache.catalina.authenticator.SingleSignOn";
 
 

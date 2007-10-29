@@ -84,7 +84,7 @@ import org.apache.catalina.core.AlternateDocBase;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2006/09/28 19:55:13 $
+ * @version $Revision: 1.11 $ $Date: 2006/09/28 21:46:21 $
  */
 
 public class DefaultServlet
@@ -127,7 +127,7 @@ public class DefaultServlet
     /**
      * Array containing the safe characters set.
      */
-    protected static URLEncoder urlEncoder;
+    protected static final URLEncoder urlEncoder;
 
 
     /**
@@ -170,7 +170,7 @@ public class DefaultServlet
     /**
      * Full range marker.
      */
-    protected static ArrayList FULL = new ArrayList();
+    protected static final ArrayList FULL = new ArrayList();
     
     
     // ----------------------------------------------------- Static Initializer
@@ -204,7 +204,7 @@ public class DefaultServlet
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

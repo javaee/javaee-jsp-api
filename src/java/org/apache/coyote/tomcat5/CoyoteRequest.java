@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.30 $ $Date: 2006/09/01 17:51:01 $
+ * @version $Revision: 1.31 $ $Date: 2006/09/29 16:45:04 $
  */
 
 public class CoyoteRequest
@@ -191,7 +191,7 @@ public class CoyoteRequest
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
     // START CR 6309511
@@ -231,7 +231,7 @@ public class CoyoteRequest
     /**
      * The default Locale if none are specified.
      */
-    protected static Locale defaultLocale = Locale.getDefault();
+    protected static final Locale defaultLocale = Locale.getDefault();
 
 
     /**
@@ -341,7 +341,7 @@ public class CoyoteRequest
     /**
      * Post data buffer.
      */
-    protected static int CACHED_POST_LEN = 8192;
+    protected static final int CACHED_POST_LEN = 8192;
     protected byte[] postData = null;
 
 

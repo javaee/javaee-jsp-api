@@ -115,7 +115,7 @@ public class InternalOutputBuffer
     /**
      * Logger.
      */
-    protected static com.sun.org.apache.commons.logging.Log log 
+    protected static final com.sun.org.apache.commons.logging.Log log 
         = com.sun.org.apache.commons.logging.
             LogFactory.getLog(InternalOutputBuffer.class);
     // END GlassFish Issue 646
@@ -124,7 +124,7 @@ public class InternalOutputBuffer
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

@@ -74,7 +74,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.12 $ $Date: 2006/08/23 02:19:13 $
+ * @version $Revision: 1.13 $ $Date: 2006/08/30 15:58:17 $
  */
 
 public class CoyoteResponse
@@ -132,7 +132,7 @@ public class CoyoteResponse
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

@@ -62,7 +62,7 @@ import org.apache.catalina.security.SecurityUtil;
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  * @author Jean-Francois Arcand
- * @version $Revision: 1.2 $ $Date: 2005/07/22 12:12:23 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:28:35 $
  */
 public class CoyoteRequestFacade 
     extends RequestFacade
@@ -239,7 +239,7 @@ public class CoyoteRequestFacade
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 

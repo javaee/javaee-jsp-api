@@ -196,7 +196,7 @@ public class Http11Processor implements Processor, ActionHook {
     /**
      * Logger.
      */
-    protected static com.sun.org.apache.commons.logging.Log log 
+    protected static final com.sun.org.apache.commons.logging.Log log 
         = com.sun.org.apache.commons.logging.LogFactory.getLog(Http11Processor.class);
 
 

@@ -103,7 +103,7 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
     /** Pass config info
@@ -714,7 +714,7 @@ public class Http11Protocol implements ProtocolHandler, MBeanRegistration
         }
     }
 
-    protected static com.sun.org.apache.commons.logging.Log log 
+    protected static final com.sun.org.apache.commons.logging.Log log 
         = com.sun.org.apache.commons.logging.LogFactory.getLog(Http11Protocol.class);
 
     // -------------------- Various implementation classes --------------------

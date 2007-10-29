@@ -99,7 +99,7 @@ public class InternalInputBuffer implements InputBuffer {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
+    protected static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
 
