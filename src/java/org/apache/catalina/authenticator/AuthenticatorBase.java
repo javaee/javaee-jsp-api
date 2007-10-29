@@ -101,7 +101,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2005/06/11 03:23:54 $
+ * @version $Revision: 1.3 $ $Date: 2005/12/08 01:27:26 $
  */
 
 
@@ -231,6 +231,13 @@ public abstract class AuthenticatorBase
 
     */
     //END SJSAS 6202703
+
+
+    /**
+     * Flag to determine if we disable proxy caching with headers incompatible
+     * with IE 
+     */
+    protected boolean securePagesWithPragma = true;
     
     // ------------------------------------------------------------- Properties
     
@@ -404,6 +411,26 @@ public abstract class AuthenticatorBase
         disableProxyCaching = nocache;
     }
     
+
+    /**
+     * Return the flag that states, if proxy caching is disabled, what headers
+     * we add to disable the caching.
+     */
+    public boolean getSecurePagesWithPragma() {
+        return securePagesWithPragma;
+    }
+
+
+    /**
+     * Set the value of the flag that states what headers we add to disable
+     * proxy caching.
+     * @param securePagesWithPragma <code>true</code> if we add headers which 
+     * are incompatible with downloading office documents in IE under SSL but
+     * which fix a caching problem in Mozilla.
+     */
+    public void setSecurePagesWithPragma(boolean securePagesWithPragma) {
+        this.securePagesWithPragma = securePagesWithPragma;
+    }    
     // --------------------------------------------------------- Public Methods
     
     
@@ -566,7 +593,9 @@ public abstract class AuthenticatorBase
         //END SJSAS 6202703
         //START SJSAS 6202703
         int preAuthenticateCheckResult = realm.preAuthenticateCheck(
-                hrequest, hresponse, constraints, disableProxyCaching);
+                hrequest, hresponse, constraints, disableProxyCaching,
+                securePagesWithPragma);
+        
         if(preAuthenticateCheckResult == Realm.AUTHENTICATE_NOT_NEEDED) {
             return INVOKE_NEXT;
         } else if(preAuthenticateCheckResult == Realm.AUTHENTICATE_NEEDED) {

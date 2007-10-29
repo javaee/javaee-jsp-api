@@ -86,7 +86,7 @@ import org.apache.catalina.core.StandardContext;
  * location) are identical to those currently supported by Tomcat 3.X.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.5 $ $Date: 2005/12/07 02:01:37 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/08 01:27:54 $
  */
 
 public abstract class RealmBase
@@ -992,17 +992,22 @@ public abstract class RealmBase
      * @param constraints Security constraint we are enforcing
      * @param disableProxyCaching whether or not to disable proxy caching for
      *        protected resources.
+     * @param securePagesWithPragma true if we add headers which 
+     * are incompatible with downloading office documents in IE under SSL but
+     * which fix a caching problem in Mozilla.
      * @exception IOException if an input/output error occurs
      */
     public int preAuthenticateCheck(HttpRequest request,
                                     HttpResponse response,
                                     SecurityConstraint[] constraints,
-                                    boolean disableProxyCaching)
+                                    boolean disableProxyCaching,
+                                    boolean securePagesWithPragma)
                                     throws IOException {
         for(int i=0; i < constraints.length; i++) {
             if (constraints[i].getAuthConstraint()) {
                 if(disableProxyCaching) {
-                    disableProxyCaching(request, response);
+                    disableProxyCaching(request, response,
+                                        securePagesWithPragma);
                 }
                 return Realm.AUTHENTICATE_NEEDED;
             }
@@ -1449,14 +1454,22 @@ public abstract class RealmBase
     
     //START SJSAS 6202703
     protected void disableProxyCaching(HttpRequest request,
-                                       HttpResponse response) {
+                                       HttpResponse response, 
+                                       boolean securePagesWithPragma) {
         HttpServletRequest hsrequest = (HttpServletRequest) request.getRequest();
         if (!hsrequest.isSecure() &&
             !"POST".equalsIgnoreCase(hsrequest.getMethod())) {
             HttpServletResponse sresponse =
                     (HttpServletResponse) response.getResponse();
-            sresponse.setHeader("Pragma", "No-cache");
-            sresponse.setHeader("Cache-Control", "no-cache");
+            if (securePagesWithPragma) {
+                // FIXME: These cause problems with downloading office docs
+                // from IE under SSL and may not be needed for newer Mozilla
+                // clients.
+                sresponse.setHeader("Pragma", "No-cache");
+                sresponse.setHeader("Cache-Control", "no-cache");
+            } else {
+                sresponse.setHeader("Cache-Control", "private");
+            }
             sresponse.setHeader("Expires", DATE_ONE);
         }
     }
