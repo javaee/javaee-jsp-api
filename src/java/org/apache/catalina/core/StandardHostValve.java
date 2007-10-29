@@ -79,7 +79,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.11 $ $Date: 2006/03/08 19:43:03 $
+ * @version $Revision: 1.12 $ $Date: 2006/03/12 01:27:01 $
  */
 
 final class StandardHostValve
@@ -265,10 +265,10 @@ final class StandardHostValve
                 (ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR,
                  errorPage.getLocation());
             sreq.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                              new Integer(ApplicationFilterFactory.ERROR));
+                              Integer.valueOf(ApplicationFilterFactory.ERROR));
             sreq.setAttribute
                 (Globals.STATUS_CODE_ATTR,
-                 new Integer(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
+                 Integer.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));
             sreq.setAttribute(Globals.ERROR_MESSAGE_ATTR,
                               throwable.getMessage());
             sreq.setAttribute(Globals.EXCEPTION_ATTR,
@@ -356,7 +356,7 @@ final class StandardHostValve
             ServletRequest sreq = request.getRequest();
             ServletResponse sresp = response.getResponse();
             sreq.setAttribute(Globals.STATUS_CODE_ATTR,
-                              new Integer(statusCode));
+                              Integer.valueOf(statusCode));
             String message = RequestUtil.filter(hresponse.getMessage());
             if (message == null)
                 message = "";
@@ -365,7 +365,7 @@ final class StandardHostValve
                 (ApplicationFilterFactory.DISPATCHER_REQUEST_PATH_ATTR,
                  errorPage.getLocation());
             sreq.setAttribute(ApplicationFilterFactory.DISPATCHER_TYPE_ATTR,
-                              new Integer(ApplicationFilterFactory.ERROR));
+                              Integer.valueOf(ApplicationFilterFactory.ERROR));
             
              
             Wrapper wrapper = request.getWrapper();

@@ -88,7 +88,7 @@ import org.apache.coyote.tomcat5.CoyoteRequestFacade;
  * <code>javax.servlet.ServletResponseWrapper</code>.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/06/08 14:49:57 $
+ * @version $Revision: 1.11 $ $Date: 2006/08/31 23:34:08 $
  */
 
 final class ApplicationDispatcher
@@ -1101,7 +1101,7 @@ final class ApplicationDispatcher
             boolean crossContext = 
                 !(context.getPath().equals(hcurrent.getContextPath()));
             //START OF 6364900
-            crossContextFlag = new Boolean(crossContext);
+            crossContextFlag = Boolean.valueOf(crossContext);
             //END OF 6364900
             wrapper = new ApplicationHttpRequest
                 (hcurrent, context, crossContext);

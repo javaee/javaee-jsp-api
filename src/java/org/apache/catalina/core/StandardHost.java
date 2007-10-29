@@ -62,7 +62,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.8 $ $Date: 2006/03/12 01:27:01 $
+ * @version $Revision: 1.9 $ $Date: 2006/08/16 20:04:25 $
  */
 
 public class StandardHost
@@ -820,7 +820,7 @@ public class StandardHost
 
         // Add the specified error page to our internal collections
         synchronized (statusPages) {
-            statusPages.put(new Integer(errorPage.getErrorCode()),
+            statusPages.put(Integer.valueOf(errorPage.getErrorCode()),
                             errorPage);
         }
 
@@ -837,7 +837,7 @@ public class StandardHost
      * code, or null if no error page exists for that HTTP error code
      */
     public ErrorPage findErrorPage(int errorCode) {
-        return statusPages.get(new Integer(errorCode));
+        return statusPages.get(Integer.valueOf(errorCode));
     }
     // END SJSAS 6324911
 

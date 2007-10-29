@@ -72,7 +72,7 @@ import com.sun.org.apache.commons.modeler.Registry;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:38 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:01 $
  */
 public class StandardWrapper
     extends ContainerBase
@@ -306,8 +306,8 @@ public class StandardWrapper
             this.available = available;
         else
             this.available = 0L;
-        support.firePropertyChange("available", new Long(oldAvailable),
-                                   new Long(this.available));
+        support.firePropertyChange("available", Long.valueOf(oldAvailable),
+                                   Long.valueOf(this.available));
 
     }
 
@@ -343,8 +343,8 @@ public class StandardWrapper
 
         int oldDebug = this.debug;
         this.debug = debug;
-        support.firePropertyChange("debug", new Integer(oldDebug),
-                                   new Long(this.debug));
+        support.firePropertyChange("debug", Integer.valueOf(oldDebug),
+                                   Long.valueOf(this.debug));
 
     }
 
@@ -434,8 +434,8 @@ public class StandardWrapper
         int oldLoadOnStartup = this.loadOnStartup;
         this.loadOnStartup = value;
         support.firePropertyChange("loadOnStartup",
-                                   new Integer(oldLoadOnStartup),
-                                   new Integer(this.loadOnStartup));
+                                   Integer.valueOf(oldLoadOnStartup),
+                                   Integer.valueOf(this.loadOnStartup));
 
     }
 
@@ -1341,7 +1341,7 @@ public class StandardWrapper
             while ((nRetries < 21) && (countAllocated > 0)) {
                 if ((nRetries % 10) == 0) {
                     log.info(sm.getString("standardWrapper.waiting",
-                                          new Integer(countAllocated)));
+                                          Integer.valueOf(countAllocated)));
                 }
                 try {
                     Thread.sleep(100);

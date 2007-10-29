@@ -127,7 +127,7 @@ import org.apache.naming.resources.WARDirContext;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.23 $ $Date: 2006/09/28 19:55:13 $
+ * @version $Revision: 1.24 $ $Date: 2006/09/29 21:41:26 $
  */
 
 public class StandardContext
@@ -878,8 +878,8 @@ public class StandardContext
 
         boolean oldDelegate = this.delegate;
         this.delegate = delegate;
-        support.firePropertyChange("delegate", new Boolean(oldDelegate),
-                                   new Boolean(this.delegate));
+        support.firePropertyChange("delegate", Boolean.valueOf(oldDelegate),
+                                   Boolean.valueOf(this.delegate));
 
     }
 
@@ -983,8 +983,8 @@ public class StandardContext
         boolean oldAvailable = this.available;
         this.available = available;
         support.firePropertyChange("available",
-                                   new Boolean(oldAvailable),
-                                   new Boolean(this.available));
+                                   Boolean.valueOf(oldAvailable),
+                                   Boolean.valueOf(this.available));
 
     }
 
@@ -1069,8 +1069,8 @@ public class StandardContext
         boolean oldConfigured = this.configured;
         this.configured = configured;
         support.firePropertyChange("configured",
-                                   new Boolean(oldConfigured),
-                                   new Boolean(this.configured));
+                                   Boolean.valueOf(oldConfigured),
+                                   Boolean.valueOf(this.configured));
 
     }
 
@@ -1095,8 +1095,8 @@ public class StandardContext
         boolean oldCookies = this.cookies;
         this.cookies = cookies;
         support.firePropertyChange("cookies",
-                                   new Boolean(oldCookies),
-                                   new Boolean(this.cookies));
+                                   Boolean.valueOf(oldCookies),
+                                   Boolean.valueOf(this.cookies));
 
     }
 
@@ -1121,8 +1121,8 @@ public class StandardContext
         boolean oldCrossContext = this.crossContext;
         this.crossContext = crossContext;
         support.firePropertyChange("crossContext",
-                                   new Boolean(oldCrossContext),
-                                   new Boolean(this.crossContext));
+                                   Boolean.valueOf(oldCrossContext),
+                                   Boolean.valueOf(this.crossContext));
 
     }
 
@@ -1241,8 +1241,8 @@ public class StandardContext
         boolean oldDistributable = this.distributable;
         this.distributable = distributable;
         support.firePropertyChange("distributable",
-                                   new Boolean(oldDistributable),
-                                   new Boolean(this.distributable));
+                                   Boolean.valueOf(oldDistributable),
+                                   Boolean.valueOf(this.distributable));
         
         // Bugzilla 32866
         if(getManager() != null) {
@@ -1349,8 +1349,8 @@ public class StandardContext
         int oldManagerChecksFrequency = this.managerChecksFrequency;
         this.managerChecksFrequency = managerChecksFrequency;
         support.firePropertyChange("managerChecksFrequency",
-                                   new Integer(oldManagerChecksFrequency),
-                                   new Integer(this.managerChecksFrequency));
+                                   Integer.valueOf(oldManagerChecksFrequency),
+                                   Integer.valueOf(this.managerChecksFrequency));
 
     }
 
@@ -1594,8 +1594,8 @@ public class StandardContext
         boolean oldPrivileged = this.privileged;
         this.privileged = privileged;
         support.firePropertyChange("privileged",
-                                   new Boolean(oldPrivileged),
-                                   new Boolean(this.privileged));
+                                   Boolean.valueOf(oldPrivileged),
+                                   Boolean.valueOf(this.privileged));
 
     }
 
@@ -1610,8 +1610,8 @@ public class StandardContext
         boolean oldReloadable = this.reloadable;
         this.reloadable = reloadable;
         support.firePropertyChange("reloadable",
-                                   new Boolean(oldReloadable),
-                                   new Boolean(this.reloadable));
+                                   Boolean.valueOf(oldReloadable),
+                                   Boolean.valueOf(this.reloadable));
 
     }
 
@@ -1626,8 +1626,8 @@ public class StandardContext
         boolean oldOverride = this.override;
         this.override = override;
         support.firePropertyChange("override",
-                                   new Boolean(oldOverride),
-                                   new Boolean(this.override));
+                                   Boolean.valueOf(oldOverride),
+                                   Boolean.valueOf(this.override));
 
     }
 
@@ -1693,8 +1693,8 @@ public class StandardContext
         boolean oldReplaceWelcomeFiles = this.replaceWelcomeFiles;
         this.replaceWelcomeFiles = replaceWelcomeFiles;
         support.firePropertyChange("replaceWelcomeFiles",
-                                   new Boolean(oldReplaceWelcomeFiles),
-                                   new Boolean(this.replaceWelcomeFiles));
+                                   Boolean.valueOf(oldReplaceWelcomeFiles),
+                                   Boolean.valueOf(this.replaceWelcomeFiles));
 
     }
 
@@ -1787,8 +1787,8 @@ public class StandardContext
      */
         this.sessionTimeout = (timeout == 0) ? -1 : timeout;
         support.firePropertyChange("sessionTimeout",
-                                   new Integer(oldSessionTimeout),
-                                   new Integer(this.sessionTimeout));
+                                   Integer.valueOf(oldSessionTimeout),
+                                   Integer.valueOf(this.sessionTimeout));
         //HERCULES:add
         sessionTimeoutOveridden = true;
         //end HERCULES:add        
@@ -1818,8 +1818,8 @@ public class StandardContext
         boolean oldSwallowOutput = this.swallowOutput;
         this.swallowOutput = swallowOutput;
         support.firePropertyChange("swallowOutput",
-                                   new Boolean(oldSwallowOutput),
-                                   new Boolean(this.swallowOutput));
+                                   Boolean.valueOf(oldSwallowOutput),
+                                   Boolean.valueOf(this.swallowOutput));
 
     }
 
@@ -2348,7 +2348,7 @@ public class StandardContext
                 if (errorPage.getErrorCode() == 200) {
                     this.okErrorPage = errorPage;
                 }
-                statusPages.put(new Integer(errorPage.getErrorCode()),
+                statusPages.put(Integer.valueOf(errorPage.getErrorCode()),
                                 errorPage);
             }
         }
@@ -2946,7 +2946,7 @@ public class StandardContext
         if (errorCode == 200) {
             return (okErrorPage);
         } else {
-            return ((ErrorPage) statusPages.get(new Integer(errorCode)));
+            return ((ErrorPage) statusPages.get(Integer.valueOf(errorCode)));
         }
 
     }
@@ -3354,7 +3354,7 @@ public class StandardContext
      */
     public String findStatusPage(int status) {
 
-        return ((String) statusPages.get(new Integer(status)));
+        return ((String) statusPages.get(Integer.valueOf(status)));
 
     }
 
@@ -3696,7 +3696,7 @@ public class StandardContext
                 if (errorPage.getErrorCode() == 200) {
                     this.okErrorPage = null;
                 }
-                statusPages.remove(new Integer(errorPage.getErrorCode()));
+                statusPages.remove(Integer.valueOf(errorPage.getErrorCode()));
             }
         }
         fireContainerEvent("removeErrorPage", errorPage);
@@ -4562,7 +4562,7 @@ public class StandardContext
                 continue;
             if (loadOnStartup == 0)     // Arbitrarily put them last
                 loadOnStartup = Integer.MAX_VALUE;
-            Integer key = new Integer(loadOnStartup);
+            Integer key = Integer.valueOf(loadOnStartup);
             ArrayList list = (ArrayList) map.get(key);
             if (list == null) {
                 list = new ArrayList();

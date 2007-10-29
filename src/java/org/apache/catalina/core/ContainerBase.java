@@ -304,8 +304,8 @@ public abstract class ContainerBase
 
         int oldDebug = this.debug;
         this.debug = debug;
-        support.firePropertyChange("debug", new Integer(oldDebug),
-                                   new Integer(this.debug));
+        support.firePropertyChange("debug", Integer.valueOf(oldDebug),
+                                   Integer.valueOf(this.debug));
 
     }
 

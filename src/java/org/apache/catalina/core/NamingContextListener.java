@@ -73,7 +73,7 @@ import com.sun.org.apache.commons.logging.LogFactory;
  * with each context and server.
  *
  * @author Remy Maucherat
- * @version $Revision: 1.4 $ $Date: 2005/12/08 01:27:34 $
+ * @version $Revision: 1.5 $ $Date: 2006/03/12 01:27:00 $
  */
 
 public class NamingContextListener
@@ -776,7 +776,7 @@ public class NamingContextListener
                 }
             } else if (type.equals("java.lang.Integer")) {
                 if (env.getValue() == null) {
-                    value = new Integer(0);
+                    value = Integer.valueOf(0);
                 } else {
                     value = Integer.decode(env.getValue());
                 }
