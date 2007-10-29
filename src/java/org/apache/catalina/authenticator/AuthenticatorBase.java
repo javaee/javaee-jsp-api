@@ -107,7 +107,7 @@ import org.apache.catalina.Auditor; // IASRI 4823322
  * requests.  Requests of any other type will simply be passed through.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.9 $ $Date: 2006/08/09 23:42:41 $
+ * @version $Revision: 1.10 $ $Date: 2006/10/03 18:40:58 $
  */
 
 
@@ -318,7 +318,7 @@ public abstract class AuthenticatorBase
         
         super.setContainer(container);
         this.context = (Context) container;
-        
+        this.securePagesWithPragma = context.isSecurePagesWithPragma(); 
     }
     
     
@@ -425,7 +425,7 @@ public abstract class AuthenticatorBase
      * Return the flag that states, if proxy caching is disabled, what headers
      * we add to disable the caching.
      */
-    public boolean getSecurePagesWithPragma() {
+    public boolean isSecurePagesWithPragma() {
         return securePagesWithPragma;
     }
 

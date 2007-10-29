@@ -65,7 +65,7 @@ import org.apache.catalina.util.CharsetMapper;
  * <p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:01 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:15 $
  */
 
 public interface Context extends Container {
@@ -1303,4 +1303,27 @@ public interface Context extends Container {
     public String getAdHocServletName(String path);
     // END SJSAS 6253524
 
+    /**
+     * Indicates whether the Pragma and Cache-Control headers will be set
+     * to "No-cache" if proxy caching has been disabled.
+     *
+     * @return true if Pragma and Cache-Control headers will be set to
+     * "No-cache" if proxy caching has been disabled; false otherwise.
+     */
+    public boolean isSecurePagesWithPragma();
+
+    /**
+     * Sets the securePagesWithPragma property of this Context.
+     *
+     * Setting this property to true will result in Pragma and Cache-Control
+     * headers with a value of "No-cache" if proxy caching has been disabled.
+     *
+     * Setting this property to false will not add any Pragma header,
+     * but will set the Cache-Control header to "private".
+     *
+     * @param securePagesWithPragma true if Pragma and Cache-Control headers
+     * are to be set to "No-cache" if proxy caching has been disabled, false
+     * otherwise
+     */
+    public void setSecurePagesWithPragma(boolean securePagesWithPragma);
 }
