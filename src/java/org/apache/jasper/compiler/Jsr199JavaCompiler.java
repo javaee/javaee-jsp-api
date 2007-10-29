@@ -114,7 +114,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
             String f = classFileName;
             if (!className.equals(c)) {
                 // Compute inner class file name
-                f = f.substring(0, f.lastIndexOf('/')+1) +
+                f = f.substring(0, f.lastIndexOf(File.separator)+1) +
                     c.substring(c.lastIndexOf('.')+1) + ".class";
             }
             rtctxt.saveBytecode(c, f);
