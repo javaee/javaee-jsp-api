@@ -38,7 +38,15 @@
         <pathelement location="${javaee.jar}"/>
         <pathelement location="${ant.jar}"/>
         <pathelement location="${commons-logging.jar}"/>
+    </path>
+
+    <!-- Used for building PWC modules -->
+    <path id="pwc.classpath">
+        <pathelement location="${activation.jar}"/>
+        <pathelement location="${mail.jar}"/>
         <pathelement location="${pwc.jar}"/>
+        <pathelement location="${ant.jar}"/>
+        <pathelement location="${commons-logging.jar}"/>
     </path>
 
     &commonBuild;
@@ -50,6 +58,28 @@
                optimize="${javac.optimize}"
                excludes="**/CVS/**,org/apache/jasper/compiler/JDTJavaCompiler.java,org/apache/jasper/compiler/Jsr199JavaCompiler.java">
             <classpath refid="catalina.classpath" />
+        </javac>
+
+        <copy todir="target/classes" overwrite="true">
+            <fileset dir="./src/java">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+
+        <!-- Copy RAVE required mbeans-descriptor.xml -->
+        <copy file="./extension/rave/mbeans-descriptors.xml" 
+              tofile="src/java/org/apache/catalina/core/mbeans-descriptors.xml"
+              overwrite="true"/>
+    </target>
+
+    <target name="compile-pwc">      
+        <mkdir dir="target/classes"/>
+        <javac srcdir="src/java" destdir="target/classes"
+               debug="${javac.debug}" deprecation="${javac.deprecation}"
+               optimize="${javac.optimize}"
+               excludes="**/CVS/**,org/apache/jasper/compiler/JDTJavaCompiler.java,org/apache/jasper/compiler/Jsr199JavaCompiler.java">
+            <classpath refid="pwc.classpath" />
         </javac>
 
         <copy todir="target/classes" overwrite="true">
@@ -84,6 +114,12 @@
         <jar destfile="${glassfish.lib.home}/appserv-rt.jar"
              update="true"
              basedir="target/classes"/> 
+    </target>
+
+    <target name="build-pwc" depends="compile-pwc">
+        <fileset dir="${classes.dir}">
+            <include name="**/LocalStrings_es.properties" />
+        </fileset>
         <jar destfile="${glassfish.home}/../pwc/pwc.jar"
              update="true"
              basedir="target/classes"/> 
