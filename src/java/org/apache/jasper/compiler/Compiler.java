@@ -463,8 +463,10 @@ public class Compiler {
                 javac.execute();
             } catch (BuildException e) {
                 be = e;
-                log.error( "Javac exception ", e);
-                log.error( "Env: " + info.toString());
+                if (!jspcMode) {
+                    log.error( "Javac exception ", e);
+                    log.error( "Env: " + info.toString());
+                }
             }
             errorReport.append(logger.getReport());
             // Stop capturing the System.err output for this thread
@@ -491,8 +493,10 @@ public class Compiler {
             }
             be = javacObj.getException();
             if (be != null) {
-                log.error( "Javac exception ", be);
-                log.error( "Env: " + info.toString());
+                if (!jspcMode) {
+                    log.error( "Javac exception ", be);
+                    log.error( "Env: " + info.toString());
+                }
             }
             errorReport.append(logger.getReport());
             errorCapture = javacObj.getErrorCapture();
