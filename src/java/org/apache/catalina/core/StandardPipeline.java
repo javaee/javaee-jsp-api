@@ -34,11 +34,6 @@ import java.io.IOException;
 import javax.management.ObjectName;
 import javax.servlet.ServletException;
 
-// START GlassFish 836
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Cookie;
-import org.apache.catalina.authenticator.SingleSignOn;
-// END GlassFish 836
 import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
 import org.apache.catalina.Lifecycle;
@@ -573,29 +568,12 @@ public class StandardPipeline
             // be invoked
             int status = Valve.INVOKE_NEXT;
 
-            // START GlassFish 836
-            Cookie ssoCookie = getSSOCookie(request); 
-            // END GlassFish 836
-
             // Iterate over all the valves in the pipeline and invoke
             // each valve's processing logic and then move onto to the
             // next valve in the pipeline only if the previous valve indicated
             // that the pipeline should proceed.
             int i;
             for (i = 0; i < valves.length; i++) {
-                // START GlassFish 836
-                /*
-                 * Avoid invoking the SSO valve when there is no SSO cookie.
-                 * In order for the following getInfo() check to be effective,
-                 * none of the SSO subclasses must override this method, which
-                 * is true currently.
-                 */
-                if (ssoCookie == null
-                        && SingleSignOn.class.getName().equals(
-                                            valves[i].getInfo())) {
-                    continue;
-                }
-                // END GlassFish 836
                 status = valves[i].invoke(request, response);
                 if (status != Valve.INVOKE_NEXT)
                     break;
@@ -612,19 +590,6 @@ public class StandardPipeline
             // Invoke the post-request processing logic only on those valves
             // that returned a status of INVOKE_NEXT
             for (int j = i - 1; j >= 0; j--) {
-                // START GlassFish 836
-                /*
-                 * Avoid invoking the SSO valve when there is no SSO cookie.
-                 * In order for the following getInfo() check to be effective,
-                 * none of the SSO subclasses must override this method, which
-                 * is true currently.
-                 */
-                if (ssoCookie == null
-                        && SingleSignOn.class.getName().equals(
-                                            valves[j].getInfo())) {
-                    continue;
-                }
-                // END GlassFish 836
                 valves[j].postInvoke(request, response);
             }
         } else {
@@ -740,35 +705,4 @@ public class StandardPipeline
 
     }
 
-
-    // START GlassFish 836
-    /*
-     * Gets the JSESSIONIDSSO from the given request.
-     *
-     * @param request The request from which to retrieve the JSESSIONIDSSO
-     * cookie
-     *
-     * @return The JSESSIONIDSSO cookie of the given request, or null if the
-     * given request does not carry any such cookie
-     */
-    private Cookie getSSOCookie(Request request) {
-
-        Cookie ssoCookie = null;
-
-        HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
-        Cookie cookies[] = hreq.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-
-        for (int i = 0; i < cookies.length; i++) {
-            if (org.apache.catalina.authenticator.Constants.SINGLE_SIGN_ON_COOKIE.equals(cookies[i].getName())) {
-                ssoCookie = cookies[i];
-                break;
-            }
-        }
-
-        return ssoCookie;
-    }
-    // END GlassFish 836
 }
