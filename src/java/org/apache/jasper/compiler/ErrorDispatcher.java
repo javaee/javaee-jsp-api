@@ -305,6 +305,47 @@ public class ErrorDispatcher {
 	dispatch(n.getStart(), errCode, new Object[] {arg}, e);
     }
 
+    /** 
+     * Creates and throws a new exception from the given JasperException,
+     * by prepending the given location information (containing file name,
+     * line number, and column number) to the message of the given exception,
+     * and copying the stacktrace of the given exception to the new exception. 
+     *
+     * @param where The location information (containing file name,
+     * line number, and column number) to prepend
+     * @param je The JasperException to amend
+     */
+    public void throwException(Mark where, JasperException je)
+                throws JasperException {
+
+	if (where == null) {
+            throw je;
+        }
+
+	// Get file location
+        String file = null;
+        if (jspcMode) {
+            // Get the full URL of the resource that caused the error
+            try {
+                file = where.getURL().toString();
+            } catch (MalformedURLException me) {
+                // Fallback to using context-relative path
+                file = where.getFile();
+            }
+        } else {
+            // Get the context-relative resource path, so as to not
+            // disclose any local filesystem details
+            file = where.getFile();
+        }
+
+	JasperException newEx = new JasperException(file + "("
+                + where.getLineNumber() + "," + where.getColumnNumber()
+                + ")" + " " + je.getMessage());
+        newEx.setStackTrace(je.getStackTrace());
+ 
+        throw newEx;
+    }
+
     /**
      * Parses the given error message into an array of javac compilation error
      * messages (one per javac compilation error line number).
