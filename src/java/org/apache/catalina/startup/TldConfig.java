@@ -73,7 +73,7 @@ import org.xml.sax.InputSource;
  */
 public final class TldConfig  {
 
-    // Names of JARs that are known not to contain any TLDs
+    // Names of JARs that are known not to contain any TLDs with listeners
     private static HashSet noTldJars;
 
     // Names of system jar files that are ignored if placed under WEB-INF
@@ -195,10 +195,11 @@ public final class TldConfig  {
     // --------------------------------------------------------- Public Methods
 
     /**
-     * Sets the list of JARs that are known not to contain any TLDs.
+     * Sets the list of JARs that are known not to contain any TLDs with
+     * listeners.
      *
      * @param jarNames List of comma-separated names of JAR files that are 
-     * known not to contain any TLDs 
+     * known not to contain any TLDs with listeners
      */
     public static void setNoTldListeners(String jarNames) {
         if (jarNames != null) {
@@ -695,7 +696,7 @@ public final class TldConfig  {
 
     /**
      * Returns a map of the paths to all JAR files that are accessible to the
-     * webapp and will be scanned for TLDs.
+     * webapp and will be scanned for TLDs and their listeners.
      *
      * The map always includes all the JARs under WEB-INF/lib, as well as
      * shared JARs in the classloader delegation chain of the webapp's
@@ -709,7 +710,7 @@ public final class TldConfig  {
      *
      * The set of shared JARs to be scanned for TLDs is narrowed down by
      * the <tt>noTldJars</tt> class variable, which contains the names of JARs
-     * that are known not to contain any TLDs.
+     * that are known not to contain any TLDs with listeners.
      *
      * @return Map of JAR file paths
      */
@@ -743,7 +744,8 @@ public final class TldConfig  {
                     }
                     /*
                      * Scan all JARs from WEB-INF/lib, plus any shared JARs
-                     * that are not known not to contain any TLDs
+                     * that are not known not to contain any TLDs with
+                     * listeners
                      */
                     if ((loader != webappLoader
                                 || !systemJars.contains(file.getName()))
