@@ -51,37 +51,6 @@ public abstract class HttpJspBase
     extends HttpServlet 
     implements HttpJspPage 
 {
-
-    private static com.sun.org.apache.commons.logging.Log log=
-        com.sun.org.apache.commons.logging.LogFactory.getLog( HttpJspBase.class );
-
-    static {
-        if( JspFactory.getDefaultFactory() == null ) {
-            JspFactoryImpl factory = new JspFactoryImpl();
-            if( System.getSecurityManager() != null ) {
-                String basePackage = "org.apache.jasper.";
-                try {
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "runtime.JspFactoryImpl$PrivilegedGetPageContext");
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "runtime.JspFactoryImpl$PrivilegedReleasePageContext");
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "runtime.JspRuntimeLibrary");
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "runtime.JspRuntimeLibrary$PrivilegedIntrospectHelper");
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "runtime.ServletResponseWrapperInclude");
-                    factory.getClass().getClassLoader().loadClass( basePackage +
-                                                                   "servlet.JspServletWrapper");
-                } catch (ClassNotFoundException ex) {
-                    log.error("Jasper JspRuntimeContext preload of class failed: " +
-                                       ex.getMessage(), ex);
-                }
-            }
-            JspFactory.setDefaultFactory(factory);
-        }
-    }
-
     protected HttpJspBase() {
     }
 
