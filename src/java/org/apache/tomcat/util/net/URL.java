@@ -52,7 +52,7 @@ import java.net.MalformedURLException;
  * package someplace.</p>
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:17 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:29:34 $
  */
 
 public final class URL implements Serializable {
@@ -324,6 +324,37 @@ public final class URL implements Serializable {
             return (false);
         return (compare(ref, other.getRef()));
 
+    }
+
+
+    /**
+     * Returns the hash code value for this object.
+     *
+     * @return a hash code value for this object.
+     */
+    public int hashCode() {
+
+        int hashCode = 0;
+
+        if (getProtocol() != null) {
+            hashCode += getProtocol().hashCode();
+        } 
+
+        if (getHost() != null) {
+            hashCode += getHost().hashCode();
+        }
+
+        hashCode += getPort();
+
+        if (getFile() != null) {
+            hashCode += getFile().hashCode();
+        }
+
+        if (getRef() != null) {
+            hashCode += getRef().hashCode();
+        }
+
+        return hashCode;
     }
 
 
