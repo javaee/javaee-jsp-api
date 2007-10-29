@@ -119,7 +119,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.43 $ $Date: 2006/11/29 02:51:44 $
+ * @version $Revision: 1.44 $ $Date: 2006/12/04 17:44:37 $
  */
 
 public class CoyoteRequest
@@ -197,7 +197,7 @@ public class CoyoteRequest
     /**
      * The set of cookies associated with this Request.
      */
-    protected Cookie[] cookies = null;
+    protected ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 
     // START OF SJSAS 6231069
     /*
@@ -536,7 +536,7 @@ public class CoyoteRequest
 
         attributes.clear();
         notes.clear();
-        cookies = null;
+        cookies.clear();
         
         unsuccessfulSessionFind = false;
 
@@ -1846,19 +1846,7 @@ public class CoyoteRequest
         if (!cookiesParsed)
             parseCookies();
 
-        int size = 0;
-        if (cookies != null) {
-            size = cookies.length;
-        }
-
-        Cookie[] newCookies = new Cookie[size + 1];
-        for (int i = 0; i < size; i++) {
-            newCookies[i] = cookies[i];
-        }
-        newCookies[size] = cookie;
-
-        cookies = newCookies;
-
+        cookies.add(cookie);
     }
 
 
@@ -1902,7 +1890,7 @@ public class CoyoteRequest
      */
     public void clearCookies() {
         cookiesParsed = true;
-        cookies = null;
+        cookies.clear();
     }
 
 
@@ -2154,8 +2142,11 @@ public class CoyoteRequest
         if (!cookiesParsed)
             parseCookies();
 
-        return cookies;
+        if (cookies.size() == 0) {
+            return null;
+        }
 
+        return (cookies.toArray(new Cookie[cookies.size()]));
     }
 
 
@@ -2164,8 +2155,11 @@ public class CoyoteRequest
      */
     public void setCookies(Cookie[] cookies) {
 
-        this.cookies = cookies;
-
+        this.cookies.clear();
+        if (cookies != null) {
+            for (int i = 0; i < cookies.length; i++)
+                this.cookies.add(cookies[i]);
+        }
     }
 
 
@@ -2748,9 +2742,8 @@ public class CoyoteRequest
         if (count <= 0)
             return;
 
-        cookies = new Cookie[count];
+        cookies.clear();
 
-        int idx=0;
         for (int i = 0; i < count; i++) {
             ServerCookie scookie = serverCookies.getCookie(i);
             try {
@@ -2767,17 +2760,11 @@ public class CoyoteRequest
                 if (domain != null) {
                     cookie.setDomain(scookie.getDomain().toString());
                 }
-                cookies[idx++] = cookie;
+                cookies.add(cookie);
             } catch(IllegalArgumentException e) {
                 ; // Ignore bad cookie.
             }
         }
-        if( idx < count ) {
-            Cookie [] ncookies = new Cookie[idx];
-            System.arraycopy(cookies, 0, ncookies, 0, idx);
-            cookies = ncookies;
-        }
-
     }
 
 
