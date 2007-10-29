@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.InetAddress;
 
+import org.apache.catalina.util.ServerInfo;
+
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.FastHttpDateFormat;
@@ -1358,7 +1360,12 @@ public class Http11Processor implements Processor, ActionHook {
           response.addHeader("Date", FastHttpDateFormat.getCurrentDate());
 
         // Add server header
+        /* SJSAS 5022949
         response.addHeader("Server", Constants.SERVER);
+         */
+        // START SJSAS 5022949
+        response.addHeader("Server", ServerInfo.getServerInfo());
+        // END SJSAS 5022949
 
         // Add transfer encoding header
         // FIXME

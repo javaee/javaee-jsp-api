@@ -47,13 +47,10 @@ public final class Constants {
     /**
      * Server string.
      */
-
-     // BEGIN S1AS8PE 4929847, 5022949
-     // public static final String SERVER = "Apache-Coyote/1.1";
-     // END S1AS8PE 4929847, 5022949
-     // BEGIN S1AS8PE 4929847, 5022949
-     public static final String SERVER = System.getProperty("product.name");
-     // END S1AS8PE 4929847, 5022949
+ 
+    /* S1AS8PE 4929847, 5022949
+    public static final String SERVER = "Apache-Coyote/1.1";
+     */
 
     /**
      * CR.
