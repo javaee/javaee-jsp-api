@@ -50,7 +50,7 @@ import org.apache.catalina.deploy.LoginConfig;
  * that utilizes SSL certificates to identify client users.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.1.1.1 $ $Date: 2005/05/27 22:55:04 $
+ * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:27 $
  */
 
 public class SSLAuthenticator
@@ -151,6 +151,11 @@ public class SSLAuthenticator
         // Cache the principal (if requested) and record this authentication
         register(request, response, principal, Constants.CERT_METHOD,
                  null, null);
+        String ssoId = (String) request.getNote(Constants.REQ_SSOID_NOTE);
+        if (ssoId != null) {
+            associate(ssoId, getSession(request, true));
+        }
+
         return (true);
 
     }

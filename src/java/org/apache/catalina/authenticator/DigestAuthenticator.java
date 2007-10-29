@@ -52,7 +52,7 @@ import org.apache.catalina.util.MD5Encoder;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.2 $ $Date: 2005/12/08 01:27:27 $
+ * @version $Revision: 1.3 $ $Date: 2006/03/09 17:51:37 $
  */
 
 public class DigestAuthenticator
@@ -198,6 +198,11 @@ public class DigestAuthenticator
                 register(request, response, principal,
                          Constants.DIGEST_METHOD,
                          username, null);
+                String ssoId = (String) request.getNote(
+                    Constants.REQ_SSOID_NOTE);
+                if (ssoId != null) {
+                    associate(ssoId, getSession(request, true));
+                }
                 return (true);
             }
         }
