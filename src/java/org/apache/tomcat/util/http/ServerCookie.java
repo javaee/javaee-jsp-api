@@ -299,12 +299,30 @@ public class ServerCookie implements Serializable {
         try {
             buf.append(URLEncoder.encode(name, "UTF-8"));
             buf.append("=");
+            /* PWC 6392327
             maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
+            */
+            // START PWC 6392327
+            if (value != null) {
+                maybeQuote(version, buf, URLEncoder.encode(value, "UTF-8"));
+            } else {
+                maybeQuote(version, buf, URLEncoder.encode("null", "UTF-8"));
+            }
+            // END PWC 6392327
         }
         catch (UnsupportedEncodingException e) {
             buf.append(URLEncoder.encode(name));
             buf.append("=");
+            /* PWC 6392327
             maybeQuote(version, buf, URLEncoder.encode(value));
+            */
+            // START PWC 6392327
+            if (value != null) {
+                maybeQuote(version, buf, URLEncoder.encode(value));
+            } else {
+                maybeQuote(version, buf, URLEncoder.encode("null"));
+            }
+            // END PWC 6392327
         }
 
 	// XXX Netscape cookie: "; "
