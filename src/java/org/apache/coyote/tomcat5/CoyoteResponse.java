@@ -77,7 +77,7 @@ import org.apache.catalina.Globals;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/08/18 22:59:29 $
+ * @version $Revision: 1.11 $ $Date: 2006/08/22 22:10:46 $
  */
 
 public class CoyoteResponse
@@ -1706,7 +1706,7 @@ public class CoyoteResponse
 
     // START GlassFish 896
     void addCookieIfNecessary() {
-        if (getContext().getCookies()) {
+        if (getContext() != null && getContext().getCookies()) {
             SessionTracker sc = request.getSessionTracker();
             if (sc != null && sc.getActiveSessions() > 0) {
                 Cookie cookie = new Cookie(Globals.SESSION_COOKIE_NAME,
