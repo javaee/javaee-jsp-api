@@ -72,14 +72,14 @@ public final class Constants {
      * The default response-type
      */
     public final static String DEFAULT_RESPONSE_TYPE = 
-            "text/html; charset=iso-8859-1";
+            "text/plain; charset=iso-8859-1";
 
 
     /**
      * The forced response-type
      */
     public final static String FORCED_RESPONSE_TYPE = 
-           "text/html; charset=iso-8859-1";
+           "text/plain; charset=iso-8859-1";
     // END SJSAS 6328909
 
 
