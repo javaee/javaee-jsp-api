@@ -126,7 +126,7 @@ import com.sun.appserv.BytecodePreprocessor;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.26 $ $Date: 2007/01/30 23:52:08 $
+ * @version $Revision: 1.27 $ $Date: 2007/02/09 02:56:25 $
  */
 public class WebappClassLoader
     extends URLClassLoader
@@ -1144,7 +1144,8 @@ public class WebappClassLoader
         if (delegate
                 || name.startsWith("javax")
                 || name.startsWith("sun")
-                || name.startsWith("com/sun/faces")
+                || (name.startsWith("com/sun/faces")
+                    && !name.startsWith("com/sun/faces/extensions"))
                 || name.startsWith("org/apache/taglibs/standard")) {
             if (log.isTraceEnabled())
                 log.trace("  Delegating to parent classloader " + parent);
@@ -1233,7 +1234,8 @@ public class WebappClassLoader
         if (delegate
                 || name.startsWith("javax")
                 || name.startsWith("sun")
-                || name.startsWith("com/sun/faces")
+                || (name.startsWith("com/sun/faces")
+                    && !name.startsWith("com/sun/faces/extensions"))
                 || name.startsWith("org/apache/taglibs/standard")) {
             if (log.isTraceEnabled())
                 log.trace("  Delegating to parent classloader " + parent);
@@ -1611,6 +1613,8 @@ public class WebappClassLoader
         if (securityManager != null) {
             refreshPolicy();
         }
+
+        addOverridablePackage("com.sun.faces.extensions");
     }
 
 
