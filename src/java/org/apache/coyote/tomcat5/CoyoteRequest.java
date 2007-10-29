@@ -135,7 +135,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Remy Maucherat
  * @author Craig R. McClanahan
- * @version $Revision: 1.64 $ $Date: 2007/06/18 23:14:22 $
+ * @version $Revision: 1.65 $ $Date: 2007/07/17 20:50:40 $
  */
 
 public class CoyoteRequest
@@ -1174,7 +1174,7 @@ public class CoyoteRequest
      */
     public Enumeration getAttributeNames() {
         if (isSecure()) {
-            getAttribute(Globals.CERTIFICATES_ATTR);
+            populateSSLAttributes();
         }
         return new Enumerator(attributes.keySet(), true);
     }
