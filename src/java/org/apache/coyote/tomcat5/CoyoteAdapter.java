@@ -71,7 +71,7 @@ import com.sun.appserv.ProxyHandler;
  *
  * @author Craig R. McClanahan
  * @author Remy Maucherat
- * @version $Revision: 1.10 $ $Date: 2005/12/08 01:28:33 $
+ * @version $Revision: 1.11 $ $Date: 2006/03/12 01:27:09 $
  */
 
 public class CoyoteAdapter
@@ -203,6 +203,14 @@ public class CoyoteAdapter
                     connector.getAuthPassthroughEnabled();
                 ProxyHandler proxyHandler = connector.getProxyHandler();
                 if (authPassthroughEnabled && proxyHandler != null) {
+
+                    // START SJSAS 6397218
+                    if (proxyHandler.getSSLKeysize(
+                            (HttpServletRequest)request.getRequest()) > 0) {
+                        request.setSecure(true);
+                    }
+                    // END SJSAS 6397218
+
                     X509Certificate[] certs = null;
                     try {
                         certs = proxyHandler.getSSLClientCertificateChain(
