@@ -156,7 +156,7 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
      * @param uri The taglib's uri
      * @param delegate The taglib from which the new TagLibraryInfoImpl is
      * populated
-     * @pageInfo The translation unit with which the new TagLibraryInfoImpl is
+     * @param pageInfo The translation unit with which the new TagLibraryInfoImpl is
      * to be associated
      */
     public TagLibraryInfoImpl(String prefix,

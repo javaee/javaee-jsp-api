@@ -688,14 +688,14 @@ public class JspC implements Options {
     }
 
     /**
-     * @see Options#getCompilerSourceVM.
+     * @see Options#getCompilerSourceVM
      */
      public String getCompilerSourceVM() {
          return compilerSourceVM;
      }
         
     /**
-     * @see Options#getCompilerSourceVM.
+     * @see Options#getCompilerSourceVM
      */
     public void setCompilerSourceVM(String vm) {
         // START SJSAS 6402545
