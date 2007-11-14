@@ -7,6 +7,31 @@
   <version>1.0-SNAPSHOT</version>
   <name>jsp-implementation</name>
   <url>https://jsp.dev.java.net</url>
+  <organization>
+    <name>Sun Microsystems</name>
+    <url>http://www.sun.com</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>CDDL</name>
+      <url>https://glassfish.dev.java.net/public/CDDLv1.0.html</url>
+    </license>
+  </licenses>
+  <issueManagement>
+    <system>bugzilla</system>
+    <url>https://jsp.dev.java.net/servlets/ProjectIssues</url>
+  </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>JSP Developer</name>
+      <archive>dev@jsp.dev.java.net</archive>
+    </mailingList>
+  </mailingLists>
+  <scm>
+    <connection>scm:svn:https://jsp.dev.java.net/svn/jsp</connection>
+    <developerConnection>scm:svn:https://jsp.dev.java.net/svn/jsp</developerConnection>
+    <url>https://jsp.dev.java.net/source/browse/jsp</url>
+  </scm>
   <build>
     <plugins>
       <plugin>
