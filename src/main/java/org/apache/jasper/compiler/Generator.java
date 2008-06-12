@@ -1,10 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -12,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -21,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -34,6 +32,24 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.jasper.compiler;
@@ -302,78 +318,6 @@ class Generator {
         page.visit(new TagHandlerPoolVisitor(tagHandlerPoolNames));
     }
 
-    private void declareTemporaryScriptingVars(Node.Nodes page)
-        throws JasperException {
-
-        class ScriptingVarVisitor extends Node.Visitor {
-
-            private Vector vars;
-
-            ScriptingVarVisitor() {
-                vars = new Vector();
-            }
-
-            public void visit(Node.CustomTag n) throws JasperException {
-
-                if (n.getCustomNestingLevel() > 0) {
-                    TagVariableInfo[] tagVarInfos = n.getTagVariableInfos();
-                    VariableInfo[] varInfos = n.getVariableInfos();
-
-                    if (varInfos.length > 0) {
-                        for (int i = 0; i < varInfos.length; i++) {
-                            String varName = varInfos[i].getVarName();
-                            String tmpVarName =
-                                "_jspx_"
-                                    + varName
-                                    + "_"
-                                    + n.getCustomNestingLevel();
-                            if (!vars.contains(tmpVarName)) {
-                                vars.add(tmpVarName);
-                                out.printin(varInfos[i].getClassName());
-                                out.print(" ");
-                                out.print(tmpVarName);
-                                out.print(" = ");
-                                out.print(null);
-                                out.println(";");
-                            }
-                        }
-                    } else {
-                        for (int i = 0; i < tagVarInfos.length; i++) {
-                            String varName = tagVarInfos[i].getNameGiven();
-                            if (varName == null) {
-                                varName =
-                                    n.getTagData().getAttributeString(
-                                        tagVarInfos[i].getNameFromAttribute());
-                            } else if (
-                                tagVarInfos[i].getNameFromAttribute()
-                                    != null) {
-                                // alias
-                                continue;
-                            }
-                            String tmpVarName =
-                                "_jspx_"
-                                    + varName
-                                    + "_"
-                                    + n.getCustomNestingLevel();
-                            if (!vars.contains(tmpVarName)) {
-                                vars.add(tmpVarName);
-                                out.printin(tagVarInfos[i].getClassName());
-                                out.print(" ");
-                                out.print(tmpVarName);
-                                out.print(" = ");
-                                out.print(null);
-                                out.println(";");
-                            }
-                        }
-                    }
-                }
-
-                visitBody(n);
-            }
-        }
-
-        page.visit(new ScriptingVarVisitor());
-    }
 
     /**
      * Generates the _jspInit() method for instantiating the tag handler pools.
@@ -665,9 +609,6 @@ class Generator {
 
         out.printil("JspWriter _jspx_out = null;");
         out.printil("PageContext _jspx_page_context = null;");
-        out.println();
-
-        declareTemporaryScriptingVars(page);
         out.println();
 
         out.printil("try {");
@@ -2615,6 +2556,9 @@ class Generator {
 
         private void declareScriptingVars(Node.CustomTag n, int scope) {
 
+            // Skip if the page is scriptless
+            if (pageInfo.isScriptless()) return;
+
             Vector vec = n.getScriptingVars(scope);
             if (vec != null) {
                 for (int i = 0; i < vec.size(); i++) {
@@ -2660,6 +2604,10 @@ class Generator {
          * by the given tag without affecting their original values.
          */
         private void saveScriptingVars(Node.CustomTag n, int scope) {
+
+            // Skip if the page is scriptless
+            if (pageInfo.isScriptless()) return;
+
             if (n.getCustomNestingLevel() == 0) {
                 return;
             }
@@ -2679,9 +2627,10 @@ class Generator {
                     if (n.getScriptingVars(scope).contains(varInfos[i]))
                         continue;
                     String varName = varInfos[i].getVarName();
-                    String tmpVarName =
-                        "_jspx_" + varName + "_" + n.getCustomNestingLevel();
-                    out.printin(tmpVarName);
+                    String tmpVarName = JspUtil.nextTemporaryVariableName();
+                    n.setTempScriptingVar(varName, tmpVarName);
+                    out.printin("String ");
+                    out.print(tmpVarName);
                     out.print(" = ");
                     out.print(varName);
                     out.println(";");
@@ -2703,9 +2652,10 @@ class Generator {
                         // alias
                         continue;
                     }
-                    String tmpVarName =
-                        "_jspx_" + varName + "_" + n.getCustomNestingLevel();
-                    out.printin(tmpVarName);
+                    String tmpVarName = JspUtil.nextTemporaryVariableName();
+                    n.setTempScriptingVar(varName, tmpVarName);
+                    out.printin("String ");
+                    out.print(tmpVarName);
                     out.print(" = ");
                     out.print(varName);
                     out.println(";");
@@ -2721,6 +2671,10 @@ class Generator {
          * saved in the tag's start element.
          */
         private void restoreScriptingVars(Node.CustomTag n, int scope) {
+
+            // Skip if the page is scriptless
+            if (pageInfo.isScriptless()) return;
+
             if (n.getCustomNestingLevel() == 0) {
                 return;
             }
@@ -2740,8 +2694,9 @@ class Generator {
                     if (n.getScriptingVars(scope).contains(varInfos[i]))
                         continue;
                     String varName = varInfos[i].getVarName();
-                    String tmpVarName =
-                        "_jspx_" + varName + "_" + n.getCustomNestingLevel();
+                    String tmpVarName = n.getTempScriptingVar(varName);
+                    if (tmpVarName == null)
+                        continue;  // should never happen
                     out.printin(varName);
                     out.print(" = ");
                     out.print(tmpVarName);
@@ -2764,8 +2719,9 @@ class Generator {
                         // alias
                         continue;
                     }
-                    String tmpVarName =
-                        "_jspx_" + varName + "_" + n.getCustomNestingLevel();
+                    String tmpVarName = n.getTempScriptingVar(varName);
+                    if (tmpVarName == null)
+                        continue;  // should never happen
                     out.printin(varName);
                     out.print(" = ");
                     out.print(tmpVarName);
@@ -2779,6 +2735,10 @@ class Generator {
          * the given scope.
          */
         private void syncScriptingVars(Node.CustomTag n, int scope) {
+
+            // Skip if the page is scriptless
+            if (pageInfo.isScriptless()) return;
+
             TagVariableInfo[] tagVarInfos = n.getTagVariableInfos();
             VariableInfo[] varInfos = n.getVariableInfos();
 
@@ -3601,8 +3561,6 @@ class Generator {
             out.printil("_jspInit(config);");
         }
         generatePageScopedVariables(tagInfo);
-
-        declareTemporaryScriptingVars(tag);
         out.println();
 
         out.printil("try {");

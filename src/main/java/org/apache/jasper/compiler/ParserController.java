@@ -1,10 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -12,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -21,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -34,6 +32,24 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.jasper.compiler;
 
@@ -268,9 +284,9 @@ class ParserController implements TagConstants {
              * that in the JSP config element, treating "UTF-16", "UTF-16BE",
              * and "UTF-16LE" as identical.
              */
-            if (!jspConfigPageEnc.equals(sourceEnc)
-                    && (!jspConfigPageEnc.startsWith("UTF-16")
-                        || !sourceEnc.startsWith("UTF-16"))) {
+            if (!jspConfigPageEnc.equalsIgnoreCase(sourceEnc)
+                    && (!jspConfigPageEnc.toLowerCase().startsWith("utf-16")
+                        || !sourceEnc.toLowerCase().startsWith("utf-16"))) {
                 err.jspError("jsp.error.prolog_config_encoding_mismatch",
                              sourceEnc, jspConfigPageEnc);
             }
@@ -282,9 +298,9 @@ class ParserController implements TagConstants {
              * that in the JSP config element, treating "UTF-16", "UTF-16BE",
              * and "UTF-16LE" as identical.
              */
-            if (!jspConfigPageEnc.equals(sourceEnc)
-                    && (!jspConfigPageEnc.startsWith("UTF-16")
-                        || !sourceEnc.startsWith("UTF-16"))) {
+            if (!jspConfigPageEnc.equalsIgnoreCase(sourceEnc)
+                    && (!jspConfigPageEnc.toLowerCase().startsWith("utf-16")
+                        || !sourceEnc.toLowerCase().startsWith("utf-16"))) {
                 err.jspError("jsp.error.bom_config_encoding_mismatch",
                              sourceEnc, jspConfigPageEnc);
             }
@@ -367,7 +383,7 @@ class ParserController implements TagConstants {
                 hasBom = true;
 	    }
 
-	    if (!isXml && sourceEnc.equals("UTF-8") && !hasBom) {
+	    if (!isXml && sourceEnc.equalsIgnoreCase("utf-8") && !hasBom) {
 		/*
 		 * We don't know if we're dealing with XML or standard syntax.
 		 * Therefore, we need to check to see if the page contains

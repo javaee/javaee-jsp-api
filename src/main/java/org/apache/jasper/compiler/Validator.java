@@ -1,12 +1,8 @@
-
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -14,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -23,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -36,7 +32,27 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+
 
 package org.apache.jasper.compiler;
 
@@ -301,9 +317,9 @@ class Validator {
                         // Treat "UTF-16", "UTF-16BE", and "UTF-16LE" as
                         // identical.
                         if (value != null
-                                && !value.equals(bom) 
-                                && (!value.startsWith("UTF-16")
-                                    || !bom.startsWith("UTF-16"))) {
+                                && !value.equalsIgnoreCase(bom) 
+                                && (!value.toLowerCase().startsWith("utf-16")
+                                    || !bom.toLowerCase().startsWith("utf-16"))) {
                             err.jspError(
                                 n,
                                 "jsp.error.bom_tagdir_encoding_mismatch",
@@ -369,9 +385,9 @@ class Validator {
              * pattern matches this page.
              * Treat "UTF-16", "UTF-16BE", and "UTF-16LE" as identical.
              */
-	    if (configEnc != null && !pageDirEnc.equals(configEnc) 
-		    && (!pageDirEnc.startsWith("UTF-16")
-			|| !configEnc.startsWith("UTF-16"))) {
+	    if (configEnc != null && !pageDirEnc.equalsIgnoreCase(configEnc) 
+		    && (!pageDirEnc.toLowerCase().startsWith("utf-16")
+			|| !configEnc.toLowerCase().startsWith("utf-16"))) {
 		err.jspError(pageDir,
                              "jsp.error.config_pagedir_encoding_mismatch",
 			     configEnc, pageDirEnc);
@@ -386,9 +402,9 @@ class Validator {
              */
             if (root.isXmlSyntax() && root.isEncodingSpecifiedInProlog()) {
 		String pageEnc = root.getPageEncoding();
-		if (!pageDirEnc.equals(pageEnc) 
-		        && (!pageDirEnc.startsWith("UTF-16")
-			    || !pageEnc.startsWith("UTF-16"))) {
+		if (!pageDirEnc.equalsIgnoreCase(pageEnc) 
+		        && (!pageDirEnc.toLowerCase().startsWith("utf-16")
+			    || !pageEnc.toLowerCase().startsWith("utf-16"))) {
 		    err.jspError(pageDir,
                                  "jsp.error.prolog_pagedir_encoding_mismatch",
 				 pageEnc, pageDirEnc);
@@ -402,9 +418,9 @@ class Validator {
              */
             if (root.hasBom()) {
                 String pageEnc = root.getPageEncoding();
-                if (!pageDirEnc.equals(pageEnc) 
-                        && (!pageDirEnc.startsWith("UTF-16")
-                            || !pageEnc.startsWith("UTF-16"))) {
+                if (!pageDirEnc.equalsIgnoreCase(pageEnc) 
+                        && (!pageDirEnc.toLowerCase().startsWith("utf-16")
+                            || !pageEnc.toLowerCase().startsWith("utf-16"))) {
                     err.jspError(pageDir,
                                  "jsp.error.bom_pagedir_encoding_mismatch",
                                  pageEnc, pageDirEnc);

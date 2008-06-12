@@ -1,10 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -12,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -21,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -34,6 +32,24 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.jasper;
@@ -61,9 +77,9 @@ import java.util.*;
 import javax.servlet.jsp.tagext.TagLibraryInfo;
 // END GlassFish 750
 
-import com.sun.org.apache.commons.logging.Log;
-import com.sun.org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.commons.logging.LogConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.LogConfigurationException;
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.JspRuntimeContext;
@@ -802,7 +818,10 @@ public class JspC implements Options {
      * Sets the path prefix for .dtd resources
      */
     public static void setDtdResourcePrefix(String prefix) {
-        ParserUtils.setDtdResourcePrefix(prefix);
+        // TODO: JspC needs to launch the webtier in HK2 habitat,
+        // and when you do that, you can override WebEntityResolver
+        // so that this option takes an effect.
+        throw new UnsupportedOperationException();
     }
     // END PWC 6386258
 
@@ -1347,7 +1366,8 @@ public class JspC implements Options {
         } finally {
             // START S1AS 5032338
             if (loader != null) {
-                LogFactory.release(loader);
+                // XXX APACHE-COMMONS-LOGGING-PATCH
+                // LogFactory.release(loader);
                 // START SJSAS 6258619
                 // ClassLoaderUtil.releaseLoader(loader);
                 org.apache.jasper.runtime.JspRuntimeLibrary.invoke(

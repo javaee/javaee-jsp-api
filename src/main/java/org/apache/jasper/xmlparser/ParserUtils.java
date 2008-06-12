@@ -1,12 +1,8 @@
-
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -14,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -23,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -36,13 +32,32 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+
 
 package org.apache.jasper.xmlparser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
+import java.net.URI;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -54,8 +69,9 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.XMLConstants;
 
-import com.sun.org.apache.commons.logging.Log;
-import com.sun.org.apache.commons.logging.LogFactory;
+import com.sun.grizzly.util.buf.UEncoder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
@@ -73,6 +89,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.glassfish.internal.api.Globals;
 
 /**
  * XML parsing utilities for processing web application deployment
@@ -80,7 +97,7 @@ import org.xml.sax.SAXParseException;
  * use a separate class loader for the parser to be used.
  *
  * @author Craig R. McClanahan
- * @version $Revision: 1.10 $ $Date: 2006/10/13 18:36:12 $
+ * @version $Revision: 1.11 $ $Date: 2007/05/05 05:32:59 $
  */
 
 public class ParserUtils {
@@ -91,12 +108,7 @@ public class ParserUtils {
     /**
      * An error handler for use when parsing XML documents.
      */
-    static ErrorHandler errorHandler = new MyErrorHandler();
-
-    /**
-     * An entity resolver for use when parsing XML documents.
-     */
-    static EntityResolver entityResolver = new MyEntityResolver();
+    private static ErrorHandler errorHandler = new MyErrorHandler();
 
     /* SJSAS 6384538
     public static boolean validating = false;
@@ -104,38 +116,26 @@ public class ParserUtils {
 
     static String schemaResourcePrefix;
 
+    static String dtdResourcePrefix;
+
+    static boolean isDtdResourcePrefixFileUrl = false;
+    static boolean isSchemaResourcePrefixFileUrl = false;
+
     private static final String SCHEMA_LOCATION_ATTR = "schemaLocation";
 
     private static HashMap<String, Schema> schemaCache =
         new HashMap<String, Schema>();
 
-    /**
-     * List of the Public IDs that we cache, and their
-     * associated location. This is used by 
-     * an EntityResolver to return the location of the
-     * cached copy of a DTD.
-     */
-    static final String[] CACHED_DTD_PUBLIC_IDS = {
-	Constants.TAGLIB_DTD_PUBLIC_ID_11,
-	Constants.TAGLIB_DTD_PUBLIC_ID_12,
-	Constants.WEBAPP_DTD_PUBLIC_ID_22,
-	Constants.WEBAPP_DTD_PUBLIC_ID_23,
-    };
-
     // START PWC 6386258
-    static final String[] CACHED_DTD_RESOURCE_PATHS = {
-        Constants.TAGLIB_DTD_RESOURCE_PATH_11,
-        Constants.TAGLIB_DTD_RESOURCE_PATH_12,
-        Constants.WEBAPP_DTD_RESOURCE_PATH_22,
-        Constants.WEBAPP_DTD_RESOURCE_PATH_23,
-    };
-
-    static final String[] CACHED_SCHEMA_RESOURCE_PATHS = {
+    private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = {
         Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20,
         Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
         Constants.WEBAPP_SCHEMA_RESOURCE_PATH_24,
         Constants.WEBAPP_SCHEMA_RESOURCE_PATH_25,
     };
+
+    static final String[] CACHED_SCHEMA_RESOURCE_PATHS =
+            (String[])DEFAULT_SCHEMA_RESOURCE_PATHS; 
     // END PWC 6386258
 
 
@@ -144,36 +144,41 @@ public class ParserUtils {
 
     // START PWC 6386258
     /**
-     * Sets the path prefix for .xsd resources
+     * Sets the path prefix URL for .xsd resources
      */
     public static void setSchemaResourcePrefix(String prefix) {
 
-        schemaResourcePrefix = prefix;
+        if (prefix != null && prefix.startsWith("file:")) {
+            schemaResourcePrefix = uencode(prefix);
+            isSchemaResourcePrefixFileUrl = true;
+        } else {
+            schemaResourcePrefix = prefix;
+            isSchemaResourcePrefixFileUrl = false;
+        }
 
         for (int i=0; i<CACHED_SCHEMA_RESOURCE_PATHS.length; i++) {
-            String path = CACHED_SCHEMA_RESOURCE_PATHS[i];
+            String path = DEFAULT_SCHEMA_RESOURCE_PATHS[i];
             int index = path.lastIndexOf('/');
             if (index != -1) {
                 CACHED_SCHEMA_RESOURCE_PATHS[i] =
-                    prefix + path.substring(index+1);
+                    schemaResourcePrefix + path.substring(index+1);
             }
         }
     }
 
-    /**
-     * Sets the path prefix for .dtd resources
-     */
-    public static void setDtdResourcePrefix(String prefix) {
-        for (int i=0; i<CACHED_DTD_RESOURCE_PATHS.length; i++) {
-            String path = CACHED_DTD_RESOURCE_PATHS[i];
-            int index = path.lastIndexOf('/');
-            if (index != -1) {
-                CACHED_DTD_RESOURCE_PATHS[i] =
-                    prefix + path.substring(index+1);
-            }
+    // END PWC 6386258
+
+    private static String uencode(String prefix) {
+        if (prefix != null && prefix.startsWith("file:")) {
+            UEncoder urlEncoder = new UEncoder();
+            urlEncoder.addSafeCharacter('/');
+            String uri = prefix.substring("file:".length());
+            uri = urlEncoder.encodeURL(uri);
+            return "file:" + uri;
+        } else {
+            return prefix;
         }
     }
-    // END PWC 6386258
 
 
     // --------------------------------------------------------- Public Methods
@@ -220,7 +225,7 @@ public class ParserUtils {
                 true);
             */
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(entityResolver);
+            builder.setEntityResolver(Globals.getDefaultHabitat().getComponent(EntityResolver.class,"web"));
             builder.setErrorHandler(errorHandler);
             document = builder.parse(is);
             document.setDocumentURI(uri);
@@ -415,9 +420,38 @@ public class ParserUtils {
                     schemaFactory.setResourceResolver(
                         new MyLSResourceResolver());
                     schemaFactory.setErrorHandler(new MyErrorHandler());
-                    schema = schemaFactory.newSchema(new StreamSource(
-                    ParserUtils.class.getResourceAsStream(
-                        schemaResourcePrefix + schemaPublicId)));
+
+                    String path = schemaPublicId;
+                    if (schemaResourcePrefix != null) {
+                        int index = schemaPublicId.lastIndexOf('/');
+                        if (index != -1) {
+                            path = schemaPublicId.substring(index+1);
+                        }
+                        path = schemaResourcePrefix + path;
+                    }
+
+                    InputStream input = null;
+                    if (isSchemaResourcePrefixFileUrl) {
+                        try {
+                            File f = new File(new URI(path));
+                            if (f.exists()) { 
+                                input = new FileInputStream(f);
+                            }
+                        } catch (Exception e) {
+                            throw new SAXException(e);
+                        }
+                    } else {
+                        input = ParserUtils.class.getResourceAsStream(path);
+                    }
+
+                    if (input == null) {
+		        throw new SAXException(
+                            Localizer.getMessage(
+                                "jsp.error.internal.filenotfound",
+                                schemaPublicId));
+                    }
+
+                    schema = schemaFactory.newSchema(new StreamSource(input));
                     schemaCache.put(schemaPublicId, schema);
                 }
             }
@@ -430,41 +464,6 @@ public class ParserUtils {
 
 
 // ------------------------------------------------------------ Private Classes
-
-class MyEntityResolver implements EntityResolver {
-    
-    public InputSource resolveEntity(String publicId, String systemId)
-	throws SAXException
-    {
-	for (int i=0; i<ParserUtils.CACHED_DTD_PUBLIC_IDS.length; i++) {
-	    String cachedDtdPublicId = ParserUtils.CACHED_DTD_PUBLIC_IDS[i];
-	    if (cachedDtdPublicId.equals(publicId)) {
-                /* PWC 6386258
-		String resourcePath = Constants.CACHED_DTD_RESOURCE_PATHS[i];
-                */
-                // START PWC 6386258
-                String resourcePath = ParserUtils.CACHED_DTD_RESOURCE_PATHS[i];
-                // END PWC 6386258
-		InputStream input =
-		    this.getClass().getResourceAsStream(resourcePath);
-		if (input == null) {
-		    throw new SAXException(
-                        Localizer.getMessage("jsp.error.internal.filenotfound",
-					     resourcePath));
-		}
-		InputSource isrc = new InputSource(input);
-		return isrc;
-	    }
-	}
-        if (ParserUtils.log.isDebugEnabled())
-            ParserUtils.log.debug("Resolve entity failed"  + publicId + " "
-                                  + systemId );
-	ParserUtils.log.error(
-            Localizer.getMessage("jsp.error.parse.xml.invalidPublicId",
-            publicId));
-        return null;
-    }
-}
 
 class MyErrorHandler implements ErrorHandler {
     public void warning(SAXParseException ex)
@@ -503,8 +502,22 @@ class MyLSResourceResolver implements LSResourceResolver {
         if (index != -1) {
             resourceName = systemId.substring(index+1);
         }
-        String resourcePath = ParserUtils.schemaResourcePrefix + resourceName;
-        is = this.getClass().getResourceAsStream(resourcePath);
+        String resourcePath = (ParserUtils.schemaResourcePrefix != null) ?
+            (ParserUtils.schemaResourcePrefix + resourceName) :
+            resourceName;
+
+        if (ParserUtils.isSchemaResourcePrefixFileUrl) {
+            try {
+                File f = new File(new URI(resourcePath));
+                if (f.exists()) { 
+                    is = new FileInputStream(f);
+                }
+            } catch (Exception e) {
+
+            }
+        } else {
+            is = this.getClass().getResourceAsStream(resourceName);
+        }
 
         MyLSInput ls = new MyLSInput();
         ls.setByteStream(is);

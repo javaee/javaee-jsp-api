@@ -1,12 +1,8 @@
-
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -14,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -23,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -36,7 +32,27 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+
 package org.apache.jasper.compiler;
 
 import java.io.InputStream;
@@ -55,6 +71,8 @@ import java.util.HashMap;
 // END GlassFish 747
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
@@ -62,8 +80,8 @@ import java.util.jar.JarFile;
 
 import javax.servlet.ServletContext;
 
-import com.sun.org.apache.commons.logging.Log;
-import com.sun.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 // START SJSAS 6384538
@@ -122,7 +140,7 @@ public class TldLocationsCache {
     private static final String JAR_FILE_SUFFIX = ".jar";
 
     // Names of JARs that are known not to contain any TLDs
-    private static HashSet<String> noTldJars;
+    private static HashSet<String> tldJars;
 
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
     private static HashSet<String> systemUris = new HashSet<String>();
@@ -216,39 +234,39 @@ public class TldLocationsCache {
     }
 
     /**
-     * Sets the list of JAR files that are known not to contain any TLDs.
+     * Sets the list of JAR files that are known to contain any TLDs.
      *
      * Only shared JAR files (that is, those loaded by a delegation parent
      * of the webapp's classloader) will be checked against this list.
      *
      * @param jarNames List of comma-separated names of JAR files that are 
-     * known not to contain any TLDs 
+     * known to contain any TLDs 
      */
-    public static void setNoTldJars(String jarNames) {
+    public static void setTldJars(String jarNames) {
         if (jarNames != null) {
-            if (noTldJars == null) {
-                noTldJars = new HashSet<String>();
+            if (tldJars == null) {
+                tldJars = new HashSet<String>();
             } else {
-                noTldJars.clear();
+                tldJars.clear();
             }
             StringTokenizer tokenizer = new StringTokenizer(jarNames, ",");
             while (tokenizer.hasMoreElements()) {
-                noTldJars.add(tokenizer.nextToken());
+                tldJars.add(tokenizer.nextToken());
             }
         }
     }
 
     /**
-     * Sets the list of JAR files that are known not to contain any TLDs.
+     * Sets the list of JAR files that are known to contain any TLDs.
      *
      * Only shared JAR files (that is, those loaded by a delegation parent
      * of the webapp's classloader) will be checked against this list.
      *
-     * @param set HashSet containing the names of JAR files known not to
+     * @param set HashSet containing the names of JAR files known to
      * contain any TLDs
      */
-    public static void setNoTldJars(HashSet<String> set) {
-        noTldJars = set;
+    public static void setTldJars(HashSet<String> set) {
+        tldJars = set;
     }
 
     /**
@@ -431,6 +449,23 @@ public class TldLocationsCache {
     private void scanJar(JarURLConnection conn, boolean ignore)
             throws JasperException {
 
+        scanJar(conn, ignore, null);
+    }
+
+    /**
+     * Scans the given JarURLConnection for TLD files located in META-INF
+     * (or a subdirectory of it), adding an implicit map entry to the taglib
+     * map for any TLD that has a <uri> element.
+     *
+     * @param conn The JarURLConnection to the JAR file to scan
+     * @param ignore true if any exceptions raised when processing the given
+     * @param tldNames the list of tld element to scan. The null value
+     *         indicates all the tlds in this case.
+     * JAR should be ignored, false otherwise
+     */
+    private void scanJar(JarURLConnection conn, boolean ignore,
+            List<String> tldNames) throws JasperException {
+
         JarFile jarFile = null;
         String resourcePath = conn.getJarFileURL().toString();
         try {
@@ -438,33 +473,21 @@ public class TldLocationsCache {
                 conn.setUseCaches(false);
             }
             jarFile = conn.getJarFile();
-            Enumeration entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = (JarEntry) entries.nextElement();
-                String name = entry.getName();
-                if (!name.startsWith("META-INF/")) continue;
-                if (!name.endsWith(".tld")) continue;
-                InputStream stream = jarFile.getInputStream(entry);
-                try {
-                    String uri = getUriFromTld(resourcePath, stream);
-                    // Add map entry.
-                    // Override existing entries as we move higher
-                    // up in the classloader delegation chain.
-                    if (uri != null
-                            && (mappings.get(uri) == null
-                                || systemUris.contains(uri)
-                                || (systemUrisJsf.contains(uri)
-                                    && !useMyFaces))) {
-                        mappings.put(uri, new String[]{ resourcePath, name });
-                    }
-                } finally {
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (Throwable t) {
-                            // do nothing
-                        }
-                    }
+            if (tldNames != null) {
+                for (String tldName : tldNames) {
+                    JarEntry entry = jarFile.getJarEntry(tldName);
+                    InputStream stream = jarFile.getInputStream(entry);
+                    scanTld(resourcePath, tldName, stream);
+                }
+            } else {
+                Enumeration entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = (JarEntry) entries.nextElement();
+                    String name = entry.getName();
+                    if (!name.startsWith("META-INF/")) continue;
+                    if (!name.endsWith(".tld")) continue;
+                    InputStream stream = jarFile.getInputStream(entry);
+                    scanTld(resourcePath, name, stream);
                 }
             }
         } catch (Exception ex) {
@@ -490,6 +513,31 @@ public class TldLocationsCache {
                     } catch (Throwable t) {
                         // ignore
                     }
+                }
+            }
+        }
+    }
+
+    private void scanTld(String resourcePath, String entryName,
+            InputStream stream) throws Exception {
+        try {
+            String uri = getUriFromTld(resourcePath, stream);
+            // Add map entry.
+            // Override existing entries as we move higher
+            // up in the classloader delegation chain.
+            if (uri != null
+                    && (mappings.get(uri) == null
+                    || systemUris.contains(uri)
+                    || (systemUrisJsf.contains(uri)
+                            && !useMyFaces))) {
+                mappings.put(uri, new String[]{ resourcePath, entryName });
+            }
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (Throwable t) {
+                    // do nothing
                 }
             }
         }
@@ -588,8 +636,8 @@ public class TldLocationsCache {
      * <CATALINA_HOME>/common/lib).
      *
      * The set of shared JARs to be scanned for TLDs is narrowed down by
-     * the <tt>noTldJars</tt> class variable, which contains the names of JARs
-     * that are known not to contain any TLDs.
+     * the <tt>tldJars</tt> class variable, which contains the names of JARs
+     * that are known to contain any TLDs.
      */
     private void scanJars() throws Exception {
 
@@ -632,6 +680,17 @@ public class TldLocationsCache {
 
             loader = loader.getParent();
         }
+
+        Map<URL, List<String>> tldMap = (Map<URL, List<String>>)ctxt.getAttribute(
+                "com.sun.appserv.tld.map");
+        // Scan system impl jars with tlds
+        if (tldMap != null) {
+            for (URL url : tldMap.keySet()) {
+                URL jarURL = new URL("jar:" + url.toString() + "!/");
+                scanJar((JarURLConnection)jarURL.openConnection(),
+                        true, tldMap.get(url));
+            }
+        }
     }
 
     /*
@@ -657,6 +716,6 @@ public class TldLocationsCache {
         if (slash >= 0) {
             jarName = jarPath.substring(slash + 1);
         }
-        return ((noTldJars == null) || !noTldJars.contains(jarName));
+        return (tldJars != null && tldJars.contains(jarName));
     }
 }

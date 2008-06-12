@@ -1,12 +1,8 @@
-
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
- * Portions Copyright Apache Software Foundation.
- * 
+ *
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -14,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -23,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -36,7 +32,27 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+
 package org.apache.jasper.compiler;
 
 import java.io.File;
@@ -62,8 +78,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspFactory;
 
-import com.sun.org.apache.commons.logging.Log;
-import com.sun.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -155,11 +171,9 @@ public final class JspRuntimeContext implements Runnable {
         bytecodeBirthTimes = new ConcurrentHashMap<String, Long>(hashSize);
 
         // Get the parent class loader
-        parentClassLoader =
-            (URLClassLoader) Thread.currentThread().getContextClassLoader();
+        parentClassLoader = Thread.currentThread().getContextClassLoader();
         if (parentClassLoader == null) {
-            parentClassLoader =
-                (URLClassLoader)this.getClass().getClassLoader();
+            parentClassLoader = this.getClass().getClassLoader();
         }
 
 	if (log.isTraceEnabled()) {
@@ -205,7 +219,7 @@ public final class JspRuntimeContext implements Runnable {
      */
     private ServletContext context;
     private Options options;
-    private URLClassLoader parentClassLoader;
+    private ClassLoader parentClassLoader;
     private PermissionCollection permissionCollection;
     private CodeSource codeSource;                    
     private String classpath;
@@ -299,11 +313,11 @@ public final class JspRuntimeContext implements Runnable {
     }
 
     /**
-     * Get the parent URLClassLoader.
+     * Get the parent class loader.
      *
-     * @return URLClassLoader parent
+     * @return ClassLoader parent
      */
-    public URLClassLoader getParentClassLoader() {
+    public ClassLoader getParentClassLoader() {
         return parentClassLoader;
     }
 
@@ -482,20 +496,16 @@ public final class JspRuntimeContext implements Runnable {
      */
     private void initClassPath() {
 
-        URL [] urls = parentClassLoader.getURLs();
+        /* Classpath can be specified in one of two ways, depending on
+           whether the compilation is embedded or invoked from Jspc.
+           1. Calculated by the web container, and passed to Jasper in the
+              context attribute.
+           2. Jspc directly invoke JspCompilationContext.setClassPath, in
+              case the classPath initialzed here is ignored.
+        */
+
         StringBuffer cpath = new StringBuffer();
         String sep = System.getProperty("path.separator");
-
-        for(int i = 0; i < urls.length; i++) {
-            // Tomcat 4 can use URL's other than file URL's,
-            // a protocol other than file: will generate a
-            // bad file system path, so only add file:
-            // protocol URL's to the classpath.
-            
-            if( urls[i].getProtocol().equals("file") ) {
-                cpath.append((String)urls[i].getFile()+sep);
-            }
-        }    
 
 	cpath.append(options.getScratchDir() + sep);
 
@@ -504,15 +514,18 @@ public final class JspRuntimeContext implements Runnable {
             cp = options.getClassPath();
         }
 
-        classpath = cpath.toString() + cp;
+        if (cp != null) {
+            classpath = cpath.toString() + cp;
+        }
 
         // START GlassFish Issue 845
-        try {
-            classpath = URLDecoder.decode(classpath, "UTF-8");
-
-        } catch (UnsupportedEncodingException e) {
-            if (log.isDebugEnabled())
-                log.debug("Exception decoding classpath : " + classpath, e);
+        if (classpath != null) {
+            try {
+                classpath = URLDecoder.decode(classpath, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                if (log.isDebugEnabled())
+                    log.debug("Exception decoding classpath : " + classpath, e);
+            }
         }
         // END GlassFish Issue 845
     }
@@ -572,7 +585,7 @@ public final class JspRuntimeContext implements Runnable {
                     "accessClassInPackage.org.apache.jasper.runtime") );
 
                 if (parentClassLoader instanceof URLClassLoader) {
-                    URL [] urls = parentClassLoader.getURLs();
+                    URL [] urls = ((URLClassLoader)parentClassLoader).getURLs();
                     String jarUrl = null;
                     String jndiUrl = null;
                     for (int i=0; i<urls.length; i++) {
