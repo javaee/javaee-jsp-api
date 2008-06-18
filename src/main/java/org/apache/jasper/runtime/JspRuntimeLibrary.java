@@ -1091,6 +1091,7 @@ public class JspRuntimeLibrary {
        and the method exists.
        @return result of the method
      */
+/*
     public static Object invoke(String className, String methodName,
                                 Class[] parameterTypes, Object[] parameters) {
         Object result = null;
@@ -1113,5 +1114,5 @@ public class JspRuntimeLibrary {
         }
         return result;
     }
-
+*/
 }

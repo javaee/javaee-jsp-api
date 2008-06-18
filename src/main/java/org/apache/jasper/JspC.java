@@ -72,14 +72,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 // START GlassFish 750
 import javax.servlet.jsp.tagext.TagLibraryInfo;
 // END GlassFish 750
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.LogConfigurationException;
 import org.apache.jasper.compiler.Compiler;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.JspRuntimeContext;
@@ -93,6 +92,10 @@ import org.apache.jasper.xmlparser.ParserUtils;
 // END PWC 6386258
 import org.apache.tools.ant.AntClassLoader;
 
+// START SJSAS 6258619
+// XXX Remove the dependency on glassfish.webtier for now
+// import com.sun.appserv.ClassLoaderUtil;
+// END SJSAS 6258619
 
 /**
  * Shell for the jspc compiler.  Handles all options associated with the
@@ -146,7 +149,7 @@ public class JspC implements Options {
     // END SJSAS 6402545
 
     // Logger
-    private static Log log = LogFactory.getLog(JspC.class);
+    private static Logger log = Logger.getLogger(JspC.class.getName());
 
     private static final String SWITCH_VERBOSE = "-v";
     private static final String SWITCH_HELP = "-help";
@@ -704,14 +707,14 @@ public class JspC implements Options {
     }
 
     /**
-     * @see Options#getCompilerSourceVM
+     * @see Options#getCompilerSourceVM.
      */
      public String getCompilerSourceVM() {
          return compilerSourceVM;
      }
         
     /**
-     * @see Options#getCompilerSourceVM
+     * @see Options#getCompilerSourceVM.
      */
     public void setCompilerSourceVM(String vm) {
         // START SJSAS 6402545
@@ -1197,9 +1200,9 @@ public class JspC implements Options {
                 rootCause = ((JasperException) rootCause).getRootCause();
             }
             if (listErrors && rootCause != je) {
-                log.error(Localizer.getMessage("jspc.error.generalException",
-                                               file),
-                          rootCause);
+                log.log(Level.SEVERE,
+                    Localizer.getMessage("jspc.error.generalException", file),
+                    rootCause);
             }
 
             // Bugzilla 35114.
@@ -1207,7 +1210,7 @@ public class JspC implements Options {
                 throw je;
             } else {
                 if (listErrors && !ignoreJspFragmentErrors) {
-                    log.error(je.getMessage());
+                    log.severe(je.getMessage());
                 }
                 // START SJAS 6329723
                 jspErrors.put(jspUri, je);
@@ -1215,10 +1218,11 @@ public class JspC implements Options {
             }
 
         } catch (Exception e) {
-	    if ((e instanceof FileNotFoundException) && log.isWarnEnabled()) {
-		log.warn(Localizer.getMessage("jspc.error.fileDoesNotExist",
-					      e.getMessage()));
-	    }
+            if ((e instanceof FileNotFoundException) &&
+                        log.isLoggable(Level.WARNING)) {
+                log.warning(Localizer.getMessage("jspc.error.fileDoesNotExist",
+                                                  e.getMessage()));
+            }
             throw new JasperException(e);
         } finally {
             if(originalClassLoader != null) {
@@ -1318,10 +1322,9 @@ public class JspC implements Options {
                     fjsp = new File(uriRootF, nextjsp);
                 }
                 if (!fjsp.exists()) {
-                    if (log.isWarnEnabled()) {
-                        log.warn
-                            (Localizer.getMessage
-                             ("jspc.error.fileDoesNotExist", fjsp.toString()));
+                    if (log.isLoggable(Level.WARNING)) {
+                        log.warning(Localizer.getMessage
+                            ("jspc.error.fileDoesNotExist", fjsp.toString()));
                     }
                     continue;
                 }
@@ -1370,11 +1373,6 @@ public class JspC implements Options {
                 // LogFactory.release(loader);
                 // START SJSAS 6258619
                 // ClassLoaderUtil.releaseLoader(loader);
-                org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
-                    "com.sun.appserv.ClassLoaderUtil",
-                    "releaseLoader",
-                    new Class[] {URLClassLoader.class},
-                    new Object[] {loader});
                 // END SJSAS 6258619
             }
             // END S1AS 5032338
@@ -1551,8 +1549,8 @@ public class JspC implements Options {
                     String ext=libs[i].substring( libs[i].length() - 4 );
                     if (! ".jar".equalsIgnoreCase(ext)) {
                         if (".tld".equalsIgnoreCase(ext)) {
-                            log.warn("TLD files should not be placed in "
-                                     + "/WEB-INF/lib");
+                            log.warning(
+                              "TLD files should not be placed in /WEB-INF/lib");
                         }
                         continue;
                     }
@@ -1608,9 +1606,10 @@ public class JspC implements Options {
                     if (g.exists() && g.isDirectory()) {
                         uriRoot = f.getCanonicalPath();
                         uriBase = tUriBase;
-			if (log.isInfoEnabled()) {
-			    log.info(Localizer.getMessage("jspc.implicit.uriRoot",
-							  uriRoot));
+			if (log.isLoggable(Level.INFO)) {
+                            log.info(
+                                Localizer.getMessage("jspc.implicit.uriRoot",
+                                                     uriRoot));
 			}
                         break;
                     }

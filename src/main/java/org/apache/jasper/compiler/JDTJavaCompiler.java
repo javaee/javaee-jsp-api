@@ -59,6 +59,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
@@ -93,7 +95,7 @@ public class JDTJavaCompiler implements JavaCompiler {
     private final Map settings = new HashMap();
     private JspCompilationContext ctxt;
     private ErrorDispatcher errDispatcher;
-    private com.sun.org.apache.commons.logging.Log log;
+    private Logger log;
     private String javaFileName;
 
 
@@ -102,10 +104,10 @@ public class JDTJavaCompiler implements JavaCompiler {
                      boolean suppressLogging) {
         this.errDispatcher = errDispatcher;
         this.ctxt = ctxt;
-        log = suppressLogging?
-            new com.sun.org.apache.commons.logging.impl.NoOpLog():
-            com.sun.org.apache.commons.logging.LogFactory.getLog(
-                JDTJavaCompiler.class);
+        log = Logger.getLogger(JDTJavaCompiler.class.getName());
+        if (suppressLogging) {
+            log.setLevel(Level.OFF);
+        }
     }
 
     public void setExtdirs(String exts) {
@@ -172,7 +174,7 @@ public class JDTJavaCompiler implements JavaCompiler {
             settings.put(CompilerOptions.OPTION_Source,
                          CompilerOptions.VERSION_1_5);
         } else {
-            log.warn("Unknown source VM " + sourceVM + " ignored.");
+            log.warning("Unknown source VM " + sourceVM + " ignored.");
             settings.put(CompilerOptions.OPTION_Source,
                     CompilerOptions.VERSION_1_5);
         }
@@ -195,7 +197,7 @@ public class JDTJavaCompiler implements JavaCompiler {
             settings.put(CompilerOptions.OPTION_TargetPlatform,
                          CompilerOptions.VERSION_1_5);
         } else {
-            log.warn("Unknown target VM " + targetVM + " ignored.");
+            log.warning("Unknown target VM " + targetVM + " ignored.");
             settings.put(CompilerOptions.OPTION_TargetPlatform,
                     CompilerOptions.VERSION_1_5);
         }
@@ -261,7 +263,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                         buf.getChars(0, result.length, result, 0);
                     }
                 } catch (IOException e) {
-                    log.error("Compilation error", e);
+                    log.log(Level.SEVERE, "Compilation error", e);
                 } finally {
                     if (reader != null) {
                         try {
@@ -355,9 +357,9 @@ public class JDTJavaCompiler implements JavaCompiler {
                                 new NameEnvironmentAnswer(classFileReader, null);
                         }
                     } catch (IOException exc) {
-                        log.error("Compilation error", exc);
+                        log.log(Level.SEVERE, "Compilation error", exc);
                     } catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException exc) {
-                        log.error("Compilation error", exc);
+                        log.log(Level.SEVERE, "Compilation error", exc);
                     } finally {
                         if (is != null) {
                             try {
@@ -437,7 +439,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                                                 new StringBuffer(problem.getMessage()), 
                                                 problem.getSourceLineNumber()));
                                     } catch (JasperException e) {
-                                        log.error("Error visiting node", e);
+                                        log.log(Level.SEVERE, "Error visiting node", e);
                                     }
                                 }
                             }
@@ -468,7 +470,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                             }
                         }
                     } catch (IOException exc) {
-                        log.error("Compilation error", exc);
+                        log.log(Level.SEVERE, "Compilation error", exc);
                     }
                 }
             };

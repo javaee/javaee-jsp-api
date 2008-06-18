@@ -58,6 +58,8 @@ package org.apache.jasper;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.text.MessageFormat;
 
 import javax.servlet.ServletConfig;
@@ -68,8 +70,6 @@ import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.xmlparser.ParserUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * A class to hold all init parameters specific to the JSP engine. 
@@ -81,7 +81,8 @@ import org.apache.commons.logging.LogFactory;
 public final class EmbeddedServletOptions implements Options {
 
     // Logger
-    private static Log log = LogFactory.getLog(EmbeddedServletOptions.class);
+    private static Logger log =
+        Logger.getLogger(EmbeddedServletOptions.class.getName());
 
     private Properties settings = new Properties();
     
@@ -571,14 +572,14 @@ public final class EmbeddedServletOptions implements Options {
             }
         }      
         if (this.scratchDir == null) {
-            log.fatal(Localizer.getMessage("jsp.error.no.scratch.dir"));
+            log.severe(Localizer.getMessage("jsp.error.no.scratch.dir"));
             return;
         }
             
         if (!(scratchDir.exists() && scratchDir.canRead() &&
               scratchDir.canWrite() && scratchDir.isDirectory()))
-            log.fatal(Localizer.getMessage("jsp.error.bad.scratch.dir",
-					   scratchDir.getAbsolutePath()));
+            log.severe(Localizer.getMessage("jsp.error.bad.scratch.dir",
+                                            scratchDir.getAbsolutePath()));
                                   
         this.compiler = config.getInitParameter("compiler");
 
@@ -604,8 +605,9 @@ public final class EmbeddedServletOptions implements Options {
             try {
                 reloadInterval = Integer.parseInt(reloadIntervalString);
             } catch (NumberFormatException e) {
-                if (log.isWarnEnabled()) {
-                    log.warn(Localizer.getMessage("jsp.warning.reloadInterval"));
+                if (log.isLoggable(Level.WARNING)) {
+                    log.warning(
+                        Localizer.getMessage("jsp.warning.reloadInterval"));
                 }
             }
             if (reloadInterval == -1) {
@@ -632,8 +634,9 @@ public final class EmbeddedServletOptions implements Options {
             } else if (usePrecompiled.equalsIgnoreCase("false")) {
                 this.usePrecompiled = false;
             } else {
-                if (log.isWarnEnabled()) {
-		    log.warn(Localizer.getMessage("jsp.warning.usePrecompiled"));
+                if (log.isLoggable(Level.WARNING)) {
+                    log.warning( 
+		        Localizer.getMessage("jsp.warning.usePrecompiled"));
 		}
 	    }
         }
@@ -656,7 +659,7 @@ public final class EmbeddedServletOptions implements Options {
                 }
                 initialCapacity = value;
             } catch (NumberFormatException nfe) {
-                if (log.isWarnEnabled()) {
+                if (log.isLoggable(Level.WARNING)) {
                     String msg = Localizer.getMessage(
                         "jsp.warning.initialcapacity");
                     msg = MessageFormat.format(
@@ -664,7 +667,7 @@ public final class EmbeddedServletOptions implements Options {
                         new Object[] {
                             capacity,
                             Integer.valueOf(Constants.DEFAULT_INITIAL_CAPACITY)});
-                    log.warn(msg);
+                    log.warning(msg);
                 }
             }
         }
@@ -679,13 +682,13 @@ public final class EmbeddedServletOptions implements Options {
                 // use default, do nothing
             } else {
                 // use default, issue warning
-                if (log.isWarnEnabled()) {
+                if (log.isLoggable(Level.WARNING)) {
                     String msg = Localizer.getMessage(
                         "jsp.warning.unsupportedJavaCompiler");
                     msg = MessageFormat.format(msg,
                                                new Object[]
                                                    { jspCompilerPlugin });
-                    log.warn(msg);
+                    log.warning(msg);
                 }
             }
         }
@@ -717,8 +720,8 @@ public final class EmbeddedServletOptions implements Options {
         try {
             this.checkInterval = Integer.parseInt(param);
         } catch(NumberFormatException ex) {
-            if (log.isWarnEnabled()) {
-                log.warn(Localizer.getMessage("jsp.warning.checkInterval"));
+            if (log.isLoggable(Level.WARNING)) {
+               log.warning(Localizer.getMessage("jsp.warning.checkInterval"));
             }
         }
     }
@@ -728,8 +731,9 @@ public final class EmbeddedServletOptions implements Options {
         try {
             this.modificationTestInterval = Integer.parseInt(param);
         } catch(NumberFormatException ex) {
-            if (log.isWarnEnabled()) {
-                log.warn(Localizer.getMessage("jsp.warning.modificationTestInterval"));
+            if (log.isLoggable(Level.WARNING)) {
+               log.warning(
+                   Localizer.getMessage("jsp.warning.modificationTestInterval"));
             }
         }
     }
@@ -745,9 +749,9 @@ public final class EmbeddedServletOptions implements Options {
             if (sParam.equalsIgnoreCase("false")) {
                 return false;
             }
-            if (log.isWarnEnabled()) {
-                log.warn(Localizer.getMessage("jsp.warning.boolean", param,
-                     (init? "true": "false")));
+            if (log.isLoggable(Level.WARNING)) {
+               log.warning(Localizer.getMessage("jsp.warning.boolean", param,
+                       (init? "true": "false")));
             }
         }
         return init;

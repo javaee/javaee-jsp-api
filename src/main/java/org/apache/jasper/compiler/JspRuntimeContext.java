@@ -74,12 +74,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -104,7 +104,8 @@ import org.apache.jasper.servlet.JspServletWrapper;
 public final class JspRuntimeContext implements Runnable {
 
     // Logger
-    private static Log log = LogFactory.getLog(JspRuntimeContext.class);
+    private static Logger log =
+            Logger.getLogger(JspRuntimeContext.class.getName());
 
     /*
      * Counts how many times the webapp's JSPs have been reloaded.
@@ -140,7 +141,8 @@ public final class JspRuntimeContext implements Runnable {
                     basePackage
                     + "servlet.JspServletWrapper");
             } catch (ClassNotFoundException ex) {
-                log.error("Jasper JspRuntimeContext preload of class failed: "
+                log.log(Level.SEVERE,
+                         "Jasper JspRuntimeContext preload of class failed: "
                           + ex.getMessage(), ex);
             }
         }
@@ -176,12 +178,12 @@ public final class JspRuntimeContext implements Runnable {
             parentClassLoader = this.getClass().getClassLoader();
         }
 
-	if (log.isTraceEnabled()) {
+	if (log.isLoggable(Level.FINEST)) {
 	    if (parentClassLoader != null) {
-		log.trace(Localizer.getMessage("jsp.message.parent_class_loader_is",
+		log.finest(Localizer.getMessage("jsp.message.parent_class_loader_is",
 					       parentClassLoader.toString()));
 	    } else {
-		log.trace(Localizer.getMessage("jsp.message.parent_class_loader_is",
+		log.finest(Localizer.getMessage("jsp.message.parent_class_loader_is",
 					       "<none>"));
 	    }
         }
@@ -523,8 +525,9 @@ public final class JspRuntimeContext implements Runnable {
             try {
                 classpath = URLDecoder.decode(classpath, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                if (log.isDebugEnabled())
-                    log.debug("Exception decoding classpath : " + classpath, e);
+                if (log.isLoggable(Level.FINE))
+                    log.log(Level.FINE,
+                            "Exception decoding classpath : " + classpath, e);
             }
         }
         // END GlassFish Issue 845

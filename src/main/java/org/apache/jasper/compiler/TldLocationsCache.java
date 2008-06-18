@@ -77,11 +77,11 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 // START SJSAS 6384538
@@ -126,7 +126,8 @@ import org.apache.jasper.xmlparser.TreeNode;
 public class TldLocationsCache {
 
     // Logger
-    private static Log log = LogFactory.getLog(TldLocationsCache.class);
+    private static Logger log =
+            Logger.getLogger(TldLocationsCache.class.getName());
 
     /**
      * The types of URI one may specify for a tag library
@@ -362,8 +363,8 @@ public class TldLocationsCache {
                 try {
                     is = new FileInputStream(altDDName);
                 } catch (FileNotFoundException e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn(Localizer.getMessage(
+                    if (log.isLoggable(Level.WARNING)) {
+                        log.warning(Localizer.getMessage(
                                             "jsp.error.internal.filenotfound",
                                             altDDName));
                     }
@@ -371,8 +372,8 @@ public class TldLocationsCache {
             } else {
                 is = ctxt.getResourceAsStream(WEB_XML);
                 /* SJSAS 6396582
-                if (is == null && log.isWarnEnabled()) {
-                    log.warn(Localizer.getMessage(
+                if (is == null && log.isLoggable(Level.WARNING)) {
+                    log.warning(Localizer.getMessage(
                                             "jsp.error.internal.filenotfound",
                                             WEB_XML));
                 }

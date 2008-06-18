@@ -65,6 +65,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
@@ -95,10 +97,9 @@ public class AntJavaCompiler implements JavaCompiler {
     private ErrorDispatcher errDispatcher;
     private String javaFileName;
     private String javaEncoding;
-    private boolean nolog;
     private StringBuffer info = new StringBuffer();
         // For collecting Java compilation enviroment
-    private org.apache.commons.logging.Log log;
+    private Logger log;
 
     // Use a threadpool and force it to 1 to simulate serialization
     private static ExecutorService threadPool = null;
@@ -124,8 +125,8 @@ public class AntJavaCompiler implements JavaCompiler {
         }
 
         if( options.getCompiler() != null ) {
-            if( log.isDebugEnabled() )
-                log.debug("Compiler " + options.getCompiler() );
+            if( log.isLoggable(Level.FINE))
+                log.fine("Compiler " + options.getCompiler() );
             project.setProperty("build.compiler", options.getCompiler() );
         }
         project.init();
@@ -160,10 +161,10 @@ public class AntJavaCompiler implements JavaCompiler {
         this.ctxt = ctxt;
         this.errDispatcher = errDispatcher;
         options = ctxt.getOptions();
-        log = suppressLogging?
-            new org.apache.commons.logging.impl.NoOpLog():
-            org.apache.commons.logging.LogFactory.getLog(
-                AntJavaCompiler.class);
+        log = Logger.getLogger(AntJavaCompiler.class.getName());
+        if (suppressLogging) {
+           log.setLevel(Level.OFF);
+        }
         getProject();
         javac = (Javac) project.createTask("javac");
         javac.setFork(options.getFork());
@@ -265,8 +266,8 @@ public class AntJavaCompiler implements JavaCompiler {
                 javac.execute();
             } catch (BuildException e) {
                 be = e;
-                log.error( "Javac exception ", e);
-                log.error( "Env: " + info.toString());
+                log.log(Level.SEVERE, "Javac exception ", e);
+                log.severe( "Env: " + info.toString());
             }
             errorReport.append(logger.getReport());
             // Stop capturing the System.err output for this thread
@@ -293,8 +294,8 @@ public class AntJavaCompiler implements JavaCompiler {
             }
             be = javacObj.getException();
             if (be != null) {
-                log.error( "Javac exception ", be);
-                log.error( "Env: " + info.toString());
+                log.log(Level.SEVERE, "Javac exception ", be);
+                log.severe( "Env: " + info.toString());
             }
             errorReport.append(logger.getReport());
             errorCapture = javacObj.getErrorCapture();

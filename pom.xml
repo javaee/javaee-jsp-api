@@ -48,13 +48,6 @@
           </excludes>
           <source>1.5</source>
           <target>1.5</target>
-          <archive>
-            <manifestEntries>
-              <HK2-Module-Import-Policy>com.sun.enterprise.web.WebImportPolicy</HK2-Module-Import-Policy>
-              <Bundle-Activator>org.glassfish.web.DirContextURLStreamHandlerService</Bundle-Activator>
-              <Import-Package>org.osgi.framework,org.osgi.service.url</Import-Package>
-            </manifestEntries>
-          </archive>
         </configuration>
       </plugin>
     </plugins>
@@ -115,11 +108,6 @@
     </dependency>
     <dependency>
       <groupId>org.glassfish.external</groupId>
-      <artifactId>apache-commons</artifactId>
-      <version>10.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.external</groupId>
       <artifactId>ant</artifactId>
       <version>10.0-SNAPSHOT</version>
     </dependency>
@@ -130,16 +118,6 @@
       <groupId>org.glassfish.external</groupId>
       <artifactId>grizzly-module</artifactId>
       <version>${grizzly.version}</version>
-    </dependency>
-    <dependency>
-      <!-- This dependency is added so that classes in glassfish container
-           can be loaded with Class.forName().  Containers not having those
-           classes still runs, with maybe reduced functionalities.
-        -->
-      <groupId>org.glassfish.web</groupId>
-      <artifactId>webtier</artifactId>
-      <version>10.0-SNAPSHOT</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <!-- This is temporary, and will be removed if we get rid of the

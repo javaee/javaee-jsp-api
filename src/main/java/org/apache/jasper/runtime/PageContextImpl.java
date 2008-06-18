@@ -66,6 +66,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -102,8 +104,6 @@ import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
 import javax.el.ExpressionFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.security.SecurityUtil;
@@ -122,7 +122,7 @@ import org.apache.jasper.security.SecurityUtil;
 public class PageContextImpl extends PageContext {
 
     // Logger
-    private static Log log = LogFactory.getLog(PageContextImpl.class);
+    private static Logger log = Logger.getLogger(PageContextImpl.class.getName());
 
     // per-servlet state
     private BodyContentImpl[] outs;
@@ -236,7 +236,7 @@ public class PageContextImpl extends PageContext {
             // the stream.
             ((JspWriterImpl)out).flushBuffer();
 	} catch (IOException ex) {
-	    log.warn("Internal error flushing the buffer in release()");
+	    log.warning("Internal error flushing the buffer in release()");
 	}
 
 	servlet = null;

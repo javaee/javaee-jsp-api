@@ -52,10 +52,10 @@
  * limitations under the License.
  */
 
-
-
-
 package org.apache.jasper.security;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Static class used to preload java classes when using the
@@ -67,8 +67,8 @@ package org.apache.jasper.security;
 
 public final class SecurityClassLoad {
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( SecurityClassLoad.class );
+    private static Logger log=
+        Logger.getLogger(SecurityClassLoad.class.getName());
 
     public static void securityClassLoad(ClassLoader loader){
 
@@ -140,7 +140,7 @@ public final class SecurityClassLoad {
             loader.loadClass( basePackage +
                 "runtime.JspWriterImpl$1");
         } catch (ClassNotFoundException ex) {
-            log.error("SecurityClassLoad", ex);
+            log.log(Level.SEVERE, "SecurityClassLoad", ex);
         }
     }
 }

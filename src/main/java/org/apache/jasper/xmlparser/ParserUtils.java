@@ -59,6 +59,8 @@ package org.apache.jasper.xmlparser;
 import java.io.*;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,8 +72,6 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.XMLConstants;
 
 import com.sun.grizzly.util.buf.UEncoder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
@@ -103,7 +103,7 @@ import org.glassfish.internal.api.Globals;
 public class ParserUtils {
 
     // Logger
-    static Log log = LogFactory.getLog(ParserUtils.class);
+    static Logger log = Logger.getLogger(ParserUtils.class.getName());
 
     /**
      * An error handler for use when parsing XML documents.
@@ -237,7 +237,7 @@ public class ParserUtils {
                 }
                 /* See CR 6399139
                 else {
-                    log.warn(Localizer.getMessage(
+                    log.warning(Localizer.getMessage(
                         "jsp.warning.dtdValidationNotSupported"));
                 }
                 */
@@ -469,8 +469,8 @@ class MyErrorHandler implements ErrorHandler {
     public void warning(SAXParseException ex)
 	throws SAXException
     {
-        if (ParserUtils.log.isDebugEnabled())
-            ParserUtils.log.debug("ParserUtils: warning ", ex );
+        if (ParserUtils.log.isLoggable(Level.FINE))
+            ParserUtils.log.log(Level.FINE, "ParserUtils: warning ", ex );
 	// We ignore warnings
     }
 

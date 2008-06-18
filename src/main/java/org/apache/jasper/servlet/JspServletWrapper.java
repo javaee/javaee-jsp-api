@@ -62,6 +62,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -73,8 +75,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.tagext.TagInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -102,7 +102,8 @@ import org.apache.jasper.runtime.JspSourceDependent;
 public class JspServletWrapper {
 
     // Logger
-    private static Log log = LogFactory.getLog(JspServletWrapper.class);
+    private static Logger log =
+            Logger.getLogger(JspServletWrapper.class.getName());
 
     private Servlet theServlet;
     private String jspUri;
@@ -467,9 +468,10 @@ public class JspServletWrapper {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, 
                                    fnfe.getMessage());
             } catch (IllegalStateException ise) {
-                log.error(Localizer.getMessage("jsp.error.file.not.found",
-                                               fnfe.getMessage()),
-                          fnfe);
+                log.log(Level.SEVERE,
+                        Localizer.getMessage("jsp.error.file.not.found",
+                                             fnfe.getMessage()),
+                        fnfe);
             }
         }
     }

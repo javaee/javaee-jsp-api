@@ -59,13 +59,14 @@ package org.apache.jasper.compiler;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.net.URL;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.JasperException;
+
 // START GlassFish 740
 import org.apache.jasper.Constants;
 // END GlassFish 740
@@ -88,7 +89,7 @@ public class JspConfig {
     private static final String WEB_XML = "/WEB-INF/web.xml";
 
     // Logger
-    private static Log log = LogFactory.getLog(JspConfig.class);
+    private static Logger log = Logger.getLogger(JspConfig.class.getName());
 
     // START SJSAS 6384538
     private Options options;
@@ -274,8 +275,8 @@ public class JspConfig {
                 boolean isStar = "*".equals(extension);
                 if ((path == null && (extension == null || isStar))
                         || (path != null && !isStar)) {
-                    if (log.isWarnEnabled()) {
-                        log.warn(Localizer.getMessage(
+                    if (log.isLoggable(Level.WARNING)) {
+                        log.warning(Localizer.getMessage(
                             "jsp.warning.bad.urlpattern.propertygroup",
                             urlPattern));
                     }

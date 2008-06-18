@@ -58,6 +58,8 @@ package org.apache.jasper.runtime;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.LinkedList;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletRequest;
@@ -69,8 +71,6 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspApplicationContext;
 
 import org.apache.jasper.Constants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementation of JspFactory.
@@ -81,7 +81,8 @@ import org.apache.commons.logging.LogFactory;
 public class JspFactoryImpl extends JspFactory {
 
     // Logger
-    private static Log log = LogFactory.getLog(JspFactoryImpl.class);
+    private static Logger log =
+            Logger.getLogger(JspFactoryImpl.class.getName());
 
     private static final String SPEC_VERSION = "2.1";
     private static final boolean USE_POOL = true;
@@ -164,7 +165,7 @@ public class JspFactoryImpl extends JspFactory {
             return pc;
         } catch (Throwable ex) {
             /* FIXME: need to do something reasonable here!! */
-            log.fatal("Exception initializing page context", ex);
+            log.log(Level.SEVERE, "Exception initializing page context", ex);
             return null;
         }
     }

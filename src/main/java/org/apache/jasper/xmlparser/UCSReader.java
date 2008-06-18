@@ -59,6 +59,9 @@ package org.apache.jasper.xmlparser;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 
 /** 
  * Reader for UCS-2 and UCS-4 encodings.
@@ -71,8 +74,7 @@ import java.io.Reader;
 public class UCSReader extends Reader {
 
 
-    private static org.apache.commons.logging.Log log=
-        org.apache.commons.logging.LogFactory.getLog( UCSReader.class );
+    private static Logger log= Logger.getLogger(UCSReader.class.getName());
 
     //
     // Constants
@@ -164,8 +166,8 @@ public class UCSReader extends Reader {
             int b3 = fInputStream.read() & 0xff;
             if (b3 == 0xff)
                 return -1;
-            if (log.isDebugEnabled())
-                log.debug("b0 is " + (b0 & 0xff) + " b1 " + (b1 & 0xff) + " b2 " + (b2 & 0xff) + " b3 " + (b3 & 0xff));
+            if (log.isLoggable(Level.FINE))
+                log.fine("b0 is " + (b0 & 0xff) + " b1 " + (b1 & 0xff) + " b2 " + (b2 & 0xff) + " b3 " + (b3 & 0xff));
             if (fEncoding == UCS4BE)
                 return (b0<<24)+(b1<<16)+(b2<<8)+b3;
             else

@@ -52,6 +52,8 @@
  * limitations under the License.
  */
 
+
+
 package org.apache.jasper.servlet;
 
 import java.io.ByteArrayOutputStream;
@@ -73,6 +75,10 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.Constants;
 import org.apache.jasper.security.SecurityUtil;
 
+// START OF IASRI 4709374
+// XXX Remove dependency on glassfish common-util
+// import com.sun.appserv.server.util.PreprocessorUtil;
+// END OF IASRI 4709374
 
 /**
  * Class loader for loading servlet class files (corresponding to JSP files) 
@@ -192,17 +198,14 @@ public class JasperLoader extends URLClassLoader {
         byte[] cdata = this.bytecodes.get(className);
 
         String path = className.replace('.', '/') + ".class";
-        Boolean preprocessorEnabled =
-            (Boolean) org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
-                "com.sun.appserv.server.util.PreprocessorUtil",
-                "isPreprocessorEnabled",
-                new Class[] {}, new Object[] {});
         if (cdata == null) {
             // If the bytecode preprocessor is not enabled, use super.findClass
    	    // as usual.
-            if (! preprocessorEnabled.booleanValue()) { 
+/* XXX
+            if (!PreprocessorUtil.isPreprocessorEnabled()) { 
                 return super.findClass(className);
             }
+*/
 
             // read class data from file
             cdata = loadClassDataFromFile(path);
@@ -212,13 +215,11 @@ public class JasperLoader extends URLClassLoader {
         }
 
         // Preprocess the loaded byte code
-        if (preprocessorEnabled != null && preprocessorEnabled.booleanValue()){ 
-            cdata = (byte[]) org.apache.jasper.runtime.JspRuntimeLibrary.invoke(
-                "com.sun.appserv.server.util.PreprocessorUtil",
-                "processClass",
-                new Class[] {String.class, cdata.getClass()},
-                new Object[] {path, cdata});
+/* XXX
+        if (PreprocessorUtil.isPreprocessorEnabled()) {
+            cdata = PreprocessorUtil.processClass(path, cdata);
         }
+*/
 
         Class clazz = null;
         if (securityManager != null) {

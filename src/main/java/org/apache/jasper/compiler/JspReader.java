@@ -62,11 +62,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Vector;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 
@@ -89,7 +89,7 @@ import org.apache.jasper.JspCompilationContext;
 class JspReader {
 
     // Logger
-    private static Log log = LogFactory.getLog(JspReader.class);
+    private static Logger log = Logger.getLogger(JspReader.class.getName());
 
     private Mark current;
     private String master;
@@ -572,7 +572,7 @@ class JspReader {
 				   longName, encoding);
 	    }
 	} catch (Throwable ex) {
-	    log.error("Exception parsing file ", ex);
+	    log.log(Level.SEVERE, "Exception parsing file ", ex);
 	    // Pop state being constructed:
 	    popFile();
 	    err.jspError("jsp.error.file.cannot.read", file);

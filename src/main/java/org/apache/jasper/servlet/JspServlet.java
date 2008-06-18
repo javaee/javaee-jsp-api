@@ -83,8 +83,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.tagext.TagLibraryInfo;
 // END GlassFish 750
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
@@ -113,7 +113,7 @@ import org.apache.jasper.runtime.ResourceInjector;
 public class JspServlet extends HttpServlet {
 
     // Logger
-    private static Log log = LogFactory.getLog(JspServlet.class);
+    private static Logger log = Logger.getLogger(JspServlet.class.getName());
 
     private ServletContext context;
     private ServletConfig config;
@@ -153,6 +153,7 @@ public class JspServlet extends HttpServlet {
         String resourceInjectorClassName = config.getInitParameter(
             Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE);
 
+/* XXX Remove dependency on glassfish webtier for now
         if (resourceInjectorClassName != null) {
             try {
                 ResourceInjector ri = (ResourceInjector)
@@ -164,6 +165,7 @@ public class JspServlet extends HttpServlet {
                 throw new ServletException(e);
 	    }
         }
+*/
 
         // START SJSWS 6232180
         // Determine which HTTP methods to service ("*" means all)
@@ -188,10 +190,10 @@ public class JspServlet extends HttpServlet {
                              tagFileJarUrls);
         // END GlassFish 750
 
-        if (log.isTraceEnabled()) {
-            log.trace(Localizer.getMessage("jsp.message.scratch.dir.is",
+        if (log.isLoggable(Level.FINEST)) {
+            log.finest(Localizer.getMessage("jsp.message.scratch.dir.is",
                                            options.getScratchDir().toString()));
-            log.trace(Localizer.getMessage("jsp.message.dont.modify.servlets"));
+            log.finest(Localizer.getMessage("jsp.message.dont.modify.servlets"));
         }
     }
 
@@ -364,7 +366,7 @@ public class JspServlet extends HttpServlet {
             }
         }
 
-        if (log.isDebugEnabled()) {	    
+        if (log.isLoggable(Level.FINE)) {	    
             StringBuffer msg = new StringBuffer();
             msg.append("JspEngine --> [" + jspUri);
             msg.append("] ServletPath: [" + request.getServletPath());
@@ -373,7 +375,7 @@ public class JspServlet extends HttpServlet {
             msg.append("] RequestURI: [" + request.getRequestURI());
             msg.append("] QueryString: [" + request.getQueryString());
             msg.append("]");
-            log.debug(msg);
+            log.fine(msg.toString());
         }
 
         try {
@@ -404,8 +406,8 @@ public class JspServlet extends HttpServlet {
     }
 
     public void destroy() {
-        if (log.isDebugEnabled()) {
-            log.debug("JspServlet.destroy()");
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("JspServlet.destroy()");
         }
 
         rctxt.destroy();
@@ -470,7 +472,7 @@ public class JspServlet extends HttpServlet {
                         */
                         // START PWC 6282167, 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                        log.error(Localizer.getMessage(
+                        log.severe(Localizer.getMessage(
                             "jsp.error.file.not.found",
                             context.getRealPath(jspUri)));
                         // END PWC 6282167, 4878272

@@ -64,6 +64,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
@@ -82,10 +84,6 @@ import org.apache.jasper.servlet.JspServletWrapper;
  */
 
 public class Compiler {
-    private static org.apache.commons.logging.Log commonsLog =
-        org.apache.commons.logging.LogFactory.getLog(Compiler.class);
-    private static org.apache.commons.logging.Log noOpLog =
-        new org.apache.commons.logging.impl.NoOpLog();
 
     // ----------------------------------------------------------------- Static
 
@@ -98,8 +96,8 @@ public class Compiler {
     private JspServletWrapper jsw;
     private TagFileProcessor tfp;
     private JavaCompiler javaCompiler;
+    private Logger log;
     private boolean jspcMode;
-    private org.apache.commons.logging.Log log;
     private SmapUtil smapUtil;
     private Options options;
     private Node.Nodes pageNodes;
@@ -113,7 +111,7 @@ public class Compiler {
         this.ctxt = ctxt;
         this.jspcMode = false;
         this.options = ctxt.getOptions();
-        this.log = commonsLog;
+        this.log = Logger.getLogger(Compiler.class.getName());
         this.smapUtil = new SmapUtil(ctxt);
         this.errDispatcher = new ErrorDispatcher(jspcMode);
         this.javaCompiler = new AntJavaCompiler();
@@ -126,7 +124,10 @@ public class Compiler {
         this.ctxt = ctxt;
         this.jspcMode = jspcMode;
         this.options = ctxt.getOptions();
-        this.log = jspcMode? noOpLog: commonsLog;
+        this.log = Logger.getLogger(Compiler.class.getName());
+        if (jspcMode) {
+            log.setLevel(Level.OFF);
+        }
         this.smapUtil = new SmapUtil(ctxt);
         this.errDispatcher = new ErrorDispatcher(jspcMode);
         initJavaCompiler();
@@ -144,7 +145,7 @@ public class Compiler {
         long t1, t2, t3, t4;
         t1 = t2 = t3 = t4 = 0;
 
-        if (log.isDebugEnabled()) {
+        if (log.isLoggable(Level.FINE)) {
             t1 = System.currentTimeMillis();
         }
 
@@ -210,7 +211,7 @@ public class Compiler {
             // Validate and process attributes
             Validator.validate(this, pageNodes);
 
-            if (log.isDebugEnabled()) {
+            if (log.isLoggable(Level.FINE)) {
                 t2 = System.currentTimeMillis();
             }
 
@@ -222,7 +223,7 @@ public class Compiler {
             tfp = new TagFileProcessor();
             tfp.loadTagFiles(this, pageNodes);
 
-            if (log.isDebugEnabled()) {
+            if (log.isLoggable(Level.FINE)) {
                 t3 = System.currentTimeMillis();
             }
         
@@ -249,9 +250,9 @@ public class Compiler {
             // to be GC'd and save memory.
             ctxt.setWriter(null);
 
-            if (log.isDebugEnabled()) {
+            if (log.isLoggable(Level.FINE)) {
                 t4 = System.currentTimeMillis();
-                log.debug("Generated "+ javaFileName + " total="
+                log.fine("Generated "+ javaFileName + " total="
                           + (t4-t1) + " generate=" + (t4-t3)
                           + " validate=" + (t2-t1));
             }
@@ -299,7 +300,7 @@ public class Compiler {
         throws FileNotFoundException, JasperException, Exception {
 
         long t1 = 0;
-        if (log.isDebugEnabled()) {
+        if (log.isLoggable(Level.FINE)) {
             t1 = System.currentTimeMillis();
         }
 
@@ -332,10 +333,8 @@ public class Compiler {
                 cpath.add(new File(path));
             }
         }
-// ***
-System.out.println("Using classpath: " + sysClassPath + sep + classpath);
-        if(log.isDebugEnabled()) {
-            log.debug("Using classpath: " + sysClassPath + sep + classpath);
+        if(log.isLoggable(Level.FINE)) {
+            log.fine("Using classpath: " + sysClassPath + sep + classpath);
         }
         javaCompiler.setClassPath(cpath);
         
@@ -364,13 +363,13 @@ System.out.println("Using classpath: " + sysClassPath + sep + classpath);
             // If there are errors, always generate java files to disk.
             javaCompiler.doJavaFile(true);
 
-            log.error("Error compiling file: " + javaFileName);
+            log.severe("Error compiling file: " + javaFileName);
             errDispatcher.javacError(javacErrors);
         }
 
-        if (log.isDebugEnabled()) {
+        if (log.isLoggable(Level.FINE)) {
             long t2 = System.currentTimeMillis();
-            log.debug("Compiled " + javaFileName + " " + (t2-t1) + "ms");
+            log.fine("Compiled " + javaFileName + " " + (t2-t1) + "ms");
         }
 
         // Save or delete the generated Java files, depending on the
@@ -574,8 +573,8 @@ System.out.println("Using classpath: " + sysClassPath + sep + classpath);
         if (targetLastModified < jspRealLastModified) {
             // Remember JSP mod time
             jspModTime = jspRealLastModified;
-            if( log.isDebugEnabled() ) {
-                log.debug("Compiler: outdated: " + targetFile + " " +
+            if( log.isLoggable(Level.FINE) ) {
+                log.fine("Compiler: outdated: " + targetFile + " " +
                     targetLastModified );
             }
             return true;
@@ -662,8 +661,8 @@ System.out.println("Using classpath: " + sysClassPath + sep + classpath);
             String classFileName = ctxt.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if( log.isDebugEnabled() )
-                    log.debug( "Deleting " + classFile );
+                if( log.isLoggable(Level.FINE) )
+                    log.fine( "Deleting " + classFile );
                 classFile.delete();
             }
         } catch (Exception e) {
@@ -673,8 +672,8 @@ System.out.println("Using classpath: " + sysClassPath + sep + classpath);
             String javaFileName = ctxt.getServletJavaFileName();
             if (javaFileName != null) {
                 File javaFile = new File(javaFileName);
-                if( log.isDebugEnabled() )
-                    log.debug( "Deleting " + javaFile );
+                if( log.isLoggable(Level.FINE) )
+                    log.fine( "Deleting " + javaFile );
                 javaFile.delete();
             }
         } catch (Exception e) {
@@ -687,8 +686,8 @@ System.out.println("Using classpath: " + sysClassPath + sep + classpath);
             String classFileName = ctxt.getClassFileName();
             if (classFileName != null) {
                 File classFile = new File(classFileName);
-                if( log.isDebugEnabled() )
-                    log.debug( "Deleting " + classFile );
+                if( log.isLoggable(Level.FINE) )
+                    log.fine( "Deleting " + classFile );
                 classFile.delete();
             }
         } catch (Exception e) {
