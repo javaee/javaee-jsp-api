@@ -90,6 +90,7 @@ import org.apache.jasper.Constants;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspRuntimeContext;
+import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
 import org.apache.jasper.runtime.ResourceInjector;
@@ -462,7 +463,8 @@ public class JspServlet extends HttpServlet {
                             // response.sendError() must be ignored by the
                             // servlet engine when issued from within an
                             // included resource (as per the Servlet spec).
-                            throw new FileNotFoundException(jspUri);
+                            throw new FileNotFoundException(
+                                JspUtil.escapeXml(jspUri));
                         }
                         // END PWC 6300204
 
