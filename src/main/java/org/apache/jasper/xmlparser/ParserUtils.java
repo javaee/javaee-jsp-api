@@ -58,6 +58,7 @@ package org.apache.jasper.xmlparser;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -71,7 +72,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.XMLConstants;
 
-import com.sun.grizzly.util.buf.UEncoder;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
@@ -170,11 +170,23 @@ public class ParserUtils {
 
     private static String uencode(String prefix) {
         if (prefix != null && prefix.startsWith("file:")) {
-            UEncoder urlEncoder = new UEncoder();
-            urlEncoder.addSafeCharacter('/');
             String uri = prefix.substring("file:".length());
-            uri = urlEncoder.encodeURL(uri);
-            return "file:" + uri;
+            StringBuffer buf = new StringBuffer("file:");
+            int i = 0;
+            int j = uri.indexOf('/');
+            try {
+                while (j > 0) {
+                    if (j > i) {
+                        buf.append(URLEncoder.encode(uri.substring(i, j), "UTF-8"));
+                    }
+                    buf.append('/');
+                    i = j + 1;
+                    j = uri.indexOf('/', i);
+                }
+                buf.append(URLEncoder.encode(uri.substring(i), "UTF-8"));
+            } catch (java.io.UnsupportedEncodingException ex) {
+            }
+            return buf.toString();
         } else {
             return prefix;
         }
