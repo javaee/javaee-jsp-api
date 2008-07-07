@@ -43,6 +43,7 @@
         <groupId>com.sun.enterprise</groupId>
         <artifactId>hk2-maven-plugin</artifactId>
         <configuration>
+          <generateOSGiHeaders>true</generateOSGiHeaders>
           <excludes>
             <exclude>org/apache/jasper/compiler/JDTJavaCompiler.java</exclude>
           </excludes>
