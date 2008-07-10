@@ -140,14 +140,6 @@
       <artifactId>ant</artifactId>
       <version>10.0-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <!-- This is temporary, and will be removed if we get rid of the
-           dependency on "org.glassfish.internal.api.Globals"
-        -->
-      <groupId>org.glassfish.common</groupId>
-      <artifactId>internal-api</artifactId>
-      <version>10.0-SNAPSHOT</version>
-    </dependency>
 <!--
   Needed only if we include JDTJavaCompiler.java
     <dependency>

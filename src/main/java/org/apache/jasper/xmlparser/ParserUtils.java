@@ -89,7 +89,6 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.glassfish.internal.api.Globals;
 
 /**
  * XML parsing utilities for processing web application deployment
@@ -110,9 +109,10 @@ public class ParserUtils {
      */
     private static ErrorHandler errorHandler = new MyErrorHandler();
 
-    /* SJSAS 6384538
-    public static boolean validating = false;
-    */
+    /**
+     * An entity resolver for use when parsing XML documents.
+     */
+    static EntityResolver entityResolver = new MyEntityResolver();
 
     static String schemaResourcePrefix;
 
@@ -126,7 +126,30 @@ public class ParserUtils {
     private static HashMap<String, Schema> schemaCache =
         new HashMap<String, Schema>();
 
+    /**
+     * List of the Public IDs that we cache, and their
+     * associated location. This is used by
+     * an EntityResolver to return the location of the
+     * cached copy of a DTD.
+     */
+    static final String[] CACHED_DTD_PUBLIC_IDS = {
+        Constants.TAGLIB_DTD_PUBLIC_ID_11,
+        Constants.TAGLIB_DTD_PUBLIC_ID_12,
+        Constants.WEBAPP_DTD_PUBLIC_ID_22,
+        Constants.WEBAPP_DTD_PUBLIC_ID_23,
+    };
+
     // START PWC 6386258
+    private static final String[] DEFAULT_DTD_RESOURCE_PATHS = {
+        Constants.TAGLIB_DTD_RESOURCE_PATH_11,
+        Constants.TAGLIB_DTD_RESOURCE_PATH_12,
+        Constants.WEBAPP_DTD_RESOURCE_PATH_22,
+        Constants.WEBAPP_DTD_RESOURCE_PATH_23,
+    };
+
+    static final String[] CACHED_DTD_RESOURCE_PATHS =
+            (String[])DEFAULT_DTD_RESOURCE_PATHS;
+
     private static final String[] DEFAULT_SCHEMA_RESOURCE_PATHS = {
         Constants.TAGLIB_SCHEMA_RESOURCE_PATH_20,
         Constants.TAGLIB_SCHEMA_RESOURCE_PATH_21,
@@ -141,6 +164,9 @@ public class ParserUtils {
 
     // --------------------------------------------------------- Static Methods
 
+    public static void setEntityResolver(EntityResolver er) {
+        entityResolver = er;
+    }
 
     // START PWC 6386258
     /**
@@ -166,6 +192,28 @@ public class ParserUtils {
         }
     }
 
+    /**
+     * Sets the path prefix URL for .dtd resources
+     */
+    public static void setDtdResourcePrefix(String prefix) {
+
+        if (prefix != null && prefix.startsWith("file:")) {
+            dtdResourcePrefix = uencode(prefix);
+            isDtdResourcePrefixFileUrl = true;
+        } else {
+            dtdResourcePrefix = prefix;
+            isDtdResourcePrefixFileUrl = false;
+        }
+
+        for (int i=0; i<CACHED_DTD_RESOURCE_PATHS.length; i++) {
+            String path = DEFAULT_DTD_RESOURCE_PATHS[i];
+            int index = path.lastIndexOf('/');
+            if (index != -1) {
+                CACHED_DTD_RESOURCE_PATHS[i] =
+                    dtdResourcePrefix + path.substring(index+1);
+            }
+        }
+    }
     // END PWC 6386258
 
     private static String uencode(String prefix) {
@@ -237,7 +285,7 @@ public class ParserUtils {
                 true);
             */
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(Globals.getDefaultHabitat().getComponent(EntityResolver.class,"web"));
+            builder.setEntityResolver(entityResolver);
             builder.setErrorHandler(errorHandler);
             document = builder.parse(is);
             document.setDocumentURI(uri);
@@ -476,6 +524,56 @@ public class ParserUtils {
 
 
 // ------------------------------------------------------------ Private Classes
+
+class MyEntityResolver implements EntityResolver {
+
+    public InputSource resolveEntity(String publicId, String systemId)
+        throws SAXException
+    {
+        for (int i=0; i<ParserUtils.CACHED_DTD_PUBLIC_IDS.length; i++) {
+            String cachedDtdPublicId = ParserUtils.CACHED_DTD_PUBLIC_IDS[i];
+            if (cachedDtdPublicId.equals(publicId)) {
+                /* PWC 6386258
+                String resourcePath = Constants.CACHED_DTD_RESOURCE_PATHS[i];
+                */
+                // START PWC 6386258
+                String resourcePath = ParserUtils.CACHED_DTD_RESOURCE_PATHS[i];
+                // END PWC 6386258
+                InputStream input = null;
+                if (ParserUtils.isDtdResourcePrefixFileUrl) {
+                    try {
+                        File path = new File(new URI(resourcePath));
+                        if (path.exists()) {
+                            input = new FileInputStream(path);
+                        }
+                    } catch(Exception e) {
+                        throw new SAXException(e);
+                    }
+                } else {
+                    input = this.getClass().getResourceAsStream(resourcePath);
+                }
+                if (input == null) {
+                    throw new SAXException(
+                        Localizer.getMessage("jsp.error.internal.filenotfound",
+                                             resourcePath));
+                }
+                InputSource isrc = new InputSource(input);
+                return isrc;
+            }
+        }
+
+        if (ParserUtils.log.isLoggable(Level.FINE)) {
+            ParserUtils.log.fine("Resolve entity failed"  + publicId + " "
+                                  + systemId );
+        }
+
+        ParserUtils.log.severe(
+            Localizer.getMessage("jsp.error.parse.xml.invalidPublicId",
+            publicId));
+
+        return null;
+    }
+}
 
 class MyErrorHandler implements ErrorHandler {
     public void warning(SAXParseException ex)
