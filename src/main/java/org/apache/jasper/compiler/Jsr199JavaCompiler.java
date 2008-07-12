@@ -106,7 +106,17 @@ public class Jsr199JavaCompiler implements JavaCompiler {
     }
 
     public void setClassPath(List<File> path) {
-        this.cpath = path;
+        // Jsr199 does not expand jar manifest Class-Path (JDK bug?), we
+        // need to do it here
+        List<String> paths = new ArrayList<String>();
+        for (File f: path) {
+            paths.add(f.toString());
+        }
+        List<String> files = JspUtil.expandClassPath(paths);
+        this.cpath = new ArrayList<File>();
+        for (String file: files) {
+            this.cpath.add(new File(file));
+        }
     }
 
     public void setExtdirs(String exts) {

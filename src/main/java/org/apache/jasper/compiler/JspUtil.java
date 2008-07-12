@@ -61,9 +61,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.net.JarURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.el.ELException;
 import javax.el.FunctionMapper;
@@ -1183,5 +1189,58 @@ public class JspUtil {
         }
         return expFactory;
     }
+
+    /**
+     * Given a list of jar files, their manifest attribute Class-path are
+     * scanned, and jars specified there are added to the list.  This is
+     * carried out recursively.
+     */
+    public static List<String> expandClassPath(List<String>files) {
+
+        for (int i = 0; i < files.size(); i++) {
+            String file = files.get(i);
+            if (! file.endsWith(".jar")) {
+                continue;
+            }
+            Manifest manifest;
+            try {
+                URL url = new URL("jar:file:" + file + "!/");
+                JarURLConnection conn = (JarURLConnection) url.openConnection();
+                manifest = conn.getManifest();
+            } catch (MalformedURLException ex) {
+                // Ignored
+                continue;
+            } catch (IOException ex) {
+                // Ignore non existent files
+                continue;
+            }
+
+            if (manifest == null) {
+                continue;
+            }
+
+            java.util.jar.Attributes attrs = manifest.getMainAttributes();
+            String cp = (String) attrs.getValue("Class-Path");
+            if (cp == null) {
+                continue;
+            }
+
+            String[] paths = cp.split(" ");
+            int lastIndex = file.lastIndexOf('/');
+            String baseDir = "";
+            if (lastIndex > 0) {
+                baseDir = file.substring(0, lastIndex+1);
+            }
+            for (String path: paths) {
+                if (path.startsWith("/")) {
+                    files.add(path);
+                } else {
+                    files.add(baseDir + path);
+                }
+            }
+        }
+        return files;
+    }
+
 }
 
