@@ -60,6 +60,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -218,23 +219,21 @@ public class ParserUtils {
 
     private static String uencode(String prefix) {
         if (prefix != null && prefix.startsWith("file:")) {
-            String uri = prefix.substring("file:".length());
-            StringBuffer buf = new StringBuffer("file:");
-            int i = 0;
-            int j = uri.indexOf('/');
-            try {
-                while (j >= 0) {
-                    if (j > i) {
-                        buf.append(URLEncoder.encode(uri.substring(i, j), "UTF-8"));
+            StringTokenizer tokens = new StringTokenizer(prefix, "/\\:", true);
+            StringBuilder stringBuilder = new StringBuilder();
+            while (tokens.hasMoreElements()) {
+                String token = tokens.nextToken();
+                if ("/".equals(token) || "\\".equals(token) || ":".equals(token)) {
+                    stringBuilder.append(token);
+                } else {
+                    try {
+                        stringBuilder.append(URLEncoder.encode(token, "UTF-8"));
+                    } catch(java.io.UnsupportedEncodingException ex) {
                     }
-                    buf.append('/');
-                    i = j + 1;
-                    j = uri.indexOf('/', i);
                 }
-                buf.append(URLEncoder.encode(uri.substring(i), "UTF-8"));
-            } catch (java.io.UnsupportedEncodingException ex) {
             }
-            return buf.toString();
+            
+            return stringBuilder.toString();
         } else {
             return prefix;
         }
