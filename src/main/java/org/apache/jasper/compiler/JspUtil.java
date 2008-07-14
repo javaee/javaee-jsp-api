@@ -60,6 +60,7 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -1226,16 +1227,20 @@ public class JspUtil {
             }
 
             String[] paths = cp.split(" ");
-            int lastIndex = file.lastIndexOf('/');
+            int lastIndex = file.lastIndexOf(File.separatorChar);
             String baseDir = "";
             if (lastIndex > 0) {
                 baseDir = file.substring(0, lastIndex+1);
             }
             for (String path: paths) {
-                if (path.startsWith("/")) {
-                    files.add(path);
+                String p;
+                if (path.startsWith(File.separator)) {
+                    p = path;
                 } else {
-                    files.add(baseDir + path);
+                    p = baseDir + path;
+                }
+                if (! files.contains(p)) {
+                    files.add(p);
                 }
             }
         }
