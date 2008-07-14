@@ -223,7 +223,7 @@ public class ParserUtils {
             int i = 0;
             int j = uri.indexOf('/');
             try {
-                while (j > 0) {
+                while (j >= 0) {
                     if (j > i) {
                         buf.append(URLEncoder.encode(uri.substring(i, j), "UTF-8"));
                     }
