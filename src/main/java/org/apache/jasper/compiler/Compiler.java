@@ -325,12 +325,14 @@ public class Compiler {
                 }
             }
         }
-        StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
-        while (tokenizer.hasMoreElements()) {
-            String path = tokenizer.nextToken();
-            if (! paths.contains(path)) {
-                paths.add(path);
-                cpath.add(new File(path));
+        if (classpath != null) {
+            StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
+            while (tokenizer.hasMoreElements()) {
+                String path = tokenizer.nextToken();
+                if (! paths.contains(path)) {
+                    paths.add(path);
+                    cpath.add(new File(path));
+                }
             }
         }
         if(log.isLoggable(Level.FINE)) {
