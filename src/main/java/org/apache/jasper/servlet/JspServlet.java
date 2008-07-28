@@ -150,24 +150,6 @@ public class JspServlet extends HttpServlet {
         options = new EmbeddedServletOptions(config, context);
         rctxt = new JspRuntimeContext(context,options);
 
-        // Instantiate and init our resource injector
-        String resourceInjectorClassName = config.getInitParameter(
-            Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE);
-
-/* XXX Remove dependency on glassfish webtier for now
-        if (resourceInjectorClassName != null) {
-            try {
-                ResourceInjector ri = (ResourceInjector)
-                    Class.forName(resourceInjectorClassName).newInstance();
-                ri.setContext(this.context);
-                this.context.setAttribute(
-                    Constants.JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE, ri);
-            } catch (Exception e) {
-                throw new ServletException(e);
-	    }
-        }
-*/
-
         // START SJSWS 6232180
         // Determine which HTTP methods to service ("*" means all)
         httpMethodsString = config.getInitParameter("httpMethods");
