@@ -75,6 +75,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.tagext.TagInfo;
 
+import org.glassfish.jsp.api.JspProbeEmitter;
+
 import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.Options;
@@ -205,6 +207,17 @@ public class JspServletWrapper {
                     }
 
                     reload = false;
+
+                    /*
+                     * If the container implements JspProbeEmitter, fire the
+                     * Jsp loaded event.
+                     */
+                    JspProbeEmitter jspProbe = (JspProbeEmitter)
+                        getServletContext().getAttribute(
+                            "org.glassfish.jsp.monitor.probeEmitter");
+                    if (jspProbe != null) {
+                        jspProbe.jspLoadedEvent(theServlet);
+                    }
                 }
             }    
         }
