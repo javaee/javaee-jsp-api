@@ -59,6 +59,7 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
@@ -682,14 +683,14 @@ public class TldLocationsCache {
             loader = loader.getParent();
         }
 
-        Map<URL, List<String>> tldMap = (Map<URL, List<String>>)ctxt.getAttribute(
+        Map<URI, List<String>> tldMap = (Map<URI, List<String>>)ctxt.getAttribute(
                 "com.sun.appserv.tld.map");
         // Scan system impl jars with tlds
         if (tldMap != null) {
-            for (URL url : tldMap.keySet()) {
-                URL jarURL = new URL("jar:" + url.toString() + "!/");
+            for (URI uri : tldMap.keySet()) {
+                URL jarURL = new URL("jar:" + uri.toString() + "!/");
                 scanJar((JarURLConnection)jarURL.openConnection(),
-                        true, tldMap.get(url));
+                        true, tldMap.get(uri));
             }
         }
     }
