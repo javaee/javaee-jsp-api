@@ -46,14 +46,50 @@
         <version>${hk2.plugin.version}</version>
         <extensions>true</extensions>
         <configuration>
-          <generateOSGiHeaders>true</generateOSGiHeaders>
           <excludes>
             <exclude>org/apache/jasper/compiler/JDTJavaCompiler.java</exclude>
           </excludes>
           <source>1.5</source>
           <target>1.5</target>
+          <archive>
+            <!-- Use the manifest.mf produced by maven-bundle-plugin:manifest -->
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
         </configuration>
       </plugin>
+      <!-- Configure maven-bundle-plugin to generate OSGi manifest.
+           Please note: we use the manifest goal only and not the bundle goal.
+            The bundle goal can lead to very surprising results if the
+            package names are not correctly specified. So,
+            we use the jar plugin to generate the jar.-->
+      <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <configuration>
+              <!-- Enable the plugin for hk2-jar packaging type -->
+              <supportedProjectTypes>
+                  <supportedProjectType>hk2-jar</supportedProjectType>
+                  <supportedProjectType>jar</supportedProjectType>
+                  <supportedProjectType>bundle</supportedProjectType>
+              </supportedProjectTypes>
+              <instructions>
+                  <!-- _include does not work. See Felix-620.
+                  <_include>osgi.bundle</_include>
+                  -->
+                  <Import-Package>javax.tools; resolution:=optional, *</Import-Package>
+              </instructions>
+          </configuration>
+          <executions>
+              <execution>
+                  <id>bundle-manifest</id>
+                  <phase>process-classes</phase>
+                  <goals>
+                      <goal>manifest</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin> 
+
     </plugins>
     <resources>
       <resource>
