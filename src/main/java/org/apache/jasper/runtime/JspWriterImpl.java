@@ -66,7 +66,7 @@ import org.apache.jasper.Constants;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.security.SecurityUtil;
 
-import com.sun.enterprise.web.io.ByteWriter;
+import org.glassfish.jsp.api.ByteWriter;
 
 
 /**
@@ -293,7 +293,7 @@ public class JspWriterImpl extends JspWriter {
         if (bufferSize == 0 && bytesOK) {
             initByteOut();
             if (implementsByteWriter) {
-                write(buf, 0, buf.length, str.length());
+                write(buf, 0, buf.length);
                 return;
             }
         }
@@ -326,9 +326,9 @@ public class JspWriterImpl extends JspWriter {
         }
     }
 
-    public void write(byte buf[], int off, int len, int strlen)
+    public void write(byte buf[], int off, int len)
             throws IOException {
-        byteOut.write(buf, off, len, strlen);
+        byteOut.write(buf, off, len);
     }
 
 

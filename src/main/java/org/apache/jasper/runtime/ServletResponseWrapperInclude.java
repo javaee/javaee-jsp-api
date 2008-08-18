@@ -63,7 +63,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.jsp.JspWriter;
 
-import com.sun.enterprise.web.io.ByteWriter;
+import org.glassfish.jsp.api.ByteWriter;
 
 /**
  * ServletResponseWrapper used by the JSP 'include' action.
@@ -175,9 +175,9 @@ public class ServletResponseWrapperInclude extends HttpServletResponseWrapper {
             this.jspWriter = jspWriter;
         }
 
-        public void write(byte[] buff, int off, int len, int strlen)
+        public void write(byte[] buff, int off, int len)
                 throws IOException {
-            jspWriter.write(buff, off, len, strlen);
+            jspWriter.write(buff, off, len);
         }
     }
 }

@@ -60,6 +60,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.ServletConfig;
 import org.apache.jasper.Constants;
+import org.glassfish.jsp.api.ResourceInjector;
 
 /**
  * Pool of tag handlers that can be reused.

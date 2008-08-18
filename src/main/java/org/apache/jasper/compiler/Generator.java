@@ -475,7 +475,7 @@ class Generator {
             }
         }
 
-        out.printil("private org.apache.jasper.runtime.ResourceInjector "
+        out.printil("private org.glassfish.jsp.api.ResourceInjector "
                     + "_jspx_resourceInjector;");
         out.println();
     }
@@ -639,7 +639,7 @@ class Generator {
             out.printil("session = pageContext.getSession();");
         out.printil("out = pageContext.getOut();");
         out.printil("_jspx_out = out;");
-        out.printil("_jspx_resourceInjector = (org.apache.jasper.runtime.ResourceInjector) application.getAttribute(\"com.sun.appserv.jsp.resource.injector\");");
+        out.printil("_jspx_resourceInjector = (org.glassfish.jsp.api.ResourceInjector) application.getAttribute(\"com.sun.appserv.jsp.resource.injector\");");
         out.println();
     }
 

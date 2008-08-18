@@ -93,7 +93,7 @@ import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
-import org.apache.jasper.runtime.ResourceInjector;
+import org.glassfish.jsp.api.ResourceInjector;
 
 /**
  * The JSP engine (a.k.a Jasper).
