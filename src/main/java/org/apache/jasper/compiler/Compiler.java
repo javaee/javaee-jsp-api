@@ -319,7 +319,7 @@ public class Compiler {
             StringTokenizer tokenizer = new StringTokenizer(sysClassPath, sep);
             while (tokenizer.hasMoreElements()) {
                 String path = tokenizer.nextToken();
-                if (! paths.contains(path)) {
+                if (! paths.contains(path) && ! systemJarInWebinf(path)) {
                     paths.add(path);
                     cpath.add(new File(path));
                 }
@@ -329,7 +329,7 @@ public class Compiler {
             StringTokenizer tokenizer = new StringTokenizer(classpath, sep);
             while (tokenizer.hasMoreElements()) {
                 String path = tokenizer.nextToken();
-                if (! paths.contains(path)) {
+                if (! paths.contains(path) && ! systemJarInWebinf(path)) {
                     paths.add(path);
                     cpath.add(new File(path));
                 }
@@ -745,5 +745,29 @@ public class Compiler {
         } catch (ClassNotFoundException ex) {
         }
         return c;
+    }
+
+    /*
+     * System jars should be exclude from the classpath for javac.
+     */
+    private static String systemJars[] =
+        {"jsf-api.jar", "jsf-impl.jar", "jstl.jar"};
+
+    /**
+     * Return true if the path refers to a jar file in WEB-INF and is a
+     * system jar.
+     */
+    private boolean systemJarInWebinf(String path) {
+
+        if (path.indexOf("/WEB-INF/") < 0) {
+            return false;
+        }
+
+        for (String jar: systemJars) {
+            if (path.indexOf(jar) > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
