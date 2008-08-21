@@ -699,28 +699,18 @@ public class Compiler {
 
     /**
      * Get an instance of JavaCompiler.
-     * If Running with Mustang (JDK1.6), use a Jsr199JavaCompiler that
-     * supports JSR199,
+     * If Running with JDK 6, use a Jsr199JavaCompiler that supports JSR199,
      * else if eclipse's JDT compiler is avalable, use that.
      * The default is to use javac from ant.
-     * NOTE: When the appserver can be built with and runs only with JDK1.6,
-     * this should be changed to instantiate Jsr199JavaCompiler with new
-     * operator directly.
      */
     private void initJavaCompiler() {
-        Class c = getClassFor("javax.tools.ToolProvider");
-        if (c != null) {
-            // JDK1.6
-            c = getClassFor("org.apache.jasper.compiler.Jsr199JavaCompiler");
-            if (c != null) {
-                try {
-                    javaCompiler = (JavaCompiler) c.newInstance();
-                } catch (Exception ex) {
-                }
-            }
+        Double version = 
+            Double.valueOf(System.getProperty("java.specification.version"));
+        if (version >= 1.6) {
+            javaCompiler = new Jsr199JavaCompiler();
         }
-        if (javaCompiler == null) {
-            c = getClassFor("org.eclipse.jdt.internal.compiler.Compiler");
+        else {
+            Class c = getClassFor("org.eclipse.jdt.internal.compiler.Compiler");
             if (c != null) {
                 c = getClassFor("org.apache.jasper.compiler.JDTJavaCompiler");
                 if (c != null) {
