@@ -907,6 +907,7 @@ public class PageContextImpl extends PageContext {
             // t==null means the attribute was not set.
             if( (newException!= null) && (newException==t) ) {
                 request.removeAttribute("javax.servlet.error.exception");
+                request.setAttribute(Constants.JSP_ERROR_HANDLED, Boolean.TRUE);
             }
 
             // now clear the error code - to prevent double handling.

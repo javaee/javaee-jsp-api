@@ -274,6 +274,11 @@ public class Constants {
     public static final String JSP_RESOURCE_INJECTOR_CONTEXT_ATTRIBUTE =
         "com.sun.appserv.jsp.resource.injector";
 
+    // a request attribute to indicate that the jsp error is already handled
+    // The constant value (instead of the constant name) is being referenced from
+    // other modules, and therefore requires special caution whenever it is changed.
+    public static final String JSP_ERROR_HANDLED = "org.glassfish.jsp.error_handled";
+
     /**
      * Has security been turned on?
      */
