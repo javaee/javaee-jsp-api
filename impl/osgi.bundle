@@ -1,0 +1,5 @@
+Import-Package: \
+    javax.tools; resolution:=optional, \
+    javax.servlet; version="2.5", \
+    javax.servlet.http; version="2.5", \
+    *
