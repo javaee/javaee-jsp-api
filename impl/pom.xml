@@ -50,7 +50,8 @@
     <name>JSP implementation</name>
 
   <properties>
-    <hk2.plugin.version>0.3.17</hk2.plugin.version>
+      <hk2.version>0.3.17</hk2.version>
+      <hk2.plugin.version>0.3.17</hk2.plugin.version>
   </properties>
 
     <build>
@@ -110,6 +111,11 @@
         </resources>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>com.sun.enterprise</groupId>
+            <artifactId>hk2</artifactId>
+            <version>${hk2.version}</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
