@@ -706,10 +706,10 @@ public class Compiler {
     private void initJavaCompiler() {
         Double version = 
             Double.valueOf(System.getProperty("java.specification.version"));
-        if (version >= 1.6) {
+        if (version >= 1.6 || getClassFor("javax.tools.Tool") != null) {
+            // JDK 6 or bundled with jsr199 compiler
             javaCompiler = new Jsr199JavaCompiler();
-        }
-        else {
+        } else {
             Class c = getClassFor("org.eclipse.jdt.internal.compiler.Compiler");
             if (c != null) {
                 c = getClassFor("org.apache.jasper.compiler.JDTJavaCompiler");

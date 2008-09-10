@@ -141,7 +141,7 @@ public class TldLocationsCache {
     private static final String FILE_PROTOCOL = "file:";
     private static final String JAR_FILE_SUFFIX = ".jar";
 
-    // Names of JARs that are known not to contain any TLDs
+    // Names of system JARs that are known not to contain some TLDs
     private static HashSet<String> tldJars;
 
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
@@ -236,7 +236,7 @@ public class TldLocationsCache {
     }
 
     /**
-     * Sets the list of JAR files that are known to contain any TLDs.
+     * Sets the list of system JAR files that are known to contain some TLDs.
      *
      * Only shared JAR files (that is, those loaded by a delegation parent
      * of the webapp's classloader) will be checked against this list.
