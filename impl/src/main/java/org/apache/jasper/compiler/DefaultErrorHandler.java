@@ -120,6 +120,9 @@ class DefaultErrorHandler implements ErrorHandler {
             buf.append("\n\n");
         }
 
+        if (buf.length() == 0) {
+            throw new JasperException(Localizer.getMessage("jsp.error.nojdk"));
+        }
 	throw new JasperException(
             Localizer.getMessage("jsp.error.unable.compile") + "\n\n" + buf);
     }

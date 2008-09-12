@@ -191,6 +191,9 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         final String source = charArrayWriter.toString();
 
         javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
+        if (javac == null) {
+            errDispatcher.jspError("java.err.nojdk");
+        }
 
         DiagnosticCollector<JavaFileObject> diagnostics =
             new DiagnosticCollector<JavaFileObject>();
