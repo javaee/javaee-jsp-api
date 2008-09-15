@@ -46,13 +46,8 @@
     </parent>
     <artifactId>jsp-impl</artifactId>
     <version>2.1-SNAPSHOT</version>
-    <packaging>hk2-jar</packaging>
+    <packaging>jar</packaging>
     <name>JSP implementation</name>
-
-  <properties>
-      <hk2.version>0.3.17</hk2.version>
-      <hk2.plugin.version>0.3.17</hk2.plugin.version>
-  </properties>
 
     <build>
         <plugins>
@@ -63,8 +58,6 @@
                 <configuration>
                     <supportedProjectTypes>
                         <supportedProjectType>jar</supportedProjectType>
-                        <supportedProjectType>hk2-jar</supportedProjectType>
-                        <supportedProjectType>bundle</supportedProjectType>
                     </supportedProjectTypes>
                     <instructions>
                         <_include>-osgi.bundle</_include>
@@ -81,22 +74,23 @@
                 </executions>
             </plugin> 
             <plugin>
-                <groupId>com.sun.enterprise</groupId>
-                <artifactId>hk2-maven-plugin</artifactId>
-                <version>${hk2.plugin.version}</version>
-                <extensions>true</extensions>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <archive>
-                       <!-- Use the manifest.mf produced by maven-bundle-plugin:manifest -->
-                        <manifestFile>
-                           ${project.build.outputDirectory}/META-INF/MANIFEST.MF
-                        </manifestFile>
-                    </archive>
                     <excludes>
                         <exclude>
                             org/apache/jasper/compiler/JDTJavaCompiler.java
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>
+                            ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+                        </manifestFile>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
@@ -111,11 +105,6 @@
         </resources>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>com.sun.enterprise</groupId>
-            <artifactId>hk2</artifactId>
-            <version>${hk2.version}</version>
-        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
