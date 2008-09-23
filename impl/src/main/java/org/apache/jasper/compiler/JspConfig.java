@@ -299,7 +299,7 @@ public class JspConfig {
         }
     }
 
-    private void init() throws JasperException {
+    private synchronized void init() throws JasperException {
 
 	if (!initialized) {
             /* GlassFish 740
