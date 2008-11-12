@@ -42,12 +42,12 @@
     <parent>
         <groupId>org.glassfish.web</groupId>
         <artifactId>jsp</artifactId>
-        <version>2.1</version>
+        <version>2.2</version>
     </parent>
     <artifactId>jsp-impl</artifactId>
-    <version>2.1</version>
+    <version>${jsp-impl.version}</version>
     <packaging>jar</packaging>
-    <name>JSP implementation</name>
+    <name>JSP implementation v${jsp-impl.version}</name>
 
     <build>
         <plugins>
@@ -108,17 +108,22 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <version>${servlet-api.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <version>2.1</version>
+            <version>${jsp-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>el-api</artifactId>
+            <version>${el-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.7.0</version>
+            <version>${ant.version}</version>
             <optional>true</optional>
         </dependency>
 <!--
