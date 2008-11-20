@@ -160,7 +160,7 @@ public class ELParser {
 	String s2 = curToken.toString();  // Function name
 	int mark = getIndex();
 	if (hasNext()) {
-            boolean nodotSeen = prevToken != null &&
+            boolean nodotSeen = prevToken == null || 
                                 (prevToken.toChar() != '.');
 	    Token t = nextToken();
 	    if (t.toChar() == ':') {
