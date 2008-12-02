@@ -417,8 +417,7 @@ public class Compiler {
             // Create the output directory for the generated files
             // Always try and create the directory tree, in case the generated
             // directories were deleted after the server was started.
-            ctxt.getOutputDir();
-            ctxt.makeOutputDir();
+            ctxt.makeOutputDir(ctxt.getOutputDir());
 
             // If errDispatcher is nulled from a previous compilation of the
             // same page, instantiate one here.
