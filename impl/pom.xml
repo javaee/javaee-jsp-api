@@ -46,7 +46,7 @@
     </parent>
     <artifactId>jsp-impl</artifactId>
     <packaging>jar</packaging>
-    <name>JSP implementation v${jsp-impl.version}</name>
+    <name>JSP implementation</name>
 
     <build>
         <plugins>
@@ -107,22 +107,18 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>${servlet-api.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <version>${jsp-api.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
-            <version>${el-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>${ant.version}</version>
             <optional>true</optional>
         </dependency>
 <!--
