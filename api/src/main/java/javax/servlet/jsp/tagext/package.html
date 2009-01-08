@@ -211,7 +211,8 @@ custom action occurrences.  Attributes with the same value in all
 occurrences must not be reset.  If an attribute value is set as a
 request-time attribute value (using a scripting or an EL expression),
 the container must reset the attribute between all reuses of the tag
-handler instance. 
+handler instance.  To prevent confusion, a tag handler with an empty body
+must not reuse any previous tag handler with a non-empty body.
 
 <p> User code can access property information and access and modify
 tag handler internal state starting with the first action method (doStartTag)
@@ -908,10 +909,10 @@ recursively invoke itself, indirectly.</p>
   scoped attribute exists with the provided name in the tag file, the
   JSP container must generate code to create/update the page scoped 
   attribute of the provided name in the calling page/tag.  If a page 
-  scoped attribute with the provided name does not exist in the calling 
-  page, and a page scoped attribute of the provided name is present in 
-  the tag file, the scoped attribute is removed from the tag 
-  file's page scope.  See the chapter on Tag Files for details.</li>
+  scoped attribute with the provided name does not exist in the tag
+  file, and a page scoped attribute of the provided name is present in 
+  the calling page, the scoped attribute is removed from the calling 
+  page's page scope.  See the chapter on Tag Files for details.</li>
   
   <li>If &lt;jsp:invoke&gt; or &lt;jsp:doBody&gt; is being used to 
   invoke a fragment, if the <code>var</code> attribute is specified,
