@@ -69,7 +69,6 @@ import java.security.cert.Certificate;
 import java.security.PermissionCollection;
 import java.security.Policy;
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,6 +78,7 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspFactory;
+import javax.tools.JavaFileObject;
 
 import org.apache.jasper.Constants;
 import org.apache.jasper.JspCompilationContext;
@@ -171,6 +171,7 @@ public final class JspRuntimeContext implements Runnable {
 
         bytecodes = new ConcurrentHashMap<String, byte[]>(hashSize);
         bytecodeBirthTimes = new ConcurrentHashMap<String, Long>(hashSize);
+        packageMap = new  ConcurrentHashMap<String, Map<String, JavaFileObject>>();
 
         // Get the parent class loader
         parentClassLoader = Thread.currentThread().getContextClassLoader();
@@ -240,10 +241,8 @@ public final class JspRuntimeContext implements Runnable {
     /**
      * Maps classes in packages compiled by the JSP compiler.
      * Used only by Jsr199Compiler.
-     * Should be Map<String, ArrayList<JavaFileObject>>, is this way now
-     * so not to be dependent on the JSP199 API at build time.
      */
-    private Map<String, ArrayList<Object>> packageMap;
+    private Map<String, Map<String, JavaFileObject>> packageMap;
 
     /**
      * The background thread.
@@ -428,10 +427,7 @@ public final class JspRuntimeContext implements Runnable {
      * compilation.  This is gets around the fact that JSR199 API does not
      * provide a way for the compiler use current classloader.
      */
-    public Map<String, ArrayList<Object>> getPackageMap() {
-        if (packageMap == null) {
-            packageMap = new HashMap<String, ArrayList<Object>>();
-        }
+    public Map<String, Map<String, JavaFileObject>> getPackageMap() {
         return packageMap;
     }
 
