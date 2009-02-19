@@ -204,7 +204,8 @@ public final class JspRuntimeContext implements Runnable {
         String appBase = context.getRealPath("/");         
         if (!options.getDevelopment()
                 && appBase != null
-                && options.getCheckInterval() > 0) {
+                && options.getCheckInterval() > 0
+                && !options.getUsePrecompiled()) {
             if (appBase.endsWith(File.separator) ) {
                 appBase = appBase.substring(0,appBase.length()-1);
             }
