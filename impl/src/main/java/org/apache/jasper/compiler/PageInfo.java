@@ -117,6 +117,7 @@ public class PageInfo {
     private boolean deferredSyntaxAllowedAsLiteral = false;
     private String trimDirectiveWhitespacesValue;
     private boolean trimDirectiveWhitespaces = false;
+    private boolean errorOnUndeclaredNamespace = false;
 
     private boolean isJspPrefixHijacked;
 
@@ -499,12 +500,18 @@ public class PageInfo {
 	    buffer = 0;
 	else {
 	    if (value == null || !value.endsWith("kb"))
-		err.jspError(n, "jsp.error.page.invalid.buffer");
+                if (n == null) 
+                    err.jspError("jsp.error.jspproperty.invalid.buffer");
+                else
+		    err.jspError(n, "jsp.error.page.invalid.buffer");
 	    try {
 		Integer k = new Integer(value.substring(0, value.length()-2));
 		buffer = k.intValue() * 1024;
 	    } catch (NumberFormatException e) {
-		err.jspError(n, "jsp.error.page.invalid.buffer");
+                if (n == null) 
+                    err.jspError("jsp.error.jspproperty.invalid.buffer");
+                else
+		    err.jspError(n, "jsp.error.page.invalid.buffer");
 	    }
 	}
 
@@ -748,6 +755,13 @@ public class PageInfo {
 	return trimDirectiveWhitespaces;
     }
 
+    public void setErrorOnUndeclaredNamespace(boolean s) {
+        errorOnUndeclaredNamespace = s;
+    }
+
+    public boolean errorOnUndeclaredNamespace() {
+        return this.errorOnUndeclaredNamespace;
+    }
 
     public void putNonCustomTagPrefix(String prefix, Mark where) {
         nonCustomTagPrefixMap.put(prefix, where);

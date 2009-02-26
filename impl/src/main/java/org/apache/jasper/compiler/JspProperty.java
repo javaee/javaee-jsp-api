@@ -66,6 +66,9 @@ public class JspProperty {
     private String poundAllowed;
     private Vector includePrelude;
     private Vector includeCoda;
+    private String buffer;
+    private String defaultContentType;
+    private String errorOnUndeclaredNamespace;
 
     public JspProperty(String isXml,
                        String elIgnored,
@@ -74,7 +77,11 @@ public class JspProperty {
                        String poundAllowed,
                        String pageEncoding,
                        Vector includePrelude,
-                       Vector includeCoda) {
+                       Vector includeCoda,
+                       String defaultContentType,
+                       String buffer,
+                       String errorOnUndeclaredNamespace) {
+
 
         this.isXml = isXml;
         this.elIgnored = elIgnored;
@@ -84,6 +91,9 @@ public class JspProperty {
         this.pageEncoding = pageEncoding;
         this.includePrelude = includePrelude;
         this.includeCoda = includeCoda;
+        this.defaultContentType = defaultContentType;
+        this.buffer = buffer;
+        this.errorOnUndeclaredNamespace = errorOnUndeclaredNamespace;
     }
 
     public String isXml() {
@@ -116,5 +126,17 @@ public class JspProperty {
 
     public Vector getIncludeCoda() {
         return includeCoda;
+    }
+
+    public String getBuffer() {
+        return buffer;
+    }
+
+    public String getDefaultContentType() {
+        return defaultContentType;
+    }
+
+    public String errorOnUndeclaredNamespace() {
+        return errorOnUndeclaredNamespace;
     }
 }

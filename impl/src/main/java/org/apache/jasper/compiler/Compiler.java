@@ -171,6 +171,9 @@ public class Compiler {
                                             jspProperty.getTrimSpaces()));
         pageInfo.setDeferredSyntaxAllowedAsLiteral(JspUtil.booleanValue(
                                             jspProperty.getPoundAllowed()));
+        pageInfo.setErrorOnUndeclaredNamespace(JspUtil.booleanValue(
+            jspProperty.errorOnUndeclaredNamespace()));
+
         if (jspProperty.getIncludePrelude() != null) {
             pageInfo.setIncludePrelude(jspProperty.getIncludePrelude());
         }

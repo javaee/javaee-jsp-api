@@ -103,6 +103,7 @@ public class JspConfig {
     private String defaultIsScriptingInvalid = "false";
     private String defaultTrimSpaces = "false";
     private String defaultPoundAllowed = "false";
+    private String defaultErrorOnUndeclaredNamespace = "false";
     private JspProperty defaultJspProperty;
 
     /* SJSAS 6384538
@@ -168,6 +169,9 @@ public class JspConfig {
                 Vector includeCoda = new Vector();
                 String trimSpaces = null;
                 String poundAllowed = null;
+                String buffer = null;
+                String defaultContentType = null;
+                String errorOnUndeclaredNamespace = null;
 
                 while (list.hasNext()) {
 
@@ -192,6 +196,12 @@ public class JspConfig {
                         trimSpaces = element.getBody();
                     else if ("deferred-syntax-allowed-as-literal".equals(tname))
                         poundAllowed = element.getBody();
+                    else if ("default-content-type".equals(tname))
+                        defaultContentType = element.getBody();
+                    else if ("buffer".equals(tname))
+                        buffer = element.getBody();
+                    else if ("error-on-undeclared-namespace".equals(tname))
+                        errorOnUndeclaredNamespace = element.getBody();
                 }
 
                 if (urlPatterns.size() == 0) {
@@ -207,7 +217,10 @@ public class JspConfig {
                                       poundAllowed,
                                       pageEncoding,
                                       includePrelude,
-                                      includeCoda);
+                                      includeCoda,
+                                      defaultContentType,
+                                      buffer,
+                                      errorOnUndeclaredNamespace);
             }
         } catch (Exception ex) {
             throw new JasperException(ex);
@@ -220,6 +233,21 @@ public class JspConfig {
         }
     }
 
+
+    public static void makeJspPropertyGroups(Vector jspProperties,
+                                             Vector urlPatterns,
+                                             String isXml,
+                                             String elIgnored,
+                                             String scriptingInvalid,
+                                             String trimSpaces,
+                                             String poundAllowed,
+                                             String pageEncoding,
+                                             Vector includePrelude,
+                                             Vector includeCoda) {
+        makeJspPropertyGroups(jspProperties, urlPatterns, isXml,
+            elIgnored, scriptingInvalid, trimSpaces, poundAllowed,
+            pageEncoding, includePrelude, includeCoda, null, null, null);
+    }
 
     /**
      * Creates a JspPropertyGroup for each url pattern in the given
@@ -237,7 +265,10 @@ public class JspConfig {
                                              String poundAllowed,
                                              String pageEncoding,
                                              Vector includePrelude,
-                                             Vector includeCoda) {
+                                             Vector includeCoda,
+                                             String defaultContentType,
+                                             String buffer,
+                                             String errorOnUndeclaredNamespace){
 
         if (urlPatterns == null || urlPatterns.size() == 0) {
             return;
@@ -291,7 +322,10 @@ public class JspConfig {
                                                     poundAllowed,
                                                     pageEncoding,
                                                     includePrelude,
-                                                    includeCoda);
+                                                    includeCoda,
+                                                    defaultContentType,
+                                                    buffer,
+                                                    errorOnUndeclaredNamespace);
              JspPropertyGroup propertyGroup =
                  new JspPropertyGroup(path, extension, property);
 
@@ -326,7 +360,9 @@ public class JspConfig {
 						 defaultIsScriptingInvalid,
                                                  defaultTrimSpaces,
                                                  defaultPoundAllowed,
-                                                 null, null, null);
+                                                 null, null, null,
+                                                 null, null,
+                                                 defaultErrorOnUndeclaredNamespace);
 	    initialized = true;
 	}
     }
@@ -402,6 +438,9 @@ public class JspConfig {
 	JspPropertyGroup trimSpacesMatch = null;
 	JspPropertyGroup poundAllowedMatch = null;
 	JspPropertyGroup pageEncodingMatch = null;
+	JspPropertyGroup defaultContentTypeMatch = null;
+	JspPropertyGroup bufferMatch = null;
+	JspPropertyGroup errorOnUndeclaredNamespaceMatch = null;
 
 	Iterator iter = jspProperties.iterator();
 	while (iter.hasNext()) {
@@ -462,6 +501,17 @@ public class JspConfig {
              if (jp.getPoundAllowed() != null) {
                  poundAllowedMatch = selectProperty(poundAllowedMatch, jpg);
              }
+             if (jp.getDefaultContentType() != null) {
+                 defaultContentTypeMatch =
+                     selectProperty(defaultContentTypeMatch, jpg);
+             }
+             if (jp.getBuffer() != null) {
+                 bufferMatch = selectProperty(bufferMatch, jpg);
+             }
+             if (jp.errorOnUndeclaredNamespace() != null) {
+                 errorOnUndeclaredNamespaceMatch =
+                     selectProperty(errorOnUndeclaredNamespaceMatch, jpg);
+             }
 	}
 
 
@@ -471,6 +521,9 @@ public class JspConfig {
         String trimSpaces = defaultTrimSpaces;
         String poundAllowed = defaultPoundAllowed;
 	String pageEncoding = null;
+        String defaultContentType = null;
+        String buffer = null;
+        String errorOnUndeclaredNamespace = defaultErrorOnUndeclaredNamespace;
 
 	if (isXmlMatch != null) {
 	    isXml = isXmlMatch.getJspProperty().isXml();
@@ -491,10 +544,23 @@ public class JspConfig {
 	if (pageEncodingMatch != null) {
 	    pageEncoding = pageEncodingMatch.getJspProperty().getPageEncoding();
 	}
+	if (defaultContentTypeMatch != null) {
+	    defaultContentType =
+                defaultContentTypeMatch.getJspProperty().getDefaultContentType();
+	}
+	if (bufferMatch != null) {
+	    buffer = bufferMatch.getJspProperty().getBuffer();
+	}
+	if (errorOnUndeclaredNamespaceMatch != null) {
+	    errorOnUndeclaredNamespace = errorOnUndeclaredNamespaceMatch.
+                getJspProperty().errorOnUndeclaredNamespace();
+	}
 
 	return new JspProperty(isXml, isELIgnored, isScriptingInvalid,
                                trimSpaces, poundAllowed,
-			       pageEncoding, includePreludes, includeCodas);
+			       pageEncoding, includePreludes, includeCodas,
+                               defaultContentType, buffer,
+                               errorOnUndeclaredNamespace);
     }
 
     /**

@@ -98,6 +98,7 @@ class Parser implements TagConstants {
     private boolean directivesOnly;
     private URL jarFileUrl;
     private PageInfo pageInfo;
+    private boolean errorOnUndeclaredNamespace;
 
     // Virtual body content types, to make parsing a little easier.
     // These are not accessible from outside the parser.
@@ -1390,6 +1391,12 @@ class Parser implements TagConstants {
 	// Check if this is a user-defined tag.
 	String uri = pageInfo.getURI(prefix);
         if (uri == null) {
+            // If error-on-undeclared-namespace is set to true in
+            // jsp-property-group, then it is an error
+            if (pageInfo.errorOnUndeclaredNamespace()) {
+                 err.jspError(start, "jsp.error.undeclared.namespace", prefix);
+            }
+
 	    reader.reset(start);
             // Remember the prefix for later error checking
             pageInfo.putNonCustomTagPrefix(prefix, reader.mark());

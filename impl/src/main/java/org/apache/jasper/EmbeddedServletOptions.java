@@ -761,12 +761,7 @@ public final class EmbeddedServletOptions implements Options {
      * returns true if running with JDK 6 or later.
      */
     private boolean isJDK6() {
-        try {
-            Class.forName("javax.tools.ToolProvider");
-            return true;
-        } catch (ClassNotFoundException ex) {
-        }
-        return false;
+        return "1.6".equals(System.getProperty("java.specification.version"));
     }
 }
 

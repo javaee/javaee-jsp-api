@@ -1815,9 +1815,28 @@ class Validator {
 	 */
 	page.visit(new DirectiveVisitor(compiler));
 
-	// Determine the default output content type
 	PageInfo pageInfo = compiler.getPageInfo();
+
+        JspCompilationContext ctxt = compiler.getCompilationContext();
+        JspConfig jspConfig = ctxt.getOptions().getJspConfig();
+        JspProperty jspProperty = jspConfig.findJspProperty(ctxt.getJspFile());
+
+        // If the buffer size is not specified in a page directive, use the
+        // default buffer specified in jsp config property
+        if (pageInfo.getBufferValue() == null &&
+                jspProperty.getBuffer() != null) {
+            pageInfo.setBufferValue(jspProperty.getBuffer(), null,
+                                    compiler.getErrorDispatcher());
+        }
+            
+	// Determine the default output content type
 	String contentType = pageInfo.getContentType();
+
+        // If the contentType is not specified in a page directive, use the
+        // contentType specified in a jsp config property
+        if (contentType == null) {
+            contentType = jspProperty.getDefaultContentType();
+        }
 
 	if (contentType == null || contentType.indexOf("charset=") < 0) {
 	    boolean isXml = page.getRoot().isXmlSyntax();
