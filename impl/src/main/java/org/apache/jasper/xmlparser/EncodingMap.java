@@ -514,10 +514,12 @@ public class EncodingMap {
     //
 
     /** fIANA2JavaMap */
-    protected final static Hashtable fIANA2JavaMap = new Hashtable();
+    protected final static Hashtable<String,String> fIANA2JavaMap
+        = new Hashtable<String,String>();
 
     /** fJava2IANAMap */
-    protected final static Hashtable fJava2IANAMap = new Hashtable();
+    protected final static Hashtable<String,String> fJava2IANAMap
+        = new Hashtable<String,String>();
 
     //
     // Static initialization
@@ -1007,7 +1009,7 @@ public class EncodingMap {
      * @param ianaEncoding The IANA encoding name.
      */
     public static String getIANA2JavaMapping(String ianaEncoding) {
-        return (String)fIANA2JavaMap.get(ianaEncoding);
+        return fIANA2JavaMap.get(ianaEncoding);
     } // getIANA2JavaMapping(String):String
 
     /**
@@ -1016,7 +1018,7 @@ public class EncodingMap {
      * @param ianaEncoding The IANA encoding name.
      */
     public static String removeIANA2JavaMapping(String ianaEncoding) {
-        return (String)fIANA2JavaMap.remove(ianaEncoding);
+        return fIANA2JavaMap.remove(ianaEncoding);
     } // removeIANA2JavaMapping(String):String
 
     /**
@@ -1036,7 +1038,7 @@ public class EncodingMap {
      * @param javaEncoding The Java encoding name.
      */
     public static String getJava2IANAMapping(String javaEncoding) {
-        return (String)fJava2IANAMap.get(javaEncoding);
+        return fJava2IANAMap.get(javaEncoding);
     } // getJava2IANAMapping(String):String
 
     /**
@@ -1045,7 +1047,7 @@ public class EncodingMap {
      * @param javaEncoding The Java encoding name.
      */
     public static String removeJava2IANAMapping(String javaEncoding) {
-        return (String)fJava2IANAMap.remove(javaEncoding);
+        return fJava2IANAMap.remove(javaEncoding);
     } // removeJava2IANAMapping
 
 } // class EncodingMap

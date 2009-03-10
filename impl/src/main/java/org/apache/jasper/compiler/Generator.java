@@ -1858,20 +1858,38 @@ class Generator {
             Node.JspAttribute[] attrs = n.getJspAttributes();
             for (int i = 0; attrs != null && i < attrs.length; i++) {
                 String attrStr = null;
+                StringBuffer genStr = new StringBuffer(" + ");
+                boolean genCloseParen = false;
                 if (attrs[i].isNamedAttribute()) {
+                    Node.NamedAttribute attributeNode =
+                        attrs[i].getNamedAttributeNode();
+                    Node.JspAttribute omit = attributeNode.getOmit();
+                    if ((omit != null) && omit.isLiteral() &&
+                            JspUtil.booleanValue(omit.getValue())) {
+                        // if we know omit is true at compile time, skip
+                        continue;
+                    }
                     attrStr =
                         generateNamedAttributeValue(
                             attrs[i].getNamedAttributeNode());
+                    if (omit != null) {
+                        // Generate test for omit at runtime
+                        genCloseParen = true;
+                        genStr.append("(")
+                              .append(attributeValue(omit,false,Boolean.class))
+                              .append("? \"\": ");
+                    }
                 } else {
                     attrStr = attributeValue(attrs[i], false, Object.class);
                 }
-                String s =
-                    " + \" "
-                        + attrs[i].getName()
-                        + "=\\\"\" + "
-                        + attrStr
-                        + " + \"\\\"\"";
-                map.put(attrs[i].getName(), s);
+                genStr.append("\" ")
+                      .append(attrs[i].getName())
+                      .append("=\\\"\" + ")
+                      .append(attrStr)
+                      .append(" + \"\\\"\"");
+                if (genCloseParen)
+                    genStr.append(")");
+                map.put(attrs[i].getName(), genStr.toString());
             }
 
             // Write begin tag, using XML-style 'name' attribute as the

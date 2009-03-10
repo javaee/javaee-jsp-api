@@ -1861,7 +1861,10 @@ abstract class Node implements TagConstants {
 
         // True if this node is to be trimmed, or false otherwise
         private boolean trim = true;
-        
+
+        // omit can be expressions
+        JspAttribute omit;
+
         private ChildInfo childInfo;
 	private String name;
 	private String localName;
@@ -1918,6 +1921,14 @@ abstract class Node implements TagConstants {
 
         public boolean isTrim() {
             return trim;
+        }
+
+        public void setOmit(JspAttribute ja) {
+            omit = ja;
+        }
+
+        public JspAttribute getOmit() {
+            return omit;
         }
 
         /**
@@ -2216,7 +2227,7 @@ abstract class Node implements TagConstants {
 	 * time.
 	 */
 	public boolean isLiteral() {
-	    return !expression && (el != null && !el.containsEL()) && !namedAttribute;
+	    return !(expression || (el != null && el.containsEL()) || namedAttribute);
 	}
 
 	/**
