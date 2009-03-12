@@ -761,7 +761,7 @@ public class Compiler {
         Boolean useMyFaces = (Boolean) ctxt.getServletContext().
                 getAttribute("com.sun.faces.useMyFaces");
 
-        if (!useMyFaces) {
+        if (useMyFaces == null || !useMyFaces) {
             for (String jar: systemJsfJars) {
                 if (path.indexOf(jar) > 0) {
                     return true;
