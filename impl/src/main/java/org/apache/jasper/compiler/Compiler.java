@@ -743,7 +743,10 @@ public class Compiler {
      * System jars should be exclude from the classpath for javac.
      */
     private static String systemJars[] =
-        {"jsf-api.jar", "jsf-impl.jar", "jstl.jar"};
+        {"jstl.jar"};
+
+    private static String systemJsfJars[] =
+        {"jsf-api.jar", "jsf-impl.jar"};
 
     /**
      * Return true if the path refers to a jar file in WEB-INF and is a
@@ -753,6 +756,17 @@ public class Compiler {
 
         if (path.indexOf("/WEB-INF/") < 0) {
             return false;
+        }
+
+        Boolean useMyFaces = (Boolean) ctxt.getServletContext().
+                getAttribute("com.sun.faces.useMyFaces");
+
+        if (!useMyFaces) {
+            for (String jar: systemJsfJars) {
+                if (path.indexOf(jar) > 0) {
+                    return true;
+                }
+            }
         }
 
         for (String jar: systemJars) {
