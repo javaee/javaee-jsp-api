@@ -417,13 +417,7 @@ public class Compiler {
         throws FileNotFoundException, JasperException, Exception
     {
            
-        ClassLoader saveCL = null;
         try {
-            // Set the ContextClassLoder to its parent, to exclude classes or
-            // jars in WEB-INF during compilation.
-            saveCL = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader(saveCL.getParent());
-
             // Create the output directory for the generated files
             // Always try and create the directory tree, in case the generated
             // directories were deleted after the server was started.
@@ -461,9 +455,6 @@ public class Compiler {
                 ctxt.getWriter().close();
                 ctxt.setWriter(null);
             }
-
-            // Restore the original ContextClassLoader
-            Thread.currentThread().setContextClassLoader(saveCL);
         }
     }
 

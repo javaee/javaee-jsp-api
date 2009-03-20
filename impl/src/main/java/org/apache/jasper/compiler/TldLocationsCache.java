@@ -174,8 +174,6 @@ public class TldLocationsCache {
     // END GlassFish 747
 
     private boolean useMyFaces = false;
-    private ClassLoader webappLoader
-            = Thread.currentThread().getContextClassLoader();
 
 
     //*********************************************************************
@@ -645,6 +643,8 @@ public class TldLocationsCache {
      */
     private void scanJars() throws Exception {
 
+        ClassLoader webappLoader
+            = Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
 
         // START Glassfish 747
