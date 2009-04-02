@@ -60,10 +60,21 @@ public interface ResourceInjector {
      * associated with this ResourceInjector into the given tag handler
      * instance. 
      *
+     * <p>Any @PostConstruct methods on the class (and super-classes)
+     * of the instance will be invoked after injection.
+     *
      * @param handler The tag handler instance to be injected
      *
      * @throws Exception if an error occurs during injection
      */
     public void inject(JspTag handler) throws Exception;
 
+    /**
+     * Invokes any @PreDestroy methods defined on the instance's class
+     * (and super-classes).
+     *
+     * @param handler The tag handler instance whose @PreDestroy methods
+     * to call
+     */
+    public void preDestroy(JspTag handler);
 }

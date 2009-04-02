@@ -187,6 +187,10 @@ public class TagHandlerPool {
         }
         // There is no need for other threads to wait for us to release
         handler.release();
+
+        if (resourceInjector != null) {
+            resourceInjector.preDestroy(handler);
+        }
     }
 
     /**
@@ -196,6 +200,9 @@ public class TagHandlerPool {
     public synchronized void release() {
 	for (int i=current; i>=0; i--) {
 	    handlers[i].release();
+            if (resourceInjector != null) {
+                resourceInjector.preDestroy(handlers[i]);
+            }
 	}
     }
 
