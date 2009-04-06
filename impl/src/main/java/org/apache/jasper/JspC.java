@@ -188,6 +188,7 @@ public class JspC implements Options {
     private static final String SWITCH_IGNORE_JSP_FRAGMENTS
         = "-ignoreJspFragmentErrors";
     // END SJSAS 6393940
+    private static final String SWITCH_DISABLE_POOLING = "-disablePooling";
 
     private static final String SHOW_SUCCESS ="-s";
     private static final String LIST_ERRORS = "-l";
@@ -410,6 +411,8 @@ public class JspC implements Options {
             } else if (tok.equals(SWITCH_IGNORE_JSP_FRAGMENTS)) {
                 setIgnoreJspFragmentErrors(true);
             // END SJSAS 6393940
+            } else if (tok.equals(SWITCH_DISABLE_POOLING)) {
+                setPoolingEnabled(false);
             } else {
                 if (tok.startsWith("-")) {
                     throw new JasperException("Unrecognized option: " + tok +
