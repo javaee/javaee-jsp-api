@@ -105,7 +105,7 @@ public class Compiler {
 
     // ------------------------------------------------------------ Constructor
 
-    // Compiler for parsing only
+    // Compiler for parsing only, needed by netbeans
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw) {
         this.jsw = jsw;
         this.ctxt = ctxt;
@@ -114,12 +114,12 @@ public class Compiler {
         this.log = Logger.getLogger(Compiler.class.getName());
         this.smapUtil = new SmapUtil(ctxt);
         this.errDispatcher = new ErrorDispatcher(jspcMode);
-        this.javaCompiler = new AntJavaCompiler();
+        this.javaCompiler = new NullJavaCompiler();
         javaCompiler.init(ctxt, errDispatcher, jspcMode);
     }
 
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw,
-                    boolean jspcMode) {
+                    boolean jspcMode) throws JasperException {
         this.jsw = jsw;
         this.ctxt = ctxt;
         this.jspcMode = jspcMode;
@@ -703,10 +703,10 @@ public class Compiler {
     /**
      * Get an instance of JavaCompiler.
      * If Running with JDK 6, use a Jsr199JavaCompiler that supports JSR199,
-     * else if eclipse's JDT compiler is avalable, use that.
+     * else if eclipse's JDT compiler is available, use that.
      * The default is to use javac from ant.
      */
-    private void initJavaCompiler() {
+    private void initJavaCompiler() throws JasperException {
         Double version = 
             Double.valueOf(System.getProperty("java.specification.version"));
         if (version >= 1.6 || getClassFor("javax.tools.Tool") != null) {
@@ -725,7 +725,19 @@ public class Compiler {
             }
         }
         if (javaCompiler == null) {
-            javaCompiler = new AntJavaCompiler();
+            Class c = getClassFor("org.apache.tools.ant.taskdefs.Javac");
+            if (c != null) {
+                c = getClassFor("org.apache.jasper.compiler.AntJavaCompiler");
+                if (c != null) {
+                    try {
+                        javaCompiler = (JavaCompiler) c.newInstance();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        }
+        if (javaCompiler == null) {
+            errDispatcher.jspError("jsp.error.nojavac");
         }
 
         javaCompiler.init(ctxt, errDispatcher, jspcMode);

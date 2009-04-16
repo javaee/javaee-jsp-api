@@ -1872,8 +1872,9 @@ class Generator {
                     attrStr =
                         generateNamedAttributeValue(
                             attrs[i].getNamedAttributeNode());
-                    if (omit != null) {
-                        // Generate test for omit at runtime
+                    if (omit != null && !omit.isLiteral()) {
+                        // If omit is a literal, its value is known to be false
+                        // else generate test for omit at runtime
                         genCloseParen = true;
                         genStr.append("(")
                               .append(attributeValue(omit,false,Boolean.class))

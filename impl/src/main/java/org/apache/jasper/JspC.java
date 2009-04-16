@@ -90,7 +90,6 @@ import org.apache.jasper.servlet.JspCServletContext;
 // START PWC 6386258
 import org.apache.jasper.xmlparser.ParserUtils;
 // END PWC 6386258
-import org.apache.tools.ant.AntClassLoader;
 
 // START SJSAS 6258619
 // XXX Remove the dependency on glassfish.webtier for now
@@ -1484,10 +1483,6 @@ public class JspC implements Options {
         classPath = getClassPath();
 
         ClassLoader jspcLoader = getClass().getClassLoader();
-        if (jspcLoader instanceof AntClassLoader) {
-            classPath += File.pathSeparator
-                + ((AntClassLoader) jspcLoader).getClasspath();
-        }
 
         // Turn the classPath into URLs
         ArrayList urls = new ArrayList();
