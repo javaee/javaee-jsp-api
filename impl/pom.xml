@@ -81,6 +81,9 @@
                         <exclude>
                             org/apache/jasper/compiler/JDTJavaCompiler.java
                         </exclude>
+                        <exclude>
+                            org/apache/jasper/compiler/AntJavaCompiler.java
+                        </exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -121,12 +124,15 @@
             <artifactId>el-api</artifactId>
             <version>2.1.2-b02</version>
         </dependency>
+<!--
+  Needed only if we use Ant for java compilation
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <optional>true</optional>
             <version>1.7.0</version>
         </dependency>
+-->
 <!--
   Needed only if we include JDTJavaCompiler.java
     <dependency>
