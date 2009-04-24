@@ -913,7 +913,6 @@ public class PageContextImpl extends PageContext {
             // now clear the error code - to prevent double handling.
             request.removeAttribute("javax.servlet.error.status_code");
             request.removeAttribute("javax.servlet.error.request_uri");
-            request.removeAttribute("javax.servlet.error.status_code");
             request.removeAttribute("javax.servlet.jsp.jspException");
 
         } else {

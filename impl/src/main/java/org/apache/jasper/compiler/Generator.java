@@ -598,8 +598,12 @@ class Generator {
         if (pageInfo.isErrorPage()) {
             out.printil(
                 "Throwable exception = org.apache.jasper.runtime.JspRuntimeLibrary.getThrowable(request);");
+            out.printil("if (exception != null) {");
+            out.pushIndent();
             out.printil(
-                "response.setStatus(((Integer)request.getAttribute(\"javax.servlet.error.status_code\")).intValue());");
+                "response.setStatus((Integer)request.getAttribute(\"javax.servlet.error.status_code\"));");
+            out.popIndent();
+            out.printil("}");
         }
 
         out.printil("ServletContext application = null;");
