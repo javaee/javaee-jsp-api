@@ -274,6 +274,13 @@ public class ParserUtils {
         Document document = null;
 
         // Perform an XML parse of this document, via JAXP
+
+        // START 6412405
+        ClassLoader currentLoader =
+            Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(
+            getClass().getClassLoader());
+        // END 6412405
         try {
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
@@ -317,7 +324,11 @@ public class ParserUtils {
         } catch (IOException io) {
             throw new JasperException
                 (Localizer.getMessage("jsp.error.parse.xml", uri), io);
-	}
+        // START 6412405
+        } finally {
+            Thread.currentThread().setContextClassLoader(currentLoader);
+        }
+        // END 6412405
 
         // Convert the resulting document to a graph of TreeNodes
         return (convert(null, document.getDocumentElement()));
