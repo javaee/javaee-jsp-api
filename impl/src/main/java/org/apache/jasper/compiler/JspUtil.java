@@ -68,6 +68,7 @@ import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.net.URLConnection;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1204,9 +1205,10 @@ public class JspUtil {
                 continue;
             }
             Manifest manifest;
+            JarURLConnection conn = null;
             try {
                 URL url = new URL("jar:file:" + file + "!/");
-                JarURLConnection conn = (JarURLConnection) url.openConnection();
+                conn = (JarURLConnection) url.openConnection();
                 manifest = conn.getManifest();
             } catch (MalformedURLException ex) {
                 // Ignored
@@ -1214,6 +1216,16 @@ public class JspUtil {
             } catch (IOException ex) {
                 // Ignore non existent files
                 continue;
+            } finally {
+                try {
+                    if (conn != null) {
+                        URL jarFileUrl = conn.getJarFileURL();
+                        URLConnection jconn = jarFileUrl.openConnection();
+                        jconn.getInputStream().close();
+                    }
+                } catch (IOException ex) {
+                    // Ignored
+                }
             }
 
             if (manifest == null) {
