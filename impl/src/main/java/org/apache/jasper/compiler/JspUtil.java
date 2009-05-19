@@ -1219,9 +1219,7 @@ public class JspUtil {
             } finally {
                 try {
                     if (conn != null) {
-                        URL jarFileUrl = conn.getJarFileURL();
-                        URLConnection jconn = jarFileUrl.openConnection();
-                        jconn.getInputStream().close();
+                        conn.getJarFile().close();
                     }
                 } catch (IOException ex) {
                     // Ignored
