@@ -1209,6 +1209,7 @@ public class JspUtil {
             try {
                 URL url = new URL("jar:file:" + file + "!/");
                 conn = (JarURLConnection) url.openConnection();
+                conn.setUseCaches(false);
                 manifest = conn.getManifest();
             } catch (MalformedURLException ex) {
                 // Ignored
