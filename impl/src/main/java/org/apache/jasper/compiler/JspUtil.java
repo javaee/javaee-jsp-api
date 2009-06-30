@@ -68,10 +68,8 @@ import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.net.URLConnection;
-import java.net.JarURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.el.ELException;
 import javax.el.FunctionMapper;
@@ -1192,10 +1190,15 @@ public class JspUtil {
         return expFactory;
     }
 
+    static Map<String, Manifest> manifestMap =
+        new ConcurrentHashMap<String, Manifest>();
+    static Manifest nullManifest = new Manifest();
+
     /**
      * Given a list of jar files, their manifest attribute Class-path are
      * scanned, and jars specified there are added to the list.  This is
      * carried out recursively.
+     * Note:  This is needed to work around the JDK bug 6725230.
      */
     public static List<String> expandClassPath(List<String>files) {
 
@@ -1204,30 +1207,32 @@ public class JspUtil {
             if (! file.endsWith(".jar")) {
                 continue;
             }
-            Manifest manifest;
-            JarURLConnection conn = null;
-            try {
-                URL url = new URL("jar:file:" + file + "!/");
-                conn = (JarURLConnection) url.openConnection();
-                conn.setUseCaches(false);
-                manifest = conn.getManifest();
-            } catch (MalformedURLException ex) {
-                // Ignored
-                continue;
-            } catch (IOException ex) {
-                // Ignore non existent files
-                continue;
-            } finally {
+            Manifest manifest = manifestMap.get(file);
+            JarFile jarfile = null;
+            if (manifest == null) {
                 try {
-                    if (conn != null) {
-                        conn.getJarFile().close();
+                    jarfile = new JarFile(file, false);
+                    manifest = jarfile.getManifest();
+                    if (manifest == null) {
+                        // mark jar file as known to contain no manifest
+                        manifestMap.put(file, nullManifest);
+                        continue;
+                    } else if (! file.contains("/WEB-INF")) {
+                        // Don't cache any jars bundled with the app.
+                        manifestMap.put(file, manifest);
                     }
                 } catch (IOException ex) {
                     // Ignored
+                    continue;
+                } finally {
+                    try {
+                        if (jarfile != null)
+                            jarfile.close();
+                    } catch (IOException ex) {
+                        // Ignored
+                    }
                 }
-            }
-
-            if (manifest == null) {
+            } else if (manifest == nullManifest) {
                 continue;
             }
 
