@@ -369,6 +369,9 @@ public class JspServlet extends HttpServlet {
             incrementErrorCount();
             // END S1AS
             throw e;
+        } catch (Error e) {
+            incrementErrorCount();
+            throw e;
         } catch (ServletException e) {
             // STARTS S1AS
             incrementErrorCount();
