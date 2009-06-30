@@ -85,7 +85,14 @@ public class JspFactoryImpl extends JspFactory {
             Logger.getLogger(JspFactoryImpl.class.getName());
 
     private static final String SPEC_VERSION = "2.1";
-    private static final boolean USE_POOL = true;
+
+    // Pooling PageContextImpl intances are known to leak memories, see
+    // https://glassfish.dev.java.net/issues/show_bug.cgi?id=8601
+    // So pooling is off by default.  If for any reason, backwards
+    // compatibility is required, set the system property to true.
+    private static final boolean USE_POOL = 
+        Boolean.getBoolean(
+            "org.apache.jasper.runtime.JspFactoryImpl.USE_POOL");
 
     // Per-thread pool of PageContext objects
     private ThreadLocal pool = new ThreadLocal() {

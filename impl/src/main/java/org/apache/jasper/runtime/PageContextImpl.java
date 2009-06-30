@@ -792,6 +792,12 @@ public class PageContextImpl extends PageContext {
 	return (BodyContent) pushBody(null);
     }
 
+    // Note that there is a potential memory leak with way BodyContentImpl
+    // are pooled.  The "outs" array is extended in pushBody, but not shrinked
+    // in popBody; and BodyContentImpl.cb can gets arbritarily large.
+    // See https://glassfish.dev.java.net/issues/show_bug.cgi?id=8601
+    // Setting FactoryImpl.USE_POOL to false eliminates most of the leak,
+    // but not all -- kchung 6/29/2009
     public JspWriter pushBody(Writer writer) {
         depth++;
         if (depth >= outs.length) {
