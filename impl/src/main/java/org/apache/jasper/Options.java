@@ -58,7 +58,7 @@ import java.io.File;
 
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.TagPluginManager;
-import org.apache.jasper.compiler.TldLocationsCache;
+import org.apache.jasper.runtime.TldScanner;
 
 /**
  * A class to hold all init parameters specific to the JSP engine. 
@@ -176,10 +176,10 @@ public interface Options {
      * web.xml or implicitely via the uri tag in the TLD 
      * of a taglib deployed in a jar file (WEB-INF/lib).
      *
-     * @return the instance of the TldLocationsCache
+     * @return the instance of the TldScanner
      * for the web-application.
      */
-    public TldLocationsCache getTldLocationsCache();
+    public TldScanner getTldScanner();
 
     /**
      * Java platform encoding to generate the JSP

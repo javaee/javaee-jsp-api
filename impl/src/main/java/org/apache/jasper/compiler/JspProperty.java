@@ -54,7 +54,7 @@
 
 package org.apache.jasper.compiler;
 
-import java.util.Vector;
+import java.util.List;
 
 public class JspProperty {
 
@@ -64,8 +64,8 @@ public class JspProperty {
     private String pageEncoding;
     private String trimSpaces;
     private String poundAllowed;
-    private Vector includePrelude;
-    private Vector includeCoda;
+    private List<String> includePrelude;
+    private List<String> includeCoda;
     private String buffer;
     private String defaultContentType;
     private String errorOnUndeclaredNamespace;
@@ -76,8 +76,8 @@ public class JspProperty {
                        String trimSpaces,
                        String poundAllowed,
                        String pageEncoding,
-                       Vector includePrelude,
-                       Vector includeCoda,
+                       List<String> includePrelude,
+                       List<String> includeCoda,
                        String defaultContentType,
                        String buffer,
                        String errorOnUndeclaredNamespace) {
@@ -120,11 +120,11 @@ public class JspProperty {
         return poundAllowed;
     }
 
-    public Vector getIncludePrelude() {
+    public List<String> getIncludePrelude() {
         return includePrelude;
     }
 
-    public Vector getIncludeCoda() {
+    public List<String> getIncludeCoda() {
         return includeCoda;
     }
 

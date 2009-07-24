@@ -85,7 +85,7 @@ import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.compiler.PageInfo;
 import org.apache.jasper.compiler.TagPluginManager;
-import org.apache.jasper.compiler.TldLocationsCache;
+import org.apache.jasper.runtime.TldScanner;
 import org.apache.jasper.servlet.JspCServletContext;
 // START PWC 6386258
 import org.apache.jasper.xmlparser.ParserUtils;
@@ -268,7 +268,7 @@ public class JspC implements Options {
     /**
      * Cache for the TLD locations
      */
-    private TldLocationsCache tldLocationsCache = null;
+    private TldScanner tldScanner = null;
 
     private JspConfig jspConfig = null;
     private TagPluginManager tagPluginManager = null;
@@ -709,8 +709,8 @@ public class JspC implements Options {
         compilerSourceVM = vm;
     }
 
-    public TldLocationsCache getTldLocationsCache() {
-	return tldLocationsCache;
+    public TldScanner getTldScanner() {
+	return tldScanner;
     }
 
     /**
@@ -1441,32 +1441,21 @@ public class JspC implements Options {
             context =new JspCServletContext
                 (new PrintWriter(System.out),
                  new URL("file:" + uriRoot.replace('\\','/') + '/'));
-            tldLocationsCache = new
-                /* SJSAS 6384538
-                TldLocationsCache(context, true);
-                */
-                // START SJSAS 6384538
-                TldLocationsCache(context, this, true);
-                // END SJSAS 6384538
+            tldScanner = new TldScanner(context, isValidationEnabled);
 
             // START GlassFish 750
             taglibs = new ConcurrentHashMap<String, TagLibraryInfo>();
             context.setAttribute(Constants.JSP_TAGLIBRARY_CACHE, taglibs);
 
             tagFileJarUrls = new ConcurrentHashMap<String, URL>();
-            context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE, 
+            context.setAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE,
                                  tagFileJarUrls);
             // END GlassFish 750
         } catch (MalformedURLException me) {
             System.out.println("**" + me);
         }
         rctxt = new JspRuntimeContext(context, this);
-        /* SJSAS 6384538
         jspConfig = new JspConfig(context);
-        */
-        // START SJSAS 6384538
-        jspConfig = new JspConfig(context, this);
-        // END SJSAS 6384538
         tagPluginManager = new TagPluginManager(context);
     }
 

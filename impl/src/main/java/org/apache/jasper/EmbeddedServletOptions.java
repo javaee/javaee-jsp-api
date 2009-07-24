@@ -65,7 +65,7 @@ import java.text.MessageFormat;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.apache.jasper.compiler.TldLocationsCache;
+import org.apache.jasper.runtime.TldScanner;
 import org.apache.jasper.compiler.JspConfig;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.Localizer;
@@ -202,7 +202,7 @@ public final class EmbeddedServletOptions implements Options {
     /**
      * Cache for the TLD locations
      */
-    private TldLocationsCache tldLocationsCache = null;
+    private TldScanner tldScanner = null;
 
     /**
      * Jsp config information
@@ -418,12 +418,8 @@ public final class EmbeddedServletOptions implements Options {
         errorOnUseBeanInvalidClassAttribute = b;
     }
 
-    public TldLocationsCache getTldLocationsCache() {
-	return tldLocationsCache;
-    }
-
-    public void setTldLocationsCache( TldLocationsCache tldC ) {
-        tldLocationsCache = tldC;
+    public TldScanner getTldScanner() {
+	return tldScanner;
     }
 
     public String getJavaEncoding() {
@@ -696,20 +692,10 @@ public final class EmbeddedServletOptions implements Options {
 
 	// Setup the global Tag Libraries location cache for this
 	// web-application.
-        /* SJSAS 6384538
-        tldLocationsCache = new TldLocationsCache(context);
-        */
-        // START SJSAS 6384538
-        tldLocationsCache = new TldLocationsCache(context, this);
-        // END SJSAS 6384538
+        tldScanner = new TldScanner(context, isValidationEnabled);
 
 	// Setup the jsp config info for this web app.
-        /* SJSAS 6384538
-	jspConfig = new JspConfig(context);
-        */
-        // START SJSAS 6384538
-        jspConfig = new JspConfig(context, this);
-        // END SJSAS 6384538
+        jspConfig = new JspConfig(context);
 
 	// Create a Tag plugin instance
 	tagPluginManager = new TagPluginManager(context);

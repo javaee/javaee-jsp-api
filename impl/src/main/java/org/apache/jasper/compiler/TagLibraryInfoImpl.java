@@ -87,6 +87,7 @@ import org.apache.jasper.JasperException;
 import org.apache.jasper.JspCompilationContext;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
+import org.apache.jasper.runtime.TldScanner;
 
 /**
  * Implementation of the TagLibraryInfo class from the JSP spec. 
@@ -424,11 +425,11 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 					 JspCompilationContext ctxt)
                 throws JasperException {
 
-	int uriType = TldLocationsCache.uriType(uri);
-	if (uriType == TldLocationsCache.ABS_URI) {
+	int uriType = TldScanner.uriType(uri);
+	if (uriType == TldScanner.ABS_URI) {
 	    err.jspError("jsp.error.taglibDirective.absUriCannotBeResolved",
 			 uri);
-	} else if (uriType == TldLocationsCache.NOROOT_REL_URI) {
+	} else if (uriType == TldScanner.NOROOT_REL_URI) {
 	    uri = ctxt.resolveRelativeUri(uri);
 	}
 

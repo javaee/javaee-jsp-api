@@ -64,17 +64,31 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.net.URL;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.FilterRegistration;
+import javax.servlet.Filter;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.descriptor.JspConfigDescriptor;
+import javax.servlet.descriptor.TaglibDescriptor;
+import javax.servlet.descriptor.JspPropertyGroupDescriptor;
 
+import org.apache.jasper.JasperException;
+import org.apache.jasper.xmlparser.TreeNode;
+import org.apache.jasper.xmlparser.ParserUtils;
 
 /**
  * Simple <code>ServletContext</code> implementation without
@@ -106,6 +120,7 @@ public class JspCServletContext implements ServletContext {
      */
     protected URL myResourceBaseURL;
 
+    private JspConfigDescriptor jspConfigDescriptor;
 
     // ----------------------------------------------------------- Constructors
 
@@ -122,6 +137,7 @@ public class JspCServletContext implements ServletContext {
         myLogWriter = aLogWriter;
         myResourceBaseURL = aResourceBaseURL;
 
+        parseWebDotXml();
     }
 
 
@@ -197,9 +213,7 @@ public class JspCServletContext implements ServletContext {
      * Return the Servlet API major version number.
      */
     public int getMajorVersion() {
-
-        return (2);
-
+        return 3;
     }
 
 
@@ -209,9 +223,7 @@ public class JspCServletContext implements ServletContext {
      * @param file Filename whose MIME type is requested
      */
     public String getMimeType(String file) {
-
         return (null);
-
     }
 
 
@@ -219,9 +231,7 @@ public class JspCServletContext implements ServletContext {
      * Return the Servlet API minor version number.
      */
     public int getMinorVersion() {
-
-        return (3);
-
+        return 0;
     }
 
 
@@ -512,4 +522,327 @@ public class JspCServletContext implements ServletContext {
         return;
     }
 
+    public boolean setInitParameter(String name, String value) {
+        throw new UnsupportedOperationException();
+    }
+
+     public ServletRegistration.Dynamic addServlet(
+        String servletName, String className) {
+        throw new UnsupportedOperationException();
+    }
+
+    public ServletRegistration.Dynamic addServlet(
+        String servletName, Servlet servlet) {
+        throw new UnsupportedOperationException();
+    }
+
+    public ServletRegistration.Dynamic addServlet(String servletName,
+        Class <? extends Servlet> servletClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends Servlet> T createServlet(Class<T> c)
+        throws ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public ServletRegistration getServletRegistration(String servletName) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Map<String, ServletRegistration> getServletRegistrations() {
+        throw new UnsupportedOperationException();
+    }
+
+    public FilterRegistration.Dynamic addFilter(
+        String filterName, String className) {
+        throw new UnsupportedOperationException();
+    }
+
+    public FilterRegistration.Dynamic addFilter(
+        String filterName, Filter filter) {
+        throw new UnsupportedOperationException();
+    }
+
+    public FilterRegistration.Dynamic addFilter(String filterName,
+        Class <? extends Filter> filterClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends Filter> T createFilter(Class<T> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public FilterRegistration getFilterRegistration(String filterName) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Map<String, FilterRegistration> getFilterRegistrations() {
+        throw new UnsupportedOperationException();
+    }
+
+    public SessionCookieConfig getSessionCookieConfig() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void addListener(String className) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EventListener> void addListener(T t) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void addListener(Class <? extends EventListener> listenerClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JspConfigDescriptor getJspConfigDescriptor() {
+        return jspConfigDescriptor;
+    }
+
+    private static final String WEB_XML = "/WEB-INF/web.xml";
+    private void parseWebDotXml() {
+
+        InputStream is = getResourceAsStream(WEB_XML);
+        if (is == null) {
+            return;
+        }
+
+        TreeNode web = null;
+        try {
+            web = new ParserUtils().parseXMLDocument(WEB_XML, is);
+        } catch (JasperException ex) {
+            log("Error in parsing web.xml", ex);
+            return;
+        }
+
+        TreeNode jspConfig = web.findChild("jsp-config");
+        if (jspConfig == null) {
+            return;
+        }
+
+        ArrayList<TaglibDescriptor> taglibs = new ArrayList<TaglibDescriptor>();
+        ArrayList<JspPropertyGroupDescriptor> jspPropertyGroups =
+                new ArrayList<JspPropertyGroupDescriptor>();
+
+        Iterator<TreeNode> children = jspConfig.findChildren("taglib");
+        while (children.hasNext()) {
+            TreeNode taglib = children.next();
+            String tagUri = null;
+            String tagLoc = null;
+            TreeNode child = taglib.findChild("taglib-uri");
+            if (child != null)
+                tagUri = child.getBody();
+            child = taglib.findChild("taglib-location");
+            if (child != null)
+                tagLoc = child.getBody();
+            if (tagUri == null || tagLoc == null) {
+                return;
+            }
+            taglibs.add(new TaglibDescriptorImpl(tagUri, tagLoc));
+        }
+
+        children = jspConfig.findChildren("jsp-property-group");
+        while (children.hasNext()) {
+
+            ArrayList<String> urlPatterns = new ArrayList<String>();
+            String pageEncoding = null;
+            String scriptingInvalid = null;
+            String elIgnored = null;
+            String isXml = null;
+            ArrayList<String> includePrelude = new ArrayList<String>();
+            ArrayList<String> includeCoda = new ArrayList<String>();
+            String trimSpaces = null;
+            String poundAllowed = null;
+            String buffer = null;
+            String defaultContentType = null;
+            String errorOnUndeclaredNamespace = null;
+
+            TreeNode pgroup = children.next();
+            Iterator<TreeNode> properties = pgroup.findChildren();
+            while (properties.hasNext()) {
+                TreeNode element = properties.next();
+                String tname = element.getName();
+
+                // url-patterns, preludes, and codas and accumulative, other
+                // properties keep last.
+
+                if ("url-pattern".equals(tname))
+                    urlPatterns.add(element.getBody());
+                else if ("page-encoding".equals(tname))
+                    pageEncoding = element.getBody();
+                else if ("is-xml".equals(tname))
+                    isXml = element.getBody();
+                else if ("el-ignored".equals(tname))
+                    elIgnored = element.getBody();
+                else if ("scripting-invalid".equals(tname))
+                    scriptingInvalid = element.getBody();
+                else if ("include-prelude".equals(tname))
+                    includePrelude.add(element.getBody());
+                else if ("include-coda".equals(tname))
+                    includeCoda.add(element.getBody());
+                else if ("trim-directive-whitespaces".equals(tname))
+                    trimSpaces = element.getBody();
+                else if ("deferred-syntax-allowed-as-literal".equals(tname))
+                    poundAllowed = element.getBody();
+                else if ("default-content-type".equals(tname))
+                    defaultContentType = element.getBody();
+                else if ("buffer".equals(tname))
+                    buffer = element.getBody();
+                else if ("error-on-undeclared-namespace".equals(tname))
+                    errorOnUndeclaredNamespace = element.getBody();
+            }
+            jspPropertyGroups.add(new JspPropertyGroupDescriptorImpl(
+                                      urlPatterns,
+                                      isXml,
+                                      elIgnored,
+                                      scriptingInvalid,
+                                      trimSpaces,
+                                      poundAllowed,
+                                      pageEncoding,
+                                      includePrelude,
+                                      includeCoda,
+                                      defaultContentType,
+                                      buffer,
+                                      errorOnUndeclaredNamespace));
+        }
+
+        jspConfigDescriptor =
+            new JspConfigDescriptorImpl(taglibs, jspPropertyGroups);
+    }
+
+    static class JspPropertyGroupDescriptorImpl
+            implements JspPropertyGroupDescriptor {
+        Iterable<String> urlPatterns;
+        String isXml;
+        String elIgnored;
+        String scriptingInvalid;
+        String trimSpaces;
+        String poundAllowed;
+        String pageEncoding;
+        Iterable<String> includePrelude;
+        Iterable<String> includeCoda;
+        String defaultContentType;
+        String buffer;
+        String errorOnUndeclaredNamespace;
+
+        JspPropertyGroupDescriptorImpl(Iterable<String> urlPatterns,
+                    String isXml, String elIgnored, String scriptingInvalid,
+                    String trimSpaces, String poundAllowed,
+                    String pageEncoding, Iterable<String> includePrelude,
+                    Iterable<String> includeCoda, String defaultContentType,
+                    String buffer, String errorOnUndeclaredNamespace) {
+            this.urlPatterns = urlPatterns;
+            this.isXml = isXml;
+            this.elIgnored = elIgnored;
+            this.scriptingInvalid = scriptingInvalid;
+            this.trimSpaces = trimSpaces;
+            this.poundAllowed = poundAllowed;
+            this.pageEncoding = pageEncoding;
+            this.includePrelude = includePrelude;
+            this.includeCoda =includeCoda;
+            this.defaultContentType = defaultContentType;
+            this.buffer = buffer;
+            this.errorOnUndeclaredNamespace = errorOnUndeclaredNamespace;
+        }
+
+        public Iterable<String> getUrlPatterns() {
+            return urlPatterns;
+        }
+
+        public String getElIgnored() {
+            return elIgnored;
+        }
+
+        public String getPageEncoding() {
+            return pageEncoding;
+        }
+
+        public String getScriptingInvalid() {
+            return scriptingInvalid;
+        }
+
+        public String getIsXml() {
+            return isXml;
+        }
+
+        public Iterable<String> getIncludePreludes() {
+            return includePrelude;
+        }
+
+        public Iterable<String> getIncludeCodas() {
+            return includeCoda;
+        }
+
+        public String getDeferredSyntaxAllowedAsLiteral() {
+            return poundAllowed;
+        }
+
+        public String getTrimDirectiveWhitespaces() {
+            return trimSpaces;
+        }
+
+        public String getDefaultContentType() {
+            return defaultContentType;
+        }
+
+        public String getBuffer() {
+            return buffer;
+        }
+
+        public String getErrorOnUndeclaredNamespace() {
+            return errorOnUndeclaredNamespace;
+        }
+    }
+
+    static class TaglibDescriptorImpl implements TaglibDescriptor {
+
+        String uri, loc;
+
+        public TaglibDescriptorImpl(String uri, String loc) {
+            this.uri = uri;
+            this.loc = loc;;
+        }
+
+        public String getTaglibURI() {
+            return uri;
+        }
+
+        public String getTaglibLocation() {
+            return loc;
+        }
+    }
+
+    static class JspConfigDescriptorImpl implements JspConfigDescriptor {
+
+        Iterable<TaglibDescriptor> taglibs;
+        Iterable<JspPropertyGroupDescriptor> jspPropertyGroups;
+
+        public JspConfigDescriptorImpl(Iterable<TaglibDescriptor> taglibs,
+                   Iterable<JspPropertyGroupDescriptor> jspPropertyGroups) {
+           this.taglibs = taglibs;
+           this.jspPropertyGroups = jspPropertyGroups;
+        }
+
+        public Iterable<TaglibDescriptor> getTaglibs() {
+            return this.taglibs;
+        }
+
+        public Iterable<JspPropertyGroupDescriptor> getJspPropertyGroups() {
+            return this.jspPropertyGroups;
+        }
+    }
 }

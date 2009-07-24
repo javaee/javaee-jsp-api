@@ -570,7 +570,7 @@ public class JspCompilationContext {
      */
     public String[] getTldLocation(String uri) throws JasperException {
         String[] location = 
-            getOptions().getTldLocationsCache().getLocation(uri);
+            getOptions().getTldScanner().getLocation(uri);
         return location;
     }
 
