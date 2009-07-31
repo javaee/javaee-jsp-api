@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.net.URL;
 import javax.servlet.RequestDispatcher;
@@ -231,6 +232,16 @@ public class JspCServletContext implements ServletContext {
      * Return the Servlet API minor version number.
      */
     public int getMinorVersion() {
+        return 0;
+    }
+
+    public int getEffectiveMajorVersion() {
+        // TODO: get it from web.xml
+        return 3;
+    }
+
+    public int getEffectiveMinorVersion() {
+        // TODO: get it from web.xml
         return 0;
     }
 
@@ -609,8 +620,17 @@ public class JspCServletContext implements ServletContext {
         throw new UnsupportedOperationException();
     }
 
+    public <T extends EventListener> T createListener(Class<T> clazz)
+            throws ServletException {
+        throw new UnsupportedOperationException();
+    }
+
     public JspConfigDescriptor getJspConfigDescriptor() {
         return jspConfigDescriptor;
+    }
+
+    public ClassLoader getClassLoader() {
+        throw new UnsupportedOperationException();
     }
 
     private static final String WEB_XML = "/WEB-INF/web.xml";
@@ -726,24 +746,24 @@ public class JspCServletContext implements ServletContext {
 
     static class JspPropertyGroupDescriptorImpl
             implements JspPropertyGroupDescriptor {
-        Iterable<String> urlPatterns;
+        Collection<String> urlPatterns;
         String isXml;
         String elIgnored;
         String scriptingInvalid;
         String trimSpaces;
         String poundAllowed;
         String pageEncoding;
-        Iterable<String> includePrelude;
-        Iterable<String> includeCoda;
+        Collection<String> includePrelude;
+        Collection<String> includeCoda;
         String defaultContentType;
         String buffer;
         String errorOnUndeclaredNamespace;
 
-        JspPropertyGroupDescriptorImpl(Iterable<String> urlPatterns,
+        JspPropertyGroupDescriptorImpl(Collection<String> urlPatterns,
                     String isXml, String elIgnored, String scriptingInvalid,
                     String trimSpaces, String poundAllowed,
-                    String pageEncoding, Iterable<String> includePrelude,
-                    Iterable<String> includeCoda, String defaultContentType,
+                    String pageEncoding, Collection<String> includePrelude,
+                    Collection<String> includeCoda, String defaultContentType,
                     String buffer, String errorOnUndeclaredNamespace) {
             this.urlPatterns = urlPatterns;
             this.isXml = isXml;
@@ -759,50 +779,62 @@ public class JspCServletContext implements ServletContext {
             this.errorOnUndeclaredNamespace = errorOnUndeclaredNamespace;
         }
 
-        public Iterable<String> getUrlPatterns() {
+        @Override
+        public Collection<String> getUrlPatterns() {
             return urlPatterns;
         }
 
+        @Override
         public String getElIgnored() {
             return elIgnored;
         }
 
+        @Override
         public String getPageEncoding() {
             return pageEncoding;
         }
 
+        @Override
         public String getScriptingInvalid() {
             return scriptingInvalid;
         }
 
+        @Override
         public String getIsXml() {
             return isXml;
         }
 
-        public Iterable<String> getIncludePreludes() {
+        @Override
+        public Collection<String> getIncludePreludes() {
             return includePrelude;
         }
 
-        public Iterable<String> getIncludeCodas() {
+        @Override
+        public Collection<String> getIncludeCodas() {
             return includeCoda;
         }
 
+        @Override
         public String getDeferredSyntaxAllowedAsLiteral() {
             return poundAllowed;
         }
 
+        @Override
         public String getTrimDirectiveWhitespaces() {
             return trimSpaces;
         }
 
+        @Override
         public String getDefaultContentType() {
             return defaultContentType;
         }
 
+        @Override
         public String getBuffer() {
             return buffer;
         }
 
+        @Override
         public String getErrorOnUndeclaredNamespace() {
             return errorOnUndeclaredNamespace;
         }
@@ -828,20 +860,20 @@ public class JspCServletContext implements ServletContext {
 
     static class JspConfigDescriptorImpl implements JspConfigDescriptor {
 
-        Iterable<TaglibDescriptor> taglibs;
-        Iterable<JspPropertyGroupDescriptor> jspPropertyGroups;
+        Collection<TaglibDescriptor> taglibs;
+        Collection<JspPropertyGroupDescriptor> jspPropertyGroups;
 
-        public JspConfigDescriptorImpl(Iterable<TaglibDescriptor> taglibs,
-                   Iterable<JspPropertyGroupDescriptor> jspPropertyGroups) {
+        public JspConfigDescriptorImpl(Collection<TaglibDescriptor> taglibs,
+                   Collection<JspPropertyGroupDescriptor> jspPropertyGroups) {
            this.taglibs = taglibs;
            this.jspPropertyGroups = jspPropertyGroups;
         }
 
-        public Iterable<TaglibDescriptor> getTaglibs() {
+        public Collection<TaglibDescriptor> getTaglibs() {
             return this.taglibs;
         }
 
-        public Iterable<JspPropertyGroupDescriptor> getJspPropertyGroups() {
+        public Collection<JspPropertyGroupDescriptor> getJspPropertyGroups() {
             return this.jspPropertyGroups;
         }
     }

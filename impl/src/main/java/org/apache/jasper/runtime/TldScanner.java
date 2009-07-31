@@ -80,6 +80,7 @@ import java.util.logging.Level;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletException;
 import javax.servlet.descriptor.JspPropertyGroupDescriptor;
 import javax.servlet.descriptor.TaglibDescriptor;
 import javax.servlet.descriptor.JspConfigDescriptor;
@@ -195,7 +196,7 @@ public class TldScanner implements ServletContainerInitializer {
 
 
     public void onStartup(java.util.Set<java.lang.Class<?>> c,
-               ServletContext ctxt) {
+               ServletContext ctxt) throws ServletException {
         this.ctxt = ctxt;
         Boolean b = (Boolean) ctxt.getAttribute("com.sun.faces.useMyFaces");
         if (b != null) {
@@ -205,14 +206,8 @@ public class TldScanner implements ServletContainerInitializer {
         String validating = reg.getInitParameter("validating");
         isValidationEnabled = "true".equals(validating);
 
-        try {
-            scanListeners = true;
-            scanTlds();
-        } catch (JasperException ex) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.severe("Exception in scanning tld: " + ex);
-            }
-        }
+        scanListeners = true;
+        scanTlds();
 
         ctxt.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, mappings);
     }

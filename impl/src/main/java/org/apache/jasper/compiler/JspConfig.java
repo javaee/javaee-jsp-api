@@ -58,6 +58,7 @@ package org.apache.jasper.compiler;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -108,7 +109,7 @@ public class JspConfig {
         jspProperties = new ArrayList<JspPropertyGroup>();
         for (JspPropertyGroupDescriptor jpg: jspConfig.getJspPropertyGroups()) {
 
-            Iterable<String> urlPatterns = jpg.getUrlPatterns();
+            Collection<String> urlPatterns = jpg.getUrlPatterns();
             String pageEncoding = jpg.getPageEncoding();
             String scriptingInvalid = jpg.getScriptingInvalid();
             String elIgnored = jpg.getElIgnored();
@@ -119,13 +120,9 @@ public class JspConfig {
             String defaultContentType = jpg.getDefaultContentType();
             String errorOnUndeclaredNamespace = jpg.getErrorOnUndeclaredNamespace();
             ArrayList<String> includePrelude = new ArrayList<String>();
-            for (String prelude: jpg.getIncludePreludes()) {
-                includePrelude.add(prelude);
-            }
+            includePrelude.addAll(jpg.getIncludePreludes());
             ArrayList<String> includeCoda = new ArrayList<String>();
-            for (String coda: jpg.getIncludeCodas()) {
-                includeCoda.add(coda);
-            }
+            includeCoda.addAll(jpg.getIncludeCodas());
 
             // Creates a JspPropertyGroup for each url pattern in the given
             // urlPatterns, and adds it to the given jspProperties.
@@ -195,12 +192,11 @@ public class JspConfig {
 	if (!initialized) {
 
             processWebDotXml(ctxt);
-            String version = (String) ctxt.getAttribute(
-                Constants.WEB_XML_VERSION_CONTEXT_ATTRIBUTE);
-            if (version != null) {
-                if (Double.valueOf(version).doubleValue() < 2.4) {
-                    defaultIsELIgnored = "true";
-                }
+            if (ctxt.getEffectiveMajorVersion() < 2 ||
+                    (ctxt.getEffectiveMajorVersion() == 2 &&
+                     ctxt.getEffectiveMinorVersion() <= 3)) {
+                // for version 2.3 or before, default for el-ignored is true
+                defaultIsELIgnored = "true";
             }
 
 	    defaultJspProperty = new JspProperty(defaultIsXml,
