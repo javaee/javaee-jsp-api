@@ -55,9 +55,10 @@
 
 package org.apache.jasper.runtime;
 
-import java.io.InputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URI;
@@ -263,6 +264,8 @@ public class TldScanner implements ServletContainerInitializer {
             processWebDotXml();
             scanJars();
             processTldsInFileSystem("/WEB-INF/");
+        } catch (JasperException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new JasperException(
                 Localizer.getMessage("jsp.error.internal.tldinit"),
@@ -318,10 +321,12 @@ public class TldScanner implements ServletContainerInitializer {
      * @param conn The JarURLConnection to the JAR file to scan
      * @param tldNames the list of tld element to scan. The null value
      *         indicates all the tlds in this case.
+     * @param isLocal True is the jar file is under WEB-INF
      * JAR should be ignored, false otherwise
      */
-    private void scanJar(JarURLConnection conn, List<String> tldNames)
-            throws JasperException, IOException {
+    private void scanJar(JarURLConnection conn, List<String> tldNames,
+                         boolean isLocal)
+            throws JasperException {
 
         JarFile jarFile = null;
         String resourcePath = conn.getJarFileURL().toString();
@@ -332,18 +337,32 @@ public class TldScanner implements ServletContainerInitializer {
                 for (String tldName : tldNames) {
                     JarEntry entry = jarFile.getJarEntry(tldName);
                     InputStream stream = jarFile.getInputStream(entry);
-                    scanTld(resourcePath, tldName, stream, false);
+                    scanTld(resourcePath, tldName, stream, isLocal);
                 }
             } else {
-                Enumeration entries = jarFile.entries();
+                Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
-                    JarEntry entry = (JarEntry) entries.nextElement();
+                    JarEntry entry = entries.nextElement();
                     String name = entry.getName();
                     if (!name.startsWith("META-INF/")) continue;
                     if (!name.endsWith(".tld")) continue;
                     InputStream stream = jarFile.getInputStream(entry);
-                    scanTld(resourcePath, name, stream, false);
+                    scanTld(resourcePath, name, stream, isLocal);
                 }
+            }
+        } catch (IOException ex) {
+            if (resourcePath.startsWith(FILE_PROTOCOL) &&
+                    !((new File(resourcePath)).exists())) {
+                if (log.isLoggable(Level.WARNING)) {
+                    log.log(Level.WARNING,
+                            Localizer.getMessage("jsp.warn.nojar",
+                                                 resourcePath),
+                            ex);
+                }
+            } else {
+                throw new JasperException(
+                    Localizer.getMessage("jsp.error.jar.io", resourcePath),
+                    ex);
             }
         } finally {
             if (jarFile != null) {
@@ -405,6 +424,22 @@ public class TldScanner implements ServletContainerInitializer {
             TreeNode tld = new ParserUtils().parseXMLDocument(
                                 resourcePath, stream, isValidationEnabled);
 
+            if (scanListeners) {
+                TreeNode listener = tld.findChild("listener");
+                if (listener != null) {
+                    TreeNode listenerClass = listener.findChild("listener-class");
+                    if (listenerClass != null) {
+                        String listenerClassName = listenerClass.getBody();
+                        if (listenerClassName != null) {
+                            if (log.isLoggable(Level.FINE)) {
+                                log.fine( "Add tld listener " + listenerClassName);
+                            }
+                            ctxt.addListener(listenerClassName);
+                        }
+                    }
+                }
+            }
+
             String uri;
             TreeNode uriNode = tld.findChild("uri");
             if (uriNode == null) {
@@ -437,24 +472,6 @@ public class TldScanner implements ServletContainerInitializer {
                         resourcePath + "," + entryName);
                 }
                 mappings.put(uri, new String[] {resourcePath, entryName});
-
-                if (! scanListeners) {
-                    return;
-                }
-
-                TreeNode listener = tld.findChild("listener");
-                if (listener != null) {
-                    TreeNode listenerClass = listener.findChild("listener-class");
-                    if (listenerClass != null) {
-                        String listenerClassName = listenerClass.getBody();
-                        if (listenerClassName != null) {
-                            if (log.isLoggable(Level.FINE)) {
-                                log.fine( "Add tld listener " + listenerClassName);
-                            }
-                            ctxt.addListener(listenerClassName);
-                        }
-                    }
-                }
             }
         } finally {
             if (stream != null) {
@@ -490,18 +507,19 @@ public class TldScanner implements ServletContainerInitializer {
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
+                boolean isLocal = (loader == webappLoader);
                 URL[] urls = ((URLClassLoader) loader).getURLs();
                 for (int i=0; i<urls.length; i++) {
                     URLConnection conn = urls[i].openConnection();
                     if (conn instanceof JarURLConnection) {
-                        scanJar((JarURLConnection) conn, null);
+                        scanJar((JarURLConnection) conn, null, isLocal);
                     } else {
                         String urlStr = urls[i].toString();
                         if (urlStr.startsWith(FILE_PROTOCOL)
                                 && urlStr.endsWith(JAR_FILE_SUFFIX)) {
                             URL jarURL = new URL("jar:" + urlStr + "!/");
                             scanJar((JarURLConnection) jarURL.openConnection(),
-                                    null);
+                                    null, isLocal);
                         }
                     }
                 }
@@ -518,7 +536,7 @@ public class TldScanner implements ServletContainerInitializer {
             for (URI uri : tldMap.keySet()) {
                 URL jarURL = new URL("jar:" + uri.toString() + "!/");
                 scanJar((JarURLConnection)jarURL.openConnection(),
-                        tldMap.get(uri));
+                        tldMap.get(uri), false);
             }
         }
     }
