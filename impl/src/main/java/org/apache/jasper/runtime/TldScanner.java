@@ -424,6 +424,12 @@ public class TldScanner implements ServletContainerInitializer {
             TreeNode tld = new ParserUtils().parseXMLDocument(
                                 resourcePath, stream, isValidationEnabled);
 
+            String uri = null;
+            TreeNode uriNode = tld.findChild("uri");
+            if (uriNode != null) {
+                uri = uriNode.getBody();
+            }
+
             if (scanListeners) {
                 TreeNode listener = tld.findChild("listener");
                 if (listener != null) {
@@ -431,21 +437,20 @@ public class TldScanner implements ServletContainerInitializer {
                     if (listenerClass != null) {
                         String listenerClassName = listenerClass.getBody();
                         if (listenerClassName != null) {
-                            if (log.isLoggable(Level.FINE)) {
-                                log.fine( "Add tld listener " + listenerClassName);
+                            if (!systemUrisJsf.contains(uri)
+                                    || (isLocal && useMyFaces)
+                                    || (!isLocal && !useMyFaces)) {
+                                if (log.isLoggable(Level.FINE)) {
+                                    log.fine( "Add tld listener " +
+                                              listenerClassName);
+                                }
+                                ctxt.addListener(listenerClassName);
                             }
-                            ctxt.addListener(listenerClassName);
                         }
                     }
                 }
             }
 
-            String uri;
-            TreeNode uriNode = tld.findChild("uri");
-            if (uriNode == null) {
-                return;
-            }
-            uri = uriNode.getBody();
             if (uri == null) {
                 return;
             }
