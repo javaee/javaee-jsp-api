@@ -204,6 +204,9 @@ public class TldScanner implements ServletContainerInitializer {
             useMyFaces = b.booleanValue();
         }
         ServletRegistration reg = ctxt.getServletRegistration("jsp");
+        if (reg == null) {
+            return;
+        }
         String validating = reg.getInitParameter("validating");
         isValidationEnabled = "true".equals(validating);
 
