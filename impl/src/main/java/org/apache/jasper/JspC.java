@@ -170,6 +170,7 @@ public class JspC implements Options {
     private static final String SWITCH_XPOWERED_BY = "-xpoweredBy";
     private static final String SWITCH_TRIM_SPACES = "-trimSpaces";
     private static final String SWITCH_CLASSPATH = "-classpath";
+    private static final String SWITCH_SYSCLASSPATH = "-sysClasspath";
     private static final String SWITCH_DIE = "-die";
     private static final String SWITCH_SMAP = "-smap";
     private static final String SWITCH_DUMP_SMAP = "-dumpsmap";
@@ -378,6 +379,8 @@ public class JspC implements Options {
                 setTrimSpaces(true);
             } else if (tok.equals(SWITCH_CLASSPATH)) {
                 setClassPath(nextArg());
+            } else if (tok.equals(SWITCH_SYSCLASSPATH)) {
+                setSystemClassPath(nextArg());
             } else if (tok.startsWith(SWITCH_DIE)) {
                 try {
                     dieLevel = Integer.parseInt(
