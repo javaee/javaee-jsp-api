@@ -425,7 +425,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                 public void acceptResult(CompilationResult result) {
                     try {
                         if (result.hasProblems()) {
-                            IProblem[] problems = result.getProblems();
+                            IProblem[] problems = safeGetProblems(result);
                             for (int i = 0; i < problems.length; i++) {
                                 IProblem problem = problems[i];
                                 if (problem.isError()) {
@@ -494,4 +494,37 @@ public class JDTJavaCompiler implements JavaCompiler {
         return problemList.toArray(new JavacErrorDetail[]{});
     }
     
+    private static boolean USE_INTROSPECTION_TO_INVOKE_GET_PROBLEM = false;
+    private static java.lang.reflect.Method GET_PROBLEM_METH = null;
+    /**
+     * Invoke CompilationResult#getProblems safely so that it works with
+     * 3.1.1 and more recent versions of the eclipse java compiler.
+     * See https://jsp.dev.java.net/issues/show_bug.cgi?id=13
+     * 
+     * @param result The compilation result.
+     * @return The same object than CompilationResult#getProblems
+     */
+    private static final IProblem[] safeGetProblems(CompilationResult result) {
+        if (!USE_INTROSPECTION_TO_INVOKE_GET_PROBLEM) {
+            try {
+                return result.getProblems();
+            } catch (NoSuchMethodError re) {
+                USE_INTROSPECTION_TO_INVOKE_GET_PROBLEM = true;
+            }
+        }
+        try {
+            if (GET_PROBLEM_METH == null) {
+                GET_PROBLEM_METH = result.getClass()
+                        .getDeclaredMethod("getProblems", new Class[] {});
+            }
+            //an array of a particular type can be casted into an array of a super type.
+            return (IProblem[]) GET_PROBLEM_METH.invoke(result, null);
+        } catch (Throwable e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException)e;
+            } else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

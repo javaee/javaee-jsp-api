@@ -173,6 +173,8 @@ public class Jsr199JavaCompiler implements JavaCompiler {
     public void setDebug(boolean debug) {
         if (debug) {
             options.add("-g");
+        } else {
+            options.add("-g:none");
         }
     }
 
