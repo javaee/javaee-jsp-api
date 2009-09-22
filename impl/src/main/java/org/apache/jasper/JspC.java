@@ -597,7 +597,7 @@ public class JspC implements Options {
         return genStringAsCharArray;
     }
 
-    public void setGenStringAsByteArray(boolean genStringAsCharArray) {
+    public void setGenStringAsByteArray(boolean genStringAsByteArray) {
         this.genStringAsByteArray = genStringAsByteArray;
     }
 
@@ -1063,7 +1063,9 @@ public class JspC implements Options {
         for (int i = 0; i < pos; i++) {
             writer.print(" ");
         }
-        writer.println(line.substring(pos));
+        if (line != null) {
+            writer.println(line.substring(pos));
+        }
 
         while (true) {
             line = reader.readLine();
