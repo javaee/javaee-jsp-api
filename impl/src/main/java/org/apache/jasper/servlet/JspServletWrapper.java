@@ -120,6 +120,7 @@ public class JspServletWrapper {
     private boolean isTagFile;
     private int tripCount;
     private JasperException compileException;
+    private JspProbeEmitter jspProbeEmitter;
     /* PWC 6468930
     private long servletClassLastModifiedTime;
     */
@@ -140,6 +141,10 @@ public class JspServletWrapper {
         this.config = config;
         this.options = options;
         this.jspUri = jspUri;
+        this.jspProbeEmitter = (JspProbeEmitter)
+            config.getServletContext().getAttribute(
+                "org.glassfish.jsp.monitor.probeEmitter");
+
         ctxt = new JspCompilationContext(jspUri, isErrorPage, options,
 					 config.getServletContext(),
 					 this, rctxt);
@@ -208,15 +213,9 @@ public class JspServletWrapper {
 
                     reload = false;
 
-                    /*
-                     * If the container implements JspProbeEmitter, fire the
-                     * Jsp loaded event.
-                     */
-                    JspProbeEmitter jspProbe = (JspProbeEmitter)
-                        getServletContext().getAttribute(
-                            "org.glassfish.jsp.monitor.probeEmitter");
-                    if (jspProbe != null) {
-                        jspProbe.jspLoadedEvent(theServlet);
+                    // Fire the jspLoadedEvent probe event
+                    if (jspProbeEmitter != null) {
+                        jspProbeEmitter.jspLoadedEvent(theServlet);
                     }
                 }
             }    
@@ -436,6 +435,10 @@ public class JspServletWrapper {
     public void destroy() {
         if (theServlet != null) {
             theServlet.destroy();
+            // Fire the jspDestroyedEvent probe event
+            if (jspProbeEmitter != null) {
+                jspProbeEmitter.jspDestroyedEvent(theServlet);
+            }
         }
     }
 

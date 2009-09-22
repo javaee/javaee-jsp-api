@@ -36,6 +36,8 @@
 
 package org.glassfish.jsp.api;
 
+import javax.servlet.Servlet;
+
 /**
  * Interface for triggering events useful for monitoring.
  *
@@ -45,7 +47,8 @@ package org.glassfish.jsp.api;
 
 public interface JspProbeEmitter {
 
-    public void jspLoadedEvent(javax.servlet.Servlet jspServlet);
+    public void jspLoadedEvent(Servlet jspServlet);
 
+    public void jspDestroyedEvent(Servlet jspServlet);
 }
 
