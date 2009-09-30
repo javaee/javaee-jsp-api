@@ -266,8 +266,10 @@ public class AntJavaCompiler implements JavaCompiler {
                 javac.execute();
             } catch (BuildException e) {
                 be = e;
-                log.log(Level.SEVERE, "Javac exception ", e);
-                log.severe( "Env: " + info.toString());
+                log.log(Level.SEVERE, Localizer
+                        .getMessage("jsp.error.javac.exception"), e);
+                log.log(Level.SEVERE, Localizer
+                        .getMessage("jsp.error.javac.env", info.toString()));
             }
             errorReport.append(logger.getReport());
             // Stop capturing the System.err output for this thread
@@ -294,8 +296,10 @@ public class AntJavaCompiler implements JavaCompiler {
             }
             be = javacObj.getException();
             if (be != null) {
-                log.log(Level.SEVERE, "Javac exception ", be);
-                log.severe( "Env: " + info.toString());
+                log.log(Level.SEVERE, Localizer
+                        .getMessage("jsp.error.javac.exception"), be);
+                log.log(Level.SEVERE, Localizer
+                        .getMessage("jsp.error.javac.env", info.toString()));
             }
             errorReport.append(logger.getReport());
             errorCapture = javacObj.getErrorCapture();

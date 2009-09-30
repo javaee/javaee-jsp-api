@@ -476,8 +476,9 @@ public final class JspRuntimeContext implements Runnable {
                 } catch (FileNotFoundException ex) {
                     ctxt.incrementRemoved();
                 } catch (Throwable t) {
-                    jsw.getServletContext().log("Background compile failed",
-						t);
+                    jsw.getServletContext().log(
+                        Localizer.getMessage("jsp.error.background.compile"),
+                        t);
                 }
             }
         }
@@ -702,6 +703,8 @@ public final class JspRuntimeContext implements Runnable {
                 checkCompile();
             } catch (Throwable t) {
                 t.printStackTrace();
+                log.log(Level.SEVERE, Localizer
+                        .getMessage("jsp.error.recompile"), t);
             }
         }
         
