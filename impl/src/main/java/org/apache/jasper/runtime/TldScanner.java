@@ -434,8 +434,9 @@ public class TldScanner implements ServletContainerInitializer {
             }
 
             if (scanListeners) {
-                TreeNode listener = tld.findChild("listener");
-                if (listener != null) {
+                Iterator<TreeNode>listeners = tld.findChildren("listener");
+                while (listeners.hasNext()) {
+                    TreeNode listener = listeners.next();
                     TreeNode listenerClass = listener.findChild("listener-class");
                     if (listenerClass != null) {
                         String listenerClassName = listenerClass.getBody();
