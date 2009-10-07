@@ -195,13 +195,6 @@
         </pluginRepository>
     </pluginRepositories>
     <distributionManagement>
-<!--
-        <repository>            
-            <uniqueVersion>false</uniqueVersion>
-            <id>rator.sfbay</id>
-            <url>dav:http://rator.sfbay/maven/repositories/glassfish/</url>
-        </repository>
--->
         <site>
             <id>java.net-jsp</id>
             <url>java-net:/jsp/trunk/repo/</url>
@@ -212,10 +205,5 @@
             <url>java-net:/maven2-repository/trunk/repository/</url>
         </repository>
     </distributionManagement>
-
-    <modules>
-        <module>api</module>
-        <module>impl</module>
-    </modules>
 
 </project>
