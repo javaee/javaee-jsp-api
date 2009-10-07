@@ -41,7 +41,7 @@
     <parent>
         <groupId>org.glassfish.web</groupId>
         <artifactId>jsp</artifactId>
-        <version>2.1.3-SNAPSHOT</version>
+        <version>2.1.3-b06</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>jsp-impl</artifactId>
@@ -123,12 +123,12 @@
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <version>[2.1.3-b02,2.2)</version>
+            <version>2.1.3-b05</version>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
-            <version>[2.1.2-b04,2.2)</version>
+            <version>2.1.2-b05</version>
         </dependency>
 <!--
   Needed only if we use Ant for java compilation
