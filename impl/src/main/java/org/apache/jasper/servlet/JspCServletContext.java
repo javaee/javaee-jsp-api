@@ -633,6 +633,10 @@ public class JspCServletContext implements ServletContext {
         throw new UnsupportedOperationException();
     }
 
+    public void declareRoles(String... roleNames) {
+        throw new UnsupportedOperationException();
+    }
+
     private static final String WEB_XML = "/WEB-INF/web.xml";
     private void parseWebDotXml() {
 
