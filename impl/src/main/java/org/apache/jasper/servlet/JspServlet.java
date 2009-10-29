@@ -66,6 +66,7 @@ import java.util.Enumeration;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 // END GlassFish 750
+import java.util.concurrent.atomic.*;
 // START SJSWS 6232180
 import java.util.HashSet;
 import java.util.StringTokenizer;
@@ -93,6 +94,7 @@ import org.apache.jasper.compiler.JspRuntimeContext;
 import org.apache.jasper.compiler.JspUtil;
 import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.runtime.JspApplicationContextImpl;
+import org.glassfish.jsp.api.JspProbeEmitter;
 import org.glassfish.jsp.api.ResourceInjector;
 
 /**
@@ -123,8 +125,7 @@ public class JspServlet extends HttpServlet {
 
     // START S1AS
     // jsp error count
-    private int countErrors;
-    private Object errorCountLk = new Object();
+    private AtomicInteger countErrors = new AtomicInteger(0);
     // END S1AS
 
     // START SJSWS 6232180
@@ -136,6 +137,8 @@ public class JspServlet extends HttpServlet {
     private ConcurrentHashMap<String, TagLibraryInfo> taglibs;
     private ConcurrentHashMap<String, URL> tagFileJarUrls;
     // END GlassFish 750
+
+    private JspProbeEmitter jspProbeEmitter;
 
     /*
      * Initializes this JspServlet.
@@ -178,6 +181,10 @@ public class JspServlet extends HttpServlet {
                                            options.getScratchDir().toString()));
             log.finest(Localizer.getMessage("jsp.message.dont.modify.servlets"));
         }
+
+        this.jspProbeEmitter = (JspProbeEmitter)
+            config.getServletContext().getAttribute(
+                "org.glassfish.jsp.monitor.probeEmitter");
     }
 
 
@@ -226,7 +233,7 @@ public class JspServlet extends HttpServlet {
      * @return The number of errors triggered by JSP invocations
      */
     public int getJspErrorCount() {
-        return this.countErrors;
+        return countErrors.get();
     }
     // END S1AS
 
@@ -289,8 +296,8 @@ public class JspServlet extends HttpServlet {
     }
     
 
-    public void service (HttpServletRequest request, 
-    			 HttpServletResponse response)
+    public void service(HttpServletRequest request, 
+    			HttpServletResponse response)
                 throws ServletException, IOException {
 
         // START SJSWS 6232180
@@ -480,8 +487,10 @@ public class JspServlet extends HttpServlet {
 
     // STARTS S1AS
     private void incrementErrorCount() {
-        synchronized (errorCountLk) {
-            countErrors++;
+        countErrors.incrementAndGet();
+        // Fire the jspErrorEvent probe event
+        if (jspProbeEmitter != null) {
+            jspProbeEmitter.jspErrorEvent();
         }
     }
     // END S1AS

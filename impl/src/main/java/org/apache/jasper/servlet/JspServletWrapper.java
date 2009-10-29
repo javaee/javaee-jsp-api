@@ -209,6 +209,10 @@ public class JspServletWrapper {
 
                     if (!firstTime) {
                         ctxt.getRuntimeContext().incrementJspReloadCount();
+                        // Fire the jspReloadedEvent probe event
+                        if (jspProbeEmitter != null) {
+                            jspProbeEmitter.jspReloadedEvent(theServlet);
+                        }
                     }
 
                     reload = false;
@@ -218,7 +222,7 @@ public class JspServletWrapper {
                         jspProbeEmitter.jspLoadedEvent(theServlet);
                     }
                 }
-            }    
+            }
         }
         return theServlet;
     }

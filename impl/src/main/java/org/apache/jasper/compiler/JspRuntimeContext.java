@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -110,7 +111,7 @@ public final class JspRuntimeContext implements Runnable {
     /*
      * Counts how many times the webapp's JSPs have been reloaded.
      */
-    private int jspReloadCount;
+    private AtomicInteger jspReloadCount = new AtomicInteger(0);
 
     /**
      * Preload classes required at runtime by a JSP servlet so that
@@ -353,8 +354,8 @@ public final class JspRuntimeContext implements Runnable {
     /**
      * Increments the JSP reload counter.
      */
-    public synchronized void incrementJspReloadCount() {
-        jspReloadCount++;
+    public void incrementJspReloadCount() {
+        jspReloadCount.incrementAndGet();
     }
 
     /**
@@ -362,8 +363,8 @@ public final class JspRuntimeContext implements Runnable {
      *
      * @param count Value to which to reset the JSP reload counter
      */
-    public synchronized void setJspReloadCount(int count) {
-        this.jspReloadCount = count;
+    public void setJspReloadCount(int count) {
+        jspReloadCount.set(count);
     }
 
     /**
@@ -372,7 +373,7 @@ public final class JspRuntimeContext implements Runnable {
      * @return The current value of the JSP reload counter
      */
     public int getJspReloadCount() {
-        return jspReloadCount;
+        return jspReloadCount.get();
     }
 
     /**

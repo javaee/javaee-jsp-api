@@ -49,6 +49,10 @@ public interface JspProbeEmitter {
 
     public void jspLoadedEvent(Servlet jspServlet);
 
+    public void jspReloadedEvent(Servlet jspServlet);
+
     public void jspDestroyedEvent(Servlet jspServlet);
+
+    public void jspErrorEvent();
 }
 
