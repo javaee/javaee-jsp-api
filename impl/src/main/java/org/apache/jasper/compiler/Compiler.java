@@ -102,6 +102,7 @@ public class Compiler {
     private Options options;
     private Node.Nodes pageNodes;
     private long jspModTime;
+    private boolean javaCompilerOptionsSet;
 
     // ------------------------------------------------------------ Constructor
 
@@ -116,6 +117,7 @@ public class Compiler {
         this.errDispatcher = new ErrorDispatcher(jspcMode);
         this.javaCompiler = new NullJavaCompiler();
         javaCompiler.init(ctxt, errDispatcher, jspcMode);
+        this.javaCompilerOptionsSet = false;
     }
 
     public Compiler(JspCompilationContext ctxt, JspServletWrapper jsw,
@@ -131,6 +133,7 @@ public class Compiler {
         this.smapUtil = new SmapUtil(ctxt);
         this.errDispatcher = new ErrorDispatcher(jspcMode);
         initJavaCompiler();
+        this.javaCompilerOptionsSet = false;
     }
 
 
@@ -296,18 +299,13 @@ public class Compiler {
     }
 
 
-    /** 
-     * Compile the servlet from .java file to .class file
-     */
-    private void generateClass()
-        throws FileNotFoundException, JasperException, Exception {
+    private void setJavaCompilerOptions() {
 
-        long t1 = 0;
-        if (log.isLoggable(Level.FINE)) {
-            t1 = System.currentTimeMillis();
+        if (javaCompilerOptionsSet) {
+            return;
         }
+        javaCompilerOptionsSet = true;
 
-        String javaFileName = ctxt.getServletJavaFileName();
         String classpath = ctxt.getClassPath(); 
         String sep = System.getProperty("path.separator");
 
@@ -359,6 +357,23 @@ public class Compiler {
         if (options.getCompilerSourceVM() != null) {
             javaCompiler.setSourceVM(options.getCompilerSourceVM());
         }
+
+    }
+
+    /** 
+     * Compile the servlet from .java file to .class file
+     */
+    private void generateClass()
+        throws FileNotFoundException, JasperException, Exception {
+
+        long t1 = 0;
+        if (log.isLoggable(Level.FINE)) {
+            t1 = System.currentTimeMillis();
+        }
+
+        String javaFileName = ctxt.getServletJavaFileName();
+
+        setJavaCompilerOptions();
 
         // Start java compilation
         JavacErrorDetail[] javacErrors =
