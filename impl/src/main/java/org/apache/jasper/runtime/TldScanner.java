@@ -67,6 +67,8 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -124,7 +126,7 @@ import org.apache.jasper.compiler.Localizer;
  *
  * @author Pierre Delisle
  * @author Jan Luehe
- * @author Kin-man Chung servlet 3.0 JSP plugin
+ * @author Kin-man Chung servlet 3.0 JSP plugin, tld cache etc
  */
 
 public class TldScanner implements ServletContainerInitializer {
@@ -147,6 +149,12 @@ public class TldScanner implements ServletContainerInitializer {
     // Names of system Uri's that are ignored if referred in WEB-INF/web.xml
     private static HashSet<String> systemUris = new HashSet<String>();
     private static HashSet<String> systemUrisJsf = new HashSet<String>();
+
+    // A Cache is used for system jar files.
+    // The key is the name of the jar file, the value is an array of
+    // TldInfo, one for each of the TLD in the jar file
+    private static ConcurrentHashMap<String, TldInfo[]> jarTldCache =
+        new ConcurrentHashMap<String, TldInfo[]>();
 
     /**
      * The mapping of the 'global' tag library URI to the location (resource
@@ -318,65 +326,145 @@ public class TldScanner implements ServletContainerInitializer {
 
     /**
      * Scans the given JarURLConnection for TLD files located in META-INF
-     * (or a subdirectory of it), adding an implicit map entry to the taglib
-     * map for any TLD that has a <uri> element.
+     * (or a subdirectory of it).  If the scanning in is done as part of the
+     * ServletContextInitializer, the listeners in the tlds in this jar file
+     * are added to the servlet context, and for any  TLD that has a <uri>
+     * element, an implicit map entry is added to the taglib map.
      *
      * @param conn The JarURLConnection to the JAR file to scan
      * @param tldNames the list of tld element to scan. The null value
      *         indicates all the tlds in this case.
-     * @param isLocal True is the jar file is under WEB-INF
-     * JAR should be ignored, false otherwise
+     * @param isLocal True if the jar file is under WEB-INF
+     *         false otherwise
      */
     private void scanJar(JarURLConnection conn, List<String> tldNames,
                          boolean isLocal)
             throws JasperException {
 
-        JarFile jarFile = null;
         String resourcePath = conn.getJarFileURL().toString();
-        try {
-            conn.setUseCaches(false);
-            jarFile = conn.getJarFile();
-            if (tldNames != null) {
-                for (String tldName : tldNames) {
-                    JarEntry entry = jarFile.getJarEntry(tldName);
-                    InputStream stream = jarFile.getInputStream(entry);
-                    scanTld(resourcePath, tldName, stream, isLocal);
+        TldInfo[] cachedTldInfos = jarTldCache.get(resourcePath);
+
+        // Optimize for most common cases
+        if (cachedTldInfos != null && cachedTldInfos.length == 0) {
+            return;
+        }
+
+        // scan the tld if the jar is local, or if it has not been cached.
+        ArrayList<TldInfo> tldInfoA = new ArrayList<TldInfo>();
+        if (isLocal || cachedTldInfos == null) {
+            JarFile jarFile = null;
+            try {
+                conn.setUseCaches(false);
+                jarFile = conn.getJarFile();
+                if (tldNames != null) {
+                    for (String tldName : tldNames) {
+                        JarEntry entry = jarFile.getJarEntry(tldName);
+                        InputStream stream = jarFile.getInputStream(entry);
+                        tldInfoA.add(scanTld(resourcePath, tldName, stream));
+                    }
+                } else {
+                    Enumeration<JarEntry> entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        String name = entry.getName();
+                        if (!name.startsWith("META-INF/")) continue;
+                        if (!name.endsWith(".tld")) continue;
+                        InputStream stream = jarFile.getInputStream(entry);
+                        tldInfoA.add(scanTld(resourcePath, name, stream));
+                    }
                 }
-            } else {
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    String name = entry.getName();
-                    if (!name.startsWith("META-INF/")) continue;
-                    if (!name.endsWith(".tld")) continue;
-                    InputStream stream = jarFile.getInputStream(entry);
-                    scanTld(resourcePath, name, stream, isLocal);
-                }
-            }
-        } catch (IOException ex) {
-            if (resourcePath.startsWith(FILE_PROTOCOL) &&
-                    !((new File(resourcePath)).exists())) {
-                if (log.isLoggable(Level.WARNING)) {
-                    log.log(Level.WARNING,
+            } catch (IOException ex) {
+                if (resourcePath.startsWith(FILE_PROTOCOL) &&
+                        !((new File(resourcePath)).exists())) {
+                    if (log.isLoggable(Level.WARNING)) {
+                        log.log(Level.WARNING,
                             Localizer.getMessage("jsp.warn.nojar",
                                                  resourcePath),
                             ex);
+                    }
+                } else {
+                    throw new JasperException(
+                        Localizer.getMessage("jsp.error.jar.io", resourcePath),
+                        ex);
                 }
-            } else {
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.jar.io", resourcePath),
-                    ex);
-            }
-        } finally {
-            if (jarFile != null) {
-                try {
-                    jarFile.close();
-                } catch (Throwable t) {
-                    // ignore
+            } finally {
+                if (jarFile != null) {
+                    try {
+                        jarFile.close();
+                    } catch (Throwable t) {
+                        // ignore
+                    }
                 }
             }
         }
+
+        // Update the jar TLD cache
+        TldInfo[] tldInfos = tldInfoA.toArray(new TldInfo[tldInfoA.size()]);
+        if (! isLocal) {
+            if (cachedTldInfos == null) {
+                jarTldCache.put(resourcePath, tldInfos);
+            } else {
+                tldInfos = cachedTldInfos;
+            }
+        }
+
+        // Iterate over tldinfos to add listeners or to map tldlocations
+        for (TldInfo tldInfo: tldInfos) {
+            if (scanListeners) {
+                addListener(tldInfo, isLocal);
+            }
+            mapTldLocation(resourcePath, tldInfo, isLocal);
+        }
     }
+
+    private void addListener(TldInfo tldInfo, boolean isLocal) {
+        String uri = tldInfo.getUri();
+        if (!systemUrisJsf.contains(uri)
+                    || (isLocal && useMyFaces)
+                    || (!isLocal && !useMyFaces)) {
+            for (String listenerClassName: tldInfo.getListeners()) {
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine( "Add tld listener " + listenerClassName);
+                }
+                ctxt.addListener(listenerClassName);
+            }
+        }
+    }
+
+    private void mapTldLocation(String resourcePath, TldInfo tldInfo,
+                                boolean isLocal) {
+
+        String uri = tldInfo.getUri();
+        if (uri == null) {
+            return;
+        }
+
+        if ((isLocal
+                // Local tld files override the tlds in the jar files,
+                // unless it is in a system jar (except when using myfaces)
+                && mappings.get(uri) == null
+                && !systemUris.contains(uri)
+                && (!systemUrisJsf.contains(uri) || useMyFaces)
+            ) ||
+            (!isLocal
+                // Jars are scanned bottom up, so jars in WEB-INF override
+                // thos in the system (except when using myfaces)
+                && (mappings.get(uri) == null
+                    || systemUris.contains(uri)
+                    || (systemUrisJsf.contains(uri) && !useMyFaces)
+                   )
+            )
+           ) {
+            String entryName = tldInfo.getEntryName();
+            if (log.isLoggable(Level.FINE)) {
+                log.fine("Add tld map from tld in " +
+                    (isLocal? "WEB-INF": "jar: ") + uri + "=>" +
+                    resourcePath + "," + entryName);
+            }
+            mappings.put(uri, new String[] {resourcePath, entryName});
+        }
+    }
+
 
     /*
      * Searches the filesystem under /WEB-INF for any TLD files, and scans
@@ -404,7 +492,12 @@ public class TldScanner implements ServletContainerInitializer {
                                 path));
                 }
                 InputStream stream = ctxt.getResourceAsStream(path);
-                scanTld(path, null, stream, true);
+                TldInfo tldInfo = scanTld(path, null, stream);
+                // Add listeners or to map tldlocations for this TLD
+                if (scanListeners) {
+                    addListener(tldInfo, true);
+                }
+                mapTldLocation(path, tldInfo, true);
             }
         }
     }
@@ -414,13 +507,13 @@ public class TldScanner implements ServletContainerInitializer {
      * and register any listeners found.
      *
      * @param resourcePath the resource path for the jar file or the tld file.
-     * @entryName If the resource path is a jar file, then the name of the tld
-     *            file in the jar, else should be null.
-     * @stream The input stream for the tld
-     * @isLocal True if the tld is a WEB-INF file, false if it is in a jar file.
+     * @param entryName If the resource path is a jar file, then the name of
+     *        the tld file in the jar, else should be null.
+     * @param stream The input stream for the tld
+     * @return The TldInfo for this tld
      */
-    private void scanTld(String resourcePath, String entryName,
-                         InputStream stream, boolean isLocal)
+    private TldInfo scanTld(String resourcePath, String entryName,
+                         InputStream stream)
                 throws JasperException {
         try {
             // Parse the tag library descriptor at the specified resource path
@@ -433,55 +526,23 @@ public class TldScanner implements ServletContainerInitializer {
                 uri = uriNode.getBody();
             }
 
-            if (scanListeners) {
-                Iterator<TreeNode>listeners = tld.findChildren("listener");
-                while (listeners.hasNext()) {
-                    TreeNode listener = listeners.next();
-                    TreeNode listenerClass = listener.findChild("listener-class");
-                    if (listenerClass != null) {
-                        String listenerClassName = listenerClass.getBody();
-                        if (listenerClassName != null) {
-                            if (!systemUrisJsf.contains(uri)
-                                    || (isLocal && useMyFaces)
-                                    || (!isLocal && !useMyFaces)) {
-                                if (log.isLoggable(Level.FINE)) {
-                                    log.fine( "Add tld listener " +
-                                              listenerClassName);
-                                }
-                                ctxt.addListener(listenerClassName);
-                            }
-                        }
+            ArrayList<String> listeners = new ArrayList<String>();
+
+            Iterator<TreeNode>listenerNodes = tld.findChildren("listener");
+            while (listenerNodes.hasNext()) {
+                TreeNode listener = listenerNodes.next();
+                TreeNode listenerClass = listener.findChild("listener-class");
+                if (listenerClass != null) {
+                    String listenerClassName = listenerClass.getBody();
+                    if (listenerClassName != null) {
+                        listeners.add(listenerClassName);
                     }
                 }
             }
 
-            if (uri == null) {
-                return;
-            }
+            return new TldInfo(uri, entryName,
+                               listeners.toArray(new String[listeners.size()]));
 
-            if ((isLocal
-                    // Local tld files override the tlds in the jar files,
-                    // unless it is in a system jar (except when using myfaces)
-                    && mappings.get(uri) == null
-                    && !systemUris.contains(uri)
-                    && (!systemUrisJsf.contains(uri) || useMyFaces)
-                ) || 
-                (!isLocal
-                    // Jars are scanned bottom up, so jars in WEB-INF override
-                    // thos in the system (except when using myfaces)
-                    && (mappings.get(uri) == null
-                        || systemUris.contains(uri)
-                        || (systemUrisJsf.contains(uri) && !useMyFaces)
-                       )
-                )
-               ) {
-                if (log.isLoggable(Level.FINE)) {
-                    log.fine("Add tld map from tld in " + 
-                        (isLocal? "WEB-INF": "jar: ") + uri + "=>" +
-                        resourcePath + "," + entryName);
-                }
-                mappings.put(uri, new String[] {resourcePath, entryName});
-            }
         } finally {
             if (stream != null) {
                 try {
@@ -547,6 +608,30 @@ public class TldScanner implements ServletContainerInitializer {
                 scanJar((JarURLConnection)jarURL.openConnection(),
                         tldMap.get(uri), false);
             }
+        }
+    }
+
+    static class TldInfo {
+        private String entryName;        // The name of the tld file
+        private String uri;              // The uri name for the tld
+        private String[] listeners;      // The listeners in the tld
+
+        public TldInfo(String uri, String entryName, String[] listeners) {
+            this.uri = uri;
+            this.entryName = entryName;
+            this.listeners = listeners;
+        }
+
+        public String getEntryName() {
+            return entryName;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        public String[] getListeners() {
+            return listeners;
         }
     }
 }
