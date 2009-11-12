@@ -211,7 +211,7 @@ public class JspServletWrapper {
                         ctxt.getRuntimeContext().incrementJspReloadCount();
                         // Fire the jspReloadedEvent probe event
                         if (jspProbeEmitter != null) {
-                            jspProbeEmitter.jspReloadedEvent(theServlet);
+                            jspProbeEmitter.jspReloadedEvent(jspUri);
                         }
                     }
 
@@ -219,7 +219,7 @@ public class JspServletWrapper {
 
                     // Fire the jspLoadedEvent probe event
                     if (jspProbeEmitter != null) {
-                        jspProbeEmitter.jspLoadedEvent(theServlet);
+                        jspProbeEmitter.jspLoadedEvent(jspUri);
                     }
                 }
             }
@@ -443,7 +443,7 @@ public class JspServletWrapper {
             theServlet.destroy();
             // Fire the jspDestroyedEvent probe event
             if (jspProbeEmitter != null) {
-                jspProbeEmitter.jspDestroyedEvent(theServlet);
+                jspProbeEmitter.jspDestroyedEvent(jspUri);
             }
         }
     }

@@ -47,12 +47,11 @@ import javax.servlet.Servlet;
 
 public interface JspProbeEmitter {
 
-    public void jspLoadedEvent(Servlet jspServlet);
+    public void jspLoadedEvent(String jspUri);
 
-    public void jspReloadedEvent(Servlet jspServlet);
+    public void jspReloadedEvent(String jspUri);
 
-    public void jspDestroyedEvent(Servlet jspServlet);
+    public void jspDestroyedEvent(String jspUri);
 
-    public void jspErrorEvent();
+    public void jspErrorEvent(String jspUri);
 }
-

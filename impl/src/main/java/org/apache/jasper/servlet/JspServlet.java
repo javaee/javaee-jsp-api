@@ -373,25 +373,25 @@ public class JspServlet extends HttpServlet {
             serviceJspFile(request, response, jspUri, null, precompile);
         } catch (RuntimeException e) {
             // STARTS S1AS
-            incrementErrorCount();
+            incrementErrorCount(jspUri);
             // END S1AS
             throw e;
         } catch (Error e) {
-            incrementErrorCount();
+            incrementErrorCount(jspUri);
             throw e;
         } catch (ServletException e) {
             // STARTS S1AS
-            incrementErrorCount();
+            incrementErrorCount(jspUri);
             // END S1AS
             throw e;
         } catch (IOException e) {
             // STARTS S1AS
-            incrementErrorCount();
+            incrementErrorCount(jspUri);
             // END S1AS
             throw e;
         } catch (Throwable e) {
             // STARTS S1AS
-            incrementErrorCount();
+            incrementErrorCount(jspUri);
             // END S1AS
             throw new ServletException(e);
         }
@@ -486,11 +486,11 @@ public class JspServlet extends HttpServlet {
 
 
     // STARTS S1AS
-    private void incrementErrorCount() {
+    private void incrementErrorCount(String jspUri) {
         countErrors.incrementAndGet();
         // Fire the jspErrorEvent probe event
         if (jspProbeEmitter != null) {
-            jspProbeEmitter.jspErrorEvent();
+            jspProbeEmitter.jspErrorEvent(jspUri);
         }
     }
     // END S1AS
