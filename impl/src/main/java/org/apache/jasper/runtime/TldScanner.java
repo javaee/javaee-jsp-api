@@ -156,6 +156,12 @@ public class TldScanner implements ServletContainerInitializer {
     private static ConcurrentHashMap<String, TldInfo[]> jarTldCache =
         new ConcurrentHashMap<String, TldInfo[]>();
 
+    private static final String EAR_LIB_CLASSLOADER =
+        "org.glassfish.javaee.full.deployment.EarLibClassLoader";
+
+    private static final String IS_STANDALONE_ATTRIBUTE_NAME =
+        "org.glassfish.jsp.isStandaloneWebapp";
+
     /**
      * The mapping of the 'global' tag library URI to the location (resource
      * path) of the TLD associated with that tag library. The location is
@@ -571,9 +577,19 @@ public class TldScanner implements ServletContainerInitializer {
      */
     private void scanJars() throws Exception {
 
-        ClassLoader webappLoader
-            = Thread.currentThread().getContextClassLoader();
+        ClassLoader webappLoader =
+            Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
+
+        /*
+         * System jars with tlds may be passed as a special
+         * ServletContext attribute
+         */
+        Map<URI, List<String>> tldMap = (Map<URI, List<String>>)
+            ctxt.getAttribute("com.sun.appserv.tld.map");
+
+        Boolean isStandalone = (Boolean)
+            ctxt.getAttribute(IS_STANDALONE_ATTRIBUTE_NAME);
 
         while (loader != null) {
             if (loader instanceof URLClassLoader) {
@@ -595,13 +611,22 @@ public class TldScanner implements ServletContainerInitializer {
                 }
             }
 
+            if (tldMap != null && isStandalone != null) {
+                if (isStandalone.booleanValue()) {
+                    break;
+                } else {
+                    if (EAR_LIB_CLASSLOADER.equals(
+                            loader.getClass().getName())) {
+                        // Do not walk up classloader delegation chain beyond
+                        // EarLibClassLoader
+                        break;
+                    }
+                }
+            }
+
             loader = loader.getParent();
         }
 
-        // System jars with tlds can be passed in special context attribute,
-        Map<URI, List<String>> tldMap =
-            (Map<URI, List<String>>)ctxt.getAttribute(
-                "com.sun.appserv.tld.map");
         if (tldMap != null) {
             for (URI uri : tldMap.keySet()) {
                 URL jarURL = new URL("jar:" + uri.toString() + "!/");
