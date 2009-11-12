@@ -197,7 +197,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
 
         javax.tools.JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
         if (javac == null) {
-            errDispatcher.jspError("java.err.nojdk");
+            errDispatcher.jspError("jsp.error.nojdk");
         }
 
         DiagnosticCollector<JavaFileObject> diagnostics =
