@@ -93,8 +93,6 @@ import org.apache.jasper.servlet.JspServletWrapper;
  */
 public class JspCompilationContext {
 
-    private boolean isPackagedTagFile;
-
     private String className;
     private String jspUri;
     private boolean isErrPage;
@@ -178,9 +176,6 @@ public class JspCompilationContext {
         this.isTagFile = true;
         this.tagInfo = tagInfo;
         this.tagFileJarUrl = tagFileJarUrl;
-        if (tagFileJarUrl != null) {
-            isPackagedTagFile = true;
-        }
     }
 
     /* ==================== Methods to override ==================== */
@@ -320,13 +315,30 @@ public class JspCompilationContext {
         return context.getResourceAsStream(canonicalURI(res));
     }
 
-
     public URL getResource(String res) throws MalformedURLException {
-        try {
-            return context.getResource(canonicalURI(res));
-        } catch (JasperException ex) {
-            throw new MalformedURLException(ex.getMessage());
+        URL result = null;
+
+        if (res.startsWith("/META-INF/")) {
+            // This is a tag file packaged in a jar that is being compiled
+            URL jarUrl = tagFileJarUrls.get(res);
+            if (jarUrl == null) {
+                jarUrl = tagFileJarUrl;
+            }
+            if (jarUrl != null) {
+                result = new URL(jarUrl.toExternalForm() + res.substring(1));
+            }
+        } else if (res.startsWith("jar:file:")) {
+            // This is a tag file packaged in a jar that is being checked
+            // for a dependency
+            result = new URL(res);
+        } else {
+            try {
+                result = context.getResource(canonicalURI(res));
+            } catch (JasperException ex) {
+                throw new MalformedURLException(ex.getMessage());
+            }
         }
+        return result;
     }
 
     public Set getResourcePaths(String path)
@@ -603,7 +615,7 @@ public class JspCompilationContext {
     
     public void compile() throws JasperException, FileNotFoundException {
         createCompiler(false);
-        if (isPackagedTagFile || jspCompiler.isOutDated()) {
+        if (jspCompiler.isOutDated()) {
             try {
                 jspCompiler.compile(true);
                 jsw.setReload(true);

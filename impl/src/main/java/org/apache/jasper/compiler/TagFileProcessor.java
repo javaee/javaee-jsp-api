@@ -634,10 +634,10 @@ class TagFileProcessor {
 
         JspCompilationContext ctxt = compiler.getCompilationContext();
         JspRuntimeContext rctxt = ctxt.getRuntimeContext();
-        JspServletWrapper wrapper =
-                (JspServletWrapper) rctxt.getWrapper(tagFilePath);
 
         synchronized(rctxt) {
+            JspServletWrapper wrapper =
+                (JspServletWrapper) rctxt.getWrapper(tagFilePath);
             if (wrapper == null) {
                 wrapper = new JspServletWrapper(ctxt.getServletContext(),
                                                 ctxt.getOptions(),
@@ -731,9 +731,18 @@ class TagFileProcessor {
             TagFileInfo tagFileInfo = n.getTagFileInfo();
             if (tagFileInfo != null) {
                 String tagFilePath = tagFileInfo.getPath();
-		JspCompilationContext ctxt = compiler.getCompilationContext();
-		if (ctxt.getTagFileJarUrls().get(tagFilePath) == null) {
-		    // Omit tag file dependency info on jar files for now.
+                if (tagFilePath.startsWith("/META-INF/")) {
+                    // For tags in JARs, add the TLD and the tag as a dependency
+                    String[] location =
+                        compiler.getCompilationContext().getTldLocation(
+                            tagFileInfo.getTagInfo().getTagLibrary().getURI());
+                    // Add TLD
+                    pageInfo.addDependant("jar:" + location[0] + "!/" +
+                            location[1]);
+                    // Add Tag
+                    pageInfo.addDependant("jar:" + location[0] + "!" +
+                            tagFilePath);
+                } else {
                     pageInfo.addDependant(tagFilePath);
 		}
                 Class c = loadTagFile(compiler, tagFilePath, n.getTagInfo(),

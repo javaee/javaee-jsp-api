@@ -57,6 +57,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -561,7 +562,12 @@ public class Compiler {
                 return false;
             }
             URLConnection uc = jspUrl.openConnection();
-            jspRealLastModified = uc.getLastModified();
+            if (uc instanceof JarURLConnection) {
+                jspRealLastModified =
+                    ((JarURLConnection) uc).getJarEntry().getTime();
+            } else {
+                jspRealLastModified = uc.getLastModified();
+            }
             uc.getInputStream().close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -621,7 +627,13 @@ public class Compiler {
                 }
 
                 URLConnection includeUconn = includeUrl.openConnection();
-                long includeLastModified = includeUconn.getLastModified();
+                long includeLastModified = 0;
+                if (includeUconn instanceof JarURLConnection) {
+                    includeLastModified =
+                       ((JarURLConnection)includeUconn).getJarEntry().getTime();
+                } else {
+                    includeLastModified = includeUconn.getLastModified();
+                }
                 includeUconn.getInputStream().close();
 
                 if (includeLastModified > targetLastModified) {
