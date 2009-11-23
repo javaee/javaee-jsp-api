@@ -160,9 +160,11 @@ public class TagHandlerPool {
         // wait for us to construct a tag for this thread.
         Tag tagHandler = null;
         try {
-            tagHandler = (Tag) handlerClass.newInstance();
             if (resourceInjector != null) {
-                resourceInjector.inject(tagHandler);
+                tagHandler = (Tag) resourceInjector.createTagHandlerInstance(
+                    handlerClass);
+            } else {
+                tagHandler = (Tag) handlerClass.newInstance();
             }
         } catch (Exception e) {
             throw new JspException(e.getMessage(), e);

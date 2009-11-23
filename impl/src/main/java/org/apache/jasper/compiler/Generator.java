@@ -2290,16 +2290,12 @@ class Generator {
                 out.print(tagHandlerClassName);
                 out.println(".class);");
             } else {
-                out.print("new ");
+                out.print("(_jspx_resourceInjector != null) ? ");
+                out.print("_jspx_resourceInjector.createTagHandlerInstance(");
+                out.print(tagHandlerClassName);
+                out.print(".class) : new ");
                 out.print(tagHandlerClassName);
                 out.println("();");
-                out.printil("if (_jspx_resourceInjector != null) {");
-                out.pushIndent();
-                out.printin("_jspx_resourceInjector.inject(");
-                out.print(tagHandlerVar);
-                out.printil(");");
-                out.popIndent();
-                out.printil("}");
             }
 
             generateSetters(n, tagHandlerVar, handlerInfo, false);
@@ -2519,17 +2515,12 @@ class Generator {
             out.print(" ");
             out.print(tagHandlerVar);
             out.print(" = ");
-            out.print("new ");
+            out.print("(_jspx_resourceInjector != null) ? ");
+            out.print("_jspx_resourceInjector.createTagHandlerInstance(");
+            out.print(tagHandlerClassName);
+            out.print(".class) : new ");
             out.print(tagHandlerClassName);
             out.println("();");
-
-            out.printil("if (_jspx_resourceInjector != null) {");
-            out.pushIndent();
-            out.printin("_jspx_resourceInjector.inject(");
-            out.print(tagHandlerVar);
-            out.printil(");");
-            out.popIndent();
-            out.printil("}");
 
             generateSetters(n, tagHandlerVar, handlerInfo, true);
 
