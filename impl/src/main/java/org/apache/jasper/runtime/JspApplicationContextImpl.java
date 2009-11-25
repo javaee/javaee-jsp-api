@@ -80,6 +80,13 @@ public class JspApplicationContextImpl implements JspApplicationContext {
 
     public JspApplicationContextImpl(ServletContext context) {
         this.context = context;
+
+        // Add system defined ELResolver, as defined in JSR 299
+        ELResolver beanManagerELResolver = (ELResolver)
+            context.getAttribute("org.glassfish.jsp.beanManagerELResolver");
+        if (beanManagerELResolver != null) {
+            elResolvers.add(beanManagerELResolver);
+        }
     }
 
     public void addELResolver(ELResolver resolver) {
