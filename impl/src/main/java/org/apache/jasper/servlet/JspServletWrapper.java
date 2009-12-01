@@ -282,9 +282,7 @@ public class JspServletWrapper {
         } catch (FileNotFoundException ex) {
             log.log(Level.SEVERE, Localizer.getMessage("jsp.error.compiling"));
             throw new JasperException(ex);
-	} catch (JasperException ex) {
-            log.log(Level.SEVERE, Localizer.getMessage("jsp.error.compiling"));
-        }
+	}
 	return tagHandlerClass;
     }
 
