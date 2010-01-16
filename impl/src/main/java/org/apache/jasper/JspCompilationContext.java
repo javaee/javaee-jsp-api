@@ -158,10 +158,13 @@ public class JspCompilationContext {
         this.rctxt = rctxt;
         this.basePackageName = Constants.JSP_PACKAGE_NAME;
 
-        taglibs = (ConcurrentHashMap<String, TagLibraryInfoImpl>)
-            context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE);
-        tagFileJarUrls = (ConcurrentHashMap<String, URL>)
-            context.getAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE);
+        taglibs = cast(context.getAttribute(Constants.JSP_TAGLIBRARY_CACHE));
+        tagFileJarUrls = cast(context.getAttribute(Constants.JSP_TAGFILE_JAR_URLS_CACHE));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T cast(Object x) {
+        return (T) x;
     }
 
     public JspCompilationContext(String tagfile,
@@ -341,7 +344,7 @@ public class JspCompilationContext {
         return result;
     }
 
-    public Set getResourcePaths(String path)
+    public Set<String> getResourcePaths(String path)
            throws JasperException {
         return context.getResourcePaths(canonicalURI(path));
     }

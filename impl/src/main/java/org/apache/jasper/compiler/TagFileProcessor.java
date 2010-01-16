@@ -61,7 +61,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 import javax.servlet.jsp.tagext.TagAttributeInfo;
@@ -87,7 +88,7 @@ import org.apache.jasper.runtime.JspSourceDependent;
 
 class TagFileProcessor {
 
-    private Vector tempVector;
+    private ArrayList<Compiler> tempVector;
 
     /**
      * A visitor the tag file
@@ -147,8 +148,8 @@ class TagFileProcessor {
         private String dynamicAttrsMapName;
         private String example = null;
         
-        private Vector attributeVector;
-        private Vector variableVector;
+        private List<TagAttributeInfo> attributeVector;
+        private List<TagVariableInfo> variableVector;
 
         private HashMap<String, NameEntry> nameTable =
                     new HashMap<String, NameEntry>();
@@ -190,8 +191,8 @@ class TagFileProcessor {
             this.tagLibInfo = tagLibInfo;
             this.name = name;
             this.path = path;
-            attributeVector = new Vector();
-            variableVector = new Vector();
+            attributeVector = new ArrayList<TagAttributeInfo>();
+            variableVector = new ArrayList<TagVariableInfo>();
 
             jspVersionDouble = Double.valueOf(tagLibInfo.getRequiredVersion());
         }
@@ -369,7 +370,7 @@ class TagFileProcessor {
                                          isDeferredMethod,
                                          expectedType,
                                          methodSignature);
-            attributeVector.addElement(tagAttributeInfo);
+            attributeVector.add(tagAttributeInfo);
             checkUniqueName(attrName, Name.ATTR_NAME, n, tagAttributeInfo);
         }
 
@@ -431,37 +432,13 @@ class TagFileProcessor {
                 checkUniqueName(nameGiven, Name.VAR_NAME_GIVEN, n);
             }
                 
-            variableVector.addElement(new TagVariableInfo(
+            variableVector.add(new TagVariableInfo(
                                                 nameGiven,
                                                 nameFromAttribute,
                                                 className,
                                                 declare,
                                                 scope));
         }
-
-        /*
-         * Returns the vector of attributes corresponding to attribute
-         * directives.
-         */
-        public Vector getAttributesVector() {
-            return attributeVector;
-        }
-
-        /*
-         * Returns the vector of variables corresponding to variable
-         * directives.
-         */        
-        public Vector getVariablesVector() {
-            return variableVector;
-        }
-
-	/*
-	 * Returns the value of the dynamic-attributes tag directive
-	 * attribute.
-	 */
-	public String getDynamicAttributesMapName() {
-	    return dynamicAttrsMapName;
-	}
 
         public TagInfo getTagInfo() throws JasperException {
 
@@ -476,12 +453,10 @@ class TagFileProcessor {
             String tagClassName = JspUtil.getTagHandlerClassName(path, err);
 
             TagVariableInfo[] tagVariableInfos
-                = new TagVariableInfo[variableVector.size()];
-            variableVector.copyInto(tagVariableInfos);
+                = variableVector.toArray(new TagVariableInfo[0]);
 
             TagAttributeInfo[] tagAttributeInfo
-                = new TagAttributeInfo[attributeVector.size()];
-            attributeVector.copyInto(tagAttributeInfo);
+                = attributeVector.toArray(new TagAttributeInfo[0]);
 
             return new JasperTagInfo(name,
 			       tagClassName,
@@ -692,15 +667,9 @@ class TagFileProcessor {
             try {
                 Object tagIns = tagClazz.newInstance();
                 if (tagIns instanceof JspSourceDependent) {
-                    Iterator iter = 
-                        /* GlassFish Issue 812
-                        ((JspSourceDependent)tagIns).getDependants().iterator();
-                        */
-                        // START GlassFish Issue 812
-                        ((java.util.List) ((JspSourceDependent)tagIns).getDependants()).iterator();
-                        // END GlassFish Issue 812
-                    while (iter.hasNext()) {
-                        parentPageInfo.addDependant((String)iter.next());
+                    for (String dependant:
+                            ((JspSourceDependent)tagIns).getDependants()) {
+                        parentPageInfo.addDependant(dependant);
                     }
                 }
             } catch (Exception e) {
@@ -762,7 +731,7 @@ class TagFileProcessor {
     public void loadTagFiles(Compiler compiler, Node.Nodes page)
                 throws JasperException {
 
-        tempVector = new Vector();
+        tempVector = new ArrayList<Compiler>();
         page.visit(new TagFileLoaderVisitor(compiler));
     }
 
@@ -773,9 +742,9 @@ class TagFileProcessor {
      *        with this name.
      */
     public void removeProtoTypeFiles(String classFileName) {
-        Iterator iter = tempVector.iterator();
+        Iterator<Compiler> iter = tempVector.iterator();
         while (iter.hasNext()) {
-            Compiler c = (Compiler) iter.next();
+            Compiler c = iter.next();
             if (classFileName == null) {
                 c.removeGeneratedClassFiles();
             } else if (classFileName.equals(

@@ -71,12 +71,5 @@ public interface JspSourceDependent {
     * Returns a list of files names that the current page has a source
     * dependency on.
     */
-    /* GlassFish Issue 812
-    public java.util.List getDependants();
-    */
-    // START GlassFish Issue 812
-    // FIXME: Use java.lang.Object instead of java.util.List as return type
-    // due to weird behavior with Eclipse JDT 3.1 in Java 5 mode
-    public Object getDependants();
-    // END GlassFish Issue 812
+    public java.util.List<String> getDependants();
 }

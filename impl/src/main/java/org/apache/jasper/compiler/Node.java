@@ -58,7 +58,6 @@ package org.apache.jasper.compiler;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -581,7 +580,7 @@ abstract class Node implements TagConstants {
      */
     public static class PageDirective extends Node {
 
-	private Vector imports;
+	private ArrayList<String> imports;
 
 	public PageDirective(Attributes attrs, Mark start, Node parent) {
 	    this(JSP_PAGE_DIRECTIVE_ACTION, attrs, null, null, start, parent);
@@ -592,7 +591,7 @@ abstract class Node implements TagConstants {
 			     Attributes taglibAttrs, Mark start, Node parent) {
 	    super(qName, PAGE_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs,
 		  taglibAttrs, start, parent);
-	    imports = new Vector();
+	    imports = new ArrayList<String>();
 	}
 
 	public void accept(Visitor v) throws JasperException {
@@ -620,7 +619,7 @@ abstract class Node implements TagConstants {
 	    }
 	}
 
-	public List getImports() {
+	public List<String> getImports() {
 	    return imports;
 	}
     }
@@ -667,7 +666,7 @@ abstract class Node implements TagConstants {
      * Represents a tag directive
      */
     public static class TagDirective extends Node {
-        private Vector imports;
+        private ArrayList<String> imports;
 
 	public TagDirective(Attributes attrs, Mark start, Node parent) {
 	    this(JSP_TAG_DIRECTIVE_ACTION, attrs, null, null, start, parent);
@@ -678,7 +677,7 @@ abstract class Node implements TagConstants {
 			    Attributes taglibAttrs, Mark start, Node parent) {
 	    super(qName, TAG_DIRECTIVE_ACTION, attrs, nonTaglibXmlnsAttrs,
 		  taglibAttrs, start, parent);
-            imports = new Vector();
+            imports = new ArrayList<String>();
 	}
 
 	public void accept(Visitor v) throws JasperException {
@@ -706,7 +705,7 @@ abstract class Node implements TagConstants {
             }
         }
  
-        public List getImports() {
+        public List<String> getImports() {
             return imports;
 	}
     }
@@ -1393,9 +1392,9 @@ abstract class Node implements TagConstants {
 	private boolean implementsTryCatchFinally;
 	private boolean implementsSimpleTag;
 	private boolean implementsDynamicAttributes;
-	private Vector atBeginScriptingVars;
-	private Vector atEndScriptingVars;
-	private Vector nestedScriptingVars;
+	private ArrayList<Object> atBeginScriptingVars;
+	private ArrayList<Object> atEndScriptingVars;
+	private ArrayList<Object> nestedScriptingVars;
 	private Node.CustomTag customTagParent;
 	private Integer numCount;
 	private boolean useTagPlugin;
@@ -1622,7 +1621,7 @@ abstract class Node implements TagConstants {
 	    return this.numCount;
 	}
 
-	public void setScriptingVars(Vector vec, int scope) {
+	public void setScriptingVars(ArrayList<Object> vec, int scope) {
 	    switch (scope) {
 	    case VariableInfo.AT_BEGIN:
 		this.atBeginScriptingVars = vec;
@@ -1640,22 +1639,16 @@ abstract class Node implements TagConstants {
 	 * Gets the scripting variables for the given scope that need to be
 	 * declared.
 	 */
-	public Vector getScriptingVars(int scope) {
-	    Vector vec = null;
-
+	public ArrayList<Object> getScriptingVars(int scope) {
 	    switch (scope) {
 	    case VariableInfo.AT_BEGIN:
-		vec = this.atBeginScriptingVars;
-		break;
+		return this.atBeginScriptingVars;
 	    case VariableInfo.AT_END:
-		vec = this.atEndScriptingVars;
-		break;
+		return this.atEndScriptingVars;
 	    case VariableInfo.NESTED:
-		vec = this.nestedScriptingVars;
-		break;
+		return this.nestedScriptingVars;
 	    }
-
-	    return vec;
+	    return null;
 	}
 
 	/*
@@ -2006,7 +1999,7 @@ abstract class Node implements TagConstants {
      */
     public static class TemplateText extends Node {
 
-        private ArrayList extraSmap = null;
+        private ArrayList<Integer> extraSmap = null;
 
 	public TemplateText(String text, Mark start, Node parent) {
 	    super(null, null, text, start, parent);
@@ -2064,12 +2057,12 @@ abstract class Node implements TagConstants {
          */
         public void addSmap(int srcLine) {
             if (extraSmap == null) {
-                extraSmap = new ArrayList();
+                extraSmap = new ArrayList<Integer>();
             }
             extraSmap.add(Integer.valueOf(srcLine));
         }
 
-        public ArrayList getExtraSmap() {
+        public ArrayList<Integer> getExtraSmap() {
             return extraSmap;
         }
     }
@@ -2260,17 +2253,17 @@ abstract class Node implements TagConstants {
      */
     public static class Nodes {
 
-	private List list;
+	private List<Node> list;
 	private Node.Root root;		// null if this is not a page
 	private boolean generatedInBuffer;
 
 	public Nodes() {
-	    list = new Vector();
+	    list = new ArrayList<Node>();
 	}
 
 	public Nodes(Node.Root root) {
 	    this.root = root;
-	    list = new Vector();
+	    list = new ArrayList<Node>();
 	    list.add(root);
 	}
 
@@ -2296,9 +2289,9 @@ abstract class Node implements TagConstants {
 	 * @param v The visitor used
 	 */
 	public void visit(Visitor v) throws JasperException {
-	    Iterator iter = list.iterator();
+	    Iterator<Node> iter = list.iterator();
 	    while (iter.hasNext()) {
-		Node n = (Node) iter.next();
+		Node n = iter.next();
 		n.accept(v);
 	    }
 	}
@@ -2310,7 +2303,7 @@ abstract class Node implements TagConstants {
 	public Node getNode(int index) {
 	    Node n = null;
 	    try {
-		n = (Node) list.get(index);
+		n = list.get(index);
 	    } catch (ArrayIndexOutOfBoundsException e) {
 	    }
 	    return n;

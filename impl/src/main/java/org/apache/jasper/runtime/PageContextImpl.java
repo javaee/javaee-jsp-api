@@ -139,7 +139,7 @@ public class PageContextImpl extends PageContext {
     private ELContext elContext;
 
     // page-scope attributes
-    private HashMap attributes;
+    private HashMap<String, Object> attributes;
     private boolean isNametableInitialized;
 
     // per-request state
@@ -157,7 +157,7 @@ public class PageContextImpl extends PageContext {
     PageContextImpl(JspFactory factory) {
         this.factory = factory;
 	this.outs = new BodyContentImpl[0];
-	this.attributes = new HashMap(16);
+	this.attributes = new HashMap<String, Object>(16);
 	this.depth = -1;
     }
 
@@ -265,7 +265,7 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            return AccessController.doPrivileged(new PrivilegedAction(){
+            return AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     return doGetAttribute(name);
                 }
@@ -291,7 +291,7 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            return AccessController.doPrivileged(new PrivilegedAction(){
+            return AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     return doGetAttribute(name, scope);
                 }
@@ -336,7 +336,7 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            AccessController.doPrivileged(new PrivilegedAction(){
+            AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     doSetAttribute(name, attribute);
                     return null;
@@ -366,7 +366,7 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            AccessController.doPrivileged(new PrivilegedAction(){
+            AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     doSetAttribute(name, o, scope);
                     return null;
@@ -419,7 +419,7 @@ public class PageContextImpl extends PageContext {
                     Localizer.getMessage("jsp.error.attribute.null_name"));
         }
         if (SecurityUtil.isPackageProtectionEnabled()){
-            AccessController.doPrivileged(new PrivilegedAction(){
+            AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     doRemoveAttribute(name, scope);
                     return null;
@@ -468,8 +468,8 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            return ((Integer)AccessController.doPrivileged(new PrivilegedAction(){
-                public Object run(){
+            return (AccessController.doPrivileged(new PrivilegedAction<Integer>(){
+                public Integer run(){
                     return Integer.valueOf(doGetAttributeScope(name));
                 }
             })).intValue();
@@ -508,7 +508,7 @@ public class PageContextImpl extends PageContext {
 
     public Object findAttribute(final String name) {
         if (SecurityUtil.isPackageProtectionEnabled()){
-            return AccessController.doPrivileged(new PrivilegedAction(){
+            return AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     if (name == null) {
                         throw new NullPointerException(
@@ -559,9 +559,9 @@ public class PageContextImpl extends PageContext {
 
     public Enumeration<String> getAttributeNamesInScope(final int scope) {
         if (SecurityUtil.isPackageProtectionEnabled()){
-            return (Enumeration<String>)
-                    AccessController.doPrivileged(new PrivilegedAction(){
-                public Object run(){
+            return AccessController.doPrivileged(
+                new PrivilegedAction<Enumeration<String>>(){
+                public Enumeration<String> run(){
                     return doGetAttributeNamesInScope(scope);
                 }
             });
@@ -604,7 +604,7 @@ public class PageContextImpl extends PageContext {
         }
 
         if (SecurityUtil.isPackageProtectionEnabled()){
-            AccessController.doPrivileged(new PrivilegedAction(){
+            AccessController.doPrivileged(new PrivilegedAction<Object>(){
                 public Object run(){
                     doRemoveAttribute(name);
                     return null;
@@ -859,7 +859,7 @@ public class PageContextImpl extends PageContext {
 
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
-                AccessController.doPrivileged(new PrivilegedExceptionAction(){
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Object>(){
                     public Object run() throws Exception{
                         doHandlePageException(t);
                         return null;
@@ -973,7 +973,7 @@ public class PageContextImpl extends PageContext {
         if (SecurityUtil.isPackageProtectionEnabled()){
             try {
                 retValue = AccessController.doPrivileged(
-			new PrivilegedExceptionAction(){
+                    new PrivilegedExceptionAction<Object>(){
 
                     public Object run() throws Exception{
                         ELContextImpl elContext =

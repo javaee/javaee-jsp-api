@@ -851,7 +851,8 @@ class Validator {
 	    if (jspAttrsSize > 0) {
 		jspAttrs = new Node.JspAttribute[jspAttrsSize];
 	    }
-	    Hashtable tagDataAttrs = new Hashtable(attrsSize);
+	    Hashtable<String, Object> tagDataAttrs =
+                    new Hashtable<String, Object>(attrsSize);
 
 	    checkXmlAttributes(n, jspAttrs, tagDataAttrs);
             checkNamedAttributes(n, jspAttrs, attrsSize, tagDataAttrs);
@@ -1113,7 +1114,7 @@ class Validator {
 	 */
 	private void checkXmlAttributes(Node.CustomTag n,
 					Node.JspAttribute[] jspAttrs,
-					Hashtable tagDataAttrs)
+					Hashtable<String, Object> tagDataAttrs)
 	        throws JasperException {
 
 	    TagInfo tagInfo = n.getTagInfo();
@@ -1231,7 +1232,7 @@ class Validator {
 	private void checkNamedAttributes(Node.CustomTag n,
 					  Node.JspAttribute[] jspAttrs,
 					  int start,
-					  Hashtable tagDataAttrs)
+					  Hashtable<String,Object> tagDataAttrs)
 	        throws JasperException {
 
 	    TagInfo tagInfo = n.getTagInfo();
@@ -1664,7 +1665,7 @@ class Validator {
 	private String[] getParameters(String signature) 
 		throws JasperException {
 
-	    ArrayList params = new ArrayList();
+	    ArrayList<String> params = new ArrayList<String>();
 	    // Signature is of the form
 	    // <return-type> S <method-name S? '('
 	    // < <arg-type> ( ',' <arg-type> )* )? ')'
@@ -1688,7 +1689,7 @@ class Validator {
 		}
 		start = p+1;
 	    }
-	    return (String[]) params.toArray(new String[params.size()]);
+	    return  params.toArray(new String[params.size()]);
 	}
 
 	private FunctionMapper getFunctionMapper(ELNode.Nodes el)
@@ -1696,7 +1697,8 @@ class Validator {
 
 	    class ValidateFunctionMapper extends FunctionMapper {
 
-		private HashMap fnmap = new java.util.HashMap();
+		private HashMap<String, Method> fnmap =
+                                new HashMap<String, Method>();
 		public void mapFunction(String fnQName, Method method) {
 		    fnmap.put(fnQName, method);
 		}
@@ -1716,7 +1718,7 @@ class Validator {
 
 		public void visit(ELNode.Function n) throws JasperException {
 
-		    Class c = null;
+		    Class<?> c = null;
 		    Method method = null;
 		    try {
 			c = loader.loadClass(
@@ -1729,7 +1731,7 @@ class Validator {
 		    }
 		    String paramTypes[] = n.getParameters();
 		    int size = paramTypes.length;
-		    Class params[] = new Class[size];
+		    Class<?> params[] = new Class<?>[size];
 		    int i = 0;
 		    try {
 			for (i = 0; i < size; i++) {
@@ -1905,10 +1907,11 @@ class Validator {
 	StringBuffer errMsg = null;
 	ErrorDispatcher errDisp = compiler.getErrorDispatcher();
 
-	for (Iterator iter=compiler.getPageInfo().getTaglibs().iterator();
+	for (Iterator<TagLibraryInfo> iter = 
+                     compiler.getPageInfo().getTaglibs().iterator();
 	         iter.hasNext(); ) {
 
-	    Object o = iter.next();
+	    TagLibraryInfo o = iter.next();
 	    if (!(o instanceof TagLibraryInfoImpl))
 		continue;
 	    TagLibraryInfoImpl tli = (TagLibraryInfoImpl) o;

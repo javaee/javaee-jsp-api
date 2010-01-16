@@ -77,7 +77,7 @@ public class VariableMapperImpl extends VariableMapper
      * Constructor
      **/
     public VariableMapperImpl () {
-        map = new HashMap();
+        map = new HashMap<String, ValueExpression>();
     }
   
     //-------------------------------------
@@ -86,7 +86,7 @@ public class VariableMapperImpl extends VariableMapper
      * Returns null if the variable is not found.
      **/
     public ValueExpression resolveVariable (String variable) {
-        return (ValueExpression) map.get(variable);
+        return map.get(variable);
     }
 
     public ValueExpression setVariable(String variable,
@@ -95,11 +95,11 @@ public class VariableMapperImpl extends VariableMapper
         if (expression == null) {
             map.remove(variable);
         } else {
-            prev = (ValueExpression) map.get(variable);
+            prev = map.get(variable);
             map.put(variable, expression);
         }
         return prev;
     }
 
-    private HashMap map;
+    private HashMap<String, ValueExpression> map;
 }

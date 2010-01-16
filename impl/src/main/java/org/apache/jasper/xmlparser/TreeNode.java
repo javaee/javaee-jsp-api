@@ -57,6 +57,8 @@ package org.apache.jasper.xmlparser;
 
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -172,7 +174,7 @@ public class TreeNode {
     public void addChild(TreeNode node) {
 
         if (children == null)
-            children = new ArrayList();
+            children = new ArrayList<TreeNode>();
         children.add(node);
 
     }
@@ -200,10 +202,12 @@ public class TreeNode {
      */
     public Iterator<String> findAttributes() {
 
+        Set<String> attrs;
         if (attributes == null)
-            return (Collections.EMPTY_LIST.iterator());
+            attrs = Collections.emptySet();
         else
-            return (attributes.keySet().iterator());
+            attrs = attributes.keySet();
+        return attrs.iterator();
 
     }
 
@@ -233,11 +237,12 @@ public class TreeNode {
      */
     public Iterator<TreeNode> findChildren() {
 
+        List<TreeNode> nodes;
         if (children == null)
-            return (Collections.EMPTY_LIST.iterator());
+            nodes = Collections.emptyList();
         else
-            return (children.iterator());
-
+            nodes = children;
+        return nodes.iterator();
     }
 
 
@@ -250,16 +255,17 @@ public class TreeNode {
      */
     public Iterator<TreeNode> findChildren(String name) {
 
+        List<TreeNode> results;
         if (children == null)
-            return (Collections.EMPTY_LIST.iterator());
-
-        ArrayList<TreeNode> results = new ArrayList<TreeNode>();
-        for (TreeNode item: children) {
-            if (name.equals(item.getName()))
-                results.add(item);
+            results = Collections.emptyList();
+        else {
+            results = new ArrayList<TreeNode>();
+            for (TreeNode item: children) {
+                if (name.equals(item.getName()))
+                    results.add(item);
+            }
         }
-        return (results.iterator());
-
+        return results.iterator();
     }
 
 

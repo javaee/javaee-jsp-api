@@ -242,8 +242,8 @@ public class JspC implements Options {
      */
     private boolean failOnError = true;
 
-    private Vector extensions;
-    private Vector pages = new Vector();
+    private ArrayList<String> extensions;
+    private ArrayList<String> pages = new ArrayList<String>();
     private boolean errorOnUseBeanInvalidClassAttribute = false;
     
     /**
@@ -432,7 +432,7 @@ public class JspC implements Options {
         while( true ) {
             String file = nextFile();
             if( file==null ) break;
-            pages.addElement( file );
+            pages.add( file );
         }
     }
 
@@ -821,7 +821,7 @@ public class JspC implements Options {
     public void setJspFiles(String jspFiles) {
         StringTokenizer tok = new StringTokenizer(jspFiles, " ,");
         while (tok.hasMoreTokens()) {
-            pages.addElement(tok.nextToken());
+            pages.add(tok.nextToken());
         }
     }
 
@@ -979,7 +979,7 @@ public class JspC implements Options {
 
         ArrayList<JasperException> ret = null;
 
-        Collection c = jspErrors.values();
+        Collection<JasperException> c = jspErrors.values();
         if (c != null) {
             ret = new ArrayList<JasperException>();
             Iterator<JasperException> it = c.iterator();
@@ -1221,15 +1221,15 @@ public class JspC implements Options {
      * jsps are specified.
      */
     public void scanFiles( File base ) throws JasperException {
-        Stack dirs = new Stack();
-        dirs.push(base);
+        Stack<String> dirs = new Stack<String>();
+        dirs.push(base.toString());
         if (extensions == null) {
-            extensions = new Vector();
-            extensions.addElement("jsp");
-            extensions.addElement("jspx");
+            extensions = new ArrayList<String>();
+            extensions.add("jsp");
+            extensions.add("jspx");
         }
         while (!dirs.isEmpty()) {
-            String s = dirs.pop().toString();
+            String s = dirs.pop();
             File f = new File(s);
             if (f.exists() && f.isDirectory()) {
                 String[] files = f.list();
@@ -1244,7 +1244,7 @@ public class JspC implements Options {
                         ext = files[i].substring(files[i].lastIndexOf('.') +1);
                         if (extensions.contains(ext) ||
                                 jspConfig.isJspPage(uri)) {
-                            pages.addElement(path);
+                            pages.add(path);
                         }
                     }
                 }
@@ -1267,7 +1267,7 @@ public class JspC implements Options {
 		    throw new JasperException(
                         Localizer.getMessage("jsp.error.jspc.missingTarget"));
 		}
-		String firstJsp=(String)pages.elementAt( 0 );
+		String firstJsp=pages.get( 0 );
                 File firstJspF = new File( firstJsp );
                 if (!firstJspF.exists()) {
                    throw new JasperException(
@@ -1298,9 +1298,7 @@ public class JspC implements Options {
 
 	    initWebXml();
 
-	    Enumeration e = pages.elements();
-	    while (e.hasMoreElements()) {
-		String nextjsp = e.nextElement().toString();
+            for (String nextjsp: pages) {
                 File fjsp = new File(nextjsp);
                 if (!fjsp.isAbsolute()) {
                     fjsp = new File(uriRootF, nextjsp);
@@ -1327,7 +1325,7 @@ public class JspC implements Options {
                 purgeJspFragmentErrors();
             }
             if (getFailOnError() && !jspErrors.isEmpty()) {
-                throw (JasperException) jspErrors.values().iterator().next();
+                throw jspErrors.values().iterator().next();
             }
             // END SJJAS 6393940
 
@@ -1479,7 +1477,7 @@ public class JspC implements Options {
         ClassLoader jspcLoader = getClass().getClassLoader();
 
         // Turn the classPath into URLs
-        ArrayList urls = new ArrayList();
+        ArrayList<URL> urls = new ArrayList<URL>();
         StringTokenizer tokenizer = new StringTokenizer(classPath,
                                                         File.pathSeparator);
         while (tokenizer.hasMoreTokens()) {
@@ -1619,7 +1617,7 @@ public class JspC implements Options {
             return null;
         }
 
-        ArrayList urls = new ArrayList();
+        ArrayList<URL> urls = new ArrayList<URL>();
         StringTokenizer tokenizer = new StringTokenizer(sysClassPath,
                                                         File.pathSeparator);
         while (tokenizer.hasMoreTokens()) {

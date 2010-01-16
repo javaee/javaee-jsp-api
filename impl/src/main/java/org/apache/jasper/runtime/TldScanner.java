@@ -246,6 +246,8 @@ public class TldScanner implements ServletContainerInitializer {
      * Returns null if the uri is not associated with any tag library 'exposed'
      * in the web application.
      */
+
+    @SuppressWarnings("unchecked")
     public String[] getLocation(String uri) throws JasperException {
         if (mappings == null) {
             mappings = (HashMap<String, String[]>) ctxt.getAttribute(
@@ -255,7 +257,17 @@ public class TldScanner implements ServletContainerInitializer {
                 scanTlds();
             }
         }
-        return (String[]) mappings.get(uri);
+        return mappings.get(uri);
+    }
+
+    @SuppressWarnings("unchecked")
+    Map<URI, List<String>> getTldMap() {
+        /*
+         * System jars with tlds may be passed as a special
+         * ServletContext attribute
+         */
+        return (Map<URI, List<String>>)
+            ctxt.getAttribute("com.sun.appserv.tld.map");
     }
 
     /** 
@@ -581,13 +593,7 @@ public class TldScanner implements ServletContainerInitializer {
             Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
 
-        /*
-         * System jars with tlds may be passed as a special
-         * ServletContext attribute
-         */
-        Map<URI, List<String>> tldMap = (Map<URI, List<String>>)
-            ctxt.getAttribute("com.sun.appserv.tld.map");
-
+        Map<URI, List<String>> tldMap = getTldMap();
         Boolean isStandalone = (Boolean)
             ctxt.getAttribute(IS_STANDALONE_ATTRIBUTE_NAME);
 

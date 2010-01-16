@@ -130,7 +130,7 @@ public class JspServlet extends HttpServlet {
 
     // START SJSWS 6232180
     private String httpMethodsString = null;
-    private HashSet httpMethodsSet = null;
+    private HashSet<String> httpMethodsSet = null;
     // END SJSWS 6232180
 
     // START GlassFish 750
@@ -158,7 +158,7 @@ public class JspServlet extends HttpServlet {
         httpMethodsString = config.getInitParameter("httpMethods");
         if (httpMethodsString != null
                 && !httpMethodsString.equals("*")) {
-            httpMethodsSet = new HashSet();
+            httpMethodsSet = new HashSet<String>();
             StringTokenizer tokenizer = new StringTokenizer(
                     httpMethodsString, ", \t\n\r\f");
             while (tokenizer.hasMoreTokens()) {

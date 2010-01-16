@@ -62,7 +62,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -612,14 +611,12 @@ public class Compiler {
             return false;
         }
 
-        List depends = jsw.getDependants();
+        List<String> depends = jsw.getDependants();
         if (depends == null) {
             return false;
         }
 
-        Iterator it = depends.iterator();
-        while (it.hasNext()) {
-            String include = (String)it.next();
+        for (String include: depends) {
             try {
                 URL includeUrl = ctxt.getResource(include);
                 if (includeUrl == null) {

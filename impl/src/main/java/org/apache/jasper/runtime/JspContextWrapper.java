@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -100,33 +101,36 @@ public class JspContextWrapper extends PageContext {
     // Invoking JSP context
     private PageContext invokingJspCtxt;
 
-    private Hashtable pageAttributes;
+    private Hashtable<String, Object> pageAttributes;
 
     // ArrayList of NESTED scripting variables
-    private ArrayList nestedVars;
+    private ArrayList<String> nestedVars;
 
     // ArrayList of AT_BEGIN scripting variables
-    private ArrayList atBeginVars;
+    private ArrayList<String> atBeginVars;
 
     // ArrayList of AT_END scripting variables
-    private ArrayList atEndVars;
+    private ArrayList<String> atEndVars;
 
-    private Map aliases;
-    private Hashtable originalNestedVars;
+    private Map<String, String> aliases;
+    private HashMap<String, Object> originalNestedVars;
     private ELContext elContext;
 
-    public JspContextWrapper(JspContext jspContext, ArrayList nestedVars,
-			     ArrayList atBeginVars, ArrayList atEndVars,
-			     Map aliases) {
+    public JspContextWrapper(JspContext jspContext,
+                             ArrayList<String> nestedVars,
+                             ArrayList<String> atBeginVars,
+                             ArrayList<String> atEndVars,
+                             Map<String, String> aliases) {
         this.invokingJspCtxt = (PageContext) jspContext;
 	this.nestedVars = nestedVars;
 	this.atBeginVars = atBeginVars;
 	this.atEndVars = atEndVars;
-	this.pageAttributes = new Hashtable(16);
+	this.pageAttributes = new Hashtable<String, Object>(16);
 	this.aliases = aliases;
 
 	if (nestedVars != null) {
-	    this.originalNestedVars = new Hashtable(nestedVars.size());
+	    this.originalNestedVars =
+                new HashMap<String, Object>(nestedVars.size());
 	}
 	syncBeginTagFile();
     }
@@ -410,7 +414,7 @@ public class JspContextWrapper extends PageContext {
      * @param scope variable scope (one of NESTED, AT_BEGIN, or AT_END)
      */
     private void copyTagToPageScope(int scope) {
-	Iterator iter = null;
+	Iterator<String> iter = null;
 
 	switch (scope) {
 	case VariableInfo.NESTED:
@@ -431,7 +435,7 @@ public class JspContextWrapper extends PageContext {
 	}
 
 	while ((iter != null) && iter.hasNext()) {
-	    String varName = (String) iter.next();
+	    String varName = iter.next();
 	    Object obj = getAttribute(varName);
 	    varName = findAlias(varName);
 	    if (obj != null) {
@@ -448,9 +452,9 @@ public class JspContextWrapper extends PageContext {
      */
     private void saveNestedVariables() {
 	if (nestedVars != null) {
-	    Iterator iter = nestedVars.iterator();
+	    Iterator<String> iter = nestedVars.iterator();
 	    while (iter.hasNext()) {
-		String varName = (String) iter.next();
+		String varName = iter.next();
 		varName = findAlias(varName);
 		Object obj = invokingJspCtxt.getAttribute(varName);
 		if (obj != null) {
@@ -466,9 +470,9 @@ public class JspContextWrapper extends PageContext {
      */
     private void restoreNestedVariables() {
 	if (nestedVars != null) {
-	    Iterator iter = nestedVars.iterator();
+	    Iterator<String> iter = nestedVars.iterator();
 	    while (iter.hasNext()) {
-		String varName = (String) iter.next();
+		String varName = iter.next();
 		varName = findAlias(varName);
 		Object obj = originalNestedVars.get(varName);
 		if (obj != null) {
@@ -493,7 +497,7 @@ public class JspContextWrapper extends PageContext {
 	if (aliases == null)
 	    return varName;
 
-	String alias = (String) aliases.get(varName);
+	String alias = aliases.get(varName);
 	if (alias == null) {
 	    return varName;
 	}

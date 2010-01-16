@@ -122,7 +122,7 @@ public class PageInfo {
     private boolean isJspPrefixHijacked;
 
     // Set of all element and attribute prefixes used in this translation unit
-    private HashSet prefixes;
+    private HashSet<String> prefixes;
 
     private boolean hasJspRoot = false;
     private List<String> includePrelude;
@@ -146,7 +146,7 @@ public class PageInfo {
 	this.includePrelude = new ArrayList<String>();
 	this.includeCoda = new ArrayList<String>();
 	this.pluginDcls = new ArrayList<String>();
-	this.prefixes = new HashSet();
+	this.prefixes = new HashSet<String>();
 
 	// Enter standard imports
 	for(int i = 0; i < STANDARD_IMPORTS.length; i++)
@@ -165,7 +165,7 @@ public class PageInfo {
 	return false;
     }
 
-    public void addImports(List imports) {
+    public void addImports(List<String> imports) {
 	this.imports.addAll(imports);
     }
 
@@ -363,7 +363,7 @@ public class PageInfo {
      * @param uri The URI to be pushed onto the stack
      */
     public void pushPrefixMapping(String prefix, String uri) {
-	LinkedList stack = xmlPrefixMapper.get(prefix);
+	LinkedList<String> stack = xmlPrefixMapper.get(prefix);
 	if (stack == null) {
 	    stack = new LinkedList<String>();
 	    xmlPrefixMapper.put(prefix, stack);
@@ -378,7 +378,7 @@ public class PageInfo {
      * @param prefix The prefix whose stack of URIs is to be popped
      */
     public void popPrefixMapping(String prefix) {
-	LinkedList stack = xmlPrefixMapper.get(prefix);
+	LinkedList<String> stack = xmlPrefixMapper.get(prefix);
 	if (stack == null || stack.size() == 0) {
 	    // XXX throw new Exception("XXX");
 	}
@@ -396,7 +396,7 @@ public class PageInfo {
 
 	String uri = null;
 
-	LinkedList stack = xmlPrefixMapper.get(prefix);
+	LinkedList<String> stack = xmlPrefixMapper.get(prefix);
 	if (stack == null || stack.size() == 0) {
 	    uri = (String) jspPrefixMapper.get(prefix);
 	} else {

@@ -77,7 +77,7 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
     /** 
      * Maps "prefix:name" to java.lang.Method objects.
      */
-    private HashMap fnmap = null;
+    private HashMap<String, Method> fnmap = null;
 
     /**
      * If there is only one function in the map, this is the Method for it.
@@ -101,16 +101,16 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
     public static ProtectedFunctionMapper getInstance() {
         ProtectedFunctionMapper funcMapper;
 	if (SecurityUtil.isPackageProtectionEnabled()) {
-	    funcMapper = (ProtectedFunctionMapper)AccessController.doPrivileged(
-		new PrivilegedAction() {
-		public Object run() {
+	    funcMapper = AccessController.doPrivileged(
+		new PrivilegedAction<ProtectedFunctionMapper>() {
+		public ProtectedFunctionMapper run() {
 		    return new ProtectedFunctionMapper();
 		}
 	    } );
 	} else {
 	    funcMapper = new ProtectedFunctionMapper();
 	}
-	funcMapper.fnmap = new java.util.HashMap();
+	funcMapper.fnmap = new java.util.HashMap<String, Method>();
 	return funcMapper;
     }
 
@@ -125,15 +125,15 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      * @throws RuntimeException if no method with the given signature
      *     could be found.
      */
-    public void mapFunction(String fnQName, final Class c,
-			    final String methodName, final Class[] args ) 
+    public void mapFunction(String fnQName, final Class<?> c,
+			    final String methodName, final Class<?>[] args ) 
     {
 	java.lang.reflect.Method method;
         if (SecurityUtil.isPackageProtectionEnabled()){
             try{
-                method = (java.lang.reflect.Method)AccessController.doPrivileged(new PrivilegedExceptionAction(){
-
-                    public Object run() throws Exception{
+                method = AccessController.doPrivileged(
+                new PrivilegedExceptionAction<Method>(){
+                    public Method run() throws Exception{
                         return c.getDeclaredMethod(methodName, args);
                     }                
                 });      
@@ -168,24 +168,23 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      *     could be found.
      */
     public static ProtectedFunctionMapper getMapForFunction(
-		String fnQName, final Class c,
-                final String methodName, final Class[] args )
+		String fnQName, final Class<?> c,
+                final String methodName, final Class<?>[] args )
     {
         java.lang.reflect.Method method;
         ProtectedFunctionMapper funcMapper;
         if (SecurityUtil.isPackageProtectionEnabled()){
-            funcMapper = (ProtectedFunctionMapper)AccessController.doPrivileged(
-                new PrivilegedAction(){
-                public Object run() {
+            funcMapper = AccessController.doPrivileged(
+                new PrivilegedAction<ProtectedFunctionMapper>(){
+                public ProtectedFunctionMapper run() {
                     return new ProtectedFunctionMapper();
                 }
             });
 
             try{
-                method = (java.lang.reflect.Method)AccessController.doPrivileged
-(new PrivilegedExceptionAction(){
-
-                    public Object run() throws Exception{
+                method = AccessController.doPrivileged(
+                    new PrivilegedExceptionAction<Method>(){
+                    public Method run() throws Exception{
                         return c.getDeclaredMethod(methodName, args);
                     }
                 });
@@ -218,7 +217,7 @@ public final class ProtectedFunctionMapper extends FunctionMapper {
      **/
     public Method resolveFunction(String prefix, String localName) {
         if (this.fnmap != null) {
-            return (Method) this.fnmap.get(prefix + ":" + localName);
+            return this.fnmap.get(prefix + ":" + localName);
         }
 	return theMethod;
     }

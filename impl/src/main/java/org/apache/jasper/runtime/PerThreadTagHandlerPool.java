@@ -62,7 +62,7 @@ import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.JspTag;
 
 import org.apache.jasper.Constants;
 
@@ -77,12 +77,12 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
     private int maxSize;
 
     // For cleanup
-    private Vector perThreadDataVector;
+    private Vector<PerThreadData> perThreadDataVector;
 
-    private ThreadLocal perThread;
+    private ThreadLocal<PerThreadData> perThread;
 
     private static class PerThreadData {
-        Tag handlers[];
+        JspTag handlers[];
         int current;
     }
 
@@ -91,7 +91,7 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
      */
     public PerThreadTagHandlerPool() {
         super();
-        perThreadDataVector = new Vector();
+        perThreadDataVector = new Vector<PerThreadData>();
     }
 
     protected void init(ServletConfig config) {
@@ -104,8 +104,8 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
             }
         }
 
-        perThread = new ThreadLocal() {
-            protected Object initialValue() {
+        perThread = new ThreadLocal<PerThreadData>() {
+            protected PerThreadData initialValue() {
                 PerThreadData ptd = new PerThreadData();
                 ptd.handlers = new Tag[maxSize];
                 ptd.current = -1;
@@ -126,7 +126,7 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
      * @throws JspException if a tag handler cannot be instantiated
      */
     public Tag get(Class handlerClass) throws JspException {
-        PerThreadData ptd = (PerThreadData)perThread.get();
+        PerThreadData ptd = perThread.get();
         if(ptd.current >=0 ) {
             return ptd.handlers[ptd.current--];
         } else {
@@ -146,7 +146,7 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
      * @param handler Tag handler to add to this tag handler pool
      */
     public void reuse(Tag handler) {
-        PerThreadData ptd=(PerThreadData)perThread.get();
+        PerThreadData ptd=perThread.get();
 	if (ptd.current < (ptd.handlers.length - 1)) {
 	    ptd.handlers[++ptd.current] = handler;
         } else {
@@ -158,9 +158,9 @@ public class PerThreadTagHandlerPool extends TagHandlerPool {
      * Calls the release() method of all tag handlers in this tag handler pool.
      */
     public void release() {        
-        Enumeration enumeration = perThreadDataVector.elements();
+        Enumeration<PerThreadData> enumeration = perThreadDataVector.elements();
         while (enumeration.hasMoreElements()) {
-	    PerThreadData ptd = (PerThreadData)enumeration.nextElement();
+	    PerThreadData ptd = enumeration.nextElement();
             if (ptd.handlers != null) {
                 for (int i=ptd.current; i>=0; i--) {
                     if (ptd.handlers[i] != null) {

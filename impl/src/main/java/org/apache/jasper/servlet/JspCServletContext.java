@@ -107,7 +107,7 @@ public class JspCServletContext implements ServletContext {
     /**
      * Servlet context attributes.
      */
-    protected Hashtable myAttributes;
+    protected Hashtable<String, Object> myAttributes;
 
 
     /**
@@ -134,7 +134,7 @@ public class JspCServletContext implements ServletContext {
      */
     public JspCServletContext(PrintWriter aLogWriter, URL aResourceBaseURL) {
 
-        myAttributes = new Hashtable();
+        myAttributes = new Hashtable<String, Object>();
         myLogWriter = aLogWriter;
         myResourceBaseURL = aResourceBaseURL;
 
@@ -160,7 +160,7 @@ public class JspCServletContext implements ServletContext {
     /**
      * Return an enumeration of context attribute names.
      */
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
 
         return (myAttributes.keys());
 
@@ -203,9 +203,9 @@ public class JspCServletContext implements ServletContext {
      * Return an enumeration of the names of context initialization
      * parameters.
      */
-    public Enumeration getInitParameterNames() {
+    public Enumeration<String> getInitParameterNames() {
 
-        return (new Vector().elements());
+        return (new Vector<String>().elements());
 
     }
 
@@ -348,9 +348,9 @@ public class JspCServletContext implements ServletContext {
      *
      * @param path Context-relative base path
      */
-    public Set getResourcePaths(String path) {
+    public Set<String> getResourcePaths(String path) {
 
-        Set thePaths = new HashSet();
+        Set<String> thePaths = new HashSet<String>();
         if (!path.endsWith("/"))
             path += "/";
         String basePath = getRealPath(path);
@@ -411,9 +411,9 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated This method has been deprecated with no replacement
      */
-    public Enumeration getServletNames() {
+    public Enumeration<String> getServletNames() {
 
-        return (new Vector().elements());
+        return (new Vector<String>().elements());
 
     }
 
@@ -423,9 +423,9 @@ public class JspCServletContext implements ServletContext {
      *
      * @deprecated This method has been deprecated with no replacement
      */
-    public Enumeration getServlets() {
+    public Enumeration<Servlet> getServlets() {
 
-        return (new Vector().elements());
+        return (new Vector<Servlet>().elements());
 
     }
 

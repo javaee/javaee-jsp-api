@@ -64,7 +64,6 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -272,11 +271,11 @@ public class JspUtil {
 
         // AttributesImpl.removeAttribute is broken, so we do this...
         int tempLength = (attrs == null) ? 0 : attrs.getLength();
-	Vector temp = new Vector(tempLength, 1);
+	ArrayList<String> temp = new ArrayList<String>(tempLength);
         for (int i = 0; i < tempLength; i++) {
             String qName = attrs.getQName(i);
             if ((!qName.equals("xmlns")) && (!qName.startsWith("xmlns:")))
-                temp.addElement(qName);
+                temp.add(qName);
         }
 
         // Add names of attributes specified using jsp:attribute
@@ -287,7 +286,7 @@ public class JspUtil {
                 Node node = tagBody.getNode( i );
                 if( node instanceof Node.NamedAttribute ) {
                     String attrName = node.getAttributeValue( "name" );
-                    temp.addElement( attrName );
+                    temp.add( attrName );
 		    // Check if this value appear in the attribute of the node
 		    if (n.getAttributeValue(attrName) != null) {
 			err.jspError(n, "jsp.error.duplicate.name.jspattribute",
@@ -339,7 +338,7 @@ public class JspUtil {
 
 	for (int j = 0; j < attrLeftLength; j++) {
 	    valid = false;
-	    attribute = (String) temp.elementAt(j);
+	    attribute = temp.get(j);
 	    for (int i = 0; i < validAttributes.length; i++) {
 		if (attribute.equals(validAttributes[i].name)) {
 		    valid = true;
@@ -468,10 +467,10 @@ public class JspUtil {
      * name represents a primitive type, in which case it is converted to a
      * <tt>Class</tt> object by appending ".class" to it (e.g., "int.class").
      */
-    public static Class toClass(String type, ClassLoader loader)
+    public static Class<?> toClass(String type, ClassLoader loader)
 	    throws ClassNotFoundException {
 
-	Class c = null;
+	Class<?> c = null;
 	int i0 = type.indexOf('[');
 	int dims = 0;
 	if (i0 > 0) {
@@ -882,7 +881,7 @@ public class JspUtil {
 
     public static String coerceToEnum(String s, String enumClass, boolean isNamedAttribute) {
         if (isNamedAttribute) {
-            return "(Enum) org.apache.jasper.runtime.JspRuntimeLibrary.coerce("
+            return "org.apache.jasper.runtime.JspRuntimeLibrary.coerce("
                     + s + "," + enumClass + ".class)";
         } else {
             if (s == null || s.length() == 0) {
@@ -997,7 +996,7 @@ public class JspUtil {
      * @return the components of the path
      */
     private static final String [] split(String path, String pat) {
-        Vector comps = new Vector();
+        ArrayList<String> comps = new ArrayList<String>();
         int pos = path.indexOf(pat);
         int start = 0;
         while( pos >= 0 ) {
@@ -1013,7 +1012,7 @@ public class JspUtil {
         }
         String [] result = new String[comps.size()];
         for(int i=0; i < comps.size(); i++) {
-            result[i] = (String)comps.elementAt(i);
+            result[i] = comps.get(i);
         }
         return result;
     }

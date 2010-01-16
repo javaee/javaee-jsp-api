@@ -63,10 +63,11 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -305,10 +306,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
  
         TagLibraryInfo[] taglibs = null;
  
-        Collection c = pageInfo.getTaglibs();
+        Collection<TagLibraryInfo> c = pageInfo.getTaglibs();
         if (c != null && c.size() > 0) {
-            taglibs = (TagLibraryInfo[]) c.toArray(
-                new TagLibraryInfo[c.size()]);
+            taglibs = c.toArray(new TagLibraryInfo[0]);
         }
 
         return taglibs;
@@ -326,9 +326,10 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 			  String uri, InputStream in, URL jarFileUrl) 
         throws JasperException
     {
-        Vector tagVector = new Vector();
-        Vector tagFileVector = new Vector();
-        Hashtable functionTable = new Hashtable();
+        List<TagInfo> tagVector = new ArrayList<TagInfo>();
+        List<TagFileInfo> tagFileVector = new ArrayList<TagFileInfo>();
+        HashMap<String, FunctionInfo> functionTable =
+            new HashMap<String, FunctionInfo>();
 
         // Create an iterator over the child elements of our <taglib> element
         ParserUtils pu = new ParserUtils();
@@ -363,11 +364,11 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             else if ("validator".equals(tname))
                 this.tagLibraryValidator = createValidator(element);
             else if ("tag".equals(tname))
-                tagVector.addElement(createTagInfo(element, jspversion));
+                tagVector.add(createTagInfo(element, jspversion));
             else if ("tag-file".equals(tname)) {
 		TagFileInfo tagFileInfo = createTagFileInfo(element, uri,
 							    jarFileUrl);
-                tagFileVector.addElement(tagFileInfo);
+                tagFileVector.add(tagFileInfo);
 	    } else if ("function".equals(tname)) {         // JSP2.0
 		FunctionInfo funcInfo = createFunctionInfo(element);
 		String funcName = funcInfo.getName();
@@ -398,17 +399,13 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 			 "jsp-version");
 	}
 
-        this.tags = new TagInfo[tagVector.size()];
-        tagVector.copyInto (this.tags);
-
-        this.tagFiles = new TagFileInfo[tagFileVector.size()];
-        tagFileVector.copyInto (this.tagFiles);
+        this.tags = tagVector.toArray(new TagInfo[0]);
+        this.tagFiles = tagFileVector.toArray(new TagFileInfo[0]);
 
         this.functions = new FunctionInfo[functionTable.size()];
 	int i=0;
-        Enumeration enumeration = functionTable.elements();
-	while (enumeration.hasMoreElements()) {
-	    this.functions[i++] = (FunctionInfo) enumeration.nextElement();
+        for (FunctionInfo funcInfo: functionTable.values()) {
+	    this.functions[i++] = funcInfo;
 	}
     }
     
@@ -472,11 +469,12 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	String largeIcon = null;
         boolean dynamicAttributes = false;
         
-        Vector attributeVector = new Vector();
-        Vector variableVector = new Vector();
-        Iterator list = elem.findChildren();
+        List<TagAttributeInfo> attributeVector =
+                new ArrayList<TagAttributeInfo>();
+        List<TagVariableInfo> variableVector = new ArrayList<TagVariableInfo>();
+        Iterator<TreeNode> list = elem.findChildren();
         while (list.hasNext()) {
-            TreeNode element = (TreeNode) list.next();
+            TreeNode element = list.next();
             String tname = element.getName();
 
             if ("name".equals(tname)) {
@@ -509,9 +507,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
                      "description".equals(tname)) {
                 info = element.getBody();
             } else if ("variable".equals(tname)) {
-                variableVector.addElement(createVariable(element));
+                variableVector.add(createVariable(element));
             } else if ("attribute".equals(tname)) {
-                attributeVector.addElement(createAttribute(element, jspVersion));
+                attributeVector.add(createAttribute(element, jspVersion));
             } else if ("dynamic-attributes".equals(tname)) {
                 dynamicAttributes = JspUtil.booleanValue(element.getBody());
             } else if ("example".equals(tname)) {
@@ -552,12 +550,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 	}
 
 	TagAttributeInfo[] tagAttributeInfo
-	    = new TagAttributeInfo[attributeVector.size()];
-	attributeVector.copyInto(tagAttributeInfo);
-
+	            = attributeVector.toArray(new TagAttributeInfo[0]);
 	TagVariableInfo[] tagVariableInfos
-	    = new TagVariableInfo[variableVector.size()];
-	variableVector.copyInto(tagVariableInfos);
+                    = variableVector.toArray(new TagVariableInfo[0]);
 
         TagInfo taginfo = new TagInfo(tagName,
                                       tagClassName,
@@ -826,7 +821,7 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             throws JasperException {
 
         String validatorClass = null;
-	Map<String, Object> initParams = new Hashtable<String, Object>();
+	Map<String, Object> initParams = new HashMap<String, Object>();
 
         Iterator list = elem.findChildren();
         while (list.hasNext()) {

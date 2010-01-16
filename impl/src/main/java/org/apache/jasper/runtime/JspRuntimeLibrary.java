@@ -98,7 +98,7 @@ public class JspRuntimeLibrary {
 	= "javax.servlet.jsp.jspException";
 
     protected static class PrivilegedIntrospectHelper
-	implements PrivilegedExceptionAction {
+	implements PrivilegedExceptionAction<Object> {
 
 	private Object bean;
 	private String prop;
@@ -212,7 +212,8 @@ public class JspRuntimeLibrary {
 	    return Long.valueOf(s).longValue();
     }
 
-    public static Object coerce(String s, Class target) {
+    @SuppressWarnings("unchecked")
+    public static <T> T coerce(String s, Class<T> target) {
 
 	boolean isNullOrEmpty = (s == null || s.length() == 0);
 
@@ -220,46 +221,46 @@ public class JspRuntimeLibrary {
 	    if (isNullOrEmpty) {
 		s = "false";
 	    }
-	    return Boolean.valueOf(s);
+	    return (T) Boolean.valueOf(s);
 	} else if (target == Byte.class) {
 	    if (isNullOrEmpty)
-		return Byte.valueOf((byte) 0);
+		return (T) Byte.valueOf((byte) 0);
 	    else
-		return Byte.valueOf(s);
+		return (T) Byte.valueOf(s);
 	} else if (target == Character.class) {
 	    if (isNullOrEmpty)
-		return Character.valueOf((char) 0);
+		return (T) Character.valueOf((char) 0);
 	    else 
-		return Character.valueOf(s.charAt(0));
+		return (T) Character.valueOf(s.charAt(0));
 	} else if (target == Double.class) {
 	    if (isNullOrEmpty)
-		return Double.valueOf(0);
+		return (T) Double.valueOf(0);
 	    else
-		return Double.valueOf(s);
+		return (T) Double.valueOf(s);
 	} else if (target == Float.class) {
 	    if (isNullOrEmpty)
-		return Float.valueOf(0);
+		return (T) Float.valueOf(0);
 	    else
-		return Float.valueOf(s);
+		return (T) Float.valueOf(s);
 	} else if (target == Integer.class) {
 	    if (isNullOrEmpty)
-		return Integer.valueOf(0);
+		return (T) Integer.valueOf(0);
 	    else
-		return Integer.valueOf(s);
+		return (T) Integer.valueOf(s);
 	} else if (target == Short.class) {
 	    if (isNullOrEmpty)
-		return Short.valueOf((short) 0);
+		return (T) Short.valueOf((short) 0);
 	    else
-		return Short.valueOf(s);
+		return (T) Short.valueOf(s);
 	} else if (target == Long.class) {
 	    if (isNullOrEmpty)
-		return Long.valueOf(0);
+		return (T) Long.valueOf(0);
 	    else
-		return Long.valueOf(s);
+		return (T) Long.valueOf(s);
         } else if (target.isEnum()) {
              if (isNullOrEmpty)
                  return null;
-             return Enum.valueOf(target, s);
+             return (T) Enum.valueOf((Class)target, s);
 	} else {
 	    return null;
 	}
@@ -1012,107 +1013,20 @@ public class JspRuntimeLibrary {
 
     }
 
-    /**
-     * URL encodes a string, based on the supplied character encoding.
-     * This performs the same function as java.next.URLEncode.encode
-     * in J2SDK1.4, and should be removed if the only platform supported
-     * is 1.4 or higher.
-     * @param s The String to be URL encoded.
-     * @param enc The character encoding 
-     * @return The URL encoded String
-     */
     public static String URLEncode(String s, String enc) {
 
-	if (s == null) {
-	    return "null";
-	}
-
-	if (enc == null) {
-	    enc = "ISO-8859-1";	// The default request encoding 
-	}
-
-	StringBuffer out = new StringBuffer(s.length());
-	ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	OutputStreamWriter writer = null;
-	try {
-	    writer = new OutputStreamWriter(buf, enc);
-	} catch (java.io.UnsupportedEncodingException ex) {
-	    // Use the default encoding?
-	    writer = new OutputStreamWriter(buf);
-	}
-	
-	for (int i = 0; i < s.length(); i++) {
-	    int c = s.charAt(i);
-	    if (c == ' ') {
-		out.append('+');
-	    } else if (isSafeChar(c)) {
-		out.append((char)c);
-	    } else {
-		// convert to external encoding before hex conversion
-		try {
-		    writer.write(c);
-		    writer.flush();
-		} catch(IOException e) {
-		    buf.reset();
-		    continue;
-		}
-		byte[] ba = buf.toByteArray();
-		for (int j = 0; j < ba.length; j++) {
-		    out.append('%');
-		    // Converting each byte in the buffer
-		    out.append(Character.forDigit((ba[j]>>4) & 0xf, 16));
-		    out.append(Character.forDigit(ba[j] & 0xf, 16));
-		}
-		buf.reset();
-	    }
-	}
-	return out.toString();
-    }
-
-    private static boolean isSafeChar(int c) {
-	if (c >= 'a' && c <= 'z') {
-	    return true;
-	}
-	if (c >= 'A' && c <= 'Z') {
-	    return true;
-	}
-	if (c >= '0' && c <= '9') {
-	    return true;
-	}
-	if (c == '-' || c == '_' || c == '.' || c == '!' ||
-	    c == '~' || c == '*' || c == '\'' || c == '(' || c == ')') {
-	    return true;
-	}
-	return false;
-    }
-
-    /** 
-       Invoke a static method of a class, using reflections, if the class
-       and the method exists.
-       @return result of the method
-     */
-/*
-    public static Object invoke(String className, String methodName,
-                                Class[] parameterTypes, Object[] parameters) {
-        Object result = null;
-        try {
-            Class c = Class.forName(className);
-            Method m = c.getMethod(methodName, parameterTypes);
-            result = m.invoke(null, parameters);
-        } catch (Exception ex) {
+        if (s == null) {
+            return "null";
         }
-        return result;
-    }
 
-    public static Object invoke(Class c, String methodName,
-                                Class[] parameterTypes, Object[] parameters) {
-        Object result = null;
-        try {
-            Method m = c.getMethod(methodName, parameterTypes);
-            result = m.invoke(null, parameters);
-        } catch (Exception ex) {
+        if (enc == null) {
+            enc = "ISO-8859-1"; // The default request encoding
         }
-        return result;
+
+        try {
+            return java.net.URLEncoder.encode(s, enc);
+        } catch (java.io.UnsupportedEncodingException ex) {
+        }
+        return s;
     }
-*/
 }

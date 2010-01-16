@@ -60,7 +60,7 @@ import java.io.CharArrayWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -93,7 +93,7 @@ class JspReader {
 
     private Mark current;
     private String master;
-    private Vector sourceFiles;
+    private ArrayList<String> sourceFiles;
     private int currFileId;
     private int size;
     private JspCompilationContext context;
@@ -133,7 +133,7 @@ class JspReader {
 
         this.context = ctxt;
 	this.err = err;
-	sourceFiles = new Vector();
+	sourceFiles = new ArrayList<String>();
 	currFileId = 0;
 	size = 0;
 	singleFile = false;
@@ -149,7 +149,7 @@ class JspReader {
     }
     
     String getFile(int fileid) {
-	return (String) sourceFiles.elementAt(fileid);
+	return sourceFiles.get(fileid);
     }
 	
     boolean hasMoreInput() throws JasperException {
@@ -517,7 +517,7 @@ class JspReader {
     private int registerSourceFile(String file) {
         if (sourceFiles.contains(file))
             return -1;
-	sourceFiles.addElement(file);
+	sourceFiles.add(file);
 	this.size++;
 	return sourceFiles.size() - 1;
     }
@@ -534,7 +534,7 @@ class JspReader {
     private int unregisterSourceFile(String file) {
         if (!sourceFiles.contains(file))
             return -1;
-	sourceFiles.removeElement(file);
+	sourceFiles.remove(file);
 	this.size--;
 	return sourceFiles.size() - 1;
     }

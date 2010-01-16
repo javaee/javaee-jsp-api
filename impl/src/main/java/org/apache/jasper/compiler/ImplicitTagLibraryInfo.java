@@ -88,11 +88,11 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
     private static final String IMPLICIT_TLD = "implicit.tld";
 
     // Maps tag names to tag file paths
-    private Hashtable tagFileMap;
+    private HashMap<String, String> tagFileMap;
 
     private ParserController pc;
     private PageInfo pageInfo;
-    private Vector vec;
+    private ArrayList<TagFileInfo> vec;
     private ErrorDispatcher err;
 
     /**
@@ -107,8 +107,8 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 	this.pc = pc;
         this.err = err;
         this.pageInfo = pc.getCompiler().getPageInfo();
-	this.tagFileMap = new Hashtable();
-	this.vec = new Vector();
+	this.tagFileMap = new HashMap<String, String>();
+	this.vec = new ArrayList<TagFileInfo>();
 
         // Implicit tag libraries have no functions:
         this.functions = new FunctionInfo[0];
@@ -131,7 +131,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 	}
 
 	// Populate mapping of tag names to tag file paths
-	Set dirList = ctxt.getResourcePaths(tagdir);
+	Set<String> dirList = ctxt.getResourcePaths(tagdir);
 	if (dirList != null) {
 	    Iterator it = dirList.iterator();
 	    while (it.hasNext()) {
@@ -206,7 +206,7 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 
 	TagFileInfo tagFile = super.getTagFile(shortName);
 	if (tagFile == null) {
-	    String path = (String) tagFileMap.get(shortName);
+	    String path = tagFileMap.get(shortName);
 	    if (path == null) {
 		return null;
 	    }
@@ -222,10 +222,9 @@ class ImplicitTagLibraryInfo extends TagLibraryInfo {
 	    }
 
 	    tagFile = new TagFileInfo(shortName, path, tagInfo);
-	    vec.addElement(tagFile);
+	    vec.add(tagFile);
 
-	    this.tagFiles = new TagFileInfo[vec.size()];
-	    vec.copyInto(this.tagFiles);
+            this.tagFiles = vec.toArray(new TagFileInfo[vec.size()]);
 	}
 
 	return tagFile;

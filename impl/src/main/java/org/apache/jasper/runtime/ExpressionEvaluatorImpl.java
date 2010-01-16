@@ -229,12 +229,12 @@ public class ExpressionEvaluatorImpl extends ExpressionEvaluator
             return false;
         }
 
-        public Iterator getFeatureDescriptors(ELContext context,
-                                              Object base) {
+        public Iterator<java.beans.FeatureDescriptor>
+                getFeatureDescriptors(ELContext context, Object base) {
             return null;
         }
 
-        public Class getCommonPropertyType(ELContext context,
+        public Class<?> getCommonPropertyType(ELContext context,
                                            Object base) {
             return null;
         }

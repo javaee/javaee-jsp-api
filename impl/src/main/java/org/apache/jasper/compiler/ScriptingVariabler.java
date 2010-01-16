@@ -96,11 +96,11 @@ class ScriptingVariabler {
     static class ScriptingVariableVisitor extends Node.Visitor {
 
 	private ErrorDispatcher err;
-	private Hashtable scriptVars;
+	private HashMap<String, Integer> scriptVars;
 	
 	public ScriptingVariableVisitor(ErrorDispatcher err) {
 	    this.err = err;
-	    scriptVars = new Hashtable();
+	    scriptVars = new HashMap<String, Integer>();
 	}
 
 	public void visit(Node.CustomTag n) throws JasperException {
@@ -119,8 +119,7 @@ class ScriptingVariabler {
 		return;
 	    }
 
-	    Vector vec = new Vector();
-
+	    ArrayList<Object> vec = new ArrayList<Object>();
 	    Integer ownRange = null;
 	    if (scope == VariableInfo.AT_BEGIN
 		    || scope == VariableInfo.AT_END) {
@@ -142,7 +141,7 @@ class ScriptingVariabler {
 		    }
 		    String varName = varInfos[i].getVarName();
 		    
-		    Integer currentRange = (Integer) scriptVars.get(varName);
+		    Integer currentRange = scriptVars.get(varName);
 		    if (currentRange == null
 			    || ownRange.compareTo(currentRange) > 0) {
 			scriptVars.put(varName, ownRange);
@@ -165,7 +164,7 @@ class ScriptingVariabler {
 			}
 		    }
 
-		    Integer currentRange = (Integer) scriptVars.get(varName);
+		    Integer currentRange = scriptVars.get(varName);
 		    if (currentRange == null
 			    || ownRange.compareTo(currentRange) > 0) {
 			scriptVars.put(varName, ownRange);
@@ -173,7 +172,6 @@ class ScriptingVariabler {
 		    }
 		}
 	    }
-
 	    n.setScriptingVars(vec, scope);
 	}
     }

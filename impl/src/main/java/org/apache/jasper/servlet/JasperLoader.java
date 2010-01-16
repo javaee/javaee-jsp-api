@@ -242,9 +242,9 @@ public class JasperLoader extends URLClassLoader {
             InputStream in = null;
 
             if (SecurityUtil.isPackageProtectionEnabled()){
-                in = (InputStream)AccessController.doPrivileged(
-                        new PrivilegedAction(){
-                            public Object run(){
+                in = AccessController.doPrivileged(
+                        new PrivilegedAction<InputStream>(){
+                            public InputStream run(){
                                 return getResourceAsStream(fileName);
                             }
                      });

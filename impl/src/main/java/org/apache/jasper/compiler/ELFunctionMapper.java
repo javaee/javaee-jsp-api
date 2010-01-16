@@ -108,7 +108,7 @@ public class ELFunctionMapper {
 	 * Use a global name map to facilitate reuse of function maps.
 	 * The key used is prefix:function:uri.
 	 */
-	private HashMap gMap = new HashMap();
+	private HashMap<String, String> gMap = new HashMap<String, String>();
 
 	public void visit(Node.ParamAction n) throws JasperException {
 	    doMap(n.getValue());
@@ -187,12 +187,13 @@ public class ELFunctionMapper {
 
             // Only care about functions in ELNode's
 	    class Fvisitor extends ELNode.Visitor {
-		ArrayList funcs = new ArrayList();
-		HashMap keyMap = new HashMap();
+		ArrayList<ELNode.Function> funcs =
+                        new ArrayList<ELNode.Function>();
+		Set<String> keys = new HashSet<String>();
 		public void visit(ELNode.Function n) throws JasperException {
 		    String key = n.getPrefix() + ":" + n.getName();
-		    if (! keyMap.containsKey(key)) {
-			keyMap.put(key,"");
+		    if (! keys.contains(key)) {
+			keys.add(key);
 			funcs.add(n);
 		    }
 		}
@@ -205,7 +206,7 @@ public class ELFunctionMapper {
 	    // First locate all unique functions in this EL
 	    Fvisitor fv = new Fvisitor();
 	    el.visit(fv);
-	    ArrayList functions = fv.funcs;
+	    ArrayList<ELNode.Function> functions = fv.funcs;
 
 	    if (functions.size() == 0) {
 		return;
@@ -288,12 +289,12 @@ public class ELFunctionMapper {
          * @return A previous generated function mapper name that can be used
          *         by this EL; null if none found.
          */
-	private String matchMap(ArrayList functions) {
+	private String matchMap(ArrayList<ELNode.Function> functions) {
 
 	    String mapName = null;
 	    for (int i = 0; i < functions.size(); i++) {
-		ELNode.Function f = (ELNode.Function)functions.get(i);
-		String temName = (String) gMap.get(f.getPrefix() + ':' +
+		ELNode.Function f = functions.get(i);
+		String temName = gMap.get(f.getPrefix() + ':' +
 					f.getName() + ':' + f.getUri());
 		if (temName == null) {
 		    return null;

@@ -57,6 +57,7 @@
 package org.apache.jasper.runtime;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.JspTag;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.ServletConfig;
 import org.apache.jasper.Constants;
@@ -72,7 +73,7 @@ public class TagHandlerPool {
     public static final String OPTION_TAGPOOL="tagpoolClassName";
     public static final String OPTION_MAXSIZE="tagpoolMaxSize";
 
-    private Tag[] handlers;
+    private JspTag[] handlers;
     private ResourceInjector resourceInjector;
 
     // index of next available tag handler
@@ -84,8 +85,9 @@ public class TagHandlerPool {
         String tpClassName=getOption( config, OPTION_TAGPOOL, null);
         if( tpClassName != null ) {
             try {
-                Class c=Class.forName( tpClassName );
-                result=(TagHandlerPool)c.newInstance();
+                Class<? extends TagHandlerPool> c =
+                    Class.forName(tpClassName).asSubclass(TagHandlerPool.class);
+                result = c.newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
                 result=null;
@@ -110,7 +112,7 @@ public class TagHandlerPool {
         if( maxSize <0  ) {
             maxSize=Constants.MAX_POOL_SIZE;
         }
-        this.handlers = new Tag[maxSize];
+        this.handlers = new JspTag[maxSize];
         this.current = -1;
 
         this.resourceInjector = (ResourceInjector)
@@ -133,7 +135,7 @@ public class TagHandlerPool {
      * @deprecated Use static getTagHandlerPool
      */
     public TagHandlerPool(int capacity) {
-	this.handlers = new Tag[capacity];
+	this.handlers = new JspTag[capacity];
 	this.current = -1;
     }
 
@@ -147,24 +149,23 @@ public class TagHandlerPool {
      *
      * @throws JspException if a tag handler cannot be instantiated
      */
-    public Tag get(Class handlerClass) throws JspException {
-	Tag handler = null;
+    public <T extends JspTag> JspTag get(Class<T> handlerClass)
+            throws JspException {
         synchronized( this ) {
             if (current >= 0) {
-                handler = handlers[current--];
-                return handler;
+                return handlers[current--];
             }
         }
 
         // Out of sync block - there is no need for other threads to
         // wait for us to construct a tag for this thread.
-        Tag tagHandler = null;
+        JspTag tagHandler = null;
         try {
             if (resourceInjector != null) {
-                tagHandler = (Tag) resourceInjector.createTagHandlerInstance(
+                tagHandler = resourceInjector.createTagHandlerInstance(
                     handlerClass);
             } else {
-                tagHandler = (Tag) handlerClass.newInstance();
+                tagHandler = handlerClass.newInstance();
             }
         } catch (Exception e) {
             throw new JspException(e.getMessage(), e);
@@ -178,9 +179,9 @@ public class TagHandlerPool {
      * handler pool has already reached its capacity, in which case the tag
      * handler's release() method is called.
      *
-     * @param handler Tag handler to add to this tag handler pool
+     * @param handler JspTag handler to add to this tag handler pool
      */
-    public void reuse(Tag handler) {
+    public void reuse(JspTag handler) {
         synchronized( this ) {
             if (current < (handlers.length - 1)) {
                 handlers[++current] = handler;
@@ -188,7 +189,9 @@ public class TagHandlerPool {
             }
         }
         // There is no need for other threads to wait for us to release
-        handler.release();
+        if (handler instanceof Tag) {
+            ((Tag)handler).release();
+        }
 
         if (resourceInjector != null) {
             resourceInjector.preDestroy(handler);
@@ -201,7 +204,9 @@ public class TagHandlerPool {
      */
     public synchronized void release() {
 	for (int i=current; i>=0; i--) {
-	    handlers[i].release();
+            if (handlers[i] instanceof Tag) {
+                ((Tag)handlers[i]).release();
+            }
             if (resourceInjector != null) {
                 resourceInjector.preDestroy(handlers[i]);
             }

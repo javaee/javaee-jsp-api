@@ -305,7 +305,7 @@ public class JspServletWrapper {
     /**
      * Get a list of files that the current page has source dependency on.
      */
-    public java.util.List getDependants() {
+    public java.util.List<String> getDependants() {
 	try {
 	    Object target;
 	    if (isTagFile) {
@@ -317,12 +317,7 @@ public class JspServletWrapper {
 		target = getServlet();
 	    }
 	    if (target != null && target instanceof JspSourceDependent) {
-                /* GlassFish Issue 812
                 return ((JspSourceDependent) target).getDependants();
-                */
-                // START GlassFish Issue 812
-		return (java.util.List) ((JspSourceDependent) target).getDependants();
-                // END GlassFish Issue 812
 	    }
 	} catch (Throwable ex) {
 	}

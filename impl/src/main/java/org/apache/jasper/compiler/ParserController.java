@@ -95,7 +95,7 @@ class ParserController implements TagConstants {
      * A stack to keep track of the 'current base directory'
      * for include directives that refer to relative paths.
      */
-    private Stack baseDirStack = new Stack();
+    private Stack<String> baseDirStack = new Stack<String>();
     
     private boolean isEncodingSpecifiedInProlog;
 
@@ -571,10 +571,8 @@ class ParserController implements TagConstants {
     private String resolveFileName(String inFileName) {
         String fileName = inFileName.replace('\\', '/');
         boolean isAbsolute = fileName.startsWith("/");
-	fileName = isAbsolute ? fileName 
-            : (String) baseDirStack.peek() + fileName;
-	String baseDir = 
-	    fileName.substring(0, fileName.lastIndexOf("/") + 1);
+	fileName = isAbsolute ? fileName : baseDirStack.peek() + fileName;
+        String baseDir = fileName.substring(0, fileName.lastIndexOf("/") + 1);
 	baseDirStack.push(baseDir);
 	return fileName;
     }

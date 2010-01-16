@@ -95,8 +95,9 @@ public class JspFactoryImpl extends JspFactory {
             "org.apache.jasper.runtime.JspFactoryImpl.USE_POOL");
 
     // Per-thread pool of PageContext objects
-    private ThreadLocal pool = new ThreadLocal() {
-        protected synchronized Object initialValue() {
+    private ThreadLocal<LinkedList<PageContext>> pool =
+        new ThreadLocal<LinkedList<PageContext>>() {
+        protected synchronized LinkedList<PageContext> initialValue() {
             return new LinkedList<PageContext>();
         }
     };
@@ -110,10 +111,11 @@ public class JspFactoryImpl extends JspFactory {
                                       boolean autoflush) {
 
 	if (Constants.IS_SECURITY_ENABLED) {
-	    PrivilegedGetPageContext dp = new PrivilegedGetPageContext(
-		(JspFactoryImpl)this, servlet, request, response, errorPageURL,
-                needsSession, bufferSize, autoflush);
-	    return (PageContext)AccessController.doPrivileged(dp);
+	    PrivilegedGetPageContext dp =
+                    new PrivilegedGetPageContext(
+		        this, servlet, request, response, errorPageURL,
+                        needsSession, bufferSize, autoflush);
+	    return AccessController.doPrivileged(dp);
 	} else {
 	    return internalGetPageContext(servlet, request, response,
 					  errorPageURL, needsSession,
@@ -125,8 +127,8 @@ public class JspFactoryImpl extends JspFactory {
 	if( pc == null )
 	    return;
         if (Constants.IS_SECURITY_ENABLED) {
-            PrivilegedReleasePageContext dp = new PrivilegedReleasePageContext(
-                (JspFactoryImpl)this,pc);
+            PrivilegedReleasePageContext dp =
+                    new PrivilegedReleasePageContext(this, pc);
             AccessController.doPrivileged(dp);
         } else {
             internalReleasePageContext(pc);
@@ -156,8 +158,7 @@ public class JspFactoryImpl extends JspFactory {
         try {
 	    PageContext pc = null;
 	    if( USE_POOL ) {
-                LinkedList<PageContext> pcPool = (LinkedList<PageContext>)
-                                                    pool.get();
+                LinkedList<PageContext> pcPool = pool.get();
                 if (!pcPool.isEmpty()) {
                     pc = pcPool.removeFirst();
                 }
@@ -180,12 +181,13 @@ public class JspFactoryImpl extends JspFactory {
     private void internalReleasePageContext(PageContext pc) {
         pc.release();
 	if (USE_POOL && (pc instanceof PageContextImpl)) {
-            LinkedList<PageContext> pcPool = (LinkedList<PageContext>) pool.get();
+            LinkedList<PageContext> pcPool = pool.get();
             pcPool.addFirst(pc);
 	}
     }
 
-    private class PrivilegedGetPageContext implements PrivilegedAction {
+    private class PrivilegedGetPageContext
+            implements PrivilegedAction<PageContext> {
 
 	private JspFactoryImpl factory;
 	private Servlet servlet;
@@ -214,7 +216,7 @@ public class JspFactoryImpl extends JspFactory {
 	    this.autoflush = autoflush;
 	}
  
-	public Object run() {
+	public PageContext run() {
 	    return factory.internalGetPageContext(servlet,
 						  request,
 						  response,
@@ -225,7 +227,8 @@ public class JspFactoryImpl extends JspFactory {
 	}
     }
 
-    private class PrivilegedReleasePageContext implements PrivilegedAction {
+    private class PrivilegedReleasePageContext
+            implements PrivilegedAction<Object> {
 
         private JspFactoryImpl factory;
 	private PageContext pageContext;

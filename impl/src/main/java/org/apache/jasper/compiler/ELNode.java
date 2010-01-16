@@ -214,10 +214,10 @@ abstract class ELNode {
 	   EL expression, for communication to Generator.
 	 */
 	String mapName = null;	// The function map associated this EL
-	private List list;
+	private List<ELNode> list;
 
 	public Nodes() {
-	    list = new ArrayList();
+	    list = new ArrayList<ELNode>();
 	}
 
 	public void add(ELNode en) {
@@ -229,14 +229,14 @@ abstract class ELNode {
 	 * @param v The visitor used
 	 */
 	public void visit(Visitor v) throws JasperException {
-	    Iterator iter = list.iterator();
+	    Iterator<ELNode> iter = list.iterator();
 	    while (iter.hasNext()) {
-		ELNode n = (ELNode) iter.next();
+		ELNode n = iter.next();
 		n.accept(v);
 	    }
 	}
 
-	public Iterator iterator() {
+	public Iterator<ELNode> iterator() {
 	    return list.iterator();
 	}
 
@@ -248,9 +248,9 @@ abstract class ELNode {
 	 * @return true if the expression contains a ${...} or #{}
 	 */
 	public boolean containsEL() {
-	    Iterator iter = list.iterator();
+	    Iterator<ELNode> iter = list.iterator();
 	    while (iter.hasNext()) {
-		ELNode n = (ELNode) iter.next();
+		ELNode n = iter.next();
 		if (n instanceof Root) {
 		    return true;
 		}
@@ -259,9 +259,9 @@ abstract class ELNode {
 	}
 
         public boolean hasDollarExpression() {
-	    Iterator iter = list.iterator();
+	    Iterator<ELNode> iter = list.iterator();
 	    while (iter.hasNext()) {
-		ELNode n = (ELNode) iter.next();
+		ELNode n = iter.next();
 		if (n instanceof Root) {
 		    if (((Root)n).isDollarExpr) {
                         return true;
@@ -272,9 +272,9 @@ abstract class ELNode {
         }
 
         public boolean hasPoundExpression() {
-	    Iterator iter = list.iterator();
+	    Iterator<ELNode> iter = list.iterator();
 	    while (iter.hasNext()) {
-		ELNode n = (ELNode) iter.next();
+		ELNode n = iter.next();
 		if (n instanceof Root) {
 		    if (!((Root)n).isDollarExpr) {
                         return true;
