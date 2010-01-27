@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -601,19 +602,38 @@ public class TldScanner implements ServletContainerInitializer {
             if (loader instanceof URLClassLoader) {
                 boolean isLocal = (loader == webappLoader);
                 URL[] urls = ((URLClassLoader) loader).getURLs();
+                List<String> extraJars = new ArrayList<String>();
+
                 for (int i=0; i<urls.length; i++) {
                     URLConnection conn = urls[i].openConnection();
+                    JarURLConnection jconn = null;
                     if (conn instanceof JarURLConnection) {
-                        scanJar((JarURLConnection) conn, null, isLocal);
+                        jconn = (JarURLConnection) conn;
                     } else {
                         String urlStr = urls[i].toString();
                         if (urlStr.startsWith(FILE_PROTOCOL)
                                 && urlStr.endsWith(JAR_FILE_SUFFIX)) {
                             URL jarURL = new URL("jar:" + urlStr + "!/");
-                            scanJar((JarURLConnection) jarURL.openConnection(),
-                                    null, isLocal);
+                            jconn = (JarURLConnection) jarURL.openConnection();
                         }
                     }
+                    if (jconn != null) {
+                        if (isLocal) {
+                            // For local jars, collect the jar files in the
+                            // Manifest Class-Path, to be scanned later.
+                            addManifestClassPath(extraJars, jconn);
+                        }
+                        scanJar(jconn, null, isLocal);
+                    }
+                }
+
+                // Scan the jars in manifest class-path
+                for (String jar: extraJars) {
+                    URL jarURL = new URL("jar:" + jar + "!/");
+                    JarURLConnection jconn =
+                            (JarURLConnection) jarURL.openConnection();
+                    addManifestClassPath(extraJars, jconn);
+                    scanJar(jconn, null, true);
                 }
             }
 
@@ -638,6 +658,47 @@ public class TldScanner implements ServletContainerInitializer {
                 URL jarURL = new URL("jar:" + uri.toString() + "!/");
                 scanJar((JarURLConnection)jarURL.openConnection(),
                         tldMap.get(uri), false);
+            }
+        }
+    }
+
+    /*
+     * Add the jars in the manifest Class-Path to the list "jars"
+     */
+    private void addManifestClassPath(List<String> jars,JarURLConnection jconn){
+
+        Manifest manifest;
+        try {
+            manifest = jconn.getManifest();
+        } catch (IOException ex) {
+            // Ignored
+            return;
+        }
+
+        if (manifest == null)
+            return;
+
+        java.util.jar.Attributes attrs = manifest.getMainAttributes();
+        String cp = (String) attrs.getValue("Class-Path");
+        if (cp == null)
+            return;
+
+        String file = jconn.getJarFileURL().toString();
+        String[] paths = cp.split(" ");
+        int lastIndex = file.lastIndexOf(File.separatorChar);
+        String baseDir = "";
+        if (lastIndex > 0) {
+            baseDir = file.substring(0, lastIndex+1);
+        }
+        for (String path: paths) {
+            String p;
+            if (path.startsWith(File.separator)) {
+                p = path;
+            } else {
+                p = baseDir + path;
+            }
+            if (! jars.contains(p)) {
+                 jars.add(p);
             }
         }
     }
