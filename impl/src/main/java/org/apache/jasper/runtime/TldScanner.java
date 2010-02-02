@@ -621,19 +621,28 @@ public class TldScanner implements ServletContainerInitializer {
                         if (isLocal) {
                             // For local jars, collect the jar files in the
                             // Manifest Class-Path, to be scanned later.
-                            addManifestClassPath(extraJars, jconn);
+                            addManifestClassPath(null, extraJars, jconn);
                         }
                         scanJar(jconn, null, isLocal);
                     }
                 }
 
-                // Scan the jars in manifest class-path
-                for (String jar: extraJars) {
-                    URL jarURL = new URL("jar:" + jar + "!/");
-                    JarURLConnection jconn =
-                            (JarURLConnection) jarURL.openConnection();
-                    addManifestClassPath(extraJars, jconn);
-                    scanJar(jconn, null, true);
+                // Scan the jars collected from manifest class-path.  Expand
+                // the list to include jar files from their manifest classpath.
+                if (extraJars.size() > 0) {
+                    List<String> newJars;
+                    do {
+                        newJars = new ArrayList<String>();
+                        for (String jar: extraJars) {
+                            URL jarURL = new URL("jar:" + jar + "!/");
+                            JarURLConnection jconn =
+                                    (JarURLConnection) jarURL.openConnection();
+                            if (addManifestClassPath(extraJars,newJars,jconn)){
+                                scanJar(jconn, null, true);
+                            }
+                        }
+                        extraJars.addAll(newJars);
+                    } while (newJars.size() != 0);
                 }
             }
 
@@ -664,26 +673,36 @@ public class TldScanner implements ServletContainerInitializer {
 
     /*
      * Add the jars in the manifest Class-Path to the list "jars"
+     * @param scannedJars List of jars that has been previously scanned
+     * @param newJars List of jars from Manifest Class-Path
+     * @return true is the jar file exists
      */
-    private void addManifestClassPath(List<String> jars,JarURLConnection jconn){
+    private boolean addManifestClassPath(List<String> scannedJars,
+                                         List<String> newJars,
+                                         JarURLConnection jconn){
 
         Manifest manifest;
         try {
             manifest = jconn.getManifest();
         } catch (IOException ex) {
-            // Ignored
-            return;
+            // Maybe non existing jar, ignored
+            return false;
+        }
+
+        String file = jconn.getJarFileURL().toString();
+        if (! file.contains("WEB-INF")) {
+            // Only jar in WEB-INF is considered here
+            return true;
         }
 
         if (manifest == null)
-            return;
+            return true;
 
         java.util.jar.Attributes attrs = manifest.getMainAttributes();
         String cp = (String) attrs.getValue("Class-Path");
         if (cp == null)
-            return;
+            return true;
 
-        String file = jconn.getJarFileURL().toString();
         String[] paths = cp.split(" ");
         int lastIndex = file.lastIndexOf(File.separatorChar);
         String baseDir = "";
@@ -697,10 +716,11 @@ public class TldScanner implements ServletContainerInitializer {
             } else {
                 p = baseDir + path;
             }
-            if (! jars.contains(p)) {
-                 jars.add(p);
+            if (scannedJars == null || ! scannedJars.contains(p)) {
+                 newJars.add(p);
             }
         }
+        return true;
     }
 
     static class TldInfo {
