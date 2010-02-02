@@ -70,6 +70,9 @@ public class NullJavaCompiler implements JavaCompiler {
         this.errDispatcher = errDispatcher;
     }
 
+    public void release() {
+    }
+
     public void setExtdirs(String exts) {
         throw new UnsupportedOperationException();
     }

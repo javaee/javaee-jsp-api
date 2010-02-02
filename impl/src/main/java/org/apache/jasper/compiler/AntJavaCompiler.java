@@ -175,6 +175,9 @@ public class AntJavaCompiler implements JavaCompiler {
         startThreadPool();
     }
 
+    public void release() {
+    }
+
     public void setExtdirs(String exts) {
         Path extdirs = new Path(project);
         extdirs.setPath(exts);

@@ -110,5 +110,10 @@ interface JavaCompiler {
     public void init(JspCompilationContext ctxt,
                      ErrorDispatcher err,
                      boolean suppressLogging);
+
+    /**
+     * Release resouces used in the current compilation
+     */
+    public void release();
 }
     

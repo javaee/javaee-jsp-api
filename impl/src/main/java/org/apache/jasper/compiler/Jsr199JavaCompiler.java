@@ -107,6 +107,10 @@ public class Jsr199JavaCompiler implements JavaCompiler {
         options.add("-proc:none");  // Disable annotation processing
     }
 
+    public void release() {
+        classFiles = null; // release temp bytecodes
+    }
+
     public void setClassPath(List<File> path) {
         // Jsr199 does not expand jar manifest Class-Path (JDK bug?), we
         // need to do it here
@@ -244,7 +248,6 @@ public class Jsr199JavaCompiler implements JavaCompiler {
                 rtctxt.setBytecode(bytecodeFile.getClassName(),
                                    bytecodeFile.getBytecode());
             }
-            classFiles = null; // release temp bytecodes
             return null;
         }
 
@@ -258,7 +261,6 @@ public class Jsr199JavaCompiler implements JavaCompiler {
                 new StringBuffer(dm.getMessage(null)),
                 (int) dm.getLineNumber()));
         }
-        classFiles = null; // release temp bytecodes
         return problems.toArray(new JavacErrorDetail[0]);
     }
 

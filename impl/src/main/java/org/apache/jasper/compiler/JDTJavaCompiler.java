@@ -110,6 +110,9 @@ public class JDTJavaCompiler implements JavaCompiler {
         }
     }
 
+    public void release() {
+    }
+
     public void setExtdirs(String exts) {
         // no op here
     }

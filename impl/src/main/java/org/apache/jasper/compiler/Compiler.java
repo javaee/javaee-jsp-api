@@ -456,6 +456,7 @@ public class Compiler {
             if (tfp != null) {
                 tfp.removeProtoTypeFiles(null);
             }
+            javaCompiler.release();
             // Make sure these object which are only used during the
             // generation and compilation of the JSP page get
             // dereferenced so that they can be GC'd and reduce the
