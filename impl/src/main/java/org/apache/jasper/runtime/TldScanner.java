@@ -704,19 +704,23 @@ public class TldScanner implements ServletContainerInitializer {
             return true;
 
         String[] paths = cp.split(" ");
-        int lastIndex = file.lastIndexOf(File.separatorChar);
+        int lastIndex = file.lastIndexOf('/');
+        if (lastIndex < 0) {
+            lastIndex = file.lastIndexOf('\\');
+        }
         String baseDir = "";
         if (lastIndex > 0) {
             baseDir = file.substring(0, lastIndex+1);
         }
         for (String path: paths) {
             String p;
-            if (path.startsWith(File.separator)) {
-                p = path;
+            if (path.startsWith("/") || path.startsWith("\\")){
+                p = "file:" + path;
             } else {
                 p = baseDir + path;
             }
-            if (scannedJars == null || ! scannedJars.contains(p)) {
+            if (scannedJars == null || ! scannedJars.contains(p) ||
+                     ! newJars.contains(p)) {
                  newJars.add(p);
             }
         }
