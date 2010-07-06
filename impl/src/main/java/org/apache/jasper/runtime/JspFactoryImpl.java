@@ -91,8 +91,8 @@ public class JspFactoryImpl extends JspFactory {
     // So pooling is off by default.  If for any reason, backwards
     // compatibility is required, set the system property to true.
     private static final boolean USE_POOL = 
-        Boolean.getBoolean(System.getProperty(
-            "org.apache.jasper.runtime.JspFactoryImpl.USE_POOL"));
+        Boolean.getBoolean(
+            "org.apache.jasper.runtime.JspFactoryImpl.USE_POOL");
 
     // Per-thread pool of PageContext objects
     private ThreadLocal<LinkedList<PageContext>> pool =
