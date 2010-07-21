@@ -398,7 +398,7 @@ public class ErrorDispatcher {
                 throws IOException, JasperException {
 
 	ArrayList<JavacErrorDetail> errors = new ArrayList<JavacErrorDetail>();
-	StringBuffer errMsgBuf = null;
+	StringBuilder errMsgBuf = null;
 	int lineNum = -1;
         JavacErrorDetail javacError = null;
 
@@ -432,7 +432,7 @@ public class ErrorDispatcher {
                     // XXX
                 }
 
-                errMsgBuf = new StringBuffer();
+                errMsgBuf = new StringBuilder();
 
                 javacError = createJavacError(fname, pageNodes, 
                                               errMsgBuf, lineNum);
@@ -463,7 +463,7 @@ public class ErrorDispatcher {
      */
     public static JavacErrorDetail createJavacError(String fname,
                                                     Node.Nodes page, 
-                                                    StringBuffer errMsgBuf,
+                                                    StringBuilder errMsgBuf,
                                                     int lineNum)
 
             throws JasperException {

@@ -499,7 +499,7 @@ public final class JspRuntimeContext implements Runnable {
               case the classPath initialzed here is ignored.
         */
 
-        StringBuffer cpath = new StringBuffer();
+        StringBuilder cpath = new StringBuilder();
         String sep = System.getProperty("path.separator");
 
 	cpath.append(options.getScratchDir() + sep);

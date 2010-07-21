@@ -256,7 +256,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                     reader = new BufferedReader(isReader);
                     if (reader != null) {
                         char[] chars = new char[8192];
-                        StringBuffer buf = new StringBuffer();
+                        StringBuilder buf = new StringBuilder();
                         int count;
                         while ((count = reader.read(chars, 0, 
                                                     chars.length)) > 0) {
@@ -439,7 +439,7 @@ public class JDTJavaCompiler implements JavaCompiler {
                                             ErrorDispatcher.createJavacError(
                                                 name,
                                                 pageNodes,
-                                                new StringBuffer(problem.getMessage()), 
+                                                new StringBuilder(problem.getMessage()), 
                                                 problem.getSourceLineNumber()));
                                     } catch (JasperException e) {
                                         log.log(Level.SEVERE, "Error visiting node", e);

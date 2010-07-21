@@ -270,7 +270,7 @@ class Parser implements TagConstants {
     private String parseName() throws JasperException {
 	char ch = (char)reader.peekChar();
 	if (Character.isLetter(ch) || ch == '_' || ch == ':') {
-	    StringBuffer buf = new StringBuffer();
+	    StringBuilder buf = new StringBuilder();
 	    buf.append(ch);
 	    reader.nextChar();
 	    ch = (char)reader.peekChar();
@@ -321,7 +321,7 @@ class Parser implements TagConstants {
     // Need to preserve "\$", and "\#" here since they
     // may be send to EL processor.
     private String parseQuoted(String tx) {
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	int size = tx.length();
 	int i = 0;
 	while (i < size) {

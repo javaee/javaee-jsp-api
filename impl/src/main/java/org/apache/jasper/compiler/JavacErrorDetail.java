@@ -67,7 +67,7 @@ public class JavacErrorDetail {
     private int javaLineNum;
     private String jspFileName;
     private int jspBeginLineNum;
-    private StringBuffer errMsg;
+    private StringBuilder errMsg;
 
     /**
      * Constructor.
@@ -79,7 +79,7 @@ public class JavacErrorDetail {
      */
     public JavacErrorDetail(String javaFileName,
 			    int javaLineNum,
-			    StringBuffer errMsg) {
+			    StringBuilder errMsg) {
 
 	this.javaFileName = javaFileName;
 	this.javaLineNum = javaLineNum;
@@ -103,7 +103,7 @@ public class JavacErrorDetail {
 			    int javaLineNum,
 			    String jspFileName,
 			    int jspBeginLineNum,
-			    StringBuffer errMsg) {
+			    StringBuilder errMsg) {
 
         this(javaFileName, javaLineNum, errMsg);
 	this.jspFileName = jspFileName;

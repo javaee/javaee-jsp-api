@@ -258,7 +258,7 @@ public class Jsr199JavaCompiler implements JavaCompiler {
             problems.add(ErrorDispatcher.createJavacError(
                 javaFileName,
                 pageNodes,
-                new StringBuffer(dm.getMessage(null)),
+                new StringBuilder(dm.getMessage(null)),
                 (int) dm.getLineNumber()));
         }
         return problems.toArray(new JavacErrorDetail[0]);

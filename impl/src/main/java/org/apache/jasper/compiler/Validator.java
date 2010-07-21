@@ -1456,7 +1456,7 @@ class Validator {
                 ((((Node.CustomTag)n).getJspVersion() < 2.1) ||
                     pageInfo.isDeferredSyntaxAllowedAsLiteral());
             int size = value.length();
-            StringBuffer buf = new StringBuffer(size);
+            StringBuilder buf = new StringBuilder(size);
             char p = ' ';
             for (int i = 0; i < size; i++) {
                 char c = value.charAt(i);
@@ -1513,7 +1513,7 @@ class Validator {
             if (value.indexOf("#{") < 0) {
                 return value;
             }
-            StringBuffer buf = new StringBuffer(value.length() + 2);
+            StringBuilder buf = new StringBuilder(value.length() + 2);
             for (int i = 0; i < value.length(); i++) {
                 if (value.charAt(i) == '#') {
                     if (((i+1) < value.length()) && (value.charAt(i+1) == '{')){
@@ -1792,7 +1792,7 @@ class Validator {
 
 	    ValidationMessage[] errors = tagInfo.validate(n.getTagData());
             if (errors != null && errors.length != 0) {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
                 errMsg.append("<h3>");
                 errMsg.append(Localizer.getMessage("jsp.error.tei.invalid.attributes",
 						   n.getQName()));
@@ -1904,7 +1904,7 @@ class Validator {
     private static void validateXmlView(PageData xmlView, Compiler compiler)
 	        throws JasperException {
 
-	StringBuffer errMsg = null;
+	StringBuilder errMsg = null;
 	ErrorDispatcher errDisp = compiler.getErrorDispatcher();
 
 	for (Iterator<TagLibraryInfo> iter = 
@@ -1919,7 +1919,7 @@ class Validator {
 	    ValidationMessage[] errors = tli.validate(xmlView);
             if ((errors != null) && (errors.length != 0)) {
                 if (errMsg == null) {
-		    errMsg = new StringBuffer();
+		    errMsg = new StringBuilder();
 		}
                 errMsg.append("<h3>");
                 errMsg.append(Localizer.getMessage("jsp.error.tlv.invalid.page",

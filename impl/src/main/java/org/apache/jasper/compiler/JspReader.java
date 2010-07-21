@@ -407,7 +407,7 @@ class JspReader {
      * @param quoted If <strong>true</strong> accept quoted strings.
      */
     String parseToken(boolean quoted) throws JasperException {
-	StringBuffer stringBuffer = new StringBuffer();
+	StringBuilder stringBuffer = new StringBuilder();
 	skipSpaces();
 	stringBuffer.setLength(0);
 	

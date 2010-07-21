@@ -142,7 +142,7 @@ public class JspUtil {
             int n = s.indexOf("%\\>");
             if (n < 0)
                 break;
-            StringBuffer sb = new StringBuffer(s.substring(0, n));
+            StringBuilder sb = new StringBuilder(s.substring(0, n));
             sb.append("%>");
             sb.append(s.substring(n + 3));
             s = sb.toString();
@@ -375,7 +375,7 @@ public class JspUtil {
      */
     public static String escapeXml(String s) {
         if (s == null) return null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for(int i=0; i<s.length(); i++) {
             char c = s.charAt(i);
             if (c == '<') {
@@ -400,7 +400,7 @@ public class JspUtil {
      * string <tt>with</tt>.
      */
     public static String replace(String name, char replace, String with) {
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	int begin = 0;
 	int end;
 	int last = name.length();
@@ -556,7 +556,7 @@ public class JspUtil {
                 expectedReturnType = "Void";
             }
 
-            StringBuffer params = new StringBuffer();
+            StringBuilder params = new StringBuilder();
             if (expectedParamTypes != null) {
                 for (int i = 0; i < expectedParamTypes.length; i++) {
                     if (i > 0) {
@@ -611,7 +611,7 @@ public class JspUtil {
  
 	targetType = toJavaSourceType(targetType);
 
-	StringBuffer call = new StringBuffer(
+	StringBuilder call = new StringBuilder(
              "(" + targetType + ") "
                + "org.apache.jasper.runtime.PageContextImpl.evaluateExpression"
                + "(" + Generator.quote(expression) + ", "
@@ -979,7 +979,7 @@ public class JspUtil {
      */
     public static final String makeJavaPackage(String path) {
         String classNameComponents[] = split(path,"/");
-        StringBuffer legalClassNames = new StringBuffer();
+        StringBuilder legalClassNames = new StringBuilder();
         for (int i = 0; i < classNameComponents.length; i++) {
             legalClassNames.append(makeJavaIdentifier(classNameComponents[i]));
             if (i < classNameComponents.length - 1) {
@@ -1025,8 +1025,8 @@ public class JspUtil {
      * @return Legal Java identifier corresponding to the given identifier
      */
     public static final String makeJavaIdentifier(String identifier) {
-        StringBuffer modifiedIdentifier = 
-            new StringBuffer(identifier.length());
+        StringBuilder modifiedIdentifier = 
+            new StringBuilder(identifier.length());
         if (!Character.isJavaIdentifierStart(identifier.charAt(0))) {
             modifiedIdentifier.append('_');
         }
@@ -1150,7 +1150,7 @@ public class JspUtil {
 		break;
 	    }
 	}
-	StringBuffer resultType = new StringBuffer(t);
+	StringBuilder resultType = new StringBuilder(t);
 	for (; dims > 0; dims--) {
 	    resultType.append("[]");
 	}
@@ -1173,7 +1173,7 @@ public class JspUtil {
             return binaryName;
         }
 
-        StringBuffer buf = new StringBuffer(binaryName);
+        StringBuilder buf = new StringBuilder(binaryName);
         do {
             buf.setCharAt(c.getName().length(), '.');
             c = c.getDeclaringClass();

@@ -713,7 +713,7 @@ public class JspCompilationContext {
     private static final String canonicalURI(String s) 
            throws JasperException {
        if (s == null) return null;
-       StringBuffer result = new StringBuffer();
+       StringBuilder result = new StringBuilder();
        final int len = s.length();
        int pos = 0;
        while (pos < len) {

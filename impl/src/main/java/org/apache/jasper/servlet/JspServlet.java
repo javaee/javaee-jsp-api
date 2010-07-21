@@ -357,7 +357,7 @@ public class JspServlet extends HttpServlet {
         }
 
         if (log.isLoggable(Level.FINE)) {	    
-            StringBuffer msg = new StringBuffer();
+            StringBuilder msg = new StringBuilder();
             msg.append("JspEngine --> [" + jspUri);
             msg.append("] ServletPath: [" + request.getServletPath());
             msg.append("] PathInfo: [" + request.getPathInfo());

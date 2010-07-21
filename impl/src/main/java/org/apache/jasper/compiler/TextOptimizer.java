@@ -69,7 +69,7 @@ public class TextOptimizer {
 
         private int textNodeCount = 0;
         private Node.TemplateText firstTextNode = null;
-        private StringBuffer textBuffer;
+        private StringBuilder textBuffer;
         private final String emptyText = new String("");
         private boolean prePass;
         private boolean trim;
@@ -135,7 +135,7 @@ public class TextOptimizer {
 
             if (textNodeCount++ == 0) {
                 firstTextNode = n;
-                textBuffer = new StringBuffer(n.getText());
+                textBuffer = new StringBuilder(n.getText());
             } else {
                 // Append text to text buffer
                 textBuffer.append(n.getText());

@@ -97,7 +97,7 @@ public class AntJavaCompiler implements JavaCompiler {
     private ErrorDispatcher errDispatcher;
     private String javaFileName;
     private String javaEncoding;
-    private StringBuffer info = new StringBuffer();
+    private StringBuilder info = new StringBuilder();
         // For collecting Java compilation enviroment
     private Logger log;
 
@@ -135,7 +135,7 @@ public class AntJavaCompiler implements JavaCompiler {
 
     class JasperAntLogger extends DefaultLogger {
 
-        private StringBuffer reportBuf = new StringBuffer();
+        private StringBuilder reportBuf = new StringBuilder();
 
         protected void printMessage(final String message,
                                     final PrintStream stream,
@@ -262,7 +262,7 @@ public class AntJavaCompiler implements JavaCompiler {
         info.append("    include="+ ctxt.getJavaPath() + "\n" );
 
         BuildException be = null;
-        StringBuffer errorReport = new StringBuffer();
+        StringBuilder errorReport = new StringBuilder();
         String errorCapture = null;
         if (ctxt.getOptions().getFork()) {
             try {

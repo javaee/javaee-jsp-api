@@ -139,7 +139,7 @@ class Generator {
         if (s == null)
             return "";
 
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '"')
@@ -161,7 +161,7 @@ class Generator {
      */
     static String quote(char c) {
 
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         b.append('\'');
         if (c == '\'')
             b.append('\\').append('\'');
@@ -1855,7 +1855,7 @@ class Generator {
             Node.JspAttribute[] attrs = n.getJspAttributes();
             for (int i = 0; attrs != null && i < attrs.length; i++) {
                 String attrStr = null;
-                StringBuffer genStr = new StringBuffer(" + ");
+                StringBuilder genStr = new StringBuilder(" + ");
                 boolean genCloseParen = false;
                 if (attrs[i].isNamedAttribute()) {
                     Node.NamedAttribute attributeNode =
@@ -2016,7 +2016,7 @@ class Generator {
             n.setBeginJavaLine(out.getJavaLine());
 
             out.printin();
-            StringBuffer sb = new StringBuffer("out.write(\"");
+            StringBuilder sb = new StringBuilder("out.write(\"");
             int initLength = sb.length();
             int count = JspUtil.CHUNKSIZE;
             int srcLine = 0;	// relative to starting srouce line
