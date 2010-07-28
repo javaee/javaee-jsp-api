@@ -148,7 +148,7 @@ public class JasperLoader extends URLClassLoader {
      *                                     
      * @exception ClassNotFoundException if the class was not found
      */                                    
-    public Class loadClass(final String name, boolean resolve)
+    public synchronized Class loadClass(final String name, boolean resolve)
         throws ClassNotFoundException {
 
         Class clazz = null;                
