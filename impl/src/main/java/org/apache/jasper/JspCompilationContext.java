@@ -111,7 +111,7 @@ public class JspCompilationContext {
     private String baseURI;
     private String outputDir;
     private ServletContext context;
-    private URLClassLoader loader;
+    private ClassLoader loader;
 
     private JspRuntimeContext rctxt;
 
@@ -243,9 +243,9 @@ public class JspCompilationContext {
      * this JSP?
      */
     public ClassLoader getClassLoader() {
-        if( loader != null )
-            return loader;
-        return rctxt.getParentClassLoader();
+        if( loader == null )
+            loader = rctxt.getParentClassLoader();
+        return loader;
     }
 
     public void setClassLoader(URLClassLoader loader) {

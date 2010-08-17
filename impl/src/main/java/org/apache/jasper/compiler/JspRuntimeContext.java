@@ -171,13 +171,8 @@ public final class JspRuntimeContext implements Runnable {
         bytecodeBirthTimes = new ConcurrentHashMap<String, Long>(hashSize);
         packageMap = new  ConcurrentHashMap<String, Map<String, JavaFileObject>>();
 
-        // Get the parent class loader
-        parentClassLoader = Thread.currentThread().getContextClassLoader();
-        if (parentClassLoader == null) {
-            parentClassLoader = this.getClass().getClassLoader();
-        }
-
 	if (log.isLoggable(Level.FINEST)) {
+            ClassLoader parentClassLoader = getParentClassLoader();
 	    if (parentClassLoader != null) {
 		log.finest(Localizer.getMessage("jsp.message.parent_class_loader_is",
 					       parentClassLoader.toString()));
@@ -221,7 +216,6 @@ public final class JspRuntimeContext implements Runnable {
      */
     private ServletContext context;
     private Options options;
-    private ClassLoader parentClassLoader;
     private PermissionCollection permissionCollection;
     private CodeSource codeSource;                    
     private String classpath;
@@ -318,6 +312,11 @@ public final class JspRuntimeContext implements Runnable {
      * @return ClassLoader parent
      */
     public ClassLoader getParentClassLoader() {
+        ClassLoader parentClassLoader =
+                Thread.currentThread().getContextClassLoader();
+        if (parentClassLoader == null) {
+            parentClassLoader = this.getClass().getClassLoader();
+        }
         return parentClassLoader;
     }
 
@@ -341,8 +340,6 @@ public final class JspRuntimeContext implements Runnable {
         for (JspServletWrapper jsw: jsps.values()) {
             jsw.destroy();
         }
-
-        parentClassLoader = null;
     }
 
     /**
@@ -580,6 +577,7 @@ public final class JspRuntimeContext implements Runnable {
                 permissionCollection.add( new RuntimePermission(
                     "accessClassInPackage.org.apache.jasper.runtime") );
 
+                ClassLoader parentClassLoader = getParentClassLoader();
                 if (parentClassLoader instanceof URLClassLoader) {
                     URL [] urls = ((URLClassLoader)parentClassLoader).getURLs();
                     String jarUrl = null;
