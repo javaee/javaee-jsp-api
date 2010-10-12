@@ -284,5 +284,11 @@ public class Constants {
      */
     public static final boolean IS_SECURITY_ENABLED = 
         (System.getSecurityManager() != null);
+
+    /**
+     * The name of the JSP engine.  Used for X-Powered-By identification in
+     * the response header
+     */
+    public static final String JSP_NAME = "JSP/2.2";
 }
 
