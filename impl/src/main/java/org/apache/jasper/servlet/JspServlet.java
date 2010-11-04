@@ -66,6 +66,7 @@ import java.io.InputStream;
 import java.util.Enumeration;
 // START GlassFish 750
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 // END GlassFish 750
 import java.util.concurrent.atomic.*;
@@ -119,6 +120,8 @@ public class JspServlet extends HttpServlet {
 
     // Logger
     private static Logger log = Logger.getLogger(JspServlet.class.getName());
+
+    private static final int CHAR_LIMIT = 256;
 
     private ServletContext context;
     private ServletConfig config;
@@ -468,9 +471,13 @@ public class JspServlet extends HttpServlet {
                         */
                         // START PWC 6282167, 4878272
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        String realPath = URLEncoder.encode(context.getRealPath(jspUri));
+                        if (realPath.length() > CHAR_LIMIT) {
+                            realPath = realPath.substring(0, CHAR_LIMIT);
+                        }
                         log.severe(Localizer.getMessage(
                             "jsp.error.file.not.found",
-                            context.getRealPath(jspUri)));
+                            realPath));
                         // END PWC 6282167, 4878272
                         return;
                     }
