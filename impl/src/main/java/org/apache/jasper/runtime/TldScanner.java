@@ -722,9 +722,9 @@ public class TldScanner implements ServletContainerInitializer {
             } else {
                 p = baseDir + path;
             }
-            if (scannedJars == null || ! scannedJars.contains(p) ||
-                     ! newJars.contains(p)) {
-                 newJars.add(p);
+            if ((scannedJars == null || !scannedJars.contains(p)) &&
+                !newJars.contains(p) ){
+                     newJars.add(p);
             }
         }
         return true;
