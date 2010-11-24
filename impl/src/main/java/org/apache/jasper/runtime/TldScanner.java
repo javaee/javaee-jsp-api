@@ -157,7 +157,7 @@ public class TldScanner implements ServletContainerInitializer {
     // A Cache is used for system jar files.
     // The key is the name of the jar file, the value is an array of
     // TldInfo, one for each of the TLD in the jar file
-    private static ConcurrentHashMap<String, TldInfo[]> jarTldCache =
+    private static Map<String, TldInfo[]> jarTldCache =
         new ConcurrentHashMap<String, TldInfo[]>();
 
     private static final String EAR_LIB_CLASSLOADER =
@@ -167,18 +167,25 @@ public class TldScanner implements ServletContainerInitializer {
         "org.glassfish.jsp.isStandaloneWebapp";
 
     /**
-     * The mapping of the 'global' tag library URI to the location (resource
-     * path) of the TLD associated with that tag library. The location is
-     * returned as a String array:
-     *    [0] The location
+     * The mapping of the 'global' tag library URI (as defined in the tld) to
+     * the location (resource path) of the TLD associated with that tag library.
+     * The location is returned as a String array:
+     *    [0] The location of the tld file or the jar file that contains the tld
      *    [1] If the location is a jar file, this is the location of the tld.
      */
     private HashMap<String, String[]> mappings;
 
+    /**
+     * A local cache for keeping track which jars have been scanned.
+     */
+    private Map<String, TldInfo[]> jarTldCacheLocal =
+        new HashMap<String, TldInfo[]>();
+
     private ServletContext ctxt;
     private boolean isValidationEnabled;
     private boolean useMyFaces = false;
-    private boolean scanListeners;  // true if need to scan listeners in tld
+    private boolean scanListeners;  // true if scan tlds for listeners
+    private boolean doneScanning;   // true if all tld scanning done
 
 
     //*********************************************************************
@@ -249,17 +256,36 @@ public class TldScanner implements ServletContainerInitializer {
      * second element denotes the name of the TLD entry in the jar file.
      * Returns null if the uri is not associated with any tag library 'exposed'
      * in the web application.
+     *
+     * This method may be called when the scanning is in one of states:
+     * 1. Called from jspc script, then a full tld scan is required.
+     * 2. The is the first call after servlet initialization, then system jars
+     *    that are knwon to have tlds but not listeners need to be scanned.
+     * 3. Sebsequent calls, no need to scans.
      */
 
     @SuppressWarnings("unchecked")
     public String[] getLocation(String uri) throws JasperException {
+
         if (mappings == null) {
+            // Recovering the map done in onStart.
             mappings = (HashMap<String, String[]>) ctxt.getAttribute(
                             Constants.JSP_TLD_URI_TO_LOCATION_MAP);
-            if (mappings == null) {
-                scanListeners = false;
-                scanTlds();
-            }
+        }
+
+        if (mappings != null && mappings.get(uri) != null) {
+            // if the uri is in, return that, and dont bother to do full scan
+            return mappings.get(uri);
+        }
+
+        if (! doneScanning) {
+            scanListeners = false;
+            scanTlds();
+            doneScanning = true;
+        }
+        if (mappings == null) {
+            // Should never happend
+            return null;
         }
         return mappings.get(uri);
     }
@@ -269,9 +295,23 @@ public class TldScanner implements ServletContainerInitializer {
         /*
          * System jars with tlds may be passed as a special
          * ServletContext attribute
+         * Map key: a JarURI
+         * Map value: list of tlds in the jar file
          */
         return (Map<URI, List<String>>)
             ctxt.getAttribute("com.sun.appserv.tld.map");
+    }
+
+    @SuppressWarnings("unchecked")
+    Map<URI, List<String>> getTldListenerMap() {
+        /*
+         * System jars with tlds that are known to contain a listener, and
+         * may be passed as a special ServletContext attribute
+         * Map key: a JarURI
+         * Map value: list of tlds in the jar file
+         */
+        return (Map<URI, List<String>>)
+            ctxt.getAttribute("com.sun.appserv.tldlistener.map");
     }
 
     /** 
@@ -290,9 +330,21 @@ public class TldScanner implements ServletContainerInitializer {
         }
     }
 
+    /**
+     * Scan the all the tlds accessible in the web app.
+     * For performance reasons, this is done in two stages.  At servlet
+     * initialization time, we only scan the jar files for listeners.  The
+     * container passes a list of system jar files that are known to contain
+     * tlds with listeners.  The rest of the jar files will be scanned when
+     * a JSP page with a tld referenced is compiled.
+     */
     private void scanTlds() throws JasperException {
 
         mappings = new HashMap<String, String[]>();
+
+        // Make a local copy of the system jar cache 
+        jarTldCacheLocal.putAll(jarTldCache);
+
         try {
             processWebDotXml();
             scanJars();
@@ -310,6 +362,12 @@ public class TldScanner implements ServletContainerInitializer {
      * Populates taglib map described in web.xml.
      */    
     private void processWebDotXml() throws Exception {
+
+
+        // Skip if we are only looking for listeners
+        if (scanListeners) {
+            return;
+        }
 
         JspConfigDescriptor jspConfig = ctxt.getJspConfigDescriptor();
         if (jspConfig == null) {
@@ -364,17 +422,17 @@ public class TldScanner implements ServletContainerInitializer {
             throws JasperException {
 
         String resourcePath = conn.getJarFileURL().toString();
-        TldInfo[] cachedTldInfos = jarTldCache.get(resourcePath);
+        TldInfo[] tldInfos = jarTldCacheLocal.get(resourcePath);
 
-        // Optimize for most common cases
-        if (cachedTldInfos != null && cachedTldInfos.length == 0) {
+        // Optimize for most common cases: jars known to NOT have tlds
+        if (tldInfos != null && tldInfos.length == 0) {
             return;
         }
 
-        // scan the tld if the jar is local, or if it has not been cached.
-        ArrayList<TldInfo> tldInfoA = new ArrayList<TldInfo>();
-        if (isLocal || cachedTldInfos == null) {
+        // scan the tld if the jar has not been cached.
+        if (tldInfos == null) {
             JarFile jarFile = null;
+            ArrayList<TldInfo> tldInfoA = new ArrayList<TldInfo>();
             try {
                 conn.setUseCaches(false);
                 jarFile = conn.getJarFile();
@@ -418,15 +476,12 @@ public class TldScanner implements ServletContainerInitializer {
                     }
                 }
             }
-        }
-
-        // Update the jar TLD cache
-        TldInfo[] tldInfos = tldInfoA.toArray(new TldInfo[tldInfoA.size()]);
-        if (! isLocal) {
-            if (cachedTldInfos == null) {
+            // Update the jar TLD cache
+            tldInfos = tldInfoA.toArray(new TldInfo[tldInfoA.size()]);
+            jarTldCacheLocal.put(resourcePath, tldInfos);
+            if (!isLocal) {
+                // Also update the global cache;
                 jarTldCache.put(resourcePath, tldInfos);
-            } else {
-                tldInfos = cachedTldInfos;
             }
         }
 
@@ -525,8 +580,7 @@ public class TldScanner implements ServletContainerInitializer {
     }
 
     /**
-     * Scan the given TLD for uri and listeners elements.  Update the tld map
-     * and register any listeners found.
+     * Scan the given TLD for uri and listeners elements.
      *
      * @param resourcePath the resource path for the jar file or the tld file.
      * @param entryName If the resource path is a jar file, then the name of
@@ -597,7 +651,13 @@ public class TldScanner implements ServletContainerInitializer {
             Thread.currentThread().getContextClassLoader();
         ClassLoader loader = webappLoader;
 
-        Map<URI, List<String>> tldMap = getTldMap();
+        Map<URI, List<String>> tldMap;
+        if (scanListeners) {
+            tldMap = getTldListenerMap();
+        } else {
+            tldMap= getTldMap();
+        }
+
         Boolean isStandalone = (Boolean)
             ctxt.getAttribute(IS_STANDALONE_ATTRIBUTE_NAME);
 
