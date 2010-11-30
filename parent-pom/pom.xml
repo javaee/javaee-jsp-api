@@ -61,7 +61,7 @@
         </developer>
     </developers>
 
-    <url>https://jsp.dev.java.net</url>
+    <url>http://java.net/projects/jsp</url>
     <organization>
         <name>GlassFish Community</name>
         <url>http://glassfish.org</url>
@@ -76,18 +76,18 @@
     </licenses>
     <issueManagement>
         <system>bugzilla</system>
-        <url>https://jsp.dev.java.net/servlets/ProjectIssues</url>
+        <url>http://java.net/jira/browse/JSP</url>
     </issueManagement>
     <mailingLists>
         <mailingList>
             <name>JSP Developer</name>
-            <archive>dev@jsp.dev.java.net</archive>
+            <archive>dev@jsp.java.net</archive>
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:https://jsp.dev.java.net/svn/jsp</connection>
-        <developerConnection>scm:svn:https://jsp.dev.java.net/svn/jsp</developerConnection>
-        <url>https://jsp.dev.java.net/source/browse/jsp</url>
+        <connection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn</connection>
+        <developerConnection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn</developerConnection>
+        <url>http://java.net/projects/uel/sources/svn/show</url>
     </scm>
 
     <properties>
