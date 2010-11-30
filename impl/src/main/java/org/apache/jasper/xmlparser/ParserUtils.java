@@ -638,7 +638,7 @@ class MyLSResourceResolver implements LSResourceResolver {
 
             }
         } else {
-            is = this.getClass().getResourceAsStream(resourceName);
+            is = this.getClass().getResourceAsStream(resourcePath);
         }
 
         MyLSInput ls = new MyLSInput();
