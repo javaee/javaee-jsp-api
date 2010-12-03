@@ -204,6 +204,7 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
     <distributionManagement>
         <site>
             <id>java.net-jsp</id>
