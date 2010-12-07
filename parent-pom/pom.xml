@@ -207,10 +207,12 @@
     </pluginRepositories>
 
     <distributionManagement>
+<!--
         <site>
             <id>java.net-jsp</id>
             <url>java-net:/jsp/trunk/repo/</url>
         </site>
+-->
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>java.net-maven2-repository</id>
