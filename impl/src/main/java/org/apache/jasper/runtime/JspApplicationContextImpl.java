@@ -110,6 +110,10 @@ public class JspApplicationContextImpl implements JspApplicationContext {
         return expressionFactory;
     }
 
+    public void setExpressionFactory(ExpressionFactory expressionFactory) {
+        this.expressionFactory = expressionFactory;
+    }
+
     public void addELContextListener(ELContextListener listener) {
         listeners.add(listener);
     }
