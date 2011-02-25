@@ -613,7 +613,7 @@ public class JspC implements Options {
         return defaultBufferNone;
     }
 
-    public void setDefaultBufferNone() {
+    public void setDefaultBufferNone(boolean defaultBufferNone) {
         this.defaultBufferNone = defaultBufferNone;
     }
 
