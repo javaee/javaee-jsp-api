@@ -426,6 +426,11 @@ public class TldScanner implements ServletContainerInitializer {
 
         // Optimize for most common cases: jars known to NOT have tlds
         if (tldInfos != null && tldInfos.length == 0) {
+            try {
+                conn.getJarFile().close();
+            } catch (IOException ex) {
+                //ignored
+            }
             return;
         }
 
@@ -434,7 +439,6 @@ public class TldScanner implements ServletContainerInitializer {
             JarFile jarFile = null;
             ArrayList<TldInfo> tldInfoA = new ArrayList<TldInfo>();
             try {
-                conn.setUseCaches(false);
                 jarFile = conn.getJarFile();
                 if (tldNames != null) {
                     for (String tldName : tldNames) {
@@ -681,6 +685,7 @@ public class TldScanner implements ServletContainerInitializer {
                         }
                     }
                     if (jconn != null) {
+                        jconn.setUseCaches(false);
                         if (isLocal) {
                             // For local jars, collect the jar files in the
                             // Manifest Class-Path, to be scanned later.
@@ -700,6 +705,7 @@ public class TldScanner implements ServletContainerInitializer {
                             URL jarURL = new URL("jar:" + jar + "!/");
                             JarURLConnection jconn =
                                     (JarURLConnection) jarURL.openConnection();
+                            jconn.setUseCaches(false);
                             if (addManifestClassPath(extraJars,newJars,jconn)){
                                 scanJar(jconn, null, true);
                             }
