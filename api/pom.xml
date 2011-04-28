@@ -128,7 +128,8 @@
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <finalName>${project.artifactId}</finalName>
+                    <!-- Use default to include version in jar file name -->
+                    <!--finalName>${project.artifactId}</finalName-->
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                         <manifestEntries>
