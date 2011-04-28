@@ -85,7 +85,7 @@
         </license>
     </licenses>
     <issueManagement>
-        <system>bugzilla</system>
+        <system>jira</system>
         <url>http://java.net/jira/browse/JSP</url>
     </issueManagement>
     <mailingLists>
