@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -156,8 +156,8 @@ public abstract class JspFactory {
      * @param response	the current response pending on the servlet
      * @param errorPageURL the URL of the error page for the requesting JSP, or null
      * @param needsSession true if the JSP participates in a session
-     * @param buffer	size of buffer in bytes, PageContext.NO_BUFFER if no buffer,
-     *			PageContext.DEFAULT_BUFFER if implementation default.
+     * @param buffer	size of buffer in bytes, JspWriter.NO_BUFFER if no buffer,
+     *			JspWriter.DEFAULT_BUFFER if implementation default.
      * @param autoflush	should the buffer autoflush to the output stream on buffer
      *			overflow, or throw an IOException?
      *
