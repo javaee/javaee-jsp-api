@@ -43,6 +43,12 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.java</groupId>
+        <artifactId>jvnet-parent</artifactId>
+        <version>1</version>
+    </parent>
+
     <groupId>org.glassfish.web</groupId>
     <artifactId>jsp</artifactId>
     <packaging>pom</packaging>
@@ -85,9 +91,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn/tags/jsp-pom-2.2.1-b03</connection>
-        <developerConnection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn/tags/jsp-pom-2.2.1-b03</developerConnection>
-        <url>http://java.net/projects/uel/sources/svn/show/tags/jsp-pom-2.2.1-b03</url>
+        <connection>scm:svn:http://svn.java.net/svn/jsp~svn</connection>
+        <developerConnection>scm:svn:http://svn.java.net/jsp~svn</developerConnection>
+        <url>http://java.net/projects/jsp/sources/svn/show</url>
     </scm>
 
     <properties>
@@ -145,18 +151,6 @@
               </configuration>
           </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>org.jvnet.wagon-svn</groupId>
-                <artifactId>wagon-svn</artifactId>
-                <version>1.9</version>
-            </extension>
-            <extension>
-                 <groupId>org.apache.maven.wagon</groupId>
-                 <artifactId>wagon-webdav</artifactId>
-                 <version>1.0-beta-2</version>
-            </extension> 
-        </extensions>
     </build>
     <reporting>
         <plugins>
@@ -207,13 +201,5 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>java.net-maven2-repository</id>
-            <url>svn:https://svn.java.net/svn/maven2-repository~svn/trunk/repository/</url>
-        </repository>
-    </distributionManagement>
 
 </project>
