@@ -41,6 +41,12 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>net.java</groupId>
+        <artifactId>jvnet-parent</artifactId>
+        <version>1</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.web</groupId>
     <artifactId>javax.servlet.jsp</artifactId>
@@ -93,9 +99,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn/tags/jsp-pom-2.2.1-b03</connection>
-        <developerConnection>scm:svn:svn+ssh://janey@svn.java.net/jsp~svn/tags/jsp-pom-2.2.1-b03</developerConnection>
-        <url>http://java.net/projects/jsp/sources/svn/show/tags/jsp-pom-2.2.1-b03</url>
+        <connection>scm:svn:http://svn.java.net/svn/jsp~svn</connection>
+        <developerConnection>scm:svn:http://svn.java.net/jsp~svn</developerConnection>
+        <url>http://java.net/projects/jsp/sources/svn/show</url>
     </scm>
 
     <build>
@@ -256,14 +262,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>java.net</id>
-            <url>http://download.java.net/maven/1</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net Repository for Maven</name>
             <url>http://download.java.net/maven/2</url>
@@ -271,24 +269,43 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>glassfish-repository</id>
-            <name>Java.net Repository for Maven 2</name>
-            <url>http://download.java.net/maven/glassfish</url>
-            <snapshots>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
                 <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+            <id>java.net.Snapshots</id>
+            <name>Java.net Snapshots</name>
+            <url>https://maven.java.net/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <id>java.net.Releases</id>
+            <name>Java.net Releases</name>
+            <url>https://maven.java.net/content/repositories/releases</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.servlet</artifactId>
-            <version>3.0-b72</version>
+            <version>3.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -303,15 +320,6 @@
             <version>2.2</version>
             <scope>provided</scope>
         </dependency>
-<!--
-  Needed only if we use Ant for java compilation
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <optional>true</optional>
-            <version>1.7.0</version>
-        </dependency>
--->
 
 <!--
   Needed only if we include JDTJavaCompiler.java
