@@ -737,9 +737,12 @@ public class Compiler {
      * The default is to use javac from ant.
      */
     private void initJavaCompiler() throws JasperException {
+        boolean disablejsr199 = Boolean.TRUE.toString().equals(
+            System.getProperty("org.apache.jasper.compiler.disablejsr199"));
         Double version = 
             Double.valueOf(System.getProperty("java.specification.version"));
-        if (version >= 1.6 || getClassFor("javax.tools.Tool") != null) {
+        if (!disablejsr199 &&
+               (version >= 1.6 || getClassFor("javax.tools.Tool") != null)) {
             // JDK 6 or bundled with jsr199 compiler
             javaCompiler = new Jsr199JavaCompiler();
         } else {
