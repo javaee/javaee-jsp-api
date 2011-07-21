@@ -311,13 +311,12 @@ public class JspServlet extends HttpServlet {
             if (method == null) {
                 return;
             }
-            boolean isSupportedMethod = httpMethodsSet.contains(method);
-            if (!isSupportedMethod) {
-                if (method.equals("OPTIONS")) {
-                    response.addHeader("Allow", httpMethodsString);
-                } else {
-                    super.service(request, response);
-                }
+            if (!httpMethodsSet.contains(method)) {
+                super.service(request, response);
+                return;
+            }
+            if (method.equals("OPTIONS")) {
+                response.addHeader("Allow", httpMethodsString);
                 return;
             }
         }
