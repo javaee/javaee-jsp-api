@@ -492,6 +492,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             } else if ("bodycontent".equals(tname) ||
                      "body-content".equals(tname)) {
                 bodycontent = element.getBody();
+                if (bodycontent == null) {
+                    bodycontent = "null"; // An error will be raised later
+                }
             } else if ("display-name".equals(tname)) {
                 displayName = element.getBody();
             } else if ("small-icon".equals(tname)) {
