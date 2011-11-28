@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -147,8 +147,12 @@ public class JspC implements Options {
     private static final String JAVA_1_4 = "1.4";
     private static final String JAVA_1_5 = "1.5";
     private static final String JAVA_1_6 = "1.6";
+    private static final String JAVA_1_7 = "1.7";
+    private static final String JAVA_1_8 = "1.8";
     private static final String JAVA_5 = "5";
     private static final String JAVA_6 = "6";
+    private static final String JAVA_7 = "7";
+    private static final String JAVA_8 = "8";
     // END SJSAS 6402545
 
     // Logger
@@ -671,20 +675,25 @@ public class JspC implements Options {
 
     public void setCompilerTargetVM(String vm) {
         // START SJSAS 6402545
-        if (!JAVA_1_1.equals(vm) && !JAVA_1_2.equals(vm) 
-                && !JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm)
-                && !JAVA_1_5.equals(vm) && !JAVA_1_6.equals(vm)
-                && !JAVA_5.equals(vm) && !JAVA_6.equals(vm)) {
-            throw new IllegalArgumentException(
-                Localizer.getMessage("jspc.illegalCompilerTargetVM", vm));
-        }
-        // END SJSAS 6402545
-        // START SJSAS 6403017
+        String tvm = vm;
         if (JAVA_5.equals(vm)) {
             vm = JAVA_1_5;
         } else if (JAVA_6.equals(vm)) {
             vm = JAVA_1_6;
+        } else if (JAVA_7.equals(vm)) {
+            vm = JAVA_1_7;
+        } else if (JAVA_8.equals(vm)) {
+            vm = JAVA_1_8;
         }
+        if (!JAVA_1_1.equals(vm) && !JAVA_1_2.equals(vm) 
+                && !JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm)
+                && !JAVA_1_5.equals(vm) && !JAVA_1_6.equals(vm)
+                && !JAVA_1_7.equals(vm) && !JAVA_1_8.equals(vm)){
+            throw new IllegalArgumentException(
+                Localizer.getMessage("jspc.illegalCompilerTargetVM", tvm));
+        }
+        // END SJSAS 6402545
+        // START SJSAS 6403017
         Double targetVersion = Double.valueOf(vm);
         if (targetVersion.compareTo(Double.valueOf(myJavaVersion)) > 0) {
             throw new IllegalArgumentException(
@@ -708,7 +717,9 @@ public class JspC implements Options {
         // START SJSAS 6402545
         if (!JAVA_1_3.equals(vm) && !JAVA_1_4.equals(vm) 
                 && !JAVA_1_5.equals(vm) && !JAVA_5.equals(vm)
-                && !JAVA_1_6.equals(vm) && !JAVA_6.equals(vm)) {
+                && !JAVA_1_6.equals(vm) && !JAVA_6.equals(vm)
+                && !JAVA_1_7.equals(vm) && !JAVA_7.equals(vm)
+                && !JAVA_1_8.equals(vm) && !JAVA_8.equals(vm)) {
             throw new IllegalArgumentException(
                 Localizer.getMessage("jspc.illegalCompilerSourceVM", vm));
         }
