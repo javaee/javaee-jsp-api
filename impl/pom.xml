@@ -50,7 +50,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.web</groupId>
     <artifactId>javax.servlet.jsp</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>JSP implementation</name>
 
@@ -99,9 +99,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.3</connection>
-        <developerConnection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.3</developerConnection>
-        <url>http://java.net/projects/jsp/sources/svn/show/tags/javax.servlet.jsp-2.2.3</url>
+        <connection>scm:svn:https://svn.java.net/svn/jsp~svn/trunk/impl</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jsp~svn/trunk/impl</developerConnection>
+        <url>http://java.net/projects/jsp/sources/svn/show</url>
     </scm>
 
     <build>
