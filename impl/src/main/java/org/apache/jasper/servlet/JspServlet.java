@@ -440,8 +440,7 @@ public class JspServlet extends HttpServlet {
                 if (wrapper == null) {
                     // Check if the requested JSP page exists, to avoid
                     // creating unnecessary directories and files.
-                    if (null == context.getResource(jspUri)
-                            && !options.getUsePrecompiled()) {
+                    if (null == context.getResource(jspUri)) {
                         String includeRequestUri = (String) 
                             request.getAttribute("javax.servlet.include.request_uri");
                         if (includeRequestUri != null) {
