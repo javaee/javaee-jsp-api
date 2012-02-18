@@ -59,7 +59,7 @@
         <extensionName>javax.servlet.jsp</extensionName>
         <bundle.symbolicName>org.glassfish.web.javax.servlet.jsp</bundle.symbolicName>
         <vendorName>Oracle Corporation</vendorName>
-        <findbugs.version>2.3.1</findbugs.version>
+        <findbugs.version>2.4.0</findbugs.version>
         <findbugs.exclude />
         <findbugs.threshold>High</findbugs.threshold>
     </properties>
