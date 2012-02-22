@@ -64,11 +64,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 // START GlassFish 750
 import java.util.concurrent.ConcurrentHashMap;
 // END GlassFish 750
@@ -1021,10 +1022,12 @@ public class JspC implements Options {
         String insertEndMarker = 
             Localizer.getMessage("jspc.webinc.insertEnd");
 
-        BufferedReader reader = new BufferedReader(new FileReader(webXml));
-        BufferedReader fragmentReader = 
-            new BufferedReader(new FileReader(webxmlFile));
-        PrintWriter writer = new PrintWriter(new FileWriter(webXml2));
+        BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(webXml),"UTF-8"));
+        BufferedReader fragmentReader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(webxmlFile),"UTF-8"));
+        PrintWriter writer = new PrintWriter(
+                    new OutputStreamWriter(new FileOutputStream(webXml2),"UTF-8"));
 
         // Insert the <servlet> and <servlet-mapping> declarations
         int pos = -1;
@@ -1415,7 +1418,7 @@ public class JspC implements Options {
         try {
             if (webxmlLevel >= INC_WEBXML) {
                 File fmapings = new File(webxmlFile);
-                mapout = new FileWriter(fmapings);
+                mapout = new OutputStreamWriter(new FileOutputStream(fmapings),"UTF-8");
                 servletout = new CharArrayWriter();
                 mappingout = new CharArrayWriter();
             } else {
@@ -1457,7 +1460,8 @@ public class JspC implements Options {
     private void initServletContext() {
         try {
             context =new JspCServletContext
-                (new PrintWriter(System.out),
+                (new PrintWriter(new OutputStreamWriter(System.out, "UTF-8")),
+
                  new URL("file:" + uriRoot.replace('\\','/') + '/'));
             tldScanner = new TldScanner(context, isValidationEnabled);
 
@@ -1471,6 +1475,7 @@ public class JspC implements Options {
             // END GlassFish 750
         } catch (MalformedURLException me) {
             System.out.println("**" + me);
+        } catch (UnsupportedEncodingException ex) {
         }
         rctxt = new JspRuntimeContext(context, this);
         jspConfig = new JspConfig(context);
