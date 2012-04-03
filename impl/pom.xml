@@ -2,7 +2,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -205,7 +205,7 @@
                           <packages>javax.servlet.jsp</packages>
                         </group>
                       </groups>
-                      <bottom> Copyright (c) 1999-2011 Oracle and/or its affiliates. All Rights Reserved. Use is subject to license terms. </bottom>
+                      <bottom> Copyright (c) 1999-2012 Oracle and/or its affiliates. All Rights Reserved. Use is subject to license terms. </bottom>
                     </configuration>
                   </execution>
                 </executions>
@@ -222,13 +222,13 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>                           
-                <artifactId>maven-release-plugin</artifactId>                         
-                <configuration>                                                       
-                    <mavenExecutorId>forked-path</mavenExecutorId>                
-                    <useReleaseProfile>false</useReleaseProfile>                  
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration> 
+                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <useReleaseProfile>false</useReleaseProfile> 
                     <arguments>${release.arguments}</arguments>
-                </configuration>                                                      
+                </configuration> 
             </plugin>                    
         </plugins>
         <resources>
