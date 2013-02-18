@@ -1,0 +1,191 @@
+problem with headers/footers of the API chapters
+
+import in the API chapter the variables from a regular spec chapter.
+Looks like that allows the footer to show, but not the header.
+
+---------------------------------------------------------------------------
+For a new release:
+
+Maker Variables
+  - All pages footer
+  - Book Title
+  - JSP_VERSION
+  - ... scan the list...
+
+Footer:
+  - Update release date 
+
+Preface
+   - Update intro with the specifics of this version
+
+The background for "Early Draft Release", "Public Review", 
+"Proposed Final Draft".
+   - They are defined in Reference Pages
+   - paragraph just above th graph -> paragraph designer - advanced tab
+     Frame below pgf -> public / expert / ...
+
+Get the appropriate license from Program Manager
+
+Acknowledgements
+
+Cross-references
+
+---------------------------------------------------------------------------
+APIs
+
+Update the template
+   View Master Pages
+      update BookTitle and ReleaseDate
+
+Generate the javadocs via mifdoclet. 
+
+Simply run apigen/apigen.bat
+   Make sure the script points to the proper sources for the
+   JSP APIs.
+   -> If dzbatcher hangs, make sure the fm/ directory exists
+      in apigen/apigen2. (looks like it cannot create it?).
+
+Things to fix after running apigen:
+
+
+Set the variables in those files (see above)
+
+for javax.servlet.jsp.tagext 
+
+The gif files that are saved in doc-files in the API src directory
+must be copied to be accessible to the generated .fm file
+  --> if they are changed, must be copied. Looks like the first gif in the tagext API
+      must have its ref updated. Others follow through once this one is fixed...
+
+Edit -> Find -> Paragraph Tag: "ClassNumbered-1"
+  Make sure all the ones that are not supposed to be "1." are changed to
+  ClassNumbered-2 instead.  I had to change 4 of them. 
+  This is a bug in the MIF converter.  
+
+Find VariableInfo class and fix the table.  
+  Select the whole table and resize column widths.  
+  Scale to total 6.5". Change font of inner (white background) 
+  cells to be non-bold.
+  TO resize column: select cell (Ctrl- click); shift seleect the handle of the cell
+
+---------------------------------------------------------------------------
+Schemas
+
+see admin/xsd.txt
+
+save graphs as jpg 
+then impot in the maker document (96 dpi).
+
+[old stuff that does not seem to work
+save the vthought file as .eps
+open it with photoshop elements -> copy -> paste into the frame document.]
+
+Can save as MIF as well, but was not able to import it though...
+
+---------------------------------------------------------------------------
+gen the TOC
+save as PDF
+  -> make sure to disable conditional text (only keep the Fix conditional text)
+
+Hi Pierre,
+
+Pat was able to fix your problem with the headers and footers disappearing.  I was able to fix your TOC numbering problem.
+
+To fix the header/footer issue, do the following when you Save As PDF and the dialog called PDF Setup for Selected Files comes up:
+
+o On the Settings Tab:
+   -- PDF Job Options: Choose Print or enPrintOptimized (if available)
+   -- Page size:  Width-8.5"   Height: 11.0"
+
+o On the Bookmarks Tab:  Keep as is.  Settings are just fine.
+
+o On the Tags tab:  Turn off (de-select) Generate Tagged PDF.  I don't see where the structure of the tags makes any sense, so I suggest turning this off.  Will produce a small file size, too.
+
+o On the Links Tag:  Leave as is.
+
+Another bonus is the the PDF is smaller and it takes less time to generate!
+
+To fix the numbering problem, it's a little more complicated if you're not familiar with reference pages, but here are the steps:
+
+* Open the book and all documents in the book, including the TOC.
+* While viewing the TOC document, perform the rest of these steps.
+* Position your cursor on javax.servlet.jsp.
+* Go to Format-->Paragraphs-->Designer...
+   You should see a popup called Paragraph Designer and in the Paragraph Tag menu, you should see PackageHeadTOC.
+* On the Basic Tab check the following:
+   - First is set to 0.292"
+   - Left is set to 1.0"
+   - Right is set to 0.0"
+   - You have one tab stop set to 4.958"
+* When you've confirmed this, click Update All
+* Without closing the dialog, position your cursor at ErrorData (right below javax.servlet.jsp)
+* No, the Paragraph Tag menu should say ClassHeadTOC.
+* Again, on the Basic tab, confirm the following:
+   - First is set to 0.625"
+   - Left is 1.5"
+   - Right is 0.0"
+   - You have one tab stop set to 4.958"
+* When you've confirmed this, click Update All
+* Exit the dialog.
+* Save the document.
+Now, here's the hard part:
+* Make sure the Formatting Bar is viewable (Go to View-->Formatting Bar)
+* Go to View-->Reference Pages
+* Scroll down to where it says Table of Contents Specification.
+* Now, scroll to the definition for ClassHeadTOC.  The menu on the formatting bar should tell you which definition your cursor is on.
+* In front of the <$pagenum>, enter <$volnum>- (This will give you the correct numbering. i.e 2-17 or whatever).
+* Make sure that there are a string of dots in between <$paratext> and <$volnum>.  If there aren't, position your cursor after <$paratext> and hit the tab key.
+* Now, go to the PackageHeadTOC definition.  It should be the third one down.
+* Do as you did for the ClassHeadTOC definition.
+* Save the document.
+* Now, go to the book document.
+* Select the top level of the book.
+* Go to Edit-->Update Book.
+* In the Update Book dialog, select all checkboxes except Apply Master Pages.
+* Under the Generate box, make sure your TOC is there.
+* Click Update.
+
+If you want, you can call me and I can walk you through it.
+
+Jennifer
+
+
+---------------------------------------------------------------------------
+Zip of the javadocs
+
+  <target name="javadoczip" depends="javadoc"
+   description="Create javadoc zip file">                                                                                
+    <zip  zipfile="${jsp-api.dist}/jspapi.zip"
+          basedir="${jsp-api.build}/docs" includes="jspapi/**"/>
+  </target>
+
+  <target name="javadoc" depends="prepare" unless="docs.uptodate">
+
+    <javadoc packagenames="javax.servlet.jsp.*"
+             sourcepath="${basedir}/src/share"
+             destdir="${jsp-api.build}/docs/jspapi"
+             use="true"
+             windowtitle="JavaServer Pages API Documentation"
+             doctitle="JavaServer Pages API Documentation"
+             bottom="Copyright &amp;copy; 1999-2002 The Apache Software Foundation.  All Rights Reserved.">
+        <classpath>
+            <pathelement location="${servlet-api.jar}"/>
+            <pathelement location="${el-api.jar}"/>
+        </classpath>
+    </javadoc>
+
+  </target>
+
+---------------------------------------------------------------------------
+FrameMaker (solaris)
+  /net/irishmusic.eng/opt/local/framemaker,v6.0/fminit
+
+---------------------------------------------------------------------------
+cvs repository:
+  sunsw.sfbay.sun.com:/sw/jsp
+  module is: jspspec
+
+old repository:
+  bringover -w ~/jspspec -p /java/j2ee/Specs/JSP/2.0/workspace .
+
+

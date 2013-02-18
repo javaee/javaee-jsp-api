@@ -1,0 +1,28 @@
+Commetns from SAP
+
+E.1.6 -> missing method name
+E.2.13 and E.2.14 -> fix the formatting
+E.2.16 -> fix formatting
+
+-----
+From Bill:
+
+-------- Original Message --------
+Subject: schemas in specs
+Date: Tue, 06 Sep 2005 14:52:05 -0700
+From: Bill Shannon <bill.shannon@sun.com>
+To: javaee-specleads@sun.com
+
+My spec has been getting bigger and bigger, largely because I've
+been carrying around all the schemas and DTDs for all versions of
+Java EE as part of the document.  I polled my expert group and
+they generally supported moving the schemas out of the spec document.
+
+What I'm going to do is reference the current and previous schemas
+on the web within the main spec document.  I'm also going to prepare
+a download bundle that contains the spec document and the current
+(but not previous) schema files.
+
+If any of you are including your schemas in your spec documents,
+you might want to consider doing the same.
+

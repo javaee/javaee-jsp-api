@@ -1,0 +1,222 @@
+Announce a new release of the spec
+
+-----
+EXPERT GROUPS
+jsp-spec-eg project at java.net
+webtier-alignment project at java.net
+
+- email the following mailing lists:
+    - eg@jsp-spec-eg.dev.java.net
+    - users@webtier-alignment.dev.java.net
+- update status on the home page
+
+-----
+OFFICIAL CHANNEL for the JSP SPEC
+jsp-spec-public project at java.net
+
+- use Announce tool to announce the new release
+- email the following mailing lists:
+    - announce@jsp-spec-public.dev.java.net
+    - users@jsp-spec-public.dev.java.net
+- update status on the home page
+
+-----
+OFFICIAL FORUMS
+
+JSP  http://forum.java.sun.com/forum.jspa?forumID=45
+JSF  http://forum.java.sun.com/forum.jspa?forumID=427
+
+-----
+Internal
+
+All of J2EE: kt-org@sun.com
+  
+-----
+Others
+
+jakarta-taglibs  taglibs-user@jakarta.apache.org
+tomcat-users     asked Jan (because I'm not subscribed and cannot post)
+
+---------------------------------------------------------------------------
+EDR - 2004.12.08
+
+-----
+This announcement was just sent to the J2EE web-tier community.
+This is an important milestone. We're making good progress in 
+aligning JSP and Faces...
+
+-----
+Experts,
+
+Our official announcement about JSP 2.1 and Faces 1.1 EDR.
+An important milestone!
+
+-----
+[ANNOUNCE] JSP 2.1 and Faces 1.2 Early Draft Review
+
+We're pleased to announce the availability of the Early Draft Review
+of the next versions of the specification for JavaServer Pages and
+Faces.  JavaServer Pages (JSP) 2.1 is developed under JSR-245 and
+JavaServer Faces (Faces) 1.2 is developed under JSR-252.  The two
+expert groups are working together to improve the alignment between 
+these two powerful web presentation technologies. The foremost such 
+alignment issue is the Expression Language, as stated in both JSRs.
+
+JSP 2.1 exports the Expression Language (EL) into its own separate
+document; technically a sub-document of the JSP specification.  The
+Unified EL spec defines a new top level java package, javax.el.  This
+package is completely independent of the technology using it and
+allows the using technology to plug itself into the EL resolution
+process.  The bulk of the changes in the JSP spec itself follow from
+how it uses the Unified EL.
+
+As mentioned in the original JSR-252, this spec is not a new feature
+release.  Faces 1.2 contains the work for it to leverage the new
+Unified EL, as well as a few spec related bug fixes.
+
+The alignment of Faces and JSP in these JSRs enables some new
+capabilities and provides a solid foundation for future growth.  For
+example, in a web application that uses both Faces and JSP, it is
+possible for pages that only use JSP (without any faces content) to
+access managed beans.  Please see Appendix E of the JSP spec and the
+preface of the Faces spec to see details of what's changed!
+
+To access the specifications:
+
+   JSP 2.1 EDR (JSR-245)
+     http://jcp.org/aboutJava/communityprocess/edr/jsr245/
+   Faces 1.2 EDR (JSR-252)
+     http://jcp.org/aboutJava/communityprocess/edr/jsr252/
+
+Sincerely,
+
+Ed Burns, Pierre Delisle, Roger Kitain, Mark Roth and the JSR-245 and
+JSR-252 Expert Groups.
+
+---------------------------------------------------------------------------
+Announcement:
+
+Experts, 
+
+The new unified EL and JSP 2.1 Specifications are now ready 
+for review by the Expert Group.
+
+The two spec documents as well as the javadocs have been checked in
+the CVS repository of our EG private project at java.net
+(https://jsp-spec-eg.dev.java.net/).
+
+Simply click on the download link of revision 1.1 of these files:
+
+   1. EL 2.1 
+
+      Specification (rev 1.1: draft 1 for EDR)
+        https://jsp-spec-eg.dev.java.net/source/browse/jsp-spec-eg/spec/ELSpec2.1.pdf
+
+      APIs (javadoc) (rev 1.1: draft 1 for EDR)
+        https://jsp-spec-eg.dev.java.net/source/browse/jsp-spec-eg/spec/ELAPI2.1.zip
+
+   2. JSP 2.1 
+
+      Specification (rev 1.1: draft 1 for EDR)
+        https://jsp-spec-eg.dev.java.net/source/browse/jsp-spec-eg/spec/JSPSpec2.1.pdf
+
+      APIs (javadoc) (rev 1.1: draft 1 for EDR)
+        https://jsp-spec-eg.dev.java.net/source/browse/jsp-spec-eg/spec/JSPAPI2.1.zip
+
+These will be handed off to the JCP for our public Early Draft Review (EDR)
+on Friday December 3. We'd really appreciate any review comments by close of business
+on Wednesday December 1st, if possible.
+
+To aid in your review, please look at the change log in Appendix E of
+the JSP spec. 
+
+The entire Unified EL spec is new, although most of chapter 1 has been
+lifted from the JSP 2.0 spec. Section 1.2 is a must read.
+
+Many Thanks,
+
+    -- Pierre & Mark
+
+P.S. To all of you in the U.S., Happy Thanksgiving!
+
+---------------------------------------------------------------------------
+I've included below a draft of an email that we could send to announce
+the availability of PR. We could use that same email for both JSF and
+JSP.
+
+---
+On the JSP side, I would plan to send the announcement
+to the following lists:
+
+JSP EG:
+  eg@jsp-spec-eg.dev.java.net
+
+JSP spec Public website:
+  users@jsp-spec-public.dev.java.net
+  announce@jsp-spec-public.dev.java.net
+  announce page -> add one entry for the announcement
+  update status on home page
+
+Official Forum:
+  http://forum.java.sun.com/forum.jspa?forumID=45
+
+Related Lists:
+  taglibs-user@jakarta.apache.org
+  tomcat-users@jakarta.apache.org
+
+Internal
+  kt-org@sun.com (has this changed?)
+
+Please let me know if I am missing any. And I assume
+that Jayashri will complement with JSF specific 
+lists.
+
+---
+For the blog(s), I think it would make more sense to have a single
+blog that covers the current state of affairs with PR of
+JSP and JSF. I don't think it makes sense to have 2 blogs
+to talk essentially about the same thing (although the 2 views
+can be different, I think that a common view serves us better
+at this point since this is the focus of these 2 JSRs).
+
+Ed, I assume you'd be handling it. If you need help, let me
+know. 
+
+
+Thanks,
+
+    -- Pierre
+
+---------------------------------------------------------------
+Subject: [ANNOUNCE] JSP 2.1 and Faces 1.2 Public Review
+
+We are pleased to announce the availability of the Public Review
+of the next versions of the specification for JavaServer Pages (JSP)
+and JavaServer Faces (Faces).  JSP 2.1 is developed under JSR-245 and
+Faces 1.2 is developed under JSR-252.  The two expert groups are working 
+ogether to improve the alignment between these two powerful web presentation 
+technologies. 
+
+Building on the work that was accomplished with the Early Draft
+Review, this Public Review covers two additional areas that required 
+better integration between JSP and Faces:
+
+    - Tree Creation and Content Interweaving
+    - Deferred expressions nested within iteration tags
+
+Please see Appendix E of the JSP spec and the
+Preface of the Faces spec to see details of what's changed.
+
+To access the specifications:
+
+   JSP 2.1 PR (JSR-245)
+     http://jcp.org/aboutJava/communityprocess/pr/jsr245/
+
+   Faces 1.2 PR (JSR-252)
+     http://jcp.org/aboutJava/communityprocess/pr/jsr252/
+
+Sincerely,
+
+The JSR-245 and JSR-252 Expert Groups
+
+-------------------------------------------------------------

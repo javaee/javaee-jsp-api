@@ -1,0 +1,20 @@
+<project name="EL Spec" default="greetings" basedir=".">
+
+  <target name="greetings">
+      <echo>Greetings! This is build.xml for the JSP spec</echo>
+  </target>
+  
+  <target name="clean"
+	  description="Clean temporary files">
+      <delete dir="apigen/apigen2"/>
+      <delete>
+        <fileset dir="fm">
+            <include name="**/*.backup.fm"/>
+            <include name="**/*.backup.mif"/>
+            <include name="**/*.backup.book"/>
+            <include name="**/*.log"/>
+        </fileset>
+      </delete>
+  </target>
+
+</project>

@@ -1,0 +1,20 @@
+1. The specification version is 2.3
+
+2. Remove expression language from JSP specification.  JSP 2.3 supports and depends on EL 3.0
+
+3. Support EL 3.0 (JSR 341).
+
+   In JSP.2.9, add the following two ELResovers, after item 2, and renumber
+   the other ELResolvers on the list.  That is, place these ELResolvers between
+   the custom ELResolvers and the MapELResolver.
+
+   3. The ELResolver returned by ExpressionFactory.getStreamELResolver().
+   4. javax.el.StaticFieldELResolver.
+
+4. Clarification
+
+   Add the following paragrah after the first praragraph in section JSP.11.1.1.
+
+   "A JSP container must render a JSP page for the HTTP methods GET, POST, and
+   HEAD, with identical responses.  The behavior of the JSP container
+   for other methods is undefined."
