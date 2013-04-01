@@ -56,7 +56,7 @@
     <name>JavaServer Pages(TM) API</name>
 
     <properties>
-        <spec.version>2.2</spec.version>
+        <spec.version>2.3</spec.version>
         <extensionName>javax.servlet.jsp</extensionName>
         <bundle.symbolicName>javax.servlet.jsp-api</bundle.symbolicName>
         <vendorName>Oracle Corporation</vendorName>
@@ -196,7 +196,14 @@
                           <packages>javax.servlet.jsp</packages>
                         </group>
                       </groups>
-                      <bottom> Copyright (c) 1999-2013 Oracle and/or its affiliates. All Rights Reserved. Use is subject to license terms. </bottom>
+                      <bottom>
+<![CDATA[Copyright &#169; 2013,
+    <a href="http://www.oracle.com">Oracle</a>
+    and/or its affiliates. All Rights Reserved.
+    Use is subject to
+  <a href="{@docRoot}/doc-files/final-spec-license.html" target="_top">license terms</a>.
+]]>
+                            </bottom>
                     </configuration>
                   </execution>
                 </executions>
@@ -255,7 +262,7 @@
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
-            <version>[3.0-b03,)</version>
+            <version>[3.0-b08,)</version>
             <scope>provided</scope>
         </dependency>
    </dependencies>
