@@ -67,6 +67,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspContext;
 
 import javax.el.ELContext;
+import javax.el.ELClass;
 import javax.el.ELResolver;
 import javax.el.ELException;
 
@@ -124,7 +125,25 @@ public class ScopedAttributeELResolver extends ELResolver {
                 String attribute = (String) property;
                 PageContext ctxt = (PageContext)
                                        context.getContext(JspContext.class);
-                return ctxt.findAttribute(attribute);
+                Object value = ctxt.findAttribute(attribute);
+                // To support reference of static fields for imported class in
+                // EL 3.0, if a scoped attribute returns null, this attribute
+                // is further checked to see if it is the name of an imported
+                // class.  If so, the value of the imported field is return.
+                // Note: the JSP spec needs to be updated for this behavior. It is
+                // not backward compatible and a runtime switch may be needed to
+                // force backward compatility.
+                if (value == null) {
+                    // check to see if the property is an imported class
+                    if (context.getImportHandler() != null) {
+                        Class<?> c = context.getImportHandler().resolveClass(attribute);
+                        if (c != null) {
+                            value = context.getELResolver().getValue(
+                                    context, new ELClass(c), attribute);
+                        }
+                    }
+                }
+                return value;
             }
         }
         return null;
