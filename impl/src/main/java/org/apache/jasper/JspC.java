@@ -728,6 +728,13 @@ public class JspC implements Options {
         compilerSourceVM = vm;
     }
 
+    /**
+     * @see Options#getCompilerClassName.
+     */
+    public String getCompilerClassName() {
+        return null;
+    }
+
     public TldScanner getTldScanner() {
 	return tldScanner;
     }
