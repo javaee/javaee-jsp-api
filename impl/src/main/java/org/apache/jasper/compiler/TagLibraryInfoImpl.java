@@ -626,7 +626,9 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
 
 	if (path.startsWith("/META-INF/tags")) {
 	    // Tag file packaged in JAR
-	    ctxt.getTagFileJarUrls().put(path, jarFileUrl);
+            if (jarFileUrl != null) {
+	        ctxt.getTagFileJarUrls().put(path, jarFileUrl);
+            }
 	} else if (!path.startsWith("/WEB-INF/tags")) {
 	    err.jspError("jsp.error.tagfile.illegalPath", path);
 	}
