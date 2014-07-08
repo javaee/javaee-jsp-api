@@ -610,7 +610,9 @@ public class JspUtil {
 		returnType = Double.class.getName();
 		primitiveConverterMethod = "doubleValue";
 	    }
-	}
+	} else {
+            returnType = toJavaSourceType(returnType);
+        }
  
 	targetType = toJavaSourceType(targetType);
 
