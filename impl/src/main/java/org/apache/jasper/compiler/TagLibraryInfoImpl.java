@@ -336,8 +336,11 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
             new HashMap<String, FunctionInfo>();
 
         // Create an iterator over the child elements of our <taglib> element
-        ParserUtils pu = new ParserUtils();
-        TreeNode tld = pu.parseXMLDocument(uri, in);
+        boolean blockExternal = Boolean.parseBoolean(ctxt.getServletContext()
+                   .getInitParameter(Constants.XML_BLOCK_EXTERNAL_INIT_PARAM));
+        ParserUtils pu = new ParserUtils(blockExternal);
+        TreeNode tld = pu.parseXMLDocument(uri, in,
+                            ctxt.getOptions().isValidationEnabled());
 
 	// Check to see if the <taglib> root element contains a 'version'
 	// attribute, which was added in JSP 2.0 to replace the <jsp-version>

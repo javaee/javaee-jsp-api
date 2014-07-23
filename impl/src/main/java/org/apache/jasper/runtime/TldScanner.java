@@ -186,6 +186,7 @@ public class TldScanner implements ServletContainerInitializer {
     private boolean useMyFaces = false;
     private boolean scanListeners;  // true if scan tlds for listeners
     private boolean doneScanning;   // true if all tld scanning done
+    private boolean blockExternal;  // Don't allow external entities
 
 
     //*********************************************************************
@@ -218,6 +219,8 @@ public class TldScanner implements ServletContainerInitializer {
         if (b != null) {
             useMyFaces = b.booleanValue();
         }
+        blockExternal = Boolean.parseBoolean(ctxt.getInitParameter(
+                            Constants.XML_BLOCK_EXTERNAL_INIT_PARAM));
     }
 
 
@@ -597,7 +600,7 @@ public class TldScanner implements ServletContainerInitializer {
                 throws JasperException {
         try {
             // Parse the tag library descriptor at the specified resource path
-            TreeNode tld = new ParserUtils().parseXMLDocument(
+            TreeNode tld = new ParserUtils(blockExternal).parseXMLDocument(
                                 resourcePath, stream, isValidationEnabled);
 
             String uri = null;
