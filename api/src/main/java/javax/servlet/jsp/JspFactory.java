@@ -89,7 +89,7 @@ import javax.servlet.jsp.PageContext;
 
 public abstract class JspFactory {
 
-    private static JspFactory deflt = null;
+    private static volatile JspFactory deflt = null;
     
     /**
      * Sole constructor. (For invocation by subclass constructors, 
@@ -107,7 +107,7 @@ public abstract class JspFactory {
      * @param deflt	The default factory implementation
      */
 
-    public static synchronized void setDefaultFactory(JspFactory deflt) {
+    public static void setDefaultFactory(JspFactory deflt) {
 	JspFactory.deflt = deflt;
     }
 
@@ -117,16 +117,7 @@ public abstract class JspFactory {
      * @return the default factory for this implementation
      */
 
-    public static synchronized JspFactory getDefaultFactory() {
-        if (deflt == null) {
-            try {
-                Class factory = Class.forName("org.apache.jasper.runtime.JspFactoryImpl");
-                if (factory != null) {
-                    deflt = (JspFactory) factory.newInstance();
-                }
-            } catch (Exception ex) {
-            }
-        }
+    public static JspFactory getDefaultFactory() {
 	return deflt;
     }
 
