@@ -99,9 +99,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.6</connection>
-        <developerConnection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.6</developerConnection>
-        <url>http://java.net/projects/jsp/sources/svn/show/tags/javax.servlet.jsp-2.2.6</url>
+        <connection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.6-b02</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/jsp~svn/tags/javax.servlet.jsp-2.2.6-b02</developerConnection>
+        <url>http://java.net/projects/jsp/sources/svn/show/tags/javax.servlet.jsp-2.2.6-b02</url>
     </scm>
 
     <build>
