@@ -166,8 +166,8 @@
     </dependencies>
 
   <scm>
-    <connection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b02</connection>
-    <developerConnection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b02</developerConnection>
-    <url>https://jsp.dev.java.net/source/browse/jsp/tags/jsp-impl-2.2.1-b02</url>
+    <connection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b03</connection>
+    <developerConnection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b03</developerConnection>
+    <url>https://jsp.dev.java.net/source/browse/jsp/tags/jsp-impl-2.2.1-b03</url>
   </scm>
 </project>
