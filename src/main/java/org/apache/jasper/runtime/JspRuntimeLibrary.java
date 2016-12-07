@@ -60,9 +60,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Enumeration;
 
 import javax.servlet.RequestDispatcher;
@@ -74,7 +71,6 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 
-import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.Localizer;
 
@@ -96,35 +92,6 @@ public class JspRuntimeLibrary {
 	= "javax.servlet.error.exception";
     private static final String JSP_EXCEPTION
 	= "javax.servlet.jsp.jspException";
-
-    protected static class PrivilegedIntrospectHelper
-	implements PrivilegedExceptionAction {
-
-	private Object bean;
-	private String prop;
-	private String value;
-	private ServletRequest request;
-	private String param;
-	private boolean ignoreMethodNF;
-
-        PrivilegedIntrospectHelper(Object bean, String prop,
-                                   String value, ServletRequest request,
-                                   String param, boolean ignoreMethodNF)
-        {
-	    this.bean = bean;
-	    this.prop = prop;
-	    this.value = value;
-            this.request = request;
-	    this.param = param;
-	    this.ignoreMethodNF = ignoreMethodNF;
-        }
-         
-        public Object run() throws JasperException {
-	    internalIntrospecthelper(
-                bean,prop,value,request,param,ignoreMethodNF);
-            return null;
-        }
-    }
 
     /**
      * Returns the value of the javax.servlet.error.exception request
@@ -334,27 +301,6 @@ public class JspRuntimeLibrary {
                                         String value, ServletRequest request,
                                         String param, boolean ignoreMethodNF)
                                         throws JasperException
-    {
-        if (Constants.IS_SECURITY_ENABLED) {
-            try {
-                PrivilegedIntrospectHelper dp =
-		    new PrivilegedIntrospectHelper(
-			bean,prop,value,request,param,ignoreMethodNF);
-                AccessController.doPrivileged(dp);
-            } catch( PrivilegedActionException pe) {
-                Exception e = pe.getException();
-                throw (JasperException)e;
-            }
-        } else {
-            internalIntrospecthelper(
-		bean,prop,value,request,param,ignoreMethodNF);
-        }
-    }
-
-    private static void internalIntrospecthelper(Object bean, String prop,
-					String value, ServletRequest request,
-					String param, boolean ignoreMethodNF) 
-					throws JasperException
     {
         Method method = null;
         Class type = null;
