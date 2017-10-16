@@ -2660,6 +2660,7 @@ class Generator {
                     String tmpVarName = JspUtil.nextTemporaryVariableName();
                     n.setTempScriptingVar(varName, tmpVarName);
                     out.printin(varInfos[i].getClassName());
+                    out.print(" ");
                     out.print(tmpVarName);
                     out.print(" = ");
                     out.print(varName);
@@ -2684,7 +2685,8 @@ class Generator {
                     }
                     String tmpVarName = JspUtil.nextTemporaryVariableName();
                     n.setTempScriptingVar(varName, tmpVarName);
-                    out.printin("String ");
+                    out.printin(tagVarInfos[i].getClassName());
+                    out.print(" ");
                     out.print(tmpVarName);
                     out.print(" = ");
                     out.print(varName);
