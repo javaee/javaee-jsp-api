@@ -136,9 +136,6 @@ public final class JspRuntimeContext implements Runnable {
                     + "runtime.JspRuntimeLibrary");
                 factory.getClass().getClassLoader().loadClass(
                     basePackage
-                    + "runtime.JspRuntimeLibrary$PrivilegedIntrospectHelper");
-                factory.getClass().getClassLoader().loadClass(
-                    basePackage
                     + "runtime.ServletResponseWrapperInclude");
                 factory.getClass().getClassLoader().loadClass(
                     basePackage
