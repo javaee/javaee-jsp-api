@@ -126,7 +126,7 @@ public class TagLibraryInfoImpl extends TagLibraryInfo implements TagConstants {
         print("urn", urn, out);
         print("info", info, out);
         print("uri", uri, out);
-        print("tagLibraryValidator", tagLibraryValidator.toString(), out);
+        print("tagLibraryValidator", "" + tagLibraryValidator, out);
 
         for(int i = 0; i < tags.length; i++)
             out.println(tags[i].toString());
