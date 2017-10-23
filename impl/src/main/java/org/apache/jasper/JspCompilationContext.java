@@ -602,7 +602,9 @@ public class JspCompilationContext {
 
     public void incrementRemoved() {
         if (removed > 1) {
-            jspCompiler.removeGeneratedFiles();
+            if(jspCompiler != null) { 
+                jspCompiler.removeGeneratedFiles();
+            }
             if( rctxt != null )
                 rctxt.removeWrapper(jspUri);
         }
