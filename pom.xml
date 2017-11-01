@@ -45,7 +45,7 @@
         <relativePath>../parent-pom/pom.xml</relativePath>    
     </parent>
     <artifactId>jsp-impl</artifactId>
-    <version>2.2.1-b03</version>
+    <version>2.2.1-b04-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>JSP implementation</name>
 
@@ -166,8 +166,8 @@
     </dependencies>
 
   <scm>
-    <connection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b03</connection>
-    <developerConnection>scm:svn:https://jsp.dev.java.net/svn/jsp/tags/jsp-impl-2.2.1-b03</developerConnection>
-    <url>https://jsp.dev.java.net/source/browse/jsp/tags/jsp-impl-2.2.1-b03</url>
+    <connection>scm:git:https://github.com/javaee/javaee-jsp-api.git</connection>
+    <developerConnection>scm:git:https://github.com/javaee/javaee-jsp-api.git</developerConnection>
+    <url>https://github.com/javaee/javaee-jsp-api</url>
   </scm>
 </project>
