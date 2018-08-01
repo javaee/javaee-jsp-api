@@ -44,13 +44,13 @@
     <parent>
         <groupId>net.java</groupId>
         <artifactId>jvnet-parent</artifactId>
-        <version>1</version>
+        <version>5</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.web</groupId>
     <artifactId>javax.servlet.jsp</artifactId>
-    <version>2.3.3-b04-SNAPSHOT</version>
+    <version>2.3.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>JSP implementation</name>
 
@@ -75,22 +75,24 @@
         </developer>
     </developers>
 
-    <url>http://jsp.java.net</url>
+    <url>https://javaee.github.io/javaee-jsp-api</url>
     <organization>
-        <name>GlassFish Community</name>
-        <url>http://glassfish.org</url>
+        <name>Oracle</name>
+        <url>http://www.oracle.com</url>
     </organization>
+
     <licenses>
         <license>
             <name>CDDL + GPLv2 with classpath exception</name>
-            <url>http://glassfish.dev.java.net/nonav/public/CDDL+GPL.html</url>            <distribution>repo</distribution>
+            <url>://oss.oracle.com/licenses/CDDL+GPL-1.1</url>
+            <distribution>repo</distribution>
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
     <issueManagement>
-        <system>jira</system>
-        <url>http://java.net/jira/browse/JSP</url>
-    </issueManagement>
+        <system>github</system>
+        <url>https://github.com/javaee/javaee-jsp-api/issues/</url>
+    </issueManagement>    
     <mailingLists>
         <mailingList>
             <name>JSP Developer</name>
@@ -98,9 +100,10 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:https://svn.java.net/svn/jsp~svn/trunk/impl</connection>
-        <developerConnection>scm:svn:https://svn.java.net/svn/jsp~svn/trunk/impl</developerConnection>
-        <url>http://java.net/projects/jsp/sources/svn/show</url>
+      <connection>scm:git:https://github.com/javaee/javaee-jsp-api.git</connection>
+      <developerConnection>scm:git:ssh://git@github.com/javaee/javaee-jsp-api.git</developerConnection>
+      <url>https://github.com/javaee/javaee-jsp-api</url>
+      <tag>HEAD</tag>
     </scm>
 
     <build>
@@ -291,7 +294,7 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
-            <version>[3.0.1-b05,)</version>
+            <version>[3.0.1-b10,)</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>

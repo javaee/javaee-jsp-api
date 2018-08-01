@@ -46,7 +46,7 @@
     <parent>
         <groupId>net.java</groupId>
         <artifactId>jvnet-parent</artifactId>
-        <version>1</version>
+        <version>5</version>
     </parent>
 
     <groupId>org.glassfish.web</groupId>
@@ -67,23 +67,24 @@
         </developer>
     </developers>
 
-    <url>http://java.net/projects/jsp</url>
+    <url>https://javaee.github.io/javaee-jsp-api</url>
     <organization>
-        <name>GlassFish Community</name>
-        <url>http://glassfish.org</url>
+        <name>Oracle</name>
+        <url>http://www.oracle.com</url>
     </organization>
+    
     <licenses>
         <license>
             <name>CDDL + GPLv2 with classpath exception</name>
-            <url>https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html</url>
+            <url>://oss.oracle.com/licenses/CDDL+GPL-1.1</url>
             <distribution>repo</distribution>
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
     <issueManagement>
-        <system>bugzilla</system>
-        <url>http://java.net/jira/browse/JSP</url>
-    </issueManagement>
+        <system>github</system>
+        <url>https://github.com/javaee/javaee-jsp-api/issues/</url>
+    </issueManagement>    
     <mailingLists>
         <mailingList>
             <name>JSP Developer</name>
@@ -91,9 +92,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:svn:http://svn.java.net/svn/jsp~svn</connection>
-        <developerConnection>scm:svn:http://svn.java.net/jsp~svn</developerConnection>
-        <url>http://java.net/projects/jsp/sources/svn/show</url>
+        <connection>scm:git:https://github.com/javaee/javaee-jsp-api.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/javaee/javaee-jsp-api.git</developerConnection>
+        <url>https://github.com/javaee/javaee-jsp-api</url>
     </scm>
 
     <properties>
