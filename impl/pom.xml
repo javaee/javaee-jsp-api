@@ -50,7 +50,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.web</groupId>
     <artifactId>javax.servlet.jsp</artifactId>
-    <version>2.3.4</version>
+    <version>2.3.5-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>JSP implementation</name>
 
@@ -103,7 +103,7 @@
       <connection>scm:git:https://github.com/javaee/javaee-jsp-api.git</connection>
       <developerConnection>scm:git:ssh://git@github.com/javaee/javaee-jsp-api.git</developerConnection>
       <url>https://github.com/javaee/javaee-jsp-api</url>
-      <tag>javax.servlet.jsp-2.3.4</tag>
+      <tag>HEAD</tag>
     </scm>
 
     <build>
